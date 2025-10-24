@@ -1,17 +1,188 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Meta Tags -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lespetitplats</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <!-- Page Title -->
+    <title>Les Petits Plats</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap"
+      rel="stylesheet"
+    />
   </head>
+
   <body>
-    <div id="app"></div>
+    <!-- App Container -->
+    <div id="root" class="app">
+      <!-- Header Section -->
+      <header class="header">
+        <!-- Navigation -->
+        <nav class="header-nav">
+          <h1>Les Petits Plats</h1>
+          <img src="/logo.svg" alt="Logo" class="logo" />
+        </nav>
+
+        <!-- Search Section -->
+        <div class="header-search">
+          <h2>
+            Cherchez parmi plus de 1500 recettes <br />
+            du quotidien, simples et délicieuses
+          </h2>
+
+          <!-- Search Input -->
+          <div class="search-input-container">
+            <input
+              type="text"
+              placeholder="Rechercher une recette, un ingrédient..."
+            />
+            <button aria-label="Search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content Section -->
+      <main class="main">
+        <!-- Filter Dropdown Buttons -->
+        <section class="filters-dropdowns">
+          <button class="active">Ingredients</button>
+          <button>Appliances</button>
+          <button>Ustensils</button>
+          <h2>Results</h2>
+        </section>
+
+        <!-- Selected Filters Display -->
+        <aside class="filters-box">
+          <section class="filter-box">
+            <h2>Ingredients</h2>
+            <div class="ingredients-list">
+              <button>Ingredient 1</button>
+              <button>Ingredient 2</button>
+              <button>Ingredient 3</button>
+            </div>
+          </section>
+        </aside>
+
+        <!-- Recipe Cards Grid -->
+        <section class="cards-container">
+          <!-- Recipe Card 1 -->
+          <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Recipe" />
+            <h2>Recipe Title</h2>
+            <span>Recipe type</span>
+            <p>Recipe Description</p>
+            <span>Recipe Ingredients</span>
+
+            <!-- Ingredients Details -->
+            <div class="ingredients-details">
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recipe Card 2 -->
+          <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Recipe" />
+            <h2>Recipe Title</h2>
+            <span>Recipe type</span>
+            <p>Recipe Description</p>
+            <span>Recipe Ingredients</span>
+
+            <!-- Ingredients Details -->
+            <div class="ingredients-details">
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recipe Card 3 -->
+          <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Recipe" />
+            <h2>Recipe Title</h2>
+            <span>Recipe type</span>
+            <p>Recipe Description</p>
+            <span>Recipe Ingredients</span>
+
+            <!-- Ingredients Details -->
+            <div class="ingredients-details">
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+              <div>
+                <h2>Ingredient name</h2>
+                <span>Ingredient quantity</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer Section -->
+      <footer>
+        <p>© 2025 Les Petits Plats. Tous droits réservés.</p>
+      </footer>
+    </div>
+
+    <!-- Main JavaScript Module -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
