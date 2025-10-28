@@ -1,75 +1,306 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
-    <!-- Meta Tags -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Les Petits Plats - Recettes faciles et délicieuses</title>
 
-    <!-- Favicon -->
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/x-icon" href="./favicons/lespetitplats.ico" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
 
-    <!-- Page Title -->
-    <title>Les Petits Plats</title>
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Les Petits Plats, recettes faciles et délicieuses. Trouvez la recette parfaite pour votre repas."
+    />
+    <meta
+      name="keywords"
+      content="les petits plats, recettes, faciles, délicieuses, repas, cuisine"
+    />
+    <meta name="author" content="Les Petits Plats" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+    <meta name="theme-color" content="#FFD15B" />
 
-    <!-- Fonts -->
+    <!-- Open Graph / Facebook -->
+    <meta
+      property="og:title"
+      content="Les Petits Plats - Recettes faciles et délicieuses"
+    />
+    <meta
+      property="og:description"
+      content="Trouvez la recette parfaite pour votre repas"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lespetitplats.fr" />
+    <meta property="og:image" content="/logo.svg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Les Petits Plats - Recettes faciles et délicieuses"
+    />
+    <meta
+      name="twitter:description"
+      content="Trouvez la recette parfaite pour votre repas"
+    />
+    <meta name="twitter:image" content="/logo.svg" />
+
+    <!-- Preconnect & Preload -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link
+      rel="preload"
+      href="/logo.svg"
+      as="image"
+      type="image/svg+xml"
+      fetchpriority="high"
+    />
+    <link rel="preload" href="/styles/global.css" as="style" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/styles/global.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
 
   <body>
-    <!-- App Container -->
     <div id="root" class="app">
-      <!-- Header Section -->
+      <input
+        type="checkbox"
+        id="mobile-menu-toggle"
+        class="mobile-menu-checkbox"
+      />
       <header class="header">
-        <!-- Navigation -->
+        <!-- Navigation Bar -->
         <nav class="header-nav">
-          <h1>Les Petits Plats</h1>
-          <img src="/logo.svg" alt="Logo" class="logo" />
+          <div class="header-brand">
+            <img src="/logo.svg" alt="Logo" class="logo" />
+            <h1>Les Petits Plats</h1>
+          </div>
+
+          <ul class="nav-menu">
+            <li><a href="#" class="nav-link">Recettes</a></li>
+            <li><a href="#" class="nav-link">Catégories</a></li>
+            <li><a href="#" class="nav-link">À propos</a></li>
+          </ul>
+
+          <div class="nav-actions">
+            <label for="mobile-menu-toggle" class="mobile-menu-btn">
+              <i class="fa-solid fa-bars"></i>
+            </label>
+          </div>
         </nav>
 
-        <!-- Search Section -->
-        <div class="header-search">
-          <h2>
-            Cherchez parmi plus de 1500 recettes <br />
-            du quotidien, simples et délicieuses
-          </h2>
+        <!-- Mobile Menu Dropdown -->
+        <div class="mobile-menu" id="mobile-menu">
+          <ul class="mobile-nav-menu">
+            <li><a href="#" class="mobile-nav-link">Recettes</a></li>
+            <li><a href="#" class="mobile-nav-link">Catégories</a></li>
+            <li><a href="#" class="mobile-nav-link">À propos</a></li>
+          </ul>
+        </div>
 
-          <!-- Search Input -->
-          <div class="search-input-container">
+        <!-- Hero Search Section -->
+        <section class="search-section">
+          <div class="search-header">
+            <h2>
+              Cherchez parmi plus de 1500 recettes <br />
+              du quotidien, simples et délicieuses
+            </h2>
+          </div>
+          <div class="search-bar-group">
             <input
               type="text"
               placeholder="Rechercher une recette, un ingrédient..."
             />
-            <button aria-label="Search">
+            <button aria-label="Search" class="search-btn">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
-        </div>
+        </section>
       </header>
 
       <!-- Main Content Section -->
       <main class="main">
         <!-- Filter Dropdown Buttons -->
         <section class="filters-dropdowns">
-          <button class="active">Ingredients</button>
-          <button>Appliances</button>
-          <button>Ustensils</button>
-          <h2>Results</h2>
+          <div class="filter-dropdown-wrapper">
+            <button class="filter-dropdown">
+              <span class="filter-label">Ingredients</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <button class="filter-dropdown">
+              <span class="filter-label">Appliances</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <button class="filter-dropdown">
+              <span class="filter-label">Ustensils</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+          </div>
+          <div class="results-counter">
+            <h2>Résultats</h2>
+          </div>
         </section>
 
         <!-- Selected Filters Display -->
         <aside class="filters-box">
           <section class="filter-box">
-            <h2>Ingredients</h2>
-            <div class="ingredients-list">
-              <button>Ingredient 1</button>
-              <button>Ingredient 2</button>
-              <button>Ingredient 3</button>
+            <h3 class="filter-box-title">Filtres sélectionnés</h3>
+            <input
+              type="checkbox"
+              id="toggle-filters"
+              class="toggle-checkbox"
+            />
+            <div class="ingredients-list-wrapper">
+              <div class="ingredients-list">
+                <button class="filter-tag selected">
+                  <span>Ingredient 1</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 2</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 3</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 4</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 5</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 6</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 7</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 8</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 9</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 10</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 11</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 12</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 13</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 14</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 15</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 16</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 17</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 18</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 19</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 20</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 21</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 22</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 23</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 24</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 25</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 26</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 27</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 28</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 29</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="filter-tag">
+                  <span>Ingredient 30</span>
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
             </div>
+            <label for="toggle-filters" class="toggle-label">
+              <span class="label-see-all">Voir tout</span>
+              <span class="label-see-less">Voir moins</span>
+            </label>
           </section>
         </aside>
 
@@ -77,99 +308,120 @@
         <section class="cards-container">
           <!-- Recipe Card 1 -->
           <div class="card">
-            <img src="https://via.placeholder.com/150" alt="Recipe" />
-            <h2>Recipe Title</h2>
-            <span>Recipe type</span>
-            <p>Recipe Description</p>
-            <span>Recipe Ingredients</span>
+            <img src="https://placehold.co/150" alt="Recipe" />
+            <div class="card-content">
+              <div class="card-header">
+                <h2>Lorem ipsum dolor</h2>
+                <span class="card-time">10min</span>
+              </div>
 
-            <!-- Ingredients Details -->
-            <div class="ingredients-details">
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+              <div class="card-section">
+                <h3 class="section-title">RECETTE</h3>
+                <p class="card-description">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
               </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+
+              <div class="card-section">
+                <h3 class="section-title">INGRÉDIENTS</h3>
+                <div class="ingredients-details">
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum.</span>
+                    <span class="ingredient-quantity">Lorem ipsum dolor</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum.</span>
+                    <span class="ingredient-quantity">Lorem ipsum dolor</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Recipe Card 2 -->
           <div class="card">
-            <img src="https://via.placeholder.com/150" alt="Recipe" />
-            <h2>Recipe Title</h2>
-            <span>Recipe type</span>
-            <p>Recipe Description</p>
-            <span>Recipe Ingredients</span>
+            <img src="https://placehold.co/150" alt="Recipe" />
+            <div class="card-content">
+              <div class="card-header">
+                <h2>Lorem ipsum dolor</h2>
+                <span class="card-time">10min</span>
+              </div>
 
-            <!-- Ingredients Details -->
-            <div class="ingredients-details">
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+              <div class="card-section">
+                <h3 class="section-title">RECETTE</h3>
+                <p class="card-description">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
               </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+
+              <div class="card-section">
+                <h3 class="section-title">INGRÉDIENTS</h3>
+                <div class="ingredients-details">
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Recipe Card 3 -->
           <div class="card">
-            <img src="https://via.placeholder.com/150" alt="Recipe" />
-            <h2>Recipe Title</h2>
-            <span>Recipe type</span>
-            <p>Recipe Description</p>
-            <span>Recipe Ingredients</span>
+            <img src="https://placehold.co/150" alt="Recipe" />
+            <div class="card-content">
+              <div class="card-header">
+                <h2>Lorem ipsum dolor</h2>
+                <span class="card-time">10min</span>
+              </div>
 
-            <!-- Ingredients Details -->
-            <div class="ingredients-details">
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+              <div class="card-section">
+                <h3 class="section-title">RECETTE</h3>
+                <p class="card-description">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
               </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
-              </div>
-              <div>
-                <h2>Ingredient name</h2>
-                <span>Ingredient quantity</span>
+
+              <div class="card-section">
+                <h3 class="section-title">INGRÉDIENTS</h3>
+                <div class="ingredients-details">
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                  <div class="ingredient-item">
+                    <span class="ingredient-name">Lorem ipsum dolor</span>
+                    <span class="ingredient-quantity">Lorem ipsum.</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -177,8 +429,12 @@
       </main>
 
       <!-- Footer Section -->
-      <footer>
-        <p>© 2025 Les Petits Plats. Tous droits réservés.</p>
+      <footer class="footer">
+        <div class="footer-content">
+          <p class="footer-text">
+            © 2025 Les Petits Plats. Tous droits réservés.
+          </p>
+        </div>
       </footer>
     </div>
 
