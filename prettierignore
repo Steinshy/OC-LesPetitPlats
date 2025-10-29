@@ -5,4 +5,4 @@ dist-ssr
 .vscode
 .idea
 package-lock.json
-
+coverage

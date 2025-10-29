@@ -13,7 +13,9 @@ export default [
   js.configs.recommended,
   {
     files: ["**/*.html"],
-    plugins: { html: htmlPlugin },
+    plugins: {
+      html: htmlPlugin,
+    },
     languageOptions: {
       parserOptions: {
         ecmaVersion: "latest",
@@ -141,6 +143,7 @@ export default [
       "dist/",
       "build/",
       "public/",
+      "coverage/",
       "*.min.js",
       "*.min.css",
       "*.log",

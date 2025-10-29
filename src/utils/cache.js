@@ -33,3 +33,12 @@ export async function cacheGetOrSet(key, fetcher, ttlMs) {
   cacheSet(key, value, ttlMs);
   return value;
 }
+
+// Cache manager object for tests and direct usage
+export const cacheManager = {
+  get: cacheGet,
+  set: cacheSet,
+  has: cacheHas,
+  clear: () => appCache.clear(),
+  delete: cacheDel,
+};
