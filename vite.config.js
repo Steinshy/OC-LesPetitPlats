@@ -7,8 +7,10 @@ import webfontDownload from "vite-plugin-webfont-dl";
 
 export default defineConfig((configEnv) => {
   const isAnalyze = configEnv.mode === "analyze";
+  const base = process.env.BASE_PATH || "/";
 
   return {
+    base,
     root: ".",
     plugins: [
       VitePWA(),
