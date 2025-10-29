@@ -1,9 +1,0 @@
-{
-  "extends": ["html-validate:recommended"],
-  "rules": {
-    "require-sri": "off",
-    "no-trailing-whitespace": "error",
-    "void-style": ["error", { "style": "selfclose" }],
-    "attr-quotes": ["error", { "style": "double" }]
-  }
-}
