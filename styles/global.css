@@ -799,11 +799,7 @@ img {
     font-size: 16px;
   }
 
-  .mobile-menu-checkbox:not(:checked) ~ .header .mobile-menu {
-    display: none;
-  }
-
-  .mobile-menu-checkbox:checked ~ .header .mobile-menu {
+  .mobile-menu.show {
     display: block;
   }
 

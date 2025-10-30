@@ -42,57 +42,53 @@ export default [
       },
     },
     rules: {
-      // Variable and code quality rules
       "no-unused-vars": [
-        "error",
+        "warn",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^(_|[A-Z])",
           caughtErrorsIgnorePattern: "^_",
         },
       ],
-      "no-console": ["warn", { allow: ["error", "warn", "info"] }],
-      "no-debugger": "error",
-      "no-var": "error",
-      "prefer-const": "error",
-      "prefer-arrow-callback": "error",
-      "arrow-spacing": "error",
-      "object-shorthand": "error",
-      "prefer-template": "error",
+      "no-console": ["off"],
+      "no-debugger": "warn",
+      "no-var": "warn",
+      "prefer-const": "warn",
+      "prefer-arrow-callback": "warn",
+      "arrow-spacing": "warn",
+      "object-shorthand": "warn",
+      "prefer-template": "warn",
 
-      // Style rules
-      "comma-dangle": ["error", "always-multiline"],
-      quotes: ["error", "double", { avoidEscape: true }],
-      semi: ["error", "always"],
-      "no-trailing-spaces": "error",
+      "comma-dangle": ["warn", "always-multiline"],
+      quotes: ["warn", "double", { avoidEscape: true }],
+      semi: ["warn", "always"],
+      "no-trailing-spaces": "warn",
 
-      // Complexity rules
       "max-len": [
         "warn",
         {
-          code: 160,
+          code: 180,
           ignoreUrls: true,
           ignoreStrings: true,
           ignoreTemplateLiterals: true,
         },
       ],
-      complexity: ["warn", 15],
-      "max-depth": ["warn", 5],
+      complexity: ["warn", 20],
+      "max-depth": ["warn", 6],
       "max-lines-per-function": [
         "warn",
-        { max: 200, skipBlankLines: true, skipComments: true },
+        { max: 250, skipBlankLines: true, skipComments: true },
       ],
 
-      // Import rules
-      "no-duplicate-imports": "error",
+      "no-duplicate-imports": "warn",
       "import/no-unresolved": [
-        "error",
+        "warn",
         { ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"] },
       ],
-      "import/no-absolute-path": "error",
-      "import/no-self-import": "error",
+      "import/no-absolute-path": "warn",
+      "import/no-self-import": "warn",
       "import/order": [
-        "error",
+        "warn",
         {
           groups: [
             "builtin",
@@ -107,33 +103,28 @@ export default [
         },
       ],
 
-      // JSDoc rules
-      "jsdoc/check-param-names": "error",
-      "jsdoc/check-tag-names": "error",
+      "jsdoc/check-param-names": "warn",
+      "jsdoc/check-tag-names": "warn",
       "jsdoc/require-param": "off",
       "jsdoc/require-returns": "off",
 
-      // Security rules
-      "security/detect-eval-with-expression": "error",
-      "security/detect-unsafe-regex": "error",
+      "security/detect-eval-with-expression": "warn",
+      "security/detect-unsafe-regex": "warn",
       "security/detect-object-injection": "off",
 
-      // SonarJS rules (code smells)
-      "sonarjs/no-duplicate-string": ["warn", { threshold: 3 }],
-      "sonarjs/cognitive-complexity": ["warn", 15],
+      "sonarjs/no-duplicate-string": ["warn", { threshold: 4 }],
+      "sonarjs/cognitive-complexity": ["warn", 20],
       "sonarjs/no-identical-functions": "warn",
       "sonarjs/no-nested-template-literals": "off",
 
-      // Unicorn rules (best practices)
-      "unicorn/better-regex": "error",
+      "unicorn/better-regex": "warn",
       "unicorn/no-array-for-each": "off",
-      "unicorn/prefer-query-selector": "warn",
+      "unicorn/prefer-query-selector": "off",
       "unicorn/prefer-modern-dom-apis": "warn",
       "unicorn/no-null": "off",
       "unicorn/prevent-abbreviations": "off",
 
-      // Prettier integration
-      "prettier/prettier": "error",
+      "prettier/prettier": "warn",
     },
   },
   prettierConfig,

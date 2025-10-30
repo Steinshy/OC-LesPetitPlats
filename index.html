@@ -86,11 +86,6 @@
 
   <body>
     <div id="root" class="app">
-      <input
-        type="checkbox"
-        id="mobile-menu-toggle"
-        class="mobile-menu-checkbox"
-      />
       <header class="header">
         <!-- Navigation Bar -->
         <nav class="header-nav">
@@ -106,18 +101,31 @@
           </ul>
 
           <div class="nav-actions">
-            <label for="mobile-menu-toggle" class="mobile-menu-btn">
+            <button
+              id="mobile-menu-button"
+              class="mobile-menu-btn"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+              aria-label="Ouvrir le menu mobile"
+              type="button"
+            >
               <i class="fa-solid fa-bars"></i>
-            </label>
+            </button>
           </div>
         </nav>
 
         <!-- Mobile Menu Dropdown -->
-        <div class="mobile-menu" id="mobile-menu">
-          <ul class="mobile-nav-menu">
-            <li><a href="#" class="mobile-nav-link">Recettes</a></li>
-            <li><a href="#" class="mobile-nav-link">Catégories</a></li>
-            <li><a href="#" class="mobile-nav-link">À propos</a></li>
+        <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+          <ul class="mobile-nav-menu" role="list">
+            <li role="listitem">
+              <a href="#" class="mobile-nav-link">Recettes</a>
+            </li>
+            <li role="listitem">
+              <a href="#" class="mobile-nav-link">Catégories</a>
+            </li>
+            <li role="listitem">
+              <a href="#" class="mobile-nav-link">À propos</a>
+            </li>
           </ul>
         </div>
 
