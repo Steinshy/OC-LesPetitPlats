@@ -1,17 +1,17 @@
 export const mobileMenuManager = () => {
-  const eventTypes = { click: "click", keydown: "keydown" };
-
   const mobileMenuButton = document.getElementById("mobile-menu-button");
   const mobileMenu = document.getElementById("mobile-menu");
 
   const isMobileMenuVisible = () => mobileMenu?.classList.contains("show");
 
   const openMobileMenu = () => {
+    if (!mobileMenu || !mobileMenuButton) return;
     mobileMenu.classList.add("show");
     mobileMenuButton.setAttribute("aria-expanded", "true");
   };
 
   const closeMobileMenu = () => {
+    if (!mobileMenu || !mobileMenuButton) return;
     mobileMenu.classList.remove("show");
     mobileMenuButton.setAttribute("aria-expanded", "false");
   };
@@ -39,6 +39,6 @@ export const mobileMenuManager = () => {
     }
   };
 
-  document.addEventListener(eventTypes.keydown, handleEscapeKey);
-  document.addEventListener(eventTypes.click, handleMobileMenu);
+  document.addEventListener("keydown", handleEscapeKey);
+  document.addEventListener("click", handleMobileMenu);
 };

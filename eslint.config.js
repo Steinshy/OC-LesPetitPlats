@@ -1,9 +1,7 @@
 import js from "@eslint/js";
-import prettierConfig from "eslint-config-prettier";
 import htmlPlugin from "eslint-plugin-html";
 import importPlugin from "eslint-plugin-import";
 import jsdoc from "eslint-plugin-jsdoc";
-import prettier from "eslint-plugin-prettier";
 import security from "eslint-plugin-security";
 import sonarjs from "eslint-plugin-sonarjs";
 import unicorn from "eslint-plugin-unicorn";
@@ -31,7 +29,6 @@ export default [
       security,
       sonarjs,
       unicorn,
-      prettier,
     },
     languageOptions: {
       ecmaVersion: "latest",
@@ -67,39 +64,27 @@ export default [
       "max-len": [
         "warn",
         {
-          code: 180,
+          code: 200,
           ignoreUrls: true,
           ignoreStrings: true,
           ignoreTemplateLiterals: true,
+          ignoreRegExpLiterals: true,
         },
       ],
-      complexity: ["warn", 20],
-      "max-depth": ["warn", 6],
-      "max-lines-per-function": [
-        "warn",
-        { max: 250, skipBlankLines: true, skipComments: true },
-      ],
+      complexity: ["warn", 25],
+      "max-depth": ["warn", 8],
+      "max-lines-per-function": ["warn", { max: 300, skipBlankLines: true, skipComments: true }],
 
       "no-duplicate-imports": "warn",
-      "import/no-unresolved": [
-        "warn",
-        { ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"] },
-      ],
+      "import/no-unresolved": ["warn", { ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"] }],
       "import/no-absolute-path": "warn",
       "import/no-self-import": "warn",
       "import/order": [
         "warn",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
-          "newlines-between": "always",
-          alphabetize: { order: "asc" },
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          "newlines-between": "ignore",
+          alphabetize: { order: "asc", caseInsensitive: true },
         },
       ],
 
@@ -112,22 +97,22 @@ export default [
       "security/detect-unsafe-regex": "warn",
       "security/detect-object-injection": "off",
 
-      "sonarjs/no-duplicate-string": ["warn", { threshold: 4 }],
-      "sonarjs/cognitive-complexity": ["warn", 20],
+      "sonarjs/no-duplicate-string": ["warn", { threshold: 5 }],
+      "sonarjs/cognitive-complexity": ["warn", 25],
       "sonarjs/no-identical-functions": "warn",
       "sonarjs/no-nested-template-literals": "off",
+      "sonarjs/no-small-switch": "off",
 
       "unicorn/better-regex": "warn",
       "unicorn/no-array-for-each": "off",
       "unicorn/prefer-query-selector": "off",
-      "unicorn/prefer-modern-dom-apis": "warn",
+      "unicorn/prefer-modern-dom-apis": "off",
       "unicorn/no-null": "off",
       "unicorn/prevent-abbreviations": "off",
-
-      "prettier/prettier": "warn",
+      "unicorn/filename-case": "off",
+      "unicorn/prefer-spread": "warn",
     },
   },
-  prettierConfig,
   {
     ignores: [
       "node_modules/",
@@ -135,6 +120,7 @@ export default [
       "build/",
       "public/",
       "coverage/",
+      "api/data.js",
       "*.min.js",
       "*.min.css",
       "*.log",

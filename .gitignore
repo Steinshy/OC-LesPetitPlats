@@ -47,3 +47,6 @@ coverage
 # OS files
 Thumbs.db
 scripts
+
+# API data
+api/data.js

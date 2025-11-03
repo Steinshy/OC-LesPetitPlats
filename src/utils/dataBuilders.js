@@ -1,18 +1,5 @@
 const DATA_URL = "/api/data.json";
-
-// Helper functions
-const toWebp = (filename) => {
-  if (typeof filename !== "string") return "";
-  return filename.replace(/\.(jpg|jpeg)$/i, ".webp");
-};
-
-const normalize = (value) => (typeof value === "string" ? value.trim().toLowerCase() : "");
-
-const getImageInfo = (imageName) => {
-  const imageJpg = imageName ?? "";
-  const imageWebp = toWebp(imageName ?? "");
-  return { imageJpg, imageWebp };
-};
+import { cacheGetOrSet } from "./cache.js";
 
 // Data builders ingredients
 const buildIngredientsFromData = (rawData) => {
@@ -26,11 +13,11 @@ const buildIngredientsFromData = (rawData) => {
 
 // Data builders image
 const buildImageFromData = (rawData) => {
-  const info = getImageInfo(rawData?.image);
+  const imageJpg = rawData?.image ?? "";
   return {
     alt: rawData?.name ?? "",
-    jpgUrl: info.imageJpg,
-    webpUrl: info.imageWebp,
+    jpgUrl: imageJpg,
+    webpUrl: "",
   };
 };
 
@@ -38,7 +25,6 @@ const buildImageFromData = (rawData) => {
 const buildSearchTextFrom = (ingredients, rawData) => {
   const words = [
     rawData?.name ?? "",
-    rawData?.description ?? "",
     ...ingredients.map((ingredient) => ingredient.name),
     ...(Array.isArray(rawData?.ustensils) ? rawData.ustensils : []),
     rawData?.appliance ?? "",
@@ -65,14 +51,6 @@ const buildRecipe = (data) => {
   };
 };
 
-// Search recipes
-export const searchRecipes = async (term) => {
-  const recipes = await buildRecipes();
-  const query = normalize(term);
-  if (!query) return recipes;
-  return recipes.filter((recipe) => recipe.searchText.includes(query));
-};
-
 // Get recipes
 export const getRecipes = async () => {
   const response = await fetch(DATA_URL, {
@@ -88,8 +66,9 @@ export const getRecipes = async () => {
 
 // Build recipes
 export const buildRecipes = async () => {
-  const data = await getRecipes();
-  const recipes = data.map((item) => buildRecipe(item));
-  console.info(recipes, "recipes");
+  const recipes = await cacheGetOrSet("recipes_v1", async () => {
+    const data = await getRecipes();
+    return data.map((item) => buildRecipe(item));
+  });
   return recipes;
 };

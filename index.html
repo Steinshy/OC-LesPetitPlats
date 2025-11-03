@@ -14,10 +14,7 @@
       name="description"
       content="Les Petits Plats, recettes faciles et délicieuses. Trouvez la recette parfaite pour votre repas."
     />
-    <meta
-      name="keywords"
-      content="les petits plats, recettes, faciles, délicieuses, repas, cuisine"
-    />
+    <meta name="keywords" content="les petits plats, recettes, faciles, délicieuses, repas, cuisine" />
     <meta name="author" content="Les Petits Plats" />
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
@@ -25,28 +22,16 @@
     <meta name="theme-color" content="#FFD15B" />
 
     <!-- Open Graph / Facebook -->
-    <meta
-      property="og:title"
-      content="Les Petits Plats - Recettes faciles et délicieuses"
-    />
-    <meta
-      property="og:description"
-      content="Trouvez la recette parfaite pour votre repas"
-    />
+    <meta property="og:title" content="Les Petits Plats - Recettes faciles et délicieuses" />
+    <meta property="og:description" content="Trouvez la recette parfaite pour votre repas" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://lespetitplats.fr" />
     <meta property="og:image" content="/logo.svg" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Les Petits Plats - Recettes faciles et délicieuses"
-    />
-    <meta
-      name="twitter:description"
-      content="Trouvez la recette parfaite pour votre repas"
-    />
+    <meta name="twitter:title" content="Les Petits Plats - Recettes faciles et délicieuses" />
+    <meta name="twitter:description" content="Trouvez la recette parfaite pour votre repas" />
     <meta name="twitter:image" content="/logo.svg" />
 
     <!-- Preconnect & Preload -->
@@ -54,19 +39,9 @@
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin="anonymous"
-    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link
-      rel="preload"
-      href="/logo.svg"
-      as="image"
-      type="image/svg+xml"
-      fetchpriority="high"
-    />
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" fetchpriority="high" />
     <link rel="preload" href="/styles/global.css" as="style" />
 
     <!-- Stylesheets -->
@@ -101,6 +76,9 @@
           </ul>
 
           <div class="nav-actions">
+            <button id="error-test-button" class="nav-icon-btn" aria-label="Tester l'affichage d'erreur" type="button">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </button>
             <button
               id="mobile-menu-button"
               class="mobile-menu-btn"
@@ -138,10 +116,7 @@
             </h2>
           </div>
           <div class="search-bar-group">
-            <input
-              type="text"
-              placeholder="Rechercher une recette, un ingrédient..."
-            />
+            <input type="text" placeholder="Rechercher une recette, un ingrédient..." />
             <button aria-label="Search" class="search-btn">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -176,11 +151,7 @@
         <aside class="filters-box">
           <section class="filter-box">
             <h3 class="filter-box-title">Filtres sélectionnés</h3>
-            <input
-              type="checkbox"
-              id="toggle-filters"
-              class="toggle-checkbox"
-            />
+            <input type="checkbox" id="toggle-filters" class="toggle-checkbox" />
             <div class="ingredients-list-wrapper">
               <div class="ingredients-list">
                 <button class="filter-tag selected">
@@ -313,140 +284,18 @@
         </aside>
 
         <!-- Recipe Cards Grid -->
-        <section class="cards-container">
-          <!-- Recipe Card 1 -->
-          <div class="card">
-            <img src="https://placehold.co/150" alt="Recipe" />
-            <div class="card-content">
-              <div class="card-header">
-                <h2>Lorem ipsum dolor</h2>
-                <span class="card-time">10min</span>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">RECETTE</h3>
-                <p class="card-description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </p>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">INGRÉDIENTS</h3>
-                <div class="ingredients-details">
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum.</span>
-                    <span class="ingredient-quantity">Lorem ipsum dolor</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum.</span>
-                    <span class="ingredient-quantity">Lorem ipsum dolor</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recipe Card 2 -->
-          <div class="card">
-            <img src="https://placehold.co/150" alt="Recipe" />
-            <div class="card-content">
-              <div class="card-header">
-                <h2>Lorem ipsum dolor</h2>
-                <span class="card-time">10min</span>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">RECETTE</h3>
-                <p class="card-description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </p>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">INGRÉDIENTS</h3>
-                <div class="ingredients-details">
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recipe Card 3 -->
-          <div class="card">
-            <img src="https://placehold.co/150" alt="Recipe" />
-            <div class="card-content">
-              <div class="card-header">
-                <h2>Lorem ipsum dolor</h2>
-                <span class="card-time">10min</span>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">RECETTE</h3>
-                <p class="card-description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </p>
-              </div>
-
-              <div class="card-section">
-                <h3 class="section-title">INGRÉDIENTS</h3>
-                <div class="ingredients-details">
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                  <div class="ingredient-item">
-                    <span class="ingredient-name">Lorem ipsum dolor</span>
-                    <span class="ingredient-quantity">Lorem ipsum.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section class="cards-container"></section>
       </main>
 
       <!-- Footer Section -->
       <footer class="footer">
         <div class="footer-content">
-          <p class="footer-text">
-            © 2025 Les Petits Plats. Tous droits réservés.
-          </p>
+          <p class="footer-text">© 2025 Les Petits Plats. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
 
     <!-- Main JavaScript Module -->
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/App.js"></script>
   </body>
 </html>
