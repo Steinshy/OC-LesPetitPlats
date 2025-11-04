@@ -33,7 +33,7 @@ const buildIngredients = item => {
 const buildImages = item => {
   const alt = item?.name ?? "";
   let src = item?.image ?? "";
-  
+
   if (!src || /^https?:\/\//i.test(src)) {
     return { alt, jpgUrl: src || "", webpUrl: "" };
   }
@@ -44,10 +44,11 @@ const buildImages = item => {
 
 // Data builders search text
 const buildSearch = (ingredients, item) => {
+  const ustensils = Array.isArray(item?.ustensils) ? (item?.ustensils ?? []) : [];
   const words = [
     item?.name ?? "",
     ...ingredients.map(ingredient => ingredient?.name ?? ""),
-    ...(Array.isArray(item?.ustensils) ? item?.ustensils : []),
+    ...ustensils,
     item?.appliance ?? "",
   ];
   return words.join(" ").toLowerCase();
