@@ -2,7 +2,7 @@ import { renderRecipes, renderSkeletons } from "./card.js";
 import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
 import { initSearch, updateCount } from "./search.js";
-import { buildRecipes } from "./utils/recipesBuilder.js";
+import { fetchAndBuildRecipes } from "./utils/recipesBuilder.js";
 
 import "../styles/global.css";
 
@@ -16,14 +16,25 @@ const appInit = async () => {
     renderSkeletons(6);
   }
   try {
-    const recipes = await buildRecipes();
+    const recipes = await fetchAndBuildRecipes();
     renderRecipes(recipes);
-    initSearch(recipes);
+    const initializeSearchWhenReady = () => initSearch(recipes);
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(initializeSearchWhenReady, { timeout: 2000 });
+    } else {
+      setTimeout(initializeSearchWhenReady, 0);
+    }
   } catch (error) {
     console.error(error);
-    container.innerHTML = "";
+    if (container) {
+      container.innerHTML = "";
+    }
     showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");
   }
 };
 
-appInit();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", appInit);
+} else {
+  appInit();
+}

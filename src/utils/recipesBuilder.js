@@ -54,34 +54,50 @@ const buildSearch = (ingredients, item) => {
   return words.join(" ").toLowerCase();
 };
 
-// Build recipes
-export const buildRecipes = async () => {
+// Helper function to process items in batches with yielding between batches
+const buildBatches = async (items, processor, batchSize) => {
+  const results = [];
+  for (let startIndex = 0; startIndex < items.length; startIndex += batchSize) {
+    const batch = items.slice(startIndex, startIndex + batchSize);
+    const buildBatch = processor(batch);
+    results.push(...buildBatch);
+    if (startIndex + batchSize < items.length) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+  return results;
+};
+
+// Transform a single raw recipe item into a structured recipe object
+const buildRecipe = (rawItem) => {
+  const ingredients = buildIngredients(rawItem);
+  const image = buildImages(rawItem);
+  const search = buildSearch(ingredients, rawItem);
+  return {
+    id: rawItem?.id ?? 0,
+    name: rawItem?.name ?? "",
+    description: rawItem?.description ?? "",
+    servings: rawItem?.servings ?? 0,
+    time: rawItem?.time ?? 0,
+    appliance: rawItem?.appliance ?? "",
+    ingredients,
+    ustensils: Array.isArray(rawItem?.ustensils) ? rawItem?.ustensils : [],
+    image,
+    search,
+  };
+};
+
+// Transform a batch of raw recipe items into structured recipe objects
+const buildRecipes = (rawItemsBatch) => {
+  return rawItemsBatch.map(buildRecipe);
+};
+
+// Build recipes with batching to avoid blocking the main thread
+export const fetchAndBuildRecipes = async () => {
   const recipes = await cacheGetOrSet("recipes_v1", async () => {
-    const items = await fetchRecipes();
-    return items.map(item => {
-      // Build ingredients
-      const ingredients = buildIngredients(item);
-
-      // Build images
-      const image = buildImages(item);
-
-      // Build search text
-      const search = buildSearch(ingredients, item);
-
-      // Return built recipe object
-      return {
-        id: item?.id ?? 0,
-        name: item?.name ?? "",
-        description: item?.description ?? "",
-        servings: item?.servings ?? 0,
-        time: item?.time ?? 0,
-        appliance: item?.appliance ?? "",
-        ingredients,
-        ustensils: Array.isArray(item?.ustensils) ? item?.ustensils : [],
-        image,
-        search,
-      };
-    });
+    const rawItems = await fetchRecipes();
+    const RECIPES_PER_BATCH = 50;
+    return buildBatches(rawItems, buildRecipes, RECIPES_PER_BATCH);
   });
   updateCount(recipes.length);
   return recipes;

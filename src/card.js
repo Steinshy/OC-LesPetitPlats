@@ -5,7 +5,7 @@ import { getSkeletonList } from "./components/skeletons.js";
 export const validateAndFormatIngredient = ingredient => {
   if (!ingredient?.name) return null;
   const hasQuantity = ingredient.quantity && ingredient.quantity !== 0;
-  const hasUnit = ingredient.unitType && ingredient.unitType.trim() !== "";
+  const hasUnit = ingredient.unitType && typeof ingredient.unitType === "string" && ingredient.unitType.trim() !== "";
   if (!hasQuantity && !hasUnit) return null;
 
   const qty = ingredient.quantity ? `${ingredient.quantity}` : "";
@@ -86,40 +86,70 @@ const buildCard = recipe => {
     const img = fragment.querySelector(".card-picture img");
     const placeholder = fragment.querySelector(".image-loading-placeholder");
     const webpSource = fragment.querySelector(".card-picture source[type='image/webp']");
+    if (!img || !placeholder) return fragment;
 
-    if (img && placeholder) {
-      const hidePlaceholder = () => placeholder.classList.add("hidden");
-
-      if (webpSource) {
-        const testImg = new Image();
-        testImg.onerror = () => webpSource.remove();
-        testImg.src = webpUrl;
-      }
-
-      if (img.complete) {
-        hidePlaceholder();
-      } else {
-        img.addEventListener("load", hidePlaceholder, { once: true });
-        img.addEventListener("error", hidePlaceholder, { once: true });
-      }
+    const hidePlaceholder = () => placeholder.classList.add("hidden");
+    if (webpSource) {
+      const testImg = new Image();
+      testImg.onerror = () => webpSource.remove();
+      testImg.src = webpUrl;
+    }
+    if (img.complete) {
+      hidePlaceholder();
+    } else {
+      img.addEventListener("load", hidePlaceholder, { once: true });
+      img.addEventListener("error", hidePlaceholder, { once: true });
     }
   }
 
   return fragment;
 };
 
-export const renderRecipes = recipes => {
+const buildGlobalRenderer = (task) => {
+  if ("scheduler" in window && "postTask" in window.scheduler) {
+    return window.scheduler.postTask(task, { priority: "user-blocking" });
+  }
+  if ("requestIdleCallback" in window) {
+    return new Promise((resolve) => {
+      requestIdleCallback(
+        () => {
+          task();
+          resolve();
+        },
+        { timeout: 100 }
+      );
+    });
+  }
+  return Promise.resolve().then(() => task());
+};
+
+export const renderRecipes = (recipes) => {
   const container = document.querySelector(".cards-container");
   if (!container) return;
 
-  const fragment = document.createDocumentFragment();
-  recipes.forEach(recipe => {
-    const cardFragment = buildCard(recipe);
-    fragment.appendChild(cardFragment);
-  });
-
   container.innerHTML = "";
-  container.appendChild(fragment);
+
+  const CARDS_PER_BATCH = 15;
+  let currentIndex = 0;
+
+  const rendererRecipes = () => {
+    const rendererRecipe = recipes.slice(currentIndex, currentIndex + CARDS_PER_BATCH);
+    if (rendererRecipe.length === 0) return;
+
+    const fragment = document.createDocumentFragment();
+    rendererRecipe.forEach((recipe) => {
+      const cardFragment = buildCard(recipe);
+      fragment.appendChild(cardFragment);
+    });
+    container.appendChild(fragment);
+
+    currentIndex += CARDS_PER_BATCH;
+    if (currentIndex < recipes.length) {
+      buildGlobalRenderer(rendererRecipes);
+    }
+  };
+
+  rendererRecipes();
 };
 
 export const renderSkeletons = count => {
