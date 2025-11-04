@@ -11,9 +11,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: "/OC-LesPetitPlats/",
-
     root: ".",
-
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
@@ -62,6 +60,25 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       emptyOutDir: true,
       chunkSizeWarningLimit: 1000,
+      target: "esnext",
+      minify: "terser",
+      sourcemap: true,
+      manifest: true,
+      cssMinify: "lightningcss",
+      reportCompressedSize: true,
+      terserOptions: {
+        compress: {
+          drop_console: true,
+        },
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
+        },
+        format: {
+          comments: false,
+        },
+      },
     },
   };
 });

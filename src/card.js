@@ -64,7 +64,7 @@ const buildCard = recipe => {
     <div class="image-loading-placeholder"></div>
     <picture>
       ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" />` : ""}
-      <img src="${jpgUrl}" alt="${alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
+      <img src="${jpgUrl}" alt="${alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="low" />
     </picture>
   `;
 
