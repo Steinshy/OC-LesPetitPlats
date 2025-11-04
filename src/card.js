@@ -116,7 +116,7 @@ const buildGlobalRenderer = (task) => {
           task();
           resolve();
         },
-        { timeout: 100 }
+        { timeout: 100 },
       );
     });
   }
