@@ -2,17 +2,17 @@
   "name": "Les Petits Plats",
   "short_name": "Les Petits Plats",
   "description": "Découvrez des recettes délicieuses et faciles à réaliser",
-  "start_url": "/",
+  "start_url": "/OC-LesPetitPlats/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#FFD15B",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.svg",
-      "sizes": "any",
+      "src": "public/favicons/logo.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

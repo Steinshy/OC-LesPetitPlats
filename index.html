@@ -1,66 +1,68 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <title>Les Petits Plats - Recettes faciles et délicieuses</title>
-
     <!-- Favicon and App Icons -->
-    <link rel="icon" type="image/x-icon" href="./favicons/lespetitplats.ico" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" href="public/favicons/lespetitplats.ico" >
+    <link rel="icon" type="image/svg+xml" href="public/favicons/logo.svg" >
+    <link rel="apple-touch-icon" href="public/favicons/apple-touch-icon.png" >
 
     <!-- SEO Meta Tags -->
     <meta
       name="description"
       content="Les Petits Plats, recettes faciles et délicieuses. Trouvez la recette parfaite pour votre repas."
-    />
-    <meta name="keywords" content="les petits plats, recettes, faciles, délicieuses, repas, cuisine" />
-    <meta name="author" content="Les Petits Plats" />
-    <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <meta name="bingbot" content="index, follow" />
-    <meta name="theme-color" content="#FFD15B" />
+    >
+    <meta name="keywords" content="les petits plats, recettes, faciles, délicieuses, repas, cuisine" >
+    <meta name="author" content="Les Petits Plats" >
+    <meta name="robots" content="index, follow" >
+    <meta name="googlebot" content="index, follow" >
+    <meta name="bingbot" content="index, follow" >
+    <meta name="theme-color" content="#FFD15B" >
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Les Petits Plats - Recettes faciles et délicieuses" />
-    <meta property="og:description" content="Trouvez la recette parfaite pour votre repas" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://lespetitplats.fr" />
-    <meta property="og:image" content="/logo.svg" />
+    <meta property="og:title" content="Les Petits Plats - Recettes faciles et délicieuses" >
+    <meta property="og:description" content="Trouvez la recette parfaite pour votre repas" >
+    <meta property="og:type" content="website" >
+    <meta property="og:url" content="https://steinshy.github.io/OC-LesPetitPlats/" >
+    <meta property="og:image" content="https://steinshy.github.io/OC-LesPetitPlats/favicons/og-card.png" >
+
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Les Petits Plats - Recettes faciles et délicieuses" />
-    <meta name="twitter:description" content="Trouvez la recette parfaite pour votre repas" />
-    <meta name="twitter:image" content="/logo.svg" />
+    <meta name="twitter:card" content="summary_large_image" >
+    <meta name="twitter:title" content="Les Petits Plats - Recettes faciles et délicieuses" >
+    <meta name="twitter:description" content="Trouvez la recette parfaite pour votre repas" >
+    <meta name="twitter:image" content="https://steinshy.github.io/OC-LesPetitPlats/public/favicons/og-card.png" >
+
 
     <!-- Preconnect & Preload -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" fetchpriority="high" />
-    <link rel="preload" href="/styles/global.css" as="style" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" >
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" >
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" >
+    <link rel="preconnect" href="https://fonts.googleapis.com" >
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" >
+    <link rel="preload" href="public/favicons/logo.svg" as="image" type="image/svg+xml" fetchpriority="high" >
+    <link rel="preload" href="/styles/global.css" as="style" >
     <!-- Preload search-section background image for LCP optimization -->
-    <link rel="preload" href="https://placehold.co/900x400" as="image" fetchpriority="high" />
+    <link rel="preload" href="https://placehold.co/900x400" as="image" fetchpriority="high" >
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/global.css" >
     <link
       href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
-    />
+    >
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
       integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
-    />
+    >
   </head>
 
   <body>
@@ -69,7 +71,7 @@
         <!-- Navigation Bar -->
         <nav class="header-nav">
           <div class="header-brand">
-            <img src="/logo.svg" alt="Logo" class="logo" fetchpriority="high" />
+            <img src="%BASE_URL%favicons/logo.svg" alt="Logo" class="logo" fetchpriority="high" >
             <h1>Les Petits Plats</h1>
           </div>
 
@@ -115,12 +117,12 @@
         <section class="search-section">
           <div class="search-header">
             <h2>
-              Cherchez parmi plus de 1500 recettes <br />
+              Cherchez parmi plus de 1500 recettes <br >
               du quotidien, simples et délicieuses
             </h2>
           </div>
           <div class="search-bar-group">
-            <input type="text" placeholder="Rechercher une recette, un ingrédient..." />
+            <input type="text" placeholder="Rechercher une recette, un ingrédient..." >
             <button aria-label="Search" class="search-btn">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -155,7 +157,7 @@
         <aside class="filters-box">
           <section class="filter-box">
             <h3 class="filter-box-title">Filtres sélectionnés</h3>
-            <input type="checkbox" id="toggle-filters" class="toggle-checkbox" />
+            <input type="checkbox" id="toggle-filters" class="toggle-checkbox" >
             <div class="ingredients-list-wrapper">
               <div class="ingredients-list">
                 <button class="filter-tag selected">

@@ -1,6 +1,11 @@
-const DATA_URL = "/api/data.json";
 import { updateCount } from "../search.js";
 import { cacheGetOrSet } from "./cache.js";
+
+// utils
+const DATA_URL = `${import.meta.env.BASE_URL}api/data.json`;
+const withBase = (p) => `${import.meta.env.BASE_URL}${p.replace(/^\/+/, "")}`;
+const encodePath = (p) =>
+  p.split("/").filter(Boolean).map(encodeURIComponent).join("/");
 
 export const fetchRecipes = async () => {
   const response = await fetch(DATA_URL, {
@@ -8,7 +13,7 @@ export const fetchRecipes = async () => {
     cache: "force-cache",
   });
   if (!response.ok) {
-    throw new Error(`Network error: ${response.status}`);
+    throw new Error(`Network error: ${response.status} for ${DATA_URL}`);
   }
   const data = await response.json();
   return Array.isArray(data) ? data : [];
@@ -25,12 +30,16 @@ const buildIngredients = rawData => {
 };
 
 // Data builders image
-const buildImages = rawData => {
-  const imageJpg = rawData?.image ?? "";
+const buildImages = (rawData) => {
+  // Expecting JSON like: { "image": "Recette01.jpg" }
+  const filename = rawData?.image ?? "";
+  const rel = filename.startsWith("recipes/") ? filename : `recipes/${filename}`;
+  const encoded = encodePath(rel);
+
   return {
     alt: rawData?.name ?? "",
-    jpgUrl: imageJpg,
-    webpUrl: "",
+    jpgUrl: filename ? withBase(encoded) : "",
+    webpUrl: "", // hook for later if you add webp variants
   };
 };
 
