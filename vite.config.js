@@ -50,10 +50,6 @@ export default defineConfig(({ mode }) => {
           brotliSize: true,
         }),
     ].filter(Boolean),
-
-    optimizeDeps: {
-      exclude: ["fsevents"],
-    },
     server: {
       port: 5173,
       strictPort: true,
@@ -65,13 +61,6 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       emptyOutDir: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ["vite-plugin-pwa"],
-          },
-        },
-      },
       chunkSizeWarningLimit: 1000,
     },
   };
