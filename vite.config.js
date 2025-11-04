@@ -63,6 +63,7 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       emptyOutDir: true,
       rollupOptions: {
+        external: ["fsevents"],
         output: {
           manualChunks: {
             vendor: ["vite-plugin-pwa"],
