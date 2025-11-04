@@ -51,6 +51,9 @@ export default defineConfig(({ mode }) => {
         }),
     ].filter(Boolean),
 
+    optimizeDeps: {
+      exclude: ["fsevents"],
+    },
     server: {
       port: 5173,
       strictPort: true,
@@ -63,7 +66,6 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       emptyOutDir: true,
       rollupOptions: {
-        external: ["fsevents"],
         output: {
           manualChunks: {
             vendor: ["vite-plugin-pwa"],
