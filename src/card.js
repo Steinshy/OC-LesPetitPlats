@@ -85,9 +85,16 @@ const buildCard = recipe => {
   if (jpgUrl || webpUrl) {
     const img = fragment.querySelector(".card-picture img");
     const placeholder = fragment.querySelector(".image-loading-placeholder");
+    const webpSource = fragment.querySelector(".card-picture source[type='image/webp']");
 
     if (img && placeholder) {
       const hidePlaceholder = () => placeholder.classList.add("hidden");
+
+      if (webpSource) {
+        const testImg = new Image();
+        testImg.onerror = () => webpSource.remove();
+        testImg.src = webpUrl;
+      }
 
       if (img.complete) {
         hidePlaceholder();
