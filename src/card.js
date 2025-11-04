@@ -58,16 +58,13 @@ const buildCard = recipe => {
     ingredients = [],
   } = recipe;
 
-  const jpgUrl = image.jpgUrl || "";
-  const webpUrl = image.webpUrl || "";
-  const imageUrl = webpUrl || jpgUrl;
+  const { webpUrl = "", jpgUrl = "", alt = "" } = image;
 
   const pictureHTML = `
     <div class="image-loading-placeholder"></div>
     <picture>
       ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" />` : ""}
-      ${jpgUrl ? `<source srcset="${jpgUrl}" type="image/jpeg" />` : ""}
-      <img src="${imageUrl}" alt="${image.alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
+      <img src="${jpgUrl}" alt="${alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
     </picture>
   `;
 
@@ -85,7 +82,7 @@ const buildCard = recipe => {
   const range = document.createRange();
   const fragment = range.createContextualFragment(cardHTML);
 
-  if (image.jpgUrl || image.webpUrl) {
+  if (jpgUrl || webpUrl) {
     const img = fragment.querySelector(".card-picture img");
     const placeholder = fragment.querySelector(".image-loading-placeholder");
 
