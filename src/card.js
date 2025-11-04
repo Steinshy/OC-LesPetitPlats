@@ -58,14 +58,16 @@ const buildCard = recipe => {
     ingredients = [],
   } = recipe;
 
-  const imageUrl = image.jpgUrl || image.webpUrl;
+  const jpgUrl = image.jpgUrl || "";
+  const webpUrl = image.webpUrl || "";
+  const imageUrl = webpUrl || jpgUrl;
 
   const pictureHTML = `
     <div class="image-loading-placeholder"></div>
     <picture>
-      <source srcset="/recipes/${imageUrl}" type="image/webp" />
-      <source srcset="/recipes/${imageUrl}" type="image/jpeg" />
-      <img src="/recipes/${imageUrl}" alt="${image.alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
+      ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" />` : ""}
+      ${jpgUrl ? `<source srcset="${jpgUrl}" type="image/jpeg" />` : ""}
+      <img src="${imageUrl}" alt="${image.alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
     </picture>
   `;
 

@@ -1,11 +1,11 @@
 import { updateCount } from "../search.js";
 import { cacheGetOrSet } from "./cache.js";
 
+const BASE = import.meta.env.BASE_URL || "/";
 // utils
-const DATA_URL = `${import.meta.env.BASE_URL}api/data.json`;
-const withBase = (p) => `${import.meta.env.BASE_URL}${p.replace(/^\/+/, "")}`;
-const encodePath = (p) =>
-  p.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+const withBase = (p) => `${BASE}${p.replace(/^\/+/, "")}`;
+const encodePath = (p) => String(p).split("/").filter(Boolean).map(encodeURIComponent).join("/");
+const DATA_URL = withBase("api/data.json");
 
 export const fetchRecipes = async () => {
   const response = await fetch(DATA_URL, {
@@ -15,41 +15,40 @@ export const fetchRecipes = async () => {
   if (!response.ok) {
     throw new Error(`Network error: ${response.status} for ${DATA_URL}`);
   }
-  const data = await response.json();
-  return Array.isArray(data) ? data : [];
+  const items = await response.json();
+  return Array.isArray(items) ? items : [];
 };
 
 // Data builders ingredients
-const buildIngredients = rawData => {
-  const items = Array.isArray(rawData?.ingredients) ? rawData.ingredients : [];
-  return items.map(ingredient => ({
-    name: ingredient.ingredient ?? "",
-    quantity: ingredient.quantity ?? 0,
-    unitType: ingredient.unit ?? "",
+const buildIngredients = item => {
+  const ingredients = Array.isArray(item?.ingredients) ? item.ingredients : [];
+  return ingredients.map(ingredient => ({
+    name: ingredient?.ingredient ?? "",
+    quantity: ingredient?.quantity ?? 0,
+    unitType: ingredient?.unit ?? "",
   }));
 };
 
 // Data builders image
-const buildImages = (rawData) => {
-  // Expecting JSON like: { "image": "Recette01.jpg" }
-  const filename = rawData?.image ?? "";
-  const rel = filename.startsWith("recipes/") ? filename : `recipes/${filename}`;
-  const encoded = encodePath(rel);
+const buildImages = item => {
+  const alt = item?.name ?? "";
+  let src = item?.image ?? "";
+  
+  if (!src || /^https?:\/\//i.test(src)) {
+    return { alt, jpgUrl: src || "", webpUrl: "" };
+  }
 
-  return {
-    alt: rawData?.name ?? "",
-    jpgUrl: filename ? withBase(encoded) : "",
-    webpUrl: "", // hook for later if you add webp variants
-  };
+  src = src.replace(/^\/+/, "").replace(/^(?!recipes\/)/, "recipes/");
+  return { alt, jpgUrl: withBase(encodePath(src)), webpUrl: withBase(encodePath(src.replace(/\.jpg$/, ".webp"))) };
 };
 
 // Data builders search text
-const buildSearch = (ingredients, rawData) => {
+const buildSearch = (ingredients, item) => {
   const words = [
-    rawData?.name ?? "",
-    ...ingredients.map(ingredient => ingredient.name),
-    ...(Array.isArray(rawData?.ustensils) ? rawData.ustensils : []),
-    rawData?.appliance ?? "",
+    item?.name ?? "",
+    ...ingredients.map(ingredient => ingredient?.name ?? ""),
+    ...(Array.isArray(item?.ustensils) ? item?.ustensils : []),
+    item?.appliance ?? "",
   ];
   return words.join(" ").toLowerCase();
 };
@@ -57,8 +56,8 @@ const buildSearch = (ingredients, rawData) => {
 // Build recipes
 export const buildRecipes = async () => {
   const recipes = await cacheGetOrSet("recipes_v1", async () => {
-    const data = await fetchRecipes();
-    return data.map(item => {
+    const items = await fetchRecipes();
+    return items.map(item => {
       // Build ingredients
       const ingredients = buildIngredients(item);
 
@@ -77,7 +76,7 @@ export const buildRecipes = async () => {
         time: item?.time ?? 0,
         appliance: item?.appliance ?? "",
         ingredients,
-        ustensils: Array.isArray(item?.ustensils) ? item.ustensils : [],
+        ustensils: Array.isArray(item?.ustensils) ? item?.ustensils : [],
         image,
         search,
       };
