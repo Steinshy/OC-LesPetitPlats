@@ -1,34 +1,8 @@
 // Card component will have, card. card header, card chips, card recette, card ingredients.
 
-import { updateSearchResultsCount } from "./search.js";
+import { getSkeletonList } from "./components/skeletons.js";
 
-export const createCardHeader = (name, time) => {
-  return `
-    <div class="card-header">
-      <h2>${name}</h2>
-      <span class="card-time">${time}min</span>
-    </div>
-  `;
-};
-
-export const createPicture = (image) => {
-  const webp = image?.webpUrl || image?.webp || "";
-  const jpg = image?.jpgUrl || image?.jpg || image?.imageJpg || "";
-  const alt = image?.alt || "Recette";
-  if (!jpg) return "";
-  const hasWebp = webp && webp.trim() !== "";
-  return `
-    <div class="card-picture">
-      <picture>
-        ${hasWebp ? `<source srcset="/recipes/${webp}" type="image/webp" />` : ""}
-        <source srcset="/recipes/${jpg}" type="image/jpeg" />
-        <img src="/recipes/${jpg}" alt="${alt}" />
-      </picture>
-    </div>
-  `;
-};
-
-export const validateAndFormatIngredient = (ingredient) => {
+export const validateAndFormatIngredient = ingredient => {
   if (!ingredient?.name) return null;
   const hasQuantity = ingredient.quantity && ingredient.quantity !== 0;
   const hasUnit = ingredient.unitType && ingredient.unitType.trim() !== "";
@@ -45,7 +19,7 @@ export const validateAndFormatIngredient = (ingredient) => {
   `;
 };
 
-export const createCardContents = (description, ingredients) => {
+export const buildCardContents = (description, ingredients) => {
   let recipeSection = "";
   if (description) {
     recipeSection = `
@@ -75,22 +49,87 @@ export const createCardContents = (description, ingredients) => {
   `;
 };
 
-export const createCard = (recipe) => {
-  return `
-    <div class="card">
-      ${createPicture(recipe.image)}
-      ${createCardHeader(recipe.name, recipe.time)}
-      ${createCardContents(recipe.description, recipe.ingredients)}
-    </div>
+const buildCard = recipe => {
+  const {
+    image = { webpUrl: "", jpgUrl: "", alt: "" },
+    name = "",
+    time = 0,
+    description = "",
+    ingredients = [],
+  } = recipe;
+
+  const imageUrl = image.jpgUrl || image.webpUrl;
+
+  const pictureHTML = `
+    <div class="image-loading-placeholder"></div>
+    <picture>
+      <source srcset="/recipes/${imageUrl}" type="image/webp" />
+      <source srcset="/recipes/${imageUrl}" type="image/jpeg" />
+      <img src="/recipes/${imageUrl}" alt="${image.alt || name}" loading="lazy" width="380" height="250" decoding="async" fetchpriority="high" />
+    </picture>
   `;
+
+  const cardHTML = `
+    <div class="card">
+      <div class="card-picture">${pictureHTML}</div>
+        <div class="card-header">
+      <h2>${name}</h2>
+      <span class="card-time">${time}min</span>
+    </div>
+    ${buildCardContents(description, ingredients)}
+  </div>
+  `;
+
+  const range = document.createRange();
+  const fragment = range.createContextualFragment(cardHTML);
+
+  if (image.jpgUrl || image.webpUrl) {
+    const img = fragment.querySelector(".card-picture img");
+    const placeholder = fragment.querySelector(".image-loading-placeholder");
+
+    if (img && placeholder) {
+      const hidePlaceholder = () => placeholder.classList.add("hidden");
+
+      if (img.complete) {
+        hidePlaceholder();
+      } else {
+        img.addEventListener("load", hidePlaceholder, { once: true });
+        img.addEventListener("error", hidePlaceholder, { once: true });
+      }
+    }
+  }
+
+  return fragment;
 };
 
-export const renderRecipes = (recipes) => {
+export const renderRecipes = recipes => {
   const container = document.querySelector(".cards-container");
   if (!container) return;
 
-  const cardsHTML = recipes?.length > 0 ? recipes.map(createCard).join("") : "";
+  const fragment = document.createDocumentFragment();
+  recipes.forEach(recipe => {
+    const cardFragment = buildCard(recipe);
+    fragment.appendChild(cardFragment);
+  });
 
-  container.innerHTML = cardsHTML;
-  updateSearchResultsCount(recipes?.length);
+  container.innerHTML = "";
+  container.appendChild(fragment);
+};
+
+export const renderSkeletons = count => {
+  const container = document.querySelector(".cards-container");
+  if (!container) return;
+
+  const fragment = document.createDocumentFragment();
+  const skeletonCards = getSkeletonList(count);
+
+  skeletonCards.forEach(skeletonCard => {
+    const cardFragment = buildCard(skeletonCard);
+    const cardElement = cardFragment.querySelector(".card");
+    cardElement.classList.add("skeleton");
+    fragment.appendChild(cardFragment);
+  });
+
+  container.innerHTML = "";
+  container.appendChild(fragment);
 };

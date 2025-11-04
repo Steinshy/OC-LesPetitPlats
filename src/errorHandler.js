@@ -25,9 +25,7 @@ export const hideError = () => {
 
 export const initErrorTestButton = () => {
   const button = document.getElementById("error-test-button");
-  if (button) {
-    button.addEventListener("click", () => {
-      showError("Message d'erreur de test");
-    });
-  }
+  button?.addEventListener("click", () => {
+    showError("Message d'erreur de test");
+  });
 };

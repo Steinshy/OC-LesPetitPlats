@@ -1,23 +1,21 @@
 export const mobileMenuManager = () => {
   const mobileMenuButton = document.getElementById("mobile-menu-button");
   const mobileMenu = document.getElementById("mobile-menu");
+  if (!mobileMenu || !mobileMenuButton) return;
 
-  const isMobileMenuVisible = () => mobileMenu?.classList.contains("show");
+  const isMobileMenuVisible = () => mobileMenu.classList.contains("show");
 
   const openMobileMenu = () => {
-    if (!mobileMenu || !mobileMenuButton) return;
     mobileMenu.classList.add("show");
     mobileMenuButton.setAttribute("aria-expanded", "true");
   };
 
   const closeMobileMenu = () => {
-    if (!mobileMenu || !mobileMenuButton) return;
     mobileMenu.classList.remove("show");
     mobileMenuButton.setAttribute("aria-expanded", "false");
   };
 
   const handleMobileMenu = (event) => {
-    if (!mobileMenu || !mobileMenuButton) return;
     const target = event.target;
     const clickedInsideMenu = mobileMenu.contains(target);
     const clickedButton = mobileMenuButton.contains(target);

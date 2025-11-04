@@ -4,6 +4,15 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @layer theme, base, components, utilities;
 
+/* Font-display optimization for local fonts */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local("Inter");
+}
+
 /* Root Variables */
 :root {
   color-scheme: light;
@@ -224,6 +233,8 @@ img {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  content-visibility: auto;
+  contain-intrinsic-size: 900px 400px;
 }
 
 .search-header {
@@ -487,6 +498,194 @@ img {
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   margin-bottom: 40px;
+  position: relative;
+  min-height: 400px;
+}
+
+.cards-container:empty {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  min-height: 400px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.card.skeleton {
+  --skeleton-size: 200% 100%;
+  --skeleton-pos-1: 0 0;
+  --skeleton-pos-2: -200% 0;
+  --skeleton-duration: 1.5s;
+  --skeleton-bg: linear-gradient(90deg, #e0e0e0 0%, #e8e8e8 25%, #e0e0e0 50%, #e0e0e0 100%);
+  --skeleton-shine: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+}
+
+.card.skeleton :is(
+    img,
+    .card-picture,
+    .card-content,
+    .card-section,
+    .section-title,
+    .card-header h2,
+    .card-time,
+    .contents-recipe,
+    .ingredient-items,
+    .ingredient-name,
+    .ingredient-quantity
+  ) {
+  background-image: var(--skeleton-bg), var(--skeleton-shine);
+  background-size: var(--skeleton-size), var(--skeleton-size);
+  background-position: var(--skeleton-pos-1), var(--skeleton-pos-2);
+  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
+}
+
+.card.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.card.skeleton,
+.card.skeleton * {
+  color: transparent;
+}
+
+.card.skeleton .card-picture {
+  --skeleton-shine: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+  min-height: 250px;
+  height: 250px;
+  width: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+.card.skeleton img {
+  min-height: 250px;
+  height: 250px;
+  width: 100%;
+}
+
+.card.skeleton .card-content {
+  min-height: 100px;
+  border-radius: 8px;
+  animation-delay: 0.1s;
+}
+
+.card.skeleton .card-section {
+  min-height: 80px;
+  border-radius: 6px;
+  animation-delay: 0.15s;
+}
+
+.card.skeleton .section-title {
+  min-height: 10px;
+  width: 80px;
+  border-radius: 4px;
+  animation-delay: 0.2s;
+}
+
+.card.skeleton .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 20px 10px 20px;
+}
+
+.card.skeleton .card-header h2 {
+  min-height: 24px;
+  width: 70%;
+  border-radius: 6px;
+  flex: 1;
+  animation-delay: 0.2s;
+}
+
+.card.skeleton .card-time {
+  min-height: 28px;
+  width: 60px;
+  border-radius: 20px;
+  animation-delay: 0.25s;
+}
+
+.card.skeleton .contents-container {
+  margin: 0 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card.skeleton .contents-recipe {
+  min-height: 120px;
+  border-radius: 8px;
+  animation-delay: 0.3s;
+}
+
+.card.skeleton .contents-recipe h3,
+.card.skeleton .contents-ingredients h3 {
+  min-height: 10px;
+  width: 100px;
+  border-radius: 4px;
+  margin: 0 0 10px 0;
+  animation-delay: 0.35s;
+}
+
+.card.skeleton .contents-recipe p {
+  min-height: 14px;
+  width: 100%;
+  border-radius: 4px;
+  margin: 8px 0 0 0;
+  animation-delay: 0.4s;
+}
+
+.card.skeleton .contents-recipe p:nth-child(2) {
+  width: 95%;
+  animation-delay: 0.45s;
+}
+
+.card.skeleton .contents-recipe p:nth-child(3) {
+  width: 90%;
+  animation-delay: 0.5s;
+}
+
+.card.skeleton .contents-ingredients {
+  min-height: 100px;
+  border-radius: 8px;
+  animation-delay: 0.55s;
+}
+
+.card.skeleton .ingredients-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.card.skeleton .ingredient-items {
+  min-height: 40px;
+  border-radius: 6px;
+  padding: 8px;
+  animation-delay: 0.6s;
+}
+
+.card.skeleton .ingredient-name,
+.card.skeleton .ingredient-quantity {
+  min-height: 13px;
+  border-radius: 4px;
+  animation-delay: 0.65s;
+}
+
+.card.skeleton .ingredient-name {
+  width: 70%;
+}
+
+.card.skeleton .ingredient-quantity {
+  width: 40%;
 }
 
 .card {
@@ -509,6 +708,7 @@ img {
   height: 250px;
   object-fit: cover;
   border-radius: 0;
+  aspect-ratio: 380 / 250;
 }
 
 .card-content {
@@ -564,8 +764,41 @@ img {
 .card-picture {
   width: 100%;
   height: 250px;
-  object-fit: cover;
   border-radius: 0;
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-picture picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card-picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-picture .image-loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(90deg, #e0e0e0 0%, #e8e8e8 25%, #e0e0e0 50%, #e0e0e0 100%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+  background-size: 200% 100%, 200% 100%;
+  background-position: 0 0, -200% 0;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+.card-picture .image-loading-placeholder.hidden {
+  display: none;
 }
 
 .contents-container {
@@ -766,6 +999,10 @@ img {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .cards-container:empty {
+    min-height: 80vh;
+  }
+
   .filters-dropdowns {
     flex-wrap: wrap;
     gap: 12px;
@@ -875,6 +1112,10 @@ img {
   .cards-container {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  .cards-container:empty {
+    min-height: 60vh;
   }
 
   .filters-dropdowns {

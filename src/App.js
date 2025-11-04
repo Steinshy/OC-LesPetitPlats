@@ -1,22 +1,29 @@
-import { renderRecipes } from "./card.js";
+import { renderRecipes, renderSkeletons } from "./card.js";
 import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
-import { initSearch } from "./search.js";
-import { buildRecipes } from "./utils/dataBuilders.js";
+import { initSearch, updateCount } from "./search.js";
+import { buildRecipes } from "./utils/recipesBuilder.js";
 
 import "../styles/global.css";
 
 const appInit = async () => {
-  try {
-    const recipes = await buildRecipes();
-    renderRecipes(recipes);
-    initSearch(renderRecipes);
-  } catch (_error) {
-    showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");
-  }
+  updateCount(0);
   mobileMenuManager();
   initErrorTestButton();
   hideError();
+  const container = document.querySelector(".cards-container");
+  if (container) {
+    renderSkeletons(6);
+  }
+  try {
+    const recipes = await buildRecipes();
+    renderRecipes(recipes);
+    initSearch(recipes);
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = "";
+    showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");
+  }
 };
 
 appInit();

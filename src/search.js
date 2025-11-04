@@ -1,12 +1,12 @@
-import { buildRecipes } from "./utils/dataBuilders.js";
+import { renderRecipes } from "./card.js";
 
-const normalize = (value) => (typeof value === "string" ? value.trim().toLowerCase() : "");
+const normalize = value => (typeof value === "string" ? value.trim().toLowerCase() : "");
 
-const debounce = (callback, delayMs = 300) => {
+const debounce = (fn, delay = 300) => {
   let timeoutId;
   return (...args) => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback(...args), delayMs);
+    timeoutId = setTimeout(() => fn(...args), delay);
   };
 };
 
@@ -14,44 +14,31 @@ const getSearchInput = () => document.querySelector(".search-bar-group input");
 const getSearchButton = () => document.querySelector(".search-bar-group .search-btn");
 const getResultsCounter = () => document.querySelector(".results-counter h2");
 
-const filterRecipes = (recipes, query) => {
+const filterRecipes = (recipes, searchTerm) => {
+  const query = normalize(searchTerm);
   if (!query) return recipes;
-  return recipes.filter((recipe) => recipe.searchText.includes(query));
+  return recipes.filter(recipe => recipe.search?.includes(query));
 };
 
-export const searchRecipes = async (term) => {
-  const recipes = await buildRecipes();
-  const query = normalize(term);
-  return filterRecipes(recipes, query);
+const handleSearch = (recipes, input) => {
+  const filteredRecipes = filterRecipes(recipes, input.value);
+  renderRecipes(filteredRecipes);
+  updateCount(filteredRecipes.length);
 };
 
-export const updateSearchResultsCount = (count) => {
+export const updateCount = (count = 0) => {
   const counter = getResultsCounter();
-  if (counter) {
-    counter.textContent = `${count || 0} Résultats`;
-  }
+  if (counter) counter.textContent = `${count >= 0 ? count : 0} Résultats`;
 };
 
-const createSearchHandler = (renderRecipes) => {
+export const initSearch = recipes => {
   const input = getSearchInput();
-  if (!input) return null;
-
-  return async () => {
-    const term = input.value;
-    const results = await searchRecipes(term);
-    renderRecipes(results);
-  };
-};
-
-export const initSearch = (renderRecipes) => {
-  const input = getSearchInput();
-  const button = getSearchButton();
   if (!input) return;
+  const button = getSearchButton();
 
-  const performSearch = createSearchHandler(renderRecipes);
-  if (!performSearch) return;
+  const searchFn = () => handleSearch(recipes, input);
+  const debouncedSearchFn = debounce(searchFn, 300);
 
-  const debouncedSearch = debounce(performSearch, 300);
-  input.addEventListener("input", debouncedSearch);
-  if (button) button.addEventListener("click", performSearch);
+  input.addEventListener("input", debouncedSearchFn);
+  button?.addEventListener("click", searchFn);
 };
