@@ -1,9 +1,27 @@
-const PLACEHOLDER_INGREDIENT = { name: "-", quantity: 1 };
-const PLACEHOLDER_RECIPE = {
-  ingredients: Array(4).fill(PLACEHOLDER_INGREDIENT),
+export const getSkeletonList = count => Array.from({ length: count }, () => ({}));
+
+const selectors = {
+  searchHeader: ".search-header",
+  searchBarGroup: ".search-bar-group",
+  searchSection: ".search-section",
 };
 
-export const buildSkeletonRecipes = (count = 6) =>
-  Array.from({ length: count }, () => ({ ...PLACEHOLDER_RECIPE }));
+const getElement = key => document.querySelector(selectors[key]);
 
-export const getSkeletonList = buildSkeletonRecipes;
+const toggleSearchSkeleton = isEnabled => {
+  [getElement("searchHeader"), getElement("searchBarGroup")]
+    .filter(Boolean)
+    .forEach(element => element.classList.toggle("skeleton-loading", isEnabled));
+};
+
+const toggleHeaderSkeleton = isEnabled => {
+  const searchSection = getElement("searchSection");
+  if (!searchSection) return;
+  searchSection.classList.toggle("skeleton-loading", isEnabled);
+};
+
+export const showSearchSkeleton = () => toggleSearchSkeleton(true);
+export const hideSearchSkeleton = () => toggleSearchSkeleton(false);
+
+export const renderHeaderSkeleton = () => toggleHeaderSkeleton(true);
+export const hideHeaderSkeleton = () => toggleHeaderSkeleton(false);

@@ -7,16 +7,16 @@ const withBase = path => `${BASE}${path.replace(/^\/+/, "")}`;
 const encodePath = path =>
   String(path).split("/").filter(Boolean).map(encodeURIComponent).join("/");
 
-export const fetchRecipes = async () => {
-  const response = await fetch(DATA_URL, {
-    headers: { Accept: "application/json" },
-    cache: "force-cache",
+const fetchRecipes = async () => {
+  return cacheGetOrSet("recipes_v1", async () => {
+    const fetchRawRecipes = async () => {
+      const response = await fetch(DATA_URL);
+      if (!response.ok) throw new Error(`Network error: ${response.status}`);
+      const recipes = await response.json();
+      return Array.isArray(recipes) ? recipes : [];
+    };
+    return fetchRawRecipes();
   });
-  if (!response.ok) {
-    throw new Error(`Network error: ${response.status} for ${DATA_URL}`);
-  }
-  const items = await response.json();
-  return Array.isArray(items) ? items : [];
 };
 
 const buildIngredients = item => {
@@ -55,37 +55,32 @@ const buildSearch = (ingredients, item) => {
   return words.join(" ").toLowerCase();
 };
 
+const buildUstensils = rawItem => {
+  const ustensils = Array.isArray(rawItem?.ustensils) ? rawItem.ustensils : [];
+  return ustensils.map(ustensil => ustensil?.name);
+};
+
 const buildRecipe = rawItem => {
   const ingredients = buildIngredients(rawItem);
+  const images = buildImages(rawItem);
+  const search = buildSearch(ingredients, rawItem);
+  const ustensils = buildUstensils(rawItem);
+
   return {
-    id: rawItem?.id ?? 0,
-    name: rawItem?.name ?? "",
-    description: rawItem?.description ?? "",
-    servings: rawItem?.servings ?? 0,
-    time: rawItem?.time ?? 0,
-    appliance: rawItem?.appliance ?? "",
+    id: rawItem?.id || 0,
+    name: rawItem?.name || "",
+    description: rawItem?.description || "",
+    servings: rawItem?.servings || 0,
+    time: rawItem?.time || 0,
+    appliance: rawItem?.appliance || "",
     ingredients,
-    ustensils: Array.isArray(rawItem?.ustensils) ? rawItem.ustensils : [],
-    image: buildImages(rawItem),
-    search: buildSearch(ingredients, rawItem),
+    ustensils,
+    images,
+    search,
   };
 };
 
-const buildRecipes = async (items, batchSize = 50) => {
-  const results = [];
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    results.push(...batch.map(buildRecipe));
-    if (i + batchSize < items.length) {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
-  }
-  return results;
-};
-
-export const fetchAndBuildRecipes = async () => {
-  return cacheGetOrSet("recipes_v1", async () => {
-    const rawItems = await fetchRecipes();
-    return buildRecipes(rawItems);
-  });
+export const buildRecipesData = async () => {
+  const recipes = await fetchRecipes();
+  return recipes.map(buildRecipe);
 };

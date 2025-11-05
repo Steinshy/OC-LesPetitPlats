@@ -1,6 +1,5 @@
 import { getSkeletonList } from "./components/skeletons.js";
-
-const CARDS_PER_BATCH = 15;
+import { imagesTypes } from "./utils/deliveryImages.js";
 
 const getContainer = () => document.querySelector(".cards-container");
 
@@ -44,34 +43,9 @@ export const buildCardContents = (description, ingredients) => {
   `;
 };
 
-const setupImageLoading = (fragment, { webpUrl, jpgUrl }) => {
-  if (!jpgUrl && !webpUrl) return;
-
-  const img = fragment.querySelector(".card-picture img");
-  const placeholder = fragment.querySelector(".image-loading-placeholder");
-  const webpSource = fragment.querySelector(".card-picture source[type='image/webp']");
-
-  if (!img || !placeholder) return;
-
-  const hidePlaceholder = () => placeholder.classList.add("hidden");
-
-  if (webpSource && webpUrl) {
-    const testImg = new Image();
-    testImg.onerror = () => webpSource.remove();
-    testImg.src = webpUrl;
-  }
-
-  if (img.complete) {
-    hidePlaceholder();
-  } else {
-    img.addEventListener("load", hidePlaceholder, { once: true });
-    img.addEventListener("error", hidePlaceholder, { once: true });
-  }
-};
-
 const buildCard = recipe => {
   const {
-    image: { webpUrl = "", jpgUrl = "", alt = "" } = {},
+    images: { webpUrl = "", jpgUrl = "", alt = "" } = {},
     name = "",
     time = 0,
     description = "",
@@ -98,23 +72,8 @@ const buildCard = recipe => {
   `;
 
   const fragment = document.createRange().createContextualFragment(cardHTML);
-  setupImageLoading(fragment, { webpUrl, jpgUrl });
+  imagesTypes(fragment, { webpUrl, jpgUrl });
   return fragment;
-};
-
-const buildGlobalRenderer = task => {
-  if ("scheduler" in window && "postTask" in window.scheduler) {
-    return window.scheduler.postTask(task, { priority: "user-blocking" });
-  }
-  if ("requestIdleCallback" in window) {
-    return new Promise(resolve => {
-      requestIdleCallback(() => {
-        task();
-        resolve();
-      });
-    });
-  }
-  return Promise.resolve().then(task);
 };
 
 export const renderRecipes = recipes => {
@@ -122,26 +81,12 @@ export const renderRecipes = recipes => {
   if (!container) return;
 
   container.innerHTML = "";
-  let currentIndex = 0;
-
-  const rendererRecipes = () => {
-    const recipeBatch = recipes.slice(currentIndex, currentIndex + CARDS_PER_BATCH);
-    if (recipeBatch.length === 0) return;
-
-    const fragment = document.createDocumentFragment();
-    recipeBatch.forEach(recipe => fragment.appendChild(buildCard(recipe)));
-    container.appendChild(fragment);
-
-    currentIndex += CARDS_PER_BATCH;
-    if (currentIndex < recipes.length) {
-      buildGlobalRenderer(rendererRecipes);
-    }
-  };
-
-  rendererRecipes();
+  const fragment = document.createDocumentFragment();
+  recipes.forEach(recipe => fragment.appendChild(buildCard(recipe)));
+  container.appendChild(fragment);
 };
 
-export const renderSkeletons = count => {
+export const renderCardsSkeletons = count => {
   const container = getContainer();
   if (!container) return;
 

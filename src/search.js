@@ -34,13 +34,21 @@ export const updateCount = (count = 0) => {
   if (counter) counter.textContent = `${Math.max(0, count)} Résultats`;
 };
 
-export const initSearch = recipes => {
-  const input = getElement("input");
-  if (!input) return;
+export const initSearch = recipesData => {
+  const onReady = () => {
+    const input = getElement("input");
+    if (!input) return;
 
-  const searchFn = () => handleSearch(recipes, input);
-  const debouncedSearch = debounce(searchFn, 300);
+    const searchFn = () => handleSearch(recipesData, input);
+    const debouncedSearch = debounce(searchFn, 300);
 
-  input.addEventListener("input", debouncedSearch);
-  getElement("button")?.addEventListener("click", searchFn);
+    input.addEventListener("input", debouncedSearch);
+    getElement("button")?.addEventListener("click", searchFn);
+  };
+
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(onReady, { timeout: 2000 });
+  } else {
+    setTimeout(onReady, 0);
+  }
 };
