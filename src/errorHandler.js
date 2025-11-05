@@ -1,13 +1,9 @@
-const createErrorBanner = (message) => {
-  return `
-    <div id="error-banner" role="alert" class="error-banner">
-      ${message}
-    </div>
-  `;
-};
+const ERROR_BANNER_ID = "error-banner";
 
-export const showError = (message) => {
-  const existing = document.querySelector("#error-banner");
+const getBanner = () => document.querySelector(`#${ERROR_BANNER_ID}`);
+
+export const showError = message => {
+  const existing = getBanner();
   if (existing) {
     existing.textContent = message;
     existing.hidden = false;
@@ -15,17 +11,18 @@ export const showError = (message) => {
   }
   const root = document.querySelector("#root");
   if (!root) return;
-  root.insertAdjacentHTML("afterbegin", createErrorBanner(message));
+  root.insertAdjacentHTML(
+    "afterbegin",
+    `<div id="${ERROR_BANNER_ID}" role="alert" class="error-banner">${message}</div>`,
+  );
 };
 
 export const hideError = () => {
-  const banner = document.querySelector("#error-banner");
-  if (banner) banner.hidden = true;
+  getBanner()?.setAttribute("hidden", "");
 };
 
 export const initErrorTestButton = () => {
-  const button = document.getElementById("error-test-button");
-  button?.addEventListener("click", () => {
+  document.getElementById("error-test-button")?.addEventListener("click", () => {
     showError("Message d'erreur de test");
   });
 };

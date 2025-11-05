@@ -1,16 +1,16 @@
-// Card component will have, card. card header, card chips, card recette, card ingredients.
-
 import { getSkeletonList } from "./components/skeletons.js";
 
-export const validateAndFormatIngredient = ingredient => {
+const CARDS_PER_BATCH = 15;
+
+const getContainer = () => document.querySelector(".cards-container");
+
+const validateAndFormatIngredient = ingredient => {
   if (!ingredient?.name) return null;
   const hasQuantity = ingredient.quantity && ingredient.quantity !== 0;
-  const hasUnit = ingredient.unitType && typeof ingredient.unitType === "string" && ingredient.unitType.trim() !== "";
+  const hasUnit = ingredient.unitType?.trim();
   if (!hasQuantity && !hasUnit) return null;
 
-  const qty = ingredient.quantity ? `${ingredient.quantity}` : "";
-  const unit = ingredient.unitType ? ` ${ingredient.unitType}` : "";
-  const quantity = `${qty}${unit}`.trim() || "";
+  const quantity = [ingredient.quantity, ingredient.unitType].filter(Boolean).join(" ").trim();
   return `
     <div class="ingredient-items">
       <p class="ingredient-name">${ingredient.name}</p>
@@ -19,46 +19,64 @@ export const validateAndFormatIngredient = ingredient => {
   `;
 };
 
-export const buildCardContents = (description, ingredients) => {
-  let recipeSection = "";
-  if (description) {
-    recipeSection = `
-      <div class="contents-recipe">
-        <h3>RECETTE</h3>
-        <p>${description}</p>
-      </div>
-    `;
-  }
-
-  let ingredientsSection = "";
-  const ingredientsHTML = ingredients.map(validateAndFormatIngredient).filter(Boolean).join("");
-  if (ingredientsHTML) {
-    ingredientsSection = `
-      <div class="contents-ingredients">
-        <h3>INGRÉDIENTS</h3>
-        <div class="ingredients-details">${ingredientsHTML}</div>
-      </div>
-    `;
-  }
-
+const buildSection = (title, content, className) => {
+  if (!content) return "";
   return `
-    <div class="contents-container">
-      ${recipeSection}
-      ${ingredientsSection}
+    <div class="${className}">
+      <h3>${title}</h3>
+      ${content}
     </div>
   `;
 };
 
+export const buildCardContents = (description, ingredients) => {
+  const ingredientsHTML = ingredients.map(validateAndFormatIngredient).filter(Boolean).join("");
+  const recipeSection = description ? `<p>${description}</p>` : "";
+  const ingredientsSection = ingredientsHTML
+    ? `<div class="ingredients-details">${ingredientsHTML}</div>`
+    : "";
+
+  return `
+    <div class="contents-container">
+      ${buildSection("RECETTE", recipeSection, "contents-recipe")}
+      ${buildSection("INGRÉDIENTS", ingredientsSection, "contents-ingredients")}
+    </div>
+  `;
+};
+
+const setupImageLoading = (fragment, { webpUrl, jpgUrl }) => {
+  if (!jpgUrl && !webpUrl) return;
+
+  const img = fragment.querySelector(".card-picture img");
+  const placeholder = fragment.querySelector(".image-loading-placeholder");
+  const webpSource = fragment.querySelector(".card-picture source[type='image/webp']");
+
+  if (!img || !placeholder) return;
+
+  const hidePlaceholder = () => placeholder.classList.add("hidden");
+
+  if (webpSource && webpUrl) {
+    const testImg = new Image();
+    testImg.onerror = () => webpSource.remove();
+    testImg.src = webpUrl;
+  }
+
+  if (img.complete) {
+    hidePlaceholder();
+  } else {
+    img.addEventListener("load", hidePlaceholder, { once: true });
+    img.addEventListener("error", hidePlaceholder, { once: true });
+  }
+};
+
 const buildCard = recipe => {
   const {
-    image = { webpUrl: "", jpgUrl: "", alt: "" },
+    image: { webpUrl = "", jpgUrl = "", alt = "" } = {},
     name = "",
     time = 0,
     description = "",
     ingredients = [],
   } = recipe;
-
-  const { webpUrl = "", jpgUrl = "", alt = "" } = image;
 
   const pictureHTML = `
     <div class="image-loading-placeholder"></div>
@@ -71,76 +89,47 @@ const buildCard = recipe => {
   const cardHTML = `
     <div class="card">
       <div class="card-picture">${pictureHTML}</div>
-        <div class="card-header">
-      <h2>${name}</h2>
-      <span class="card-time">${time}min</span>
+      <div class="card-header">
+        <h2>${name}</h2>
+        <span class="card-time">${time}min</span>
+      </div>
+      ${buildCardContents(description, ingredients)}
     </div>
-    ${buildCardContents(description, ingredients)}
-  </div>
   `;
 
-  const range = document.createRange();
-  const fragment = range.createContextualFragment(cardHTML);
-
-  if (jpgUrl || webpUrl) {
-    const img = fragment.querySelector(".card-picture img");
-    const placeholder = fragment.querySelector(".image-loading-placeholder");
-    const webpSource = fragment.querySelector(".card-picture source[type='image/webp']");
-    if (!img || !placeholder) return fragment;
-
-    const hidePlaceholder = () => placeholder.classList.add("hidden");
-    if (webpSource) {
-      const testImg = new Image();
-      testImg.onerror = () => webpSource.remove();
-      testImg.src = webpUrl;
-    }
-    if (img.complete) {
-      hidePlaceholder();
-    } else {
-      img.addEventListener("load", hidePlaceholder, { once: true });
-      img.addEventListener("error", hidePlaceholder, { once: true });
-    }
-  }
-
+  const fragment = document.createRange().createContextualFragment(cardHTML);
+  setupImageLoading(fragment, { webpUrl, jpgUrl });
   return fragment;
 };
 
-const buildGlobalRenderer = (task) => {
+const buildGlobalRenderer = task => {
   if ("scheduler" in window && "postTask" in window.scheduler) {
     return window.scheduler.postTask(task, { priority: "user-blocking" });
   }
   if ("requestIdleCallback" in window) {
-    return new Promise((resolve) => {
-      requestIdleCallback(
-        () => {
-          task();
-          resolve();
-        },
-        { timeout: 100 },
-      );
+    return new Promise(resolve => {
+      requestIdleCallback(() => {
+        task();
+        resolve();
+      });
     });
   }
-  return Promise.resolve().then(() => task());
+  return Promise.resolve().then(task);
 };
 
-export const renderRecipes = (recipes) => {
-  const container = document.querySelector(".cards-container");
+export const renderRecipes = recipes => {
+  const container = getContainer();
   if (!container) return;
 
   container.innerHTML = "";
-
-  const CARDS_PER_BATCH = 15;
   let currentIndex = 0;
 
   const rendererRecipes = () => {
-    const rendererRecipe = recipes.slice(currentIndex, currentIndex + CARDS_PER_BATCH);
-    if (rendererRecipe.length === 0) return;
+    const recipeBatch = recipes.slice(currentIndex, currentIndex + CARDS_PER_BATCH);
+    if (recipeBatch.length === 0) return;
 
     const fragment = document.createDocumentFragment();
-    rendererRecipe.forEach((recipe) => {
-      const cardFragment = buildCard(recipe);
-      fragment.appendChild(cardFragment);
-    });
+    recipeBatch.forEach(recipe => fragment.appendChild(buildCard(recipe)));
     container.appendChild(fragment);
 
     currentIndex += CARDS_PER_BATCH;
@@ -153,16 +142,13 @@ export const renderRecipes = (recipes) => {
 };
 
 export const renderSkeletons = count => {
-  const container = document.querySelector(".cards-container");
+  const container = getContainer();
   if (!container) return;
 
   const fragment = document.createDocumentFragment();
-  const skeletonCards = getSkeletonList(count);
-
-  skeletonCards.forEach(skeletonCard => {
+  getSkeletonList(count).forEach(skeletonCard => {
     const cardFragment = buildCard(skeletonCard);
-    const cardElement = cardFragment.querySelector(".card");
-    cardElement.classList.add("skeleton");
+    cardFragment.querySelector(".card")?.classList.add("skeleton");
     fragment.appendChild(cardFragment);
   });
 

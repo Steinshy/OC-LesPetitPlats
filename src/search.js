@@ -10,35 +10,37 @@ const debounce = (fn, delay = 300) => {
   };
 };
 
-const getSearchInput = () => document.querySelector(".search-bar-group input");
-const getSearchButton = () => document.querySelector(".search-bar-group .search-btn");
-const getResultsCounter = () => document.querySelector(".results-counter h2");
+const selectors = {
+  input: ".search-bar-group input",
+  button: ".search-bar-group .search-btn",
+  counter: ".results-counter h2",
+};
+
+const getElement = key => document.querySelector(selectors[key]);
 
 const filterRecipes = (recipes, searchTerm) => {
   const query = normalize(searchTerm);
-  if (!query) return recipes;
-  return recipes.filter(recipe => recipe.search?.includes(query));
+  return query ? recipes.filter(recipe => recipe.search?.includes(query)) : recipes;
 };
 
 const handleSearch = (recipes, input) => {
-  const filteredRecipes = filterRecipes(recipes, input.value);
-  renderRecipes(filteredRecipes);
-  updateCount(filteredRecipes.length);
+  const filtered = filterRecipes(recipes, input.value);
+  renderRecipes(filtered);
+  updateCount(filtered.length);
 };
 
 export const updateCount = (count = 0) => {
-  const counter = getResultsCounter();
-  if (counter) counter.textContent = `${count >= 0 ? count : 0} Résultats`;
+  const counter = getElement("counter");
+  if (counter) counter.textContent = `${Math.max(0, count)} Résultats`;
 };
 
 export const initSearch = recipes => {
-  const input = getSearchInput();
+  const input = getElement("input");
   if (!input) return;
-  const button = getSearchButton();
 
   const searchFn = () => handleSearch(recipes, input);
-  const debouncedSearchFn = debounce(searchFn, 300);
+  const debouncedSearch = debounce(searchFn, 300);
 
-  input.addEventListener("input", debouncedSearchFn);
-  button?.addEventListener("click", searchFn);
+  input.addEventListener("input", debouncedSearch);
+  getElement("button")?.addEventListener("click", searchFn);
 };

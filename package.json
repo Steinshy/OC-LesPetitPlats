@@ -14,7 +14,7 @@
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
     "lint:js": "eslint . --ext js --ignore-pattern 'dist/**' --ignore-pattern 'coverage/**' --ignore-pattern 'api/data.js'",
     "lint:css": "stylelint '**/*.css' --ignore-pattern '**/*.min.css' --ignore-pattern 'dist/**' --ignore-pattern 'coverage/**'",
-    "lint:html": "html-validate '**/*.html' --ignore 'dist/**' --ignore 'coverage/**'",
+    "lint:html": "html-validate 'index.html' 'src/**/*.html' 'public/**/*.html'",
     "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore dist --ignore coverage",
     "lint:fix": "eslint . --ext js --fix --ignore-pattern 'dist/**' --ignore-pattern 'coverage/**' --ignore-pattern 'api/data.js'",
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
@@ -46,7 +46,7 @@
     "lightningcss": "^1.27.0",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.4.2",
-    "prettier-plugin-tailwindcss": "^0.6.9",
+    "prettier-plugin-tailwindcss": "^0.7.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.33.5",
     "stylelint": "^16.2.1",
@@ -60,5 +60,9 @@
     "vite-plugin-pwa": "^1.1.0",
     "vite-plugin-webfont-dl": "^3.11.1",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "source-map": "^0.7.6",
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.5"
   }
 }

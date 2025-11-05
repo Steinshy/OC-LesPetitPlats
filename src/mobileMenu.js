@@ -3,40 +3,32 @@ export const mobileMenuManager = () => {
   const mobileMenu = document.getElementById("mobile-menu");
   if (!mobileMenu || !mobileMenuButton) return;
 
-  const isMobileMenuVisible = () => mobileMenu.classList.contains("show");
-
-  const openMobileMenu = () => {
-    mobileMenu.classList.add("show");
-    mobileMenuButton.setAttribute("aria-expanded", "true");
+  const isVisible = () => mobileMenu.classList.contains("show");
+  const toggle = () => {
+    const visible = isVisible();
+    mobileMenu.classList.toggle("show", !visible);
+    mobileMenuButton.setAttribute("aria-expanded", !visible);
   };
-
-  const closeMobileMenu = () => {
+  const close = () => {
     mobileMenu.classList.remove("show");
     mobileMenuButton.setAttribute("aria-expanded", "false");
   };
 
-  const handleMobileMenu = (event) => {
-    const target = event.target;
-    const clickedInsideMenu = mobileMenu.contains(target);
-    const clickedButton = mobileMenuButton.contains(target);
-
-    // Toggle on button click
-    if (clickedButton) {
-      isMobileMenuVisible() ? closeMobileMenu() : openMobileMenu();
-      return;
-    }
-
-    if (!clickedInsideMenu && isMobileMenuVisible()) {
-      closeMobileMenu();
+  const handleClick = event => {
+    const { target } = event;
+    if (mobileMenuButton.contains(target)) {
+      toggle();
+    } else if (!mobileMenu.contains(target) && isVisible()) {
+      close();
     }
   };
 
-  const handleEscapeKey = (event) => {
-    if (event.key === "Escape" && isMobileMenuVisible()) {
-      closeMobileMenu();
+  const handleEscape = event => {
+    if (event.key === "Escape" && isVisible()) {
+      close();
     }
   };
 
-  document.addEventListener("keydown", handleEscapeKey);
-  document.addEventListener("click", handleMobileMenu);
+  document.addEventListener("click", handleClick);
+  document.addEventListener("keydown", handleEscape);
 };
