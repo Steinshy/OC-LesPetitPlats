@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 
-import { cacheManager } from "./cache.js";
+import { cacheManager } from "../src/utils/cache.js";
 
 describe("cacheManager", () => {
   beforeEach(() => {
