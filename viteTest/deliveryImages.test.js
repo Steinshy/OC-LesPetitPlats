@@ -1,7 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { pickRandomRecipeImage } from "../src/utils/deliveryImages.js";
+import { describe, it, expect, beforeEach } from "vitest";
+import { selectRandomImages, isImageLoaded, imagesTypes } from "../src/utils/deliveryImages.js";
 
 describe("deliveryImages", () => {
+  const TEST_IMAGE_URL = "/recipes/test.jpg";
+
   const mockRecipesWithImages = [
     {
       images: {
@@ -26,49 +28,148 @@ describe("deliveryImages", () => {
     },
   ];
 
-  it("should return null for empty array", () => {
-    const result = pickRandomRecipeImage([]);
-    expect(result).toBeNull();
+  beforeEach(() => {
+    document.body.innerHTML = "";
   });
 
-  it("should return null for null input", () => {
-    const result = pickRandomRecipeImage(null);
-    expect(result).toBeNull();
+  describe("selectRandomImages", () => {
+    it("should return null for empty array", () => {
+      const result = selectRandomImages([]);
+      expect(result).toBeNull();
+    });
+
+    it("should return null for null input", () => {
+      const result = selectRandomImages(null);
+      expect(result).toBeNull();
+    });
+
+    it("should return null for undefined input", () => {
+      const result = selectRandomImages(undefined);
+      expect(result).toBeNull();
+    });
+
+    it("should return an images object from recipes", () => {
+      const result = selectRandomImages(mockRecipesWithImages);
+
+      expect(result).not.toBeNull();
+      expect(result).toHaveProperty("jpgUrl");
+      expect(result).toHaveProperty("webpUrl");
+      expect(result).toHaveProperty("alt");
+      expect(mockRecipesWithImages.some(recipe => recipe.images === result)).toBe(true);
+    });
+
+    it("should return null when recipe has no images property", () => {
+      const recipesWithoutImages = [{ name: "Recipe 1" }, { name: "Recipe 2" }];
+
+      const result = selectRandomImages(recipesWithoutImages);
+      expect(result).toBeNull();
+    });
+
+    it("should return null when recipe has null images", () => {
+      const recipesWithNullImages = [{ images: null }, { images: null }];
+
+      const result = selectRandomImages(recipesWithNullImages);
+      expect(result).toBeNull();
+    });
+
+    it("should return images from single recipe", () => {
+      const singleRecipe = [mockRecipesWithImages[0]];
+      const result = selectRandomImages(singleRecipe);
+
+      expect(result).toEqual(mockRecipesWithImages[0].images);
+    });
   });
 
-  it("should return null for undefined input", () => {
-    const result = pickRandomRecipeImage(undefined);
-    expect(result).toBeNull();
+  describe("isImageLoaded", () => {
+    it("should return false for empty string", () => {
+      expect(isImageLoaded("")).toBe(false);
+    });
+
+    it("should return false for null", () => {
+      expect(isImageLoaded(null)).toBe(false);
+    });
+
+    it("should return false for undefined", () => {
+      expect(isImageLoaded(undefined)).toBe(false);
+    });
+
+    it("should return false for image not yet loaded", () => {
+      expect(isImageLoaded(TEST_IMAGE_URL)).toBe(false);
+    });
+
+    it("should track loaded images after imagesTypes processes them", () => {
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+          <picture>
+            <img src="${TEST_IMAGE_URL}" alt="Test" />
+          </picture>
+        </div>
+      `);
+
+      const img = fragment.querySelector("img");
+      Object.defineProperty(img, "complete", { value: true, writable: true });
+      Object.defineProperty(img, "naturalWidth", { value: 100, writable: true });
+
+      imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
+
+      expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
+    });
   });
 
-  it("should return an images object from recipes", () => {
-    const result = pickRandomRecipeImage(mockRecipesWithImages);
+  describe("imagesTypes", () => {
+    it("should return early when no image URLs provided", () => {
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+          <picture><img src="" alt="Test" /></picture>
+        </div>
+      `);
 
-    expect(result).not.toBeNull();
-    expect(result).toHaveProperty("jpgUrl");
-    expect(result).toHaveProperty("webpUrl");
-    expect(result).toHaveProperty("alt");
-    expect(mockRecipesWithImages.some(recipe => recipe.images === result)).toBe(true);
-  });
+      expect(() => imagesTypes(fragment, { jpgUrl: "", webpUrl: "" })).not.toThrow();
+    });
 
-  it("should return null when recipe has no images property", () => {
-    const recipesWithoutImages = [{ name: "Recipe 1" }, { name: "Recipe 2" }];
+    it("should hide placeholder when image is already loaded", () => {
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+          <picture>
+            <img src="${TEST_IMAGE_URL}" alt="Test" />
+          </picture>
+        </div>
+      `);
 
-    const result = pickRandomRecipeImage(recipesWithoutImages);
-    expect(result).toBeNull();
-  });
+      const placeholder = fragment.querySelector(".image-loading-placeholder");
+      const img = fragment.querySelector("img");
+      Object.defineProperty(img, "complete", { value: true, writable: true });
+      Object.defineProperty(img, "naturalWidth", { value: 100, writable: true });
 
-  it("should return null when recipe has null images", () => {
-    const recipesWithNullImages = [{ images: null }, { images: null }];
+      imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
 
-    const result = pickRandomRecipeImage(recipesWithNullImages);
-    expect(result).toBeNull();
-  });
+      expect(placeholder.classList.contains("hidden")).toBe(true);
+      expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
+    });
 
-  it("should return images from single recipe", () => {
-    const singleRecipe = [mockRecipesWithImages[0]];
-    const result = pickRandomRecipeImage(singleRecipe);
+    it("should handle missing placeholder gracefully", () => {
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <picture>
+            <img src="${TEST_IMAGE_URL}" alt="Test" />
+          </picture>
+        </div>
+      `);
 
-    expect(result).toEqual(mockRecipesWithImages[0].images);
+      expect(() => imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" })).not.toThrow();
+    });
+
+    it("should handle missing image element gracefully", () => {
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+        </div>
+      `);
+
+      expect(() => imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" })).not.toThrow();
+    });
   });
 });

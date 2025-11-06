@@ -44,6 +44,7 @@ npm install
 | `npm run format`          | Formate le code avec Prettier                            |
 | `npm run clean`           | Nettoie les dossiers dist, .vite et coverage             |
 | `npm run optimize:images` | Optimise les images                                      |
+| `npm run lighthouse`      | Génère un rapport Lighthouse en JSON (nécessite jq)      |
 
 ## Structure du projet
 
@@ -98,6 +99,62 @@ npm test
 
 - Vite
 - Tailwind CSS
+
+## Lighthouse
+
+### Prérequis
+
+Pour utiliser le script Lighthouse, vous devez installer `jq` (processeur JSON en ligne de commande) :
+
+```bash
+# macOS
+brew install jq
+
+# Linux (Ubuntu/Debian)
+sudo apt-get install jq
+
+# Windows (avec Chocolatey)
+choco install jq
+```
+
+### Utilisation
+
+1. **Démarrer le serveur de développement :**
+   ```bash
+   npm run dev
+   ```
+
+2. **Dans un autre terminal, lancer Lighthouse :**
+   ```bash
+   npm run lighthouse
+   ```
+
+Le script génère deux fichiers :
+- `lighthouse-report.json` - Rapport JSON brut
+- `lighthouse-report-formatted.json` - Rapport JSON formaté (lisible)
+
+### Options du rapport
+
+Le rapport Lighthouse inclut :
+- **Performance** - Métriques de performance
+- **Accessibility** - Accessibilité
+- **Best Practices** - Bonnes pratiques
+- **SEO** - Optimisation pour les moteurs de recherche
+
+### Analyser le rapport
+
+Pour extraire des informations spécifiques du rapport :
+
+```bash
+# Score de performance
+jq '.categories.performance.score' lighthouse-report.json
+
+# Tous les audits échoués
+jq '.audits | to_entries | map(select(.value.score < 1))' lighthouse-report.json
+
+# Liste des opportunités d'amélioration
+jq '.audits | to_entries | map(select(.value.details.type == "opportunity"))' lighthouse-report.json
+```
 
 ## Licence
 

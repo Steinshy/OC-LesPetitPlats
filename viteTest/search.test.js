@@ -1,12 +1,32 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderRecipes } from "../src/card.js";
-import { updateCount, initSearch } from "../src/search.js";
+import {
+  updateCount,
+  initSearch,
+  addFilter,
+  removeFilter,
+  getActiveFilters,
+} from "../src/components/search.js";
 
 vi.mock("../src/card.js", () => ({
   renderRecipes: vi.fn(),
 }));
 
+vi.mock("../src/components/dropdown.js", () => ({
+  updateDropdownsSelection: vi.fn(),
+}));
+
+vi.mock("../src/components/filterTags.js", () => ({
+  updateFilterTags: vi.fn(),
+}));
+
 describe("search", () => {
+  const mockRecipes = [
+    { name: "Recipe 1", search: "recipe one test" },
+    { name: "Recipe 2", search: "recipe two test" },
+    { name: "Recipe 3", search: "recipe three test" },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
     document.body.innerHTML = `
@@ -52,12 +72,6 @@ describe("search", () => {
   });
 
   describe("initSearch", () => {
-    const mockRecipes = [
-      { name: "Recipe 1", search: "recipe one test" },
-      { name: "Recipe 2", search: "recipe two test" },
-      { name: "Recipe 3", search: "recipe three test" },
-    ];
-
     it("should set up search input listener", () => {
       const input = document.querySelector(".search-bar-group input");
       initSearch(mockRecipes);
@@ -130,6 +144,125 @@ describe("search", () => {
           }, 350);
         }, 10);
       });
+    });
+
+    it("should use requestIdleCallback when available", () => {
+      let callbackExecuted = false;
+      const mockRequestIdleCallback = vi.fn((callback, options) => {
+        setTimeout(() => {
+          callback({ didTimeout: false, timeRemaining: () => 50 });
+          callbackExecuted = true;
+        }, 0);
+        return 1;
+      });
+      window.requestIdleCallback = mockRequestIdleCallback;
+
+      initSearch(mockRecipes);
+
+      return new Promise(resolve => {
+        setTimeout(() => {
+          expect(mockRequestIdleCallback).toHaveBeenCalled();
+          expect(mockRequestIdleCallback.mock.calls[0][1]).toEqual({ timeout: 2000 });
+          expect(callbackExecuted).toBe(true);
+          const input = document.querySelector(".search-bar-group input");
+          expect(input).toBeDefined();
+          delete window.requestIdleCallback;
+          resolve();
+        }, 50);
+      });
+    });
+  });
+
+  describe("addFilter", () => {
+    beforeEach(() => {
+      initSearch(mockRecipes);
+    });
+
+    it("should add ingredient filter", () => {
+      addFilter("ingredients", "Tomato");
+      const filters = getActiveFilters();
+      expect(filters.ingredients.has("Tomato")).toBe(true);
+    });
+
+    it("should add appliance filter", () => {
+      addFilter("appliances", "Oven");
+      const filters = getActiveFilters();
+      expect(filters.appliances.has("Oven")).toBe(true);
+    });
+
+    it("should add ustensil filter", () => {
+      addFilter("ustensils", "Spoon");
+      const filters = getActiveFilters();
+      expect(filters.ustensils.has("Spoon")).toBe(true);
+    });
+
+    it("should trigger applyFilters when filter is added", () => {
+      addFilter("ingredients", "Tomato");
+      expect(renderRecipes).toHaveBeenCalled();
+    });
+
+    it("should handle invalid filter type gracefully", () => {
+      expect(() => addFilter("invalid", "value")).not.toThrow();
+    });
+  });
+
+  describe("removeFilter", () => {
+    beforeEach(() => {
+      initSearch(mockRecipes);
+      addFilter("ingredients", "Tomato");
+      vi.clearAllMocks();
+    });
+
+    it("should remove ingredient filter", () => {
+      removeFilter("ingredients", "Tomato");
+      const filters = getActiveFilters();
+      expect(filters.ingredients.has("Tomato")).toBe(false);
+    });
+
+    it("should trigger applyFilters when filter is removed", () => {
+      removeFilter("ingredients", "Tomato");
+      expect(renderRecipes).toHaveBeenCalled();
+    });
+
+    it("should handle removing non-existent filter", () => {
+      expect(() => removeFilter("ingredients", "NonExistent")).not.toThrow();
+    });
+
+    it("should handle invalid filter type gracefully", () => {
+      expect(() => removeFilter("invalid", "value")).not.toThrow();
+    });
+  });
+
+  describe("getActiveFilters", () => {
+    beforeEach(() => {
+      initSearch(mockRecipes);
+    });
+
+    it("should return empty filters initially", () => {
+      const filters = getActiveFilters();
+      expect(filters.ingredients.size).toBe(0);
+      expect(filters.appliances.size).toBe(0);
+      expect(filters.ustensils.size).toBe(0);
+    });
+
+    it("should return current active filters", () => {
+      addFilter("ingredients", "Tomato");
+      addFilter("appliances", "Oven");
+      addFilter("ustensils", "Spoon");
+
+      const filters = getActiveFilters();
+      expect(filters.ingredients.has("Tomato")).toBe(true);
+      expect(filters.appliances.has("Oven")).toBe(true);
+      expect(filters.ustensils.has("Spoon")).toBe(true);
+    });
+
+    it("should return a copy of filters (not reference)", () => {
+      const filters1 = getActiveFilters();
+      addFilter("ingredients", "Tomato");
+      const filters2 = getActiveFilters();
+
+      expect(filters1.ingredients.size).toBe(0);
+      expect(filters2.ingredients.size).toBe(1);
     });
   });
 });

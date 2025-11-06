@@ -1,7 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
-import { EsLinter, linterPlugin } from "vite-plugin-linter";
 import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -85,10 +84,6 @@ export default defineConfig(({ mode }) => {
       }),
       tailwindcss(),
       webfontDownload(),
-      linterPlugin({
-        include: ["./src/**/*.js"],
-        linters: [new EsLinter({ configEnv: { mode } })],
-      }),
       tsconfigPaths(),
       isAnalyze &&
         visualizer({

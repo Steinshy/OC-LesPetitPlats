@@ -19,7 +19,8 @@
     "lint:fix": "eslint . --ext js --fix --ignore-pattern 'dist/**' --ignore-pattern 'dev-dist/**' --ignore-pattern 'coverage/**' --ignore-pattern 'api/data.js'",
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "clean": "rm -rf dist node_modules/.vite coverage",
-    "optimize:images": "node scripts/optimizeImages.js"
+    "optimize:images": "node scripts/optimizeImages.js",
+    "lighthouse": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json --quiet --chrome-flags=\"--headless\" --locale=fr && jq '.' ./lighthouse-report.json > ./lighthouse-report-formatted.json && echo '✓ Lighthouse report generated: lighthouse-report.json' && echo '✓ Formatted report: lighthouse-report-formatted.json'"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
