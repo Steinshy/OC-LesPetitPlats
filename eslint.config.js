@@ -38,6 +38,14 @@ export default [
         ...globals.node,
       },
     },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+      },
+    },
     rules: {
       "no-unused-vars": [
         "warn",
@@ -76,7 +84,12 @@ export default [
       "max-lines-per-function": ["warn", { max: 300, skipBlankLines: true, skipComments: true }],
 
       "no-duplicate-imports": "warn",
-      "import/no-unresolved": ["warn", { ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"] }],
+      "import/no-unresolved": [
+        "warn",
+        {
+          ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"],
+        },
+      ],
       "import/no-absolute-path": "warn",
       "import/no-self-import": "warn",
       "import/order": [
@@ -117,6 +130,7 @@ export default [
     ignores: [
       "node_modules/",
       "dist/",
+      "dev-dist/",
       "build/",
       "public/",
       "coverage/",

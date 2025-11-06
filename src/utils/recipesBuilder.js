@@ -1,4 +1,4 @@
-import { cacheGetOrSet } from "./cache.js";
+import { cacheGetOrSet } from "@/utils/cache.js";
 
 const BASE = import.meta.env.BASE_URL || "/";
 const DATA_URL = `${BASE}${"api/data.json".replace(/^\/+/, "")}`;
