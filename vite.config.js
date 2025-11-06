@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
           background_color: "#ffffff",
           theme_color: "#FFD15B",
           orientation: "portrait-primary",
+          lang: "fr",
           icons: [
             {
               src: `${BASE_PATH}favicons/logo.svg`,
@@ -50,9 +51,15 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
-        workbox: {
-          globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,jpg,json}"],
+        strategies: "injectManifest",
+        srcDir: "public",
+        filename: "sw.js",
+        injectManifest: {
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
+          globIgnores: ["**/recipes/*.jpg"],
           maximumFileSizeToCacheInBytes: 5242880,
+        },
+        workbox: {
           navigateFallback: `${BASE_PATH}index.html`,
           navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
           runtimeCaching: [
@@ -130,9 +137,7 @@ export default defineConfig(({ mode }) => {
       terserOptions: {
         compress: {
           drop_console: isProduction,
-          drop_debugger: true,
-          pure_funcs: isProduction ? ["console.log", "console.info"] : [],
-          passes: 2,
+          drop_debugger: false,
         },
         mangle: { properties: { regex: /^_/ } },
         format: { comments: false },
