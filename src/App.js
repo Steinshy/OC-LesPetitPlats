@@ -2,12 +2,7 @@ import { renderRecipes, renderCardsSkeletons } from "./card.js";
 import { initDropdowns } from "./components/dropdown.js";
 import { renderHeader } from "./components/headerImage.js";
 import { initSearch, updateCount, addFilter, removeFilter } from "./components/search.js";
-import {
-  showSearchSkeleton,
-  hideSearchSkeleton,
-  renderHeaderSkeleton,
-  hideHeaderSkeleton,
-} from "./components/skeletons.js";
+import { hideSearchSkeleton } from "./components/skeletons.js";
 
 import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
@@ -19,8 +14,6 @@ import "../styles/global.css";
 const getContainer = () => document.querySelector(".cards-container");
 
 const initApp = async () => {
-  showSearchSkeleton();
-  renderHeaderSkeleton();
   updateCount(0);
   mobileMenuManager();
   initErrorTestButton();
@@ -37,7 +30,6 @@ const initApp = async () => {
     updateCount(recipesData.length);
     hideSearchSkeleton();
     await renderHeader(recipesData);
-    hideHeaderSkeleton();
     renderRecipes(recipesData);
     initSearch(recipesData);
     initDropdowns(recipesData, (type, value, remove = false) => {

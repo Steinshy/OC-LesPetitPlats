@@ -12,7 +12,7 @@ const debounce = (fn, delay = 300) => {
 };
 
 const selectors = {
-  input: ".search-bar-group input",
+  input: "#recipe-search, .search-bar-group input",
   button: ".search-bar-group .search-btn",
   counter: ".results-counter h2",
 };
@@ -40,9 +40,13 @@ const handleSearch = input => {
   applyFilters();
 };
 
-export const updateCount = (count = 0) => {
+export const updateCount = count => {
   const counter = getElement("counter");
-  if (counter) counter.textContent = `${Math.max(0, count)} Résultats`;
+  if (counter) {
+    const num = Math.max(0, count);
+    counter.textContent = `${num} ${num === 1 ? "résultat" : "résultats"}`;
+    counter.closest(".results-counter")?.classList.remove("skeleton-loading");
+  }
 };
 
 export const addFilter = (type, value) => {
@@ -59,7 +63,11 @@ export const removeFilter = (type, value) => {
   }
 };
 
-export const getActiveFilters = () => activeFilters;
+export const getActiveFilters = () => ({
+  ingredients: new Set(activeFilters.ingredients),
+  appliances: new Set(activeFilters.appliances),
+  ustensils: new Set(activeFilters.ustensils),
+});
 
 export const initSearch = recipesData => {
   allRecipes = recipesData;
@@ -87,4 +95,3 @@ export const initSearch = recipesData => {
     setTimeout(onReady, 0);
   }
 };
-

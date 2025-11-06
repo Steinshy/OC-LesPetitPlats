@@ -13,6 +13,7 @@ const renderTag = (type, value) => `
 export const updateFilterTags = activeFilters => {
   const container = document.querySelector(".ingredients-list");
   const filtersBox = document.querySelector(".filters-box");
+  const filterBoxTitle = document.querySelector(".filter-box-title");
   if (!container) return;
 
   const allFilters = Object.entries(activeFilters).flatMap(([type, values]) =>
@@ -26,6 +27,7 @@ export const updateFilterTags = activeFilters => {
   }
 
   filtersBox?.classList.add("has-filters");
+  filterBoxTitle?.classList.remove("skeleton-loading");
   container.innerHTML = allFilters.map(({ type, value }) => renderTag(type, value)).join("");
 
   container.querySelectorAll(".filter-tag").forEach(tag => {

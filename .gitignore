@@ -51,3 +51,8 @@ scripts
 
 # API data
 api/data.js
+
+# Lighthouse reports
+lighthouse-report*.html
+lighthouse-report*.json
+lighthouse-report-formatted.json

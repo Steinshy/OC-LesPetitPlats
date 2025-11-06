@@ -72,7 +72,9 @@ const buildCard = recipe => {
   `;
 
   const fragment = document.createRange().createContextualFragment(cardHTML);
-  imagesTypes(fragment, { webpUrl, jpgUrl });
+  if (jpgUrl || webpUrl) {
+    imagesTypes(fragment, { webpUrl, jpgUrl });
+  }
   return fragment;
 };
 

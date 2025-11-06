@@ -11,13 +11,14 @@
     <!-- SEO Meta Tags -->
     <meta
       name="description"
-      content="Les Petits Plats, recettes faciles et délicieuses. Trouvez la recette parfaite pour votre repas.">
+      content="Les Petits Plats, recettes faciles et délicieuses. Trouvez la recette parfaite pour votre repas parmi plus de 1500 recettes du quotidien.">
     <meta name="keywords" content="les petits plats, recettes, faciles, délicieuses, repas, cuisine">
     <meta name="author" content="Les Petits Plats">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
     <meta name="bingbot" content="index, follow">
     <meta name="theme-color" content="#FFD15B">
+    <link rel="canonical" href="https://steinshy.github.io/OC-LesPetitPlats/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content="Les Petits Plats - Recettes faciles et délicieuses">
@@ -64,19 +65,19 @@
         <!-- Navigation Bar -->
         <nav class="header-nav">
           <div class="header-brand">
-            <img src="/favicons/logo.svg" alt="Logo" class="logo" fetchpriority="high" >
+            <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="logo" fetchpriority="high" width="40" height="40">
             <h1>Les Petits Plats</h1>
           </div>
 
           <ul class="nav-menu">
-            <li><a href="#" class="nav-link">Recettes</a></li>
-            <li><a href="#" class="nav-link">Catégories</a></li>
-            <li><a href="#" class="nav-link">À propos</a></li>
+            <li><a href="#recipes" class="nav-link" aria-label="Voir les recettes">Recettes</a></li>
+            <li><a href="#categories" class="nav-link" aria-label="Voir les catégories">Catégories</a></li>
+            <li><a href="#about" class="nav-link" aria-label="En savoir plus">À propos</a></li>
           </ul>
 
           <div class="nav-actions">
             <button id="error-test-button" class="nav-icon-btn" aria-label="Tester l'affichage d'erreur" type="button">
-              <i class="fa-solid fa-triangle-exclamation"></i>
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
             </button>
             <button
               id="mobile-menu-button"
@@ -85,7 +86,7 @@
               aria-expanded="false"
               aria-label="Ouvrir le menu mobile"
               type="button">
-              <i class="fa-solid fa-bars"></i>
+              <i class="fa-solid fa-bars" aria-hidden="true"></i>
             </button>
           </div>
         </nav>
@@ -94,53 +95,59 @@
         <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
           <ul class="mobile-nav-menu">
             <li>
-              <a href="#" class="mobile-nav-link" tabindex="-1">Recettes</a>
+              <a href="#recipes" class="mobile-nav-link" tabindex="-1" aria-label="Voir les recettes">Recettes</a>
             </li>
             <li>
-              <a href="#" class="mobile-nav-link" tabindex="-1">Catégories</a>
+              <a href="#categories" class="mobile-nav-link" tabindex="-1" aria-label="Voir les catégories">Catégories</a>
             </li>
             <li>
-              <a href="#" class="mobile-nav-link" tabindex="-1">À propos</a>
+              <a href="#about" class="mobile-nav-link" tabindex="-1" aria-label="En savoir plus">À propos</a>
             </li>
           </ul>
         </div>
 
         <!-- Hero Search Section -->
         <section class="search-section">
-          <div class="search-header">
+          <div class="search-header skeleton-loading">
             <h2>
               Cherchez parmi plus de 1500 recettes <br>
               du quotidien, simples et délicieuses
             </h2>
           </div>
-          <div class="search-bar-group">
-            <input type="text" placeholder="Rechercher une recette, un ingrédient...">
-            <button type="button" aria-label="Search" class="search-btn">
-              <i class="fa-solid fa-magnifying-glass"></i>
+          <div class="search-bar-group skeleton-loading">
+            <label for="recipe-search" class="sr-only">Rechercher une recette, un ingrédient</label>
+            <input 
+              type="text" 
+              id="recipe-search"
+              name="recipe-search"
+              placeholder="Rechercher une recette, un ingrédient..."
+              aria-label="Rechercher une recette, un ingrédient">
+            <button type="button" aria-label="Lancer la recherche" class="search-btn">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             </button>
           </div>
         </section>
       </header>
       <!-- Main Content Section -->
       <main class="main">
-        <!-- Filter Dropdown Buttons -->
+        <!-- Filter Dropdowns -->
         <section class="filters-dropdowns">
           <div class="filter-dropdown-wrapper">
-            <!-- Dropdowns will be rendered here by JavaScript -->
+            <!-- Dropdowns -->
           </div>
-          <div class="results-counter">
-            <h2>Résultats</h2>
+          <div class="results-counter skeleton-loading">
+            <h2>0 résultats</h2>
           </div>
         </section>
 
         <!-- Selected Filters Display -->
         <aside class="filters-box">
           <section class="filter-box">
-            <h3 class="filter-box-title">Filtres sélectionnés</h3>
+            <h3 class="filter-box-title skeleton-loading">Filtres sélectionnés</h3>
             <input type="checkbox" id="toggle-filters" class="toggle-checkbox">
             <div class="ingredients-list-wrapper">
               <div class="ingredients-list">
-                <!-- Filter tags will be rendered here by JavaScript -->
+                <!-- Filter tags -->
               </div>
             </div>
             <label for="toggle-filters" class="toggle-label">
