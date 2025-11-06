@@ -6,7 +6,7 @@ const selectors = {
 
 const getElement = key => document.querySelector(selectors[key]);
 
-export const renderHeaderImage = async recipesData => {
+export const renderHeader = async recipesData => {
   const searchSection = getElement("searchSection");
   if (!searchSection) return;
 

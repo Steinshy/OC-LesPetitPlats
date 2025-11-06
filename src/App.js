@@ -1,14 +1,17 @@
 import { renderRecipes, renderCardsSkeletons } from "./card.js";
-import { renderHeaderImage } from "./components/renderHeaderImage.js";
+import { initDropdowns } from "./components/dropdown.js";
+import { renderHeader } from "./components/headerImage.js";
+import { initSearch, updateCount, addFilter, removeFilter } from "./components/search.js";
 import {
   showSearchSkeleton,
   hideSearchSkeleton,
   renderHeaderSkeleton,
   hideHeaderSkeleton,
 } from "./components/skeletons.js";
+
 import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
-import { initSearch, updateCount } from "./search.js";
+
 import { buildRecipesData } from "./utils/recipesBuilder.js";
 
 import "../styles/global.css";
@@ -33,10 +36,17 @@ const initApp = async () => {
 
     updateCount(recipesData.length);
     hideSearchSkeleton();
-    await renderHeaderImage(recipesData);
+    await renderHeader(recipesData);
     hideHeaderSkeleton();
     renderRecipes(recipesData);
     initSearch(recipesData);
+    initDropdowns(recipesData, (type, value, remove = false) => {
+      if (remove) {
+        removeFilter(type, value);
+      } else {
+        addFilter(type, value);
+      }
+    });
   } catch (error) {
     console.error(error);
     container && (container.innerHTML = "");

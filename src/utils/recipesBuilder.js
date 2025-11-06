@@ -57,7 +57,7 @@ const buildSearch = (ingredients, item) => {
 
 const buildUstensils = rawItem => {
   const ustensils = Array.isArray(rawItem?.ustensils) ? rawItem.ustensils : [];
-  return ustensils.map(ustensil => ustensil?.name);
+  return ustensils.map(ustensil => (typeof ustensil === "string" ? ustensil : ustensil?.name || ""));
 };
 
 const buildRecipe = rawItem => {
