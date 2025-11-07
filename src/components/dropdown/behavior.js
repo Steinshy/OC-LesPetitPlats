@@ -4,11 +4,26 @@ export const toggleDropdown = (type, isOpen) => {
   const button = document.getElementById(`dropdown-${type}-button`);
   const menu = document.getElementById(`menu-${type}`);
   const container = document.querySelector(`.dropdown-container[data-type="${type}"]`);
+  const backdrop = container?.querySelector(".dropdown-backdrop");
   if (!button || !menu || !container) return;
 
   button.classList.toggle("active", isOpen);
   button.setAttribute("aria-expanded", isOpen);
   container.classList.toggle("open", isOpen);
+
+  // Handle body scroll lock on mobile
+  if (window.innerWidth <= 640) {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }
+
+  // Handle backdrop
+  if (backdrop) {
+    backdrop.setAttribute("aria-hidden", !isOpen);
+  }
 
   if (!isOpen) {
     const focusedElement = menu.querySelector(":focus");

@@ -95,6 +95,14 @@ export const initDropdowns = (recipes, onFilterChange) => {
       }
     });
 
+    const container = document.querySelector(`.dropdown-container[data-type="${type}"]`);
+    const backdrop = container?.querySelector(".dropdown-backdrop");
+
+    backdrop?.addEventListener("click", event => {
+      event.stopPropagation();
+      closeAllDropdowns();
+    });
+
     searchInput?.addEventListener("click", event => event.stopPropagation());
     menu?.addEventListener("click", event => {
       if (!event.target.closest(".dropdown-item")) event.stopPropagation();

@@ -12,6 +12,7 @@ export const renderDropdown = (name, type, data) => `
       <span class="filter-label">${name}</span>
       <i class="fa-solid fa-chevron-down"></i>
     </button>
+    <div class="dropdown-backdrop" aria-hidden="true"></div>
     <div class="dropdown-menu" id="menu-${type}" aria-hidden="true" role="menu">
       <div class="dropdown-search">
         <input type="text" id="search-${type}" class="dropdown-search-input" 

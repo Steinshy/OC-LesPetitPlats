@@ -56,6 +56,7 @@
 
   --z-sticky: 100;
   --z-dropdown: 1000;
+  --z-dropdown-mobile: 1010;
 }
 
 :root {
@@ -485,6 +486,22 @@ img {
 
 .dropdown-container {
   position: relative;
+}
+
+.dropdown-backdrop {
+  background-color: rgb(0 0 0 / 40%);
+  bottom: 0;
+  display: none;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: calc(var(--z-dropdown) + 5);
+}
+
+.dropdown-container.open + .dropdown-backdrop,
+.dropdown-container.open ~ .dropdown-backdrop {
+  display: block;
 }
 
 .dropdown-menu {
@@ -1363,7 +1380,10 @@ img {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .filters-dropdowns,
+  .filters-dropdowns {
+    gap: var(--spacing-md);
+  }
+
   .filter-dropdown-wrapper {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
@@ -1371,11 +1391,52 @@ img {
 
   .filter-dropdown {
     font-size: 15px;
-    padding: var(--spacing-sm) 18px;
+    min-height: 44px;
+    padding: 12px 18px;
   }
 
   .dropdown-menu {
-    min-width: 100%;
+    border-radius: var(--radius-md);
+    position: absolute;
+  }
+
+  .dropdown-container.open .dropdown-menu {
+    transform: translateY(0);
+  }
+
+  .dropdown-menu::before {
+    display: none;
+  }
+
+  .dropdown-search {
+    padding: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+  }
+
+  .dropdown-search-input {
+    font-size: 15px;
+    min-height: 44px;
+    padding: var(--spacing-xs) 32px var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .dropdown-search-icon {
+    right: 24px;
+  }
+
+  .dropdown-search-clear {
+    height: 24px;
+    right: 24px;
+    width: 24px;
+  }
+
+  .dropdown-search-clear i {
+    font-size: 11px;
+  }
+
+  .dropdown-item {
+    font-size: 15px;
+    min-height: 44px;
+    padding: 12px var(--spacing-lg);
   }
 
   .results-counter h2 {
@@ -1499,22 +1560,122 @@ img {
   }
 
   .filters-dropdowns {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
   }
 
   .filter-dropdown-wrapper {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-sm);
     width: 100%;
   }
 
   .filter-dropdown {
-    font-size: 14px;
+    font-size: 15px;
     justify-content: space-between;
-    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 48px;
+    padding: 14px var(--spacing-md);
+    touch-action: manipulation;
     width: 100%;
+  }
+
+  .filters-dropdowns {
+    position: relative;
+  }
+
+  .dropdown-container {
+    position: static;
+  }
+
+  .dropdown-backdrop {
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .dropdown-container.open .dropdown-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .dropdown-backdrop {
+    cursor: pointer;
+  }
+
+  .dropdown-menu {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -4px 24px rgb(0 0 0 / 20%);
+    left: 0;
+    margin-top: 0;
+    max-height: 75vh;
+    min-width: auto;
+    position: fixed;
+    right: 0;
+    top: auto;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    z-index: calc(var(--z-dropdown) + 10);
+  }
+
+  .dropdown-container.open .dropdown-menu {
+    bottom: 0;
+    transform: translateY(0);
+  }
+
+  .dropdown-menu::before {
+    background-color: var(--color-border);
+    border-radius: 4px;
+    content: "";
+    height: 4px;
+    left: 50%;
+    position: absolute;
+    top: 12px;
+    transform: translateX(-50%);
+    width: 40px;
+  }
+
+  .dropdown-search {
+    padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
+    padding-top: 32px;
+  }
+
+  .dropdown-search-input {
+    font-size: 16px;
+    min-height: 48px;
+    padding: var(--spacing-md) 48px var(--spacing-md) var(--spacing-md);
+  }
+
+  .dropdown-search-icon {
+    right: 60px;
+  }
+
+  .dropdown-search-clear {
+    height: 32px;
+    right: 60px;
+    width: 32px;
+  }
+
+  .dropdown-search-clear i {
+    font-size: 14px;
+  }
+
+  .dropdown-list {
+    max-height: calc(70vh - 120px);
+    padding: var(--spacing-xs) 0;
+  }
+
+  .dropdown-item {
+    font-size: 16px;
+    min-height: 52px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    touch-action: manipulation;
+  }
+
+  .dropdown-item.selected {
+    padding-left: calc(var(--spacing-lg) - 3px);
   }
 
 
