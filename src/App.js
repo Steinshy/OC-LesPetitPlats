@@ -6,6 +6,7 @@ import { hideSearchSkeleton } from "./components/skeletons.js";
 
 import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
+import { initScrollToTop } from "./components/scrollToTop.js";
 
 import { buildRecipesData } from "./utils/recipesBuilder.js";
 
@@ -17,6 +18,7 @@ const initApp = async () => {
   updateCount(0);
   mobileMenuManager();
   initErrorTestButton();
+  initScrollToTop();
   hideError();
 
   const container = getContainer();
