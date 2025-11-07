@@ -63,6 +63,13 @@ export const removeFilter = (type, value) => {
   }
 };
 
+export const clearAllFilters = () => {
+  activeFilters.ingredients.clear();
+  activeFilters.appliances.clear();
+  activeFilters.ustensils.clear();
+  applyFilters();
+};
+
 export const getActiveFilters = () => ({
   ingredients: new Set(activeFilters.ingredients),
   appliances: new Set(activeFilters.appliances),

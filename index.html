@@ -143,7 +143,15 @@
         <!-- Selected Filters Display -->
         <aside class="filters-box">
           <section class="filter-box">
-            <h3 class="filter-box-title skeleton-loading">Filtres sélectionnés</h3>
+            <div class="filter-box-header">
+              <h3 class="filter-box-title skeleton-loading">
+                Filtres sélectionnés
+                <span class="filter-count" id="filter-count">(0)</span>
+              </h3>
+              <button type="button" id="clear-all-filters" class="clear-all-btn" aria-label="Retirer tous les filtres">
+                Tout effacer
+              </button>
+            </div>
             <input type="checkbox" id="toggle-filters" class="toggle-checkbox">
             <div class="ingredients-list-wrapper">
               <div class="ingredients-list">
@@ -158,7 +166,17 @@
         </aside>
 
         <!-- Recipe Cards Grid -->
-        <section class="cards-container"></section>
+        <section class="cards-container">
+          <div class="empty-state hidden" id="empty-state">
+            <div class="empty-state-icon">
+              <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+            </div>
+            <h2 class="empty-state-title">Aucune recette trouvée</h2>
+            <p class="empty-state-message">
+              Essayez de modifier vos critères de recherche ou vos filtres pour trouver des recettes.
+            </p>
+          </div>
+        </section>
       </main>
 
       <!-- Footer Section -->

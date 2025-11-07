@@ -3,6 +3,22 @@ import { imagesTypes } from "./utils/deliveryImages.js";
 
 const getContainer = () => document.querySelector(".cards-container");
 
+const createEmptyState = () => {
+  const emptyState = document.createElement("div");
+  emptyState.id = "empty-state";
+  emptyState.className = "empty-state";
+  emptyState.innerHTML = `
+    <div class="empty-state-icon">
+      <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+    </div>
+    <h2 class="empty-state-title">Aucune recette trouvée</h2>
+    <p class="empty-state-message">
+      Essayez de modifier vos critères de recherche ou vos filtres pour trouver des recettes.
+    </p>
+  `;
+  return emptyState;
+};
+
 const validateAndFormatIngredient = ingredient => {
   if (!ingredient?.name) return null;
   const hasQuantity = ingredient.quantity && ingredient.quantity !== 0;
@@ -82,7 +98,32 @@ export const renderRecipes = recipes => {
   const container = getContainer();
   if (!container) return;
 
-  container.innerHTML = "";
+  let emptyState = container.querySelector("#empty-state");
+  
+  if (recipes.length === 0) {
+    // Remove all cards but keep empty state
+    const cards = container.querySelectorAll(".card");
+    cards.forEach(card => card.remove());
+    
+    if (!emptyState) {
+      emptyState = createEmptyState();
+      container.appendChild(emptyState);
+    } else {
+      emptyState.classList.remove("hidden");
+    }
+    return;
+  }
+  
+  // Hide empty state if it exists
+  if (emptyState) {
+    emptyState.classList.add("hidden");
+  }
+  
+  // Remove all cards
+  const cards = container.querySelectorAll(".card");
+  cards.forEach(card => card.remove());
+  
+  // Render new cards
   const fragment = document.createDocumentFragment();
   recipes.forEach(recipe => fragment.appendChild(buildCard(recipe)));
   container.appendChild(fragment);
@@ -92,6 +133,15 @@ export const renderCardsSkeletons = count => {
   const container = getContainer();
   if (!container) return;
 
+  const emptyState = container.querySelector("#empty-state");
+  if (emptyState) {
+    emptyState.classList.add("hidden");
+  }
+
+  // Remove all cards
+  const cards = container.querySelectorAll(".card");
+  cards.forEach(card => card.remove());
+
   const fragment = document.createDocumentFragment();
   getSkeletonList(count).forEach(skeletonCard => {
     const cardFragment = buildCard(skeletonCard);
@@ -99,6 +149,5 @@ export const renderCardsSkeletons = count => {
     fragment.appendChild(cardFragment);
   });
 
-  container.innerHTML = "";
   container.appendChild(fragment);
 };
