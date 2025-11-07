@@ -12,12 +12,15 @@ export const updateDropdownsSelection = activeFilters => {
 
   DROPDOWN_TYPES.forEach(({ type }) => {
     const searchInput = document.getElementById(`search-${type}`);
-    updateDropdownList(
-      type,
-      getFilteredItems(type, currentDropdownData, searchInput),
-      currentOnFilterChange,
-      activeFilters,
-    );
+    const listElement = document.getElementById(`dropdown-${type}-list`);
+    if (listElement && listElement.closest(".dropdown-container.open")) {
+      updateDropdownList(
+        type,
+        getFilteredItems(type, currentDropdownData, searchInput),
+        currentOnFilterChange,
+        activeFilters,
+      );
+    }
   });
 };
 
@@ -30,10 +33,14 @@ export const initDropdowns = (recipes, onFilterChange) => {
   currentOnFilterChange = onFilterChange;
   currentActiveFilters = { ingredients: new Set(), appliances: new Set(), ustensils: new Set() };
 
-  container.innerHTML = DROPDOWN_TYPES
-    .map(({ name, type }) => renderDropdown(name, type, dropdownData[type]))
-    .join("");
+  container.innerHTML = DROPDOWN_TYPES.map(({ name, type }) =>
+    renderDropdown(name, type, dropdownData[type]),
+  ).join("");
 
-  DROPDOWN_TYPES.forEach(({ type }) => setupDropdown(type, dropdownData, onFilterChange, currentActiveFilters));
+  const getActiveFilters = () =>
+    currentActiveFilters || { ingredients: new Set(), appliances: new Set(), ustensils: new Set() };
+  DROPDOWN_TYPES.forEach(({ type }) =>
+    setupDropdown(type, dropdownData, onFilterChange, getActiveFilters),
+  );
   setupGlobalListeners();
 };

@@ -12,7 +12,6 @@ export const toggleDropdown = (type, isOpen) => {
   button.setAttribute("aria-expanded", isOpen);
   container.classList.toggle("open", isOpen);
 
-  // Handle body scroll lock on mobile
   if (window.innerWidth <= 640) {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -54,12 +53,34 @@ export const updateDropdownList = (type, items, onFilterChange, activeFilters) =
     item.addEventListener("click", event => {
       event.preventDefault();
       item.blur();
-      onFilterChange?.(item.dataset.type, item.dataset.value, item.classList.contains("selected"));
+      const wasSelected = item.classList.contains("selected");
+      const textSpan = item.querySelector("span");
+      const checkIcon = item.querySelector(".dropdown-item-check");
+
+      item.classList.toggle("selected", !wasSelected);
+
+      if (!wasSelected && !checkIcon && textSpan) {
+        const icon = document.createElement("i");
+        icon.className = "fa-solid fa-check dropdown-item-check";
+        icon.setAttribute("aria-hidden", "true");
+        item.appendChild(icon);
+      } else if (wasSelected && checkIcon) {
+        checkIcon.remove();
+      }
+
+      onFilterChange?.(item.dataset.type, item.dataset.value, wasSelected);
     });
   });
 };
 
-export const updateDropdown = (type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters) => {
+export const updateDropdown = (
+  type,
+  searchInput,
+  clearButton,
+  dropdownData,
+  onFilterChange,
+  activeFilters,
+) => {
   if (!searchInput) return;
   clearButton?.classList.toggle("hidden", !searchInput.value.trim());
   updateDropdownList(
@@ -70,7 +91,7 @@ export const updateDropdown = (type, searchInput, clearButton, dropdownData, onF
   );
 };
 
-export const setupDropdown = (type, dropdownData, onFilterChange, activeFilters) => {
+export const setupDropdown = (type, dropdownData, onFilterChange, getActiveFilters) => {
   const { button, searchInput, menu, clearButton, backdrop } = getDropdownElements(type);
 
   button?.addEventListener("click", event => {
@@ -79,11 +100,15 @@ export const setupDropdown = (type, dropdownData, onFilterChange, activeFilters)
     closeAllDropdowns();
     if (isOpen) {
       toggleDropdown(type, true);
-      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters);
+      const currentFilters = getActiveFilters();
+      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, currentFilters);
     }
   });
 
-  searchInput?.addEventListener("input", () => updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters));
+  searchInput?.addEventListener("input", () => {
+    const currentFilters = getActiveFilters();
+    updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, currentFilters);
+  });
   searchInput?.addEventListener("click", event => event.stopPropagation());
 
   clearButton?.addEventListener("click", event => {
@@ -92,7 +117,8 @@ export const setupDropdown = (type, dropdownData, onFilterChange, activeFilters)
     if (searchInput) {
       searchInput.value = "";
       searchInput.focus();
-      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters);
+      const currentFilters = getActiveFilters();
+      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, currentFilters);
     }
   });
 
@@ -105,7 +131,8 @@ export const setupDropdown = (type, dropdownData, onFilterChange, activeFilters)
     if (!event.target.closest(".dropdown-item")) event.stopPropagation();
   });
 
-  updateDropdownList(type, dropdownData[type], onFilterChange, activeFilters);
+  const initialFilters = getActiveFilters();
+  updateDropdownList(type, dropdownData[type], onFilterChange, initialFilters);
 };
 
 export const setupGlobalListeners = () => {
@@ -117,7 +144,8 @@ export const setupGlobalListeners = () => {
     if (event.key === "Escape") {
       const openDropdown = document.querySelector(".dropdown-container.open");
       closeAllDropdowns();
-      openDropdown && document.getElementById(`dropdown-${openDropdown.dataset.type}-button`)?.focus();
+      openDropdown &&
+        document.getElementById(`dropdown-${openDropdown.dataset.type}-button`)?.focus();
     }
   });
 };
