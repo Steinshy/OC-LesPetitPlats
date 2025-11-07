@@ -49,6 +49,9 @@ coverage
 Thumbs.db
 scripts
 
+# Project-specific
+.oc
+
 # API data
 api/data.js
 

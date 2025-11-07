@@ -100,7 +100,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       target: "esnext",
       minify: "terser",
-      sourcemap: isAnalyze,
+      sourcemap: true,
       manifest: true,
       cssCodeSplit: true,
       cssMinify: "lightningcss",
