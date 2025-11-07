@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "rm -rf dist dev-dist node_modules/.vite coverage lighthouse-report*.html lighthouse-report*.json lighthouse-report-formatted.json && vite build",
     "test": "vitest --coverage && vite build --mode analyze",
     "test:ui": "vitest --ui",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:md",
@@ -18,7 +18,6 @@
     "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore dist --ignore dev-dist --ignore coverage",
     "lint:fix": "eslint . --ext js --fix --ignore-pattern 'dist/**' --ignore-pattern 'dev-dist/**' --ignore-pattern 'coverage/**' --ignore-pattern 'api/data.js'",
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
-    "clean": "rm -rf dist node_modules/.vite coverage",
     "optimize:images": "node scripts/optimizeImages.js",
     "lighthouse": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json --quiet --chrome-flags=\"--headless\" --locale=fr && jq '.' ./lighthouse-report.json > ./lighthouse-report-formatted.json && echo '✓ Lighthouse report generated: lighthouse-report.json' && echo '✓ Formatted report: lighthouse-report-formatted.json'"
   },

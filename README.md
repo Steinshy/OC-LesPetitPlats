@@ -18,12 +18,13 @@ Les Petits Plats est une plateforme de recherche de recettes de cuisine offrant 
 
 ## Technologies
 
-- Vite
-- Tailwind CSS
-- Vitest
-- ESLint
-- Prettier
-- PWA Ready
+- **Build Tool** : Vite 7
+- **CSS Framework** : Tailwind CSS 4
+- **Testing** : Vitest avec couverture de code
+- **Linting** : ESLint, Stylelint, html-validate, markdownlint
+- **Formatting** : Prettier
+- **PWA** : Service Worker avec Workbox
+- **Image Optimization** : Sharp (WebP, JPEG)
 
 ## Installation
 
@@ -53,11 +54,20 @@ LesPetitPlats/
 ├── src/
 │   ├── App.js                    # Point d'entrée principal
 │   ├── card.js                   # Génération des cartes de recettes
-│   ├── search.js                 # Logique de recherche
 │   ├── mobileMenu.js             # Gestion du menu mobile
 │   ├── errorHandler.js           # Gestion des erreurs
 │   ├── components/
-│   │   ├── renderHeaderImage.js  # Rendu de l'image header
+│   │   ├── dropdown/
+│   │   │   ├── behavior.js       # Logique de comportement des dropdowns
+│   │   │   ├── render.js         # Rendu des dropdowns
+│   │   │   └── utils.js          # Utilitaires pour les dropdowns
+│   │   ├── dropdown.js           # Orchestrateur des dropdowns
+│   │   ├── filterTags.js         # Gestion des tags de filtre
+│   │   ├── headerImage.js        # Rendu de l'image header
+│   │   ├── scrollToTop.js        # Bouton de retour en haut
+│   │   ├── search/
+│   │   │   └── filter.js         # Logique de filtrage des recettes
+│   │   ├── search.js             # Gestion de la recherche et des filtres
 │   │   └── skeletons.js          # Composants de chargement
 │   └── utils/
 │       ├── cache.js               # Système de cache
@@ -68,9 +78,14 @@ LesPetitPlats/
 │   └── skeletons.css             # Styles des skeletons
 ├── public/
 │   ├── api/
-│   │   └── data.json             # Base de données des recettes
-│   └── recipes/                  # Images des recettes
-└── viteTest/                     # Tests unitaires
+│   │   ├── data.js               # Base de données des recettes (JS)
+│   │   └── data.json             # Base de données des recettes (JSON)
+│   ├── favicons/                 # Icônes et favicons
+│   ├── recipes/                  # Images des recettes
+│   ├── manifest.json             # Manifest PWA
+│   └── sw.js                     # Service Worker
+├── viteTest/                     # Tests unitaires
+└── scripts/                      # Scripts utilitaires
 ```
 
 ## Développement

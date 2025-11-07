@@ -2,5 +2,13 @@
 User-agent: *
 Allow: /
 
+# Disallow build and cache directories
+Disallow: /dist/
+Disallow: /dev-dist/
+Disallow: /node_modules/
+Disallow: /coverage/
+Disallow: /.vite/
+
 # Sitemap
 Sitemap: https://www.lespetitplats.com/sitemap.xml
+Sitemap: https://steinshy.github.io/OC-LesPetitPlats/sitemap.xml
