@@ -70,13 +70,29 @@ export const initDropdowns = (recipes, onFilterChange) => {
       }
     });
 
-    searchInput?.addEventListener("input", () => {
+    const clearButton = document.getElementById(`clear-search-${type}`);
+    
+    const updateDropdown = () => {
+      if (!searchInput) return;
+      clearButton?.classList.toggle("hidden", !searchInput.value.trim());
       updateDropdownList(
         type,
         getFilteredItems(type, dropdownData, searchInput),
         onFilterChange,
         currentActiveFilters,
       );
+    };
+
+    searchInput?.addEventListener("input", updateDropdown);
+
+    clearButton?.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.focus();
+        updateDropdown();
+      }
     });
 
     searchInput?.addEventListener("click", event => event.stopPropagation());

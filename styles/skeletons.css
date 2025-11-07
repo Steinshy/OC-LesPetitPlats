@@ -5,8 +5,6 @@
   --skeleton-shine: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 80%) 50%, transparent 100%);
   --skeleton-shine-light: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 70%) 50%, transparent 100%);
   --skeleton-size: 200% 100%;
-  --skeleton-pos-start: 0 0;
-  --skeleton-pos-end: -200% 0;
   --skeleton-duration: 1.5s;
 }
 
@@ -19,12 +17,18 @@
   }
 }
 
+/* Base Skeleton Animation - applied to skeleton-loading classes */
+.skeleton-loading {
+  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
+  background-image: var(--skeleton-bg), var(--skeleton-shine);
+  background-size: var(--skeleton-size), var(--skeleton-size);
+}
+
 /* Image Placeholders */
 .card-picture .image-loading-placeholder,
 .header-image-placeholder {
   animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
   background-image: var(--skeleton-bg), var(--skeleton-shine);
-  background-position: var(--skeleton-pos-start), var(--skeleton-pos-end);
   background-size: var(--skeleton-size), var(--skeleton-size);
   height: 100%;
   left: 0;
@@ -34,7 +38,7 @@
   z-index: 1;
 }
 
-.card-picture .image-loading-placeholder.hidden,
+.image-loading-placeholder.hidden,
 .header-image-placeholder.hidden {
   display: none;
 }
@@ -51,27 +55,11 @@
   color: transparent;
 }
 
-.card.skeleton :is(
-    img,
-    .card-picture,
-    .card-content,
-    .card-section,
-    .section-title,
-    .card-header h2,
-    .card-time,
-    .contents-recipe,
-    .ingredient-items,
-    .ingredient-name,
-    .ingredient-quantity
-  ) {
-  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
-  background-image: var(--skeleton-bg), var(--skeleton-shine);
-  background-position: var(--skeleton-pos-start), var(--skeleton-pos-end);
-  background-size: var(--skeleton-size), var(--skeleton-size);
+.card.skeleton :is(img, .card-content, .card-section, .section-title, .card-header h2, .card-time, .contents-recipe, .ingredient-items, .ingredient-name, .ingredient-quantity) {
+  --skeleton-shine: var(--skeleton-shine-light);
 }
 
 .card.skeleton .card-picture {
-  --skeleton-shine: var(--skeleton-shine);
   display: block;
   height: 250px;
   min-height: 250px;
@@ -80,11 +68,7 @@
   width: 100%;
 }
 
-.card.skeleton .card-picture img {
-  display: none;
-}
-
-.card.skeleton .card-picture picture {
+.card.skeleton .card-picture :is(img, picture) {
   display: none;
 }
 
@@ -105,10 +89,14 @@
   min-height: 80px;
 }
 
-.card.skeleton .section-title {
+.card.skeleton .section-title,
+.card.skeleton .card-header h2 {
   animation-delay: 0.2s;
   border-radius: 4px;
   min-height: 10px;
+}
+
+.card.skeleton .section-title {
   width: 80px;
 }
 
@@ -121,7 +109,6 @@
 }
 
 .card.skeleton .card-header h2 {
-  animation-delay: 0.2s;
   border-radius: 6px;
   flex: 1;
   min-height: 24px;
@@ -213,10 +200,6 @@
 /* Search Skeleton */
 .search-header.skeleton-loading h2,
 .search-bar-group.skeleton-loading {
-  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
-  background-image: var(--skeleton-bg), var(--skeleton-shine);
-  background-position: var(--skeleton-pos-start), var(--skeleton-pos-end);
-  background-size: var(--skeleton-size), var(--skeleton-size);
   border-radius: 12px;
   color: transparent;
   min-height: 40px;
@@ -233,34 +216,26 @@
   min-height: 55px;
 }
 
-.search-bar-group.skeleton-loading input,
-.search-bar-group.skeleton-loading button {
+.search-bar-group.skeleton-loading :is(input, button) {
   opacity: 0;
   pointer-events: none;
 }
 
-/* Results Counter Skeleton */
-.results-counter.skeleton-loading h2 {
-  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
-  background-image: var(--skeleton-bg), var(--skeleton-shine);
-  background-position: var(--skeleton-pos-start), var(--skeleton-pos-end);
-  background-size: var(--skeleton-size), var(--skeleton-size);
+/* Results Counter & Filter Box Title Skeleton */
+.results-counter.skeleton-loading h2,
+.filter-box-title.skeleton-loading {
   border-radius: 8px;
   color: transparent;
   display: inline-block;
+}
+
+.results-counter.skeleton-loading h2 {
   min-height: 24px;
   min-width: 120px;
 }
 
-/* Filter Box Title Skeleton */
 .filter-box-title.skeleton-loading {
-  animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
-  background-image: var(--skeleton-bg), var(--skeleton-shine);
-  background-position: var(--skeleton-pos-start), var(--skeleton-pos-end);
-  background-size: var(--skeleton-size), var(--skeleton-size);
   border-radius: 4px;
-  color: transparent;
-  display: inline-block;
   min-height: 16px;
   min-width: 150px;
 }

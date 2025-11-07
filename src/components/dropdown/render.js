@@ -17,6 +17,9 @@ export const renderDropdown = (name, type, data) => `
         <input type="text" id="search-${type}" class="dropdown-search-input" 
           placeholder="Rechercher un ${name.toLowerCase()}..." aria-label="Rechercher dans ${name}">
         <i class="fa-solid fa-magnifying-glass dropdown-search-icon"></i>
+        <button type="button" class="dropdown-search-clear hidden" id="clear-search-${type}" aria-label="Effacer la recherche">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
       </div>
       <ul class="dropdown-list" id="dropdown-${type}-list" role="listbox">
         ${data.map(item => renderItem(item, type, false)).join("")}

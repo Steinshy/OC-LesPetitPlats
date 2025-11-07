@@ -71,8 +71,6 @@
 
           <ul class="nav-menu">
             <li><a href="#recipes" class="nav-link" aria-label="Voir les recettes">Recettes</a></li>
-            <li><a href="#categories" class="nav-link" aria-label="Voir les catégories">Catégories</a></li>
-            <li><a href="#about" class="nav-link" aria-label="En savoir plus">À propos</a></li>
           </ul>
 
           <div class="nav-actions">
@@ -122,6 +120,9 @@
               name="recipe-search"
               placeholder="Rechercher une recette, un ingrédient..."
               aria-label="Rechercher une recette, un ingrédient">
+            <button type="button" id="clear-recipe-search" class="search-clear-btn hidden" aria-label="Effacer la recherche">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
             <button type="button" aria-label="Lancer la recherche" class="search-btn">
               <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             </button>
@@ -166,7 +167,7 @@
         </aside>
 
         <!-- Recipe Cards Grid -->
-        <section class="cards-container">
+        <section id="recipes" class="cards-container">
           <div class="empty-state hidden" id="empty-state">
             <div class="empty-state-icon">
               <i class="fa-solid fa-utensils" aria-hidden="true"></i>
@@ -182,7 +183,80 @@
       <!-- Footer Section -->
       <footer class="footer">
         <div class="footer-content">
-          <p class="footer-text">© 2025 Les Petits Plats. Tous droits réservés.</p>
+          <div class="footer-main">
+            <!-- Brand Section -->
+            <div class="footer-section footer-brand">
+              <div class="footer-logo">
+                <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="footer-logo-img" width="40" height="40">
+                <h3 class="footer-brand-title">Les Petits Plats</h3>
+              </div>
+              <p class="footer-brand-description">
+                Découvrez des recettes délicieuses et faciles à réaliser pour toutes les occasions.
+              </p>
+              <div class="footer-social">
+                <a href="#" class="social-link" aria-label="Suivez-nous sur Facebook">
+                  <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="social-link" aria-label="Suivez-nous sur Instagram">
+                  <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="social-link" aria-label="Suivez-nous sur Pinterest">
+                  <i class="fa-brands fa-pinterest" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="social-link" aria-label="Suivez-nous sur YouTube">
+                  <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Navigation Section -->
+            <div class="footer-section footer-links">
+              <h4 class="footer-section-title">Navigation</h4>
+              <ul class="footer-nav-list">
+                <li><a href="#recipes" class="footer-link">Recettes</a></li>
+                <li><a href="#" class="footer-link">Catégories</a></li>
+                <li><a href="#" class="footer-link">À propos</a></li>
+                <li><a href="#" class="footer-link">Contact</a></li>
+              </ul>
+            </div>
+
+            <!-- Legal Section -->
+            <div class="footer-section footer-legal">
+              <h4 class="footer-section-title">Informations</h4>
+              <ul class="footer-nav-list">
+                <li><a href="#" class="footer-link">Politique de confidentialité</a></li>
+                <li><a href="#" class="footer-link">Conditions d'utilisation</a></li>
+                <li><a href="#" class="footer-link">Mentions légales</a></li>
+                <li><a href="#" class="footer-link">FAQ</a></li>
+              </ul>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div class="footer-section footer-newsletter">
+              <h4 class="footer-section-title">Newsletter</h4>
+              <p class="footer-newsletter-description">
+                Recevez nos dernières recettes et conseils directement dans votre boîte mail.
+              </p>
+              <div class="footer-newsletter-form">
+                <div class="newsletter-input-group">
+                  <input 
+                    type="email" 
+                    class="newsletter-input" 
+                    placeholder="Votre adresse email" 
+                    aria-label="Adresse email pour la newsletter"
+                    disabled>
+                  <button type="button" class="newsletter-btn" aria-label="S'abonner à la newsletter" disabled>
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Bottom -->
+          <div class="footer-bottom">
+            <p class="footer-copyright">© 2025 Les Petits Plats. Tous droits réservés.</p>
+          </div>
         </div>
       </footer>
     </div>

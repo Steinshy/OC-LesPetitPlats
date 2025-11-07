@@ -87,13 +87,27 @@ export const initSearch = recipesData => {
 
   const onReady = () => {
     const input = getElement("input");
+    const clearButton = document.getElementById("clear-recipe-search");
     if (!input) return;
 
-    const searchFn = () => handleSearch(input);
-    const debouncedSearch = debounce(searchFn, 300);
+    const updateSearch = () => {
+      clearButton?.classList.toggle("hidden", !input.value.trim());
+      handleSearch(input);
+    };
+
+    const debouncedSearch = debounce(updateSearch, 300);
 
     input.addEventListener("input", debouncedSearch);
-    getElement("button")?.addEventListener("click", searchFn);
+
+    clearButton?.addEventListener("click", () => {
+      input.value = "";
+      input.focus();
+      updateSearch();
+    });
+
+    getElement("button")?.addEventListener("click", updateSearch);
+    
+    clearButton?.classList.toggle("hidden", !input.value.trim());
   };
 
   if ("requestIdleCallback" in window) {
