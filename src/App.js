@@ -4,7 +4,7 @@ import { renderHeader } from "./components/headerImage.js";
 import { initSearch, updateCount, addFilter, removeFilter } from "./components/search.js";
 import { hideSearchSkeleton } from "./components/skeletons.js";
 
-import { showError, hideError, initErrorTestButton } from "./errorHandler.js";
+import { showError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
 import { initScrollToTop } from "./components/scrollToTop.js";
 
@@ -19,7 +19,6 @@ const initApp = async () => {
   mobileMenuManager();
   initErrorTestButton();
   initScrollToTop();
-  hideError();
 
   const container = getContainer();
   if (container) renderCardsSkeletons(50);
@@ -35,22 +34,19 @@ const initApp = async () => {
     renderRecipes(recipesData);
     initSearch(recipesData);
     initDropdowns(recipesData, (type, value, remove = false) => {
-      if (remove) {
-        removeFilter(type, value);
-      } else {
-        addFilter(type, value);
-      }
+      remove ? removeFilter(type, value) : addFilter(type, value);
     });
   } catch (error) {
-    console.error(error);
-    container && (container.innerHTML = "");
-    showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");
+    console.error("Error loading recipes:", error);
+    
+    if (container) {
+      container.innerHTML = "";
+    }
+    
+    updateCount(0);
     hideSearchSkeleton();
+    showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");
   }
 };
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initApp);
-} else {
-  initApp();
-}
+initApp();

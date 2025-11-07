@@ -1,7 +1,6 @@
 export const selectRandomImages = recipesData => {
-  if (!recipesData || recipesData.length === 0) return null;
-  const recipeImage = recipesData[Math.floor(Math.random() * recipesData.length)];
-  return recipeImage?.images || null;
+  if (!recipesData?.length) return null;
+  return recipesData[Math.floor(Math.random() * recipesData.length)]?.images || null;
 };
 
 const loadedImages = new Set();
@@ -22,6 +21,61 @@ const checkWebpStatus = webpUrl => {
   return null;
 };
 
+const handleWebpSupport = (webpSource, webpUrl) => {
+  if (!webpSource || !webpUrl) return;
+
+  const webpStatus = checkWebpStatus(webpUrl);
+  if (webpStatus === false) {
+    webpSource.remove();
+    return;
+  }
+
+  if (webpStatus === null) {
+    const testImg = new Image();
+    testImg.onerror = () => {
+      webpSource.remove();
+      webpTested.set(webpUrl, false);
+    };
+    testImg.onload = () => {
+      webpTested.set(webpUrl, true);
+      loadedImages.add(webpUrl);
+    };
+    testImg.src = webpUrl;
+  }
+};
+
+const handleJpegLoading = (img, placeholder, jpgUrl) => {
+  if (!img || !placeholder) return;
+
+  const hidePlaceholder = () => placeholder.classList.add("hidden");
+  const jpgWasLoaded = isImageLoaded(jpgUrl);
+
+  if (jpgWasLoaded) {
+    hidePlaceholder();
+    return;
+  }
+
+  if (img.complete && img.naturalWidth > 0) {
+    hidePlaceholder();
+    if (jpgUrl) loadedImages.add(jpgUrl);
+    return;
+  }
+
+  const onLoad = () => {
+    hidePlaceholder();
+    if (jpgUrl) loadedImages.add(jpgUrl);
+  };
+
+  const onError = () => hidePlaceholder();
+
+  img.addEventListener("load", onLoad, { once: true });
+  img.addEventListener("error", onError, { once: true });
+
+  if (img.complete) {
+    setTimeout(onError, 0);
+  }
+};
+
 export const imagesTypes = (fragment, { webpUrl, jpgUrl }) => {
   if (!jpgUrl && !webpUrl) return;
 
@@ -31,47 +85,8 @@ export const imagesTypes = (fragment, { webpUrl, jpgUrl }) => {
 
   if (!img || !placeholder) return;
 
-  const hidePlaceholder = () => placeholder.classList.add("hidden");
-  const jpgWasLoaded = isImageLoaded(jpgUrl);
-  const webpStatus = checkWebpStatus(webpUrl);
-
-  if (webpSource && webpUrl) {
-    if (webpStatus === null && !isImageLoaded(webpUrl)) {
-      const testImg = new Image();
-      testImg.onerror = () => {
-        webpSource.remove();
-        webpTested.set(webpUrl, false);
-      };
-      testImg.onload = () => {
-        webpTested.set(webpUrl, true);
-        loadedImages.add(webpUrl);
-      };
-      testImg.src = webpUrl;
-    } else if (webpStatus === false) {
-      webpSource.remove();
-    }
-  }
-
-  if (jpgWasLoaded) {
-    hidePlaceholder();
-    return;
-  }
-
-  if (img.complete && img.naturalWidth > 0) {
-    hidePlaceholder();
-    loadedImages.add(jpgUrl);
-  } else {
-    const onLoad = () => {
-      hidePlaceholder();
-      loadedImages.add(jpgUrl);
-    };
-    img.addEventListener("load", onLoad, { once: true });
-    img.addEventListener("error", hidePlaceholder, { once: true });
-
-    if (img.complete) {
-      setTimeout(onLoad, 0);
-    }
-  }
+  handleWebpSupport(webpSource, webpUrl);
+  handleJpegLoading(img, placeholder, jpgUrl);
 };
 
 imagesTypes.isImageLoaded = isImageLoaded;

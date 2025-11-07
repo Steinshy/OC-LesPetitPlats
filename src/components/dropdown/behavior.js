@@ -1,4 +1,5 @@
 import { renderItem } from "./render.js";
+import { getFilteredItems, getDropdownElements } from "./utils.js";
 
 export const toggleDropdown = (type, isOpen) => {
   const button = document.getElementById(`dropdown-${type}-button`);
@@ -55,5 +56,68 @@ export const updateDropdownList = (type, items, onFilterChange, activeFilters) =
       item.blur();
       onFilterChange?.(item.dataset.type, item.dataset.value, item.classList.contains("selected"));
     });
+  });
+};
+
+export const updateDropdown = (type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters) => {
+  if (!searchInput) return;
+  clearButton?.classList.toggle("hidden", !searchInput.value.trim());
+  updateDropdownList(
+    type,
+    getFilteredItems(type, dropdownData, searchInput),
+    onFilterChange,
+    activeFilters,
+  );
+};
+
+export const setupDropdown = (type, dropdownData, onFilterChange, activeFilters) => {
+  const { button, searchInput, menu, clearButton, backdrop } = getDropdownElements(type);
+
+  button?.addEventListener("click", event => {
+    event.stopPropagation();
+    const isOpen = !button.classList.contains("active");
+    closeAllDropdowns();
+    if (isOpen) {
+      toggleDropdown(type, true);
+      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters);
+    }
+  });
+
+  searchInput?.addEventListener("input", () => updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters));
+  searchInput?.addEventListener("click", event => event.stopPropagation());
+
+  clearButton?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.focus();
+      updateDropdown(type, searchInput, clearButton, dropdownData, onFilterChange, activeFilters);
+    }
+  });
+
+  backdrop?.addEventListener("click", event => {
+    event.stopPropagation();
+    closeAllDropdowns();
+  });
+
+  menu?.addEventListener("click", event => {
+    if (!event.target.closest(".dropdown-item")) event.stopPropagation();
+  });
+
+  updateDropdownList(type, dropdownData[type], onFilterChange, activeFilters);
+};
+
+export const setupGlobalListeners = () => {
+  document.addEventListener("click", event => {
+    if (!event.target.closest(".dropdown-container")) closeAllDropdowns();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      const openDropdown = document.querySelector(".dropdown-container.open");
+      closeAllDropdowns();
+      openDropdown && document.getElementById(`dropdown-${openDropdown.dataset.type}-button`)?.focus();
+    }
   });
 };
