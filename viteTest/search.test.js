@@ -148,7 +148,7 @@ describe("search", () => {
 
     it("should use requestIdleCallback when available", () => {
       let callbackExecuted = false;
-      const mockRequestIdleCallback = vi.fn((callback, options) => {
+      const mockRequestIdleCallback = vi.fn((callback, _options) => {
         setTimeout(() => {
           callback({ didTimeout: false, timeRemaining: () => 50 });
           callbackExecuted = true;

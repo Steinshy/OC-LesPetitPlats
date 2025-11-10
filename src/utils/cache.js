@@ -1,25 +1,44 @@
-import { LRUCache } from "lru-cache";
+import { lru } from "tiny-lru";
 
-// Central application cache
-export const appCache = new LRUCache({
-  max: 500,
-  ttl: 1000 * 60 * 5, // 5 minutes
+const MAX_ITEMS = 500;
+const DEFAULT_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const NO_EXPIRATION = null;
+
+const appCache = lru(MAX_ITEMS);
+
+const computeExpiry = ttlMs => {
+  if (typeof ttlMs === "number" && Number.isFinite(ttlMs)) {
+    return ttlMs > 0 ? Date.now() + ttlMs : NO_EXPIRATION;
+  }
+  return Date.now() + DEFAULT_TTL_MS;
+};
+
+const buildRecord = (value, ttlMs) => ({
+  value,
+  expiresAt: computeExpiry(ttlMs),
 });
 
+const getRecord = key => {
+  const record = appCache.get(key);
+  if (!record) return undefined;
+  if (record.expiresAt !== NO_EXPIRATION && record.expiresAt <= Date.now()) {
+    appCache.delete(key);
+    return undefined;
+  }
+  return record;
+};
+
 export function cacheGet(key) {
-  return appCache.get(key);
+  const record = getRecord(key);
+  return record ? record.value : undefined;
 }
 
 export function cacheSet(key, value, ttlMs) {
-  if (typeof ttlMs === "number") {
-    appCache.set(key, value, { ttl: ttlMs });
-  } else {
-    appCache.set(key, value);
-  }
+  appCache.set(key, buildRecord(value, ttlMs));
 }
 
 export function cacheHas(key) {
-  return appCache.has(key);
+  return getRecord(key) !== undefined;
 }
 
 export function cacheDel(key) {
@@ -27,14 +46,13 @@ export function cacheDel(key) {
 }
 
 export async function cacheGetOrSet(key, fetcher, ttlMs) {
-  const cached = cacheGet(key);
-  if (cached !== undefined) return cached;
+  const cachedValue = cacheGet(key);
+  if (cachedValue !== undefined) return cachedValue;
   const value = await fetcher();
   cacheSet(key, value, ttlMs);
   return value;
 }
 
-// Cache manager object for tests and direct usage
 export const cacheManager = {
   get: cacheGet,
   set: cacheSet,
@@ -42,3 +60,5 @@ export const cacheManager = {
   clear: () => appCache.clear(),
   delete: cacheDel,
 };
+
+export { appCache };

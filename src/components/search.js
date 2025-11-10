@@ -106,7 +106,7 @@ export const initSearch = recipesData => {
     });
 
     getElement("button")?.addEventListener("click", updateSearch);
-    
+
     clearButton?.classList.toggle("hidden", !input.value.trim());
   };
 

@@ -3,7 +3,7 @@ export const renderItem = (item, type, isSelected) => `
     <button type="button" class="dropdown-item ${isSelected ? "selected" : ""}"
       data-value="${item}" data-type="${type}">
       <span>${item}</span>
-      ${isSelected ? '<i class="fa-solid fa-check dropdown-item-check" aria-hidden="true"></i>' : ''}
+      ${isSelected ? "<i class=\"fa-solid fa-check dropdown-item-check\" aria-hidden=\"true\"></i>" : ""}
     </button>
   </li>
 `;

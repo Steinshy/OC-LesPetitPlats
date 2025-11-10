@@ -1,12 +1,11 @@
 import { renderRecipes, renderCardsSkeletons } from "./card.js";
 import { initDropdowns } from "./components/dropdown.js";
 import { renderHeader } from "./components/headerImage.js";
+import { initScrollToTop } from "./components/scrollToTop.js";
 import { initSearch, updateCount, addFilter, removeFilter } from "./components/search.js";
 import { hideSearchSkeleton } from "./components/skeletons.js";
-
 import { showError, initErrorTestButton } from "./errorHandler.js";
 import { mobileMenuManager } from "./mobileMenu.js";
-import { initScrollToTop } from "./components/scrollToTop.js";
 
 import { buildRecipesData } from "./utils/recipesBuilder.js";
 
@@ -38,11 +37,11 @@ const initApp = async () => {
     });
   } catch (error) {
     console.error("Error loading recipes:", error);
-    
+
     if (container) {
       container.innerHTML = "";
     }
-    
+
     updateCount(0);
     hideSearchSkeleton();
     showError("Impossible de charger les recettes. Veuillez réessayer plus tard.");

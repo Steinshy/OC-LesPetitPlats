@@ -99,12 +99,12 @@ export const renderRecipes = recipes => {
   if (!container) return;
 
   let emptyState = container.querySelector("#empty-state");
-  
+
   if (recipes.length === 0) {
     // Remove all cards but keep empty state
     const cards = container.querySelectorAll(".card");
     cards.forEach(card => card.remove());
-    
+
     if (!emptyState) {
       emptyState = createEmptyState();
       container.appendChild(emptyState);
@@ -113,16 +113,16 @@ export const renderRecipes = recipes => {
     }
     return;
   }
-  
+
   // Hide empty state if it exists
   if (emptyState) {
     emptyState.classList.add("hidden");
   }
-  
+
   // Remove all cards
   const cards = container.querySelectorAll(".card");
   cards.forEach(card => card.remove());
-  
+
   // Render new cards
   const fragment = document.createDocumentFragment();
   recipes.forEach(recipe => fragment.appendChild(buildCard(recipe)));

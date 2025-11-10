@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
@@ -5,10 +6,14 @@ import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const require = createRequire(import.meta.url);
 const BASE_PATH = "/OC-LesPetitPlats/";
 const PORT = 5173;
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const ONE_MONTH = 60 * 60 * 24 * 30;
+const CSS_TARGET = ["chrome61", "safari11"];
+const COMMONJS_INCLUDE = [/node_modules/];
+const { version: APP_VERSION } = require("./package.json");
 
 const createCacheConfig = (name, maxEntries, maxAge) => ({
   handler: "CacheFirst",
@@ -22,10 +27,16 @@ const createCacheConfig = (name, maxEntries, maxAge) => ({
 export default defineConfig(({ mode }) => {
   const isAnalyze = mode === "analyze";
   const isProduction = mode === "production";
+  const isDev = mode === "development";
 
   return {
+    define: { __VITE_VERSION__: JSON.stringify(APP_VERSION) },
     base: BASE_PATH,
     root: ".",
+    esbuild: {
+      drop: isProduction ? ["console"] : [],
+      legalComments: "none",
+    },
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
@@ -83,7 +94,13 @@ export default defineConfig(({ mode }) => {
         },
       }),
       tailwindcss(),
-      webfontDownload(),
+      !isDev &&
+        webfontDownload({
+          injectAsBase64: false,
+          maxRetries: 3,
+          timeout: 7_000,
+          cache: true,
+        }),
       tsconfigPaths(),
       isAnalyze &&
         visualizer({
@@ -99,20 +116,32 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       emptyOutDir: true,
       target: "esnext",
-      minify: "terser",
+      minify: "esbuild",
       sourcemap: true,
       manifest: true,
       cssCodeSplit: true,
       cssMinify: "lightningcss",
+      cssTarget: CSS_TARGET,
       reportCompressedSize: true,
       chunkSizeWarningLimit: 1000,
       assetsInlineLimit: 4096,
+      modulePreload: {
+        resolveDependencies: false,
+      },
+      dynamicImportVarsOptions: {
+        warnOnError: true,
+        exclude: [/node_modules/],
+      },
+      commonjsOptions: {
+        include: COMMONJS_INCLUDE,
+        transformMixedEsModules: true,
+      },
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
             if (id.includes("tailwindcss")) return "vendor-tailwind";
-            if (id.includes("lru-cache")) return "vendor-cache";
+            if (id.includes("tiny-lru")) return "vendor-cache";
             return "vendor";
           },
           chunkFileNames: "assets/js/[name]-[hash].js",
@@ -129,17 +158,9 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
-      terserOptions: {
-        compress: {
-          drop_console: isProduction,
-          drop_debugger: false,
-        },
-        mangle: { properties: { regex: /^_/ } },
-        format: { comments: false },
-      },
     },
     optimizeDeps: {
-      include: ["lru-cache"],
+      include: ["tiny-lru"],
     },
   };
 });

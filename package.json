@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
-    "lru-cache": "^11.2.2",
+    "tiny-lru": "^11.2.5",
     "tailwindcss": "^4.1.16",
     "vite-tsconfig-paths": "^5.1.4"
   },
