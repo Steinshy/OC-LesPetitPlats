@@ -71,7 +71,7 @@ function convertTinybenchResult(result) {
   // Use reduce to calculate total samples if needed
   const sampleArray = result.samples || [];
   const totalSamples =
-    sampleArray.reduce((sum, sample) => sum + 1, 0) || result.samples?.length || 0;
+    sampleArray.reduce((sum) => sum + 1, 0) || result.samples?.length || 0;
 
   return {
     avg,

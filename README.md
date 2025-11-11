@@ -49,7 +49,7 @@ npm install
 
 ## Structure du projet
 
-```
+```text
 LesPetitPlats/
 ├── src/
 │   ├── App.js                    # Point d'entrée principal
@@ -135,22 +135,26 @@ choco install jq
 ### Utilisation
 
 1. **Démarrer le serveur de développement :**
+
    ```bash
    npm run dev
    ```
 
 2. **Dans un autre terminal, lancer Lighthouse :**
+
    ```bash
    npm run lighthouse
    ```
 
 Le script génère deux fichiers :
+
 - `lighthouse-report.json` - Rapport JSON brut
 - `lighthouse-report-formatted.json` - Rapport JSON formaté (lisible)
 
 ### Options du rapport
 
 Le rapport Lighthouse inclut :
+
 - **Performance** - Métriques de performance
 - **Accessibility** - Accessibilité
 - **Best Practices** - Bonnes pratiques

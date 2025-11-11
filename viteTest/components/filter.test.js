@@ -8,6 +8,9 @@ import {
 } from "../../src/components/search/filter.js";
 
 describe("filter", () => {
+  const RECIPE_1 = "Recipe 1";
+  const RECIPE_2 = "Recipe 2";
+
   const mockRecipes = [
     {
       name: "Recipe One",
@@ -61,10 +64,10 @@ describe("filter", () => {
     });
 
     it("should handle recipes without description property", () => {
-      const recipesWithoutDescription = [{ name: "Recipe 1" }, { name: "Recipe 2", description: "test" }];
+      const recipesWithoutDescription = [{ name: RECIPE_1 }, { name: RECIPE_2, description: "test" }];
       const result = filterBySearchTerm(recipesWithoutDescription, "test");
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 2");
+      expect(result[0].name).toBe(RECIPE_2);
     });
   });
 
@@ -99,32 +102,32 @@ describe("filter", () => {
 
     it("should handle recipes without ingredients", () => {
       const recipesWithoutIngredients = [
-        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
-        { name: "Recipe 2" },
+        { name: RECIPE_1, ingredients: [{ ingredient: "Tomato" }] },
+        { name: RECIPE_2 },
       ];
       const result = filterByIngredients(recipesWithoutIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
 
     it("should handle recipes with null ingredients", () => {
       const recipesWithNullIngredients = [
-        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
-        { name: "Recipe 2", ingredients: null },
+        { name: RECIPE_1, ingredients: [{ ingredient: "Tomato" }] },
+        { name: RECIPE_2, ingredients: null },
       ];
       const result = filterByIngredients(recipesWithNullIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
 
     it("should handle recipes with undefined ingredients", () => {
       const recipesWithUndefinedIngredients = [
-        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
-        { name: "Recipe 2", ingredients: undefined },
+        { name: RECIPE_1, ingredients: [{ ingredient: "Tomato" }] },
+        { name: RECIPE_2, ingredients: undefined },
       ];
       const result = filterByIngredients(recipesWithUndefinedIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
   });
 
@@ -135,34 +138,34 @@ describe("filter", () => {
     });
 
     it("should filter recipes by single appliance", () => {
-      const result = filterByAppliances(mockRecipes, ["Oven"]));
+      const result = filterByAppliances(mockRecipes, ["Oven"]);
       expect(result).toHaveLength(2);
-      expect(result.map(r => r.name)).toEqual(["Recipe 1", "Recipe 3"]);
+      expect(result.map(r => r.name)).toEqual(["Recipe One", "Recipe 3"]);
     });
 
     it("should filter recipes by multiple appliances (OR logic)", () => {
-      const result = filterByAppliances(mockRecipes, ["Oven", "Stove"]));
+      const result = filterByAppliances(mockRecipes, ["Oven", "Stove"]);
       expect(result).toHaveLength(3);
     });
 
     it("should return empty array when no recipe matches", () => {
-      const result = filterByAppliances(mockRecipes, ["Microwave"]));
+      const result = filterByAppliances(mockRecipes, ["Microwave"]);
       expect(result).toHaveLength(0);
     });
 
     it("should be case insensitive", () => {
-      const result = filterByAppliances(mockRecipes, ["oven"]));
+      const result = filterByAppliances(mockRecipes, ["oven"]);
       expect(result).toHaveLength(2);
     });
 
     it("should handle recipes without appliance", () => {
       const recipesWithoutAppliance = [
-        { name: "Recipe 1", appliance: "Oven" },
-        { name: "Recipe 2" },
+        { name: RECIPE_1, appliance: "Oven" },
+        { name: RECIPE_2 },
       ];
       const result = filterByAppliances(recipesWithoutAppliance, ["Oven"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
   });
 
@@ -179,7 +182,7 @@ describe("filter", () => {
     });
 
     it("should filter recipes by multiple ustensils (AND logic)", () => {
-      const result = filterByUstensils(mockRecipes, ["Spoon", "Fork"]));
+      const result = filterByUstensils(mockRecipes, ["Spoon", "Fork"]);
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Recipe One");
     });
@@ -196,32 +199,32 @@ describe("filter", () => {
 
     it("should handle recipes without ustensils", () => {
       const recipesWithoutUstensils = [
-        { name: "Recipe 1", ustensils: ["Spoon"] },
-        { name: "Recipe 2" },
+        { name: RECIPE_1, ustensils: ["Spoon"] },
+        { name: RECIPE_2 },
       ];
       const result = filterByUstensils(recipesWithoutUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
 
     it("should handle recipes with null ustensils", () => {
       const recipesWithNullUstensils = [
-        { name: "Recipe 1", ustensils: ["Spoon"] },
-        { name: "Recipe 2", ustensils: null },
+        { name: RECIPE_1, ustensils: ["Spoon"] },
+        { name: RECIPE_2, ustensils: null },
       ];
       const result = filterByUstensils(recipesWithNullUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
 
     it("should handle recipes with undefined ustensils", () => {
       const recipesWithUndefinedUstensils = [
-        { name: "Recipe 1", ustensils: ["Spoon"] },
-        { name: "Recipe 2", ustensils: undefined },
+        { name: RECIPE_1, ustensils: ["Spoon"] },
+        { name: RECIPE_2, ustensils: undefined },
       ];
       const result = filterByUstensils(recipesWithUndefinedUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe One");
+      expect(result[0].name).toBe(RECIPE_1);
     });
   });
 

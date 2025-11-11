@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
-import { filterRecipesNative } from "./utils/filter-native.js";
 import { filterRecipes } from "../../src/components/search/filter.js";
+import { filterRecipesNative } from "./utils/filter-native.js";
 import { compareResults, formatTime } from "./utils/formatting.js";
 import {
   logBenchmarkSection,

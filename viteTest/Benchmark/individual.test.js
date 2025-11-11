@@ -3,15 +3,15 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
 import {
-  filterByAppliancesNative,
-  filterByIngredientsNative,
-  filterByUstensilsNative,
-} from "./utils/filter-native.js";
-import {
   filterByAppliances,
   filterByIngredients,
   filterByUstensils,
 } from "../../src/components/search/filter.js";
+import {
+  filterByAppliancesNative,
+  filterByIngredientsNative,
+  filterByUstensilsNative,
+} from "./utils/filter-native.js";
 import { compareResults } from "./utils/formatting.js";
 import { logBenchmarkSection, logMemoryUsage, logSection } from "./utils/logger.js";
 import { measureMemoryUsage, runBenchmark } from "./utils/measurement.js";
