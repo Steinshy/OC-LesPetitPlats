@@ -41,6 +41,7 @@ dev-dist
 
 # Test coverage
 coverage
+.stryker-tmp
 
 # Vite
 .vite

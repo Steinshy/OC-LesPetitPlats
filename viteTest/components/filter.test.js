@@ -5,28 +5,28 @@ import {
   filterByAppliances,
   filterByUstensils,
   filterRecipes,
-} from "../src/components/search/filter.js";
+} from "../../src/components/search/filter.js";
 
 describe("filter", () => {
   const mockRecipes = [
     {
-      name: "Recipe 1",
-      search: "recipe one test ingredient",
-      ingredients: [{ name: "Tomato" }, { name: "Onion" }],
+      name: "Recipe One",
+      description: "A recipe with one ingredient",
+      ingredients: [{ ingredient: "Tomato" }, { ingredient: "Onion" }],
       appliance: "Oven",
       ustensils: ["Spoon", "Fork"],
     },
     {
       name: "Recipe 2",
-      search: "recipe two test",
-      ingredients: [{ name: "Potato" }, { name: "Onion" }],
+      description: "A test recipe",
+      ingredients: [{ ingredient: "Potato" }, { ingredient: "Onion" }],
       appliance: "Stove",
       ustensils: ["Knife", "Spoon"],
     },
     {
       name: "Recipe 3",
-      search: "recipe three",
-      ingredients: [{ name: "Carrot" }],
+      description: "Another recipe",
+      ingredients: [{ ingredient: "Carrot" }],
       appliance: "Oven",
       ustensils: ["Fork"],
     },
@@ -46,13 +46,13 @@ describe("filter", () => {
     it("should filter recipes by search term (case insensitive)", () => {
       const result = filterBySearchTerm(mockRecipes, "ONE");
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should filter recipes by partial search term", () => {
       const result = filterBySearchTerm(mockRecipes, "test");
-      expect(result).toHaveLength(2);
-      expect(result.map(r => r.name)).toEqual(["Recipe 1", "Recipe 2"]);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("Recipe 2");
     });
 
     it("should return empty array when no match found", () => {
@@ -60,9 +60,9 @@ describe("filter", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("should handle recipes without search property", () => {
-      const recipesWithoutSearch = [{ name: "Recipe 1" }, { name: "Recipe 2", search: "test" }];
-      const result = filterBySearchTerm(recipesWithoutSearch, "test");
+    it("should handle recipes without description property", () => {
+      const recipesWithoutDescription = [{ name: "Recipe 1" }, { name: "Recipe 2", description: "test" }];
+      const result = filterBySearchTerm(recipesWithoutDescription, "test");
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Recipe 2");
     });
@@ -70,88 +70,88 @@ describe("filter", () => {
 
   describe("filterByIngredients", () => {
     it("should return all recipes when no ingredients filter", () => {
-      const result = filterByIngredients(mockRecipes, new Set());
+      const result = filterByIngredients(mockRecipes, []);
       expect(result).toEqual(mockRecipes);
     });
 
     it("should filter recipes by single ingredient", () => {
-      const result = filterByIngredients(mockRecipes, new Set(["Tomato"]));
+      const result = filterByIngredients(mockRecipes, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should filter recipes by multiple ingredients (AND logic)", () => {
-      const result = filterByIngredients(mockRecipes, new Set(["Onion", "Tomato"]));
+      const result = filterByIngredients(mockRecipes, ["Onion", "Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should return empty array when no recipe matches all ingredients", () => {
-      const result = filterByIngredients(mockRecipes, new Set(["Tomato", "Carrot"]));
+      const result = filterByIngredients(mockRecipes, ["Tomato", "Carrot"]);
       expect(result).toHaveLength(0);
     });
 
     it("should be case insensitive", () => {
-      const result = filterByIngredients(mockRecipes, new Set(["tomato"]));
+      const result = filterByIngredients(mockRecipes, ["tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should handle recipes without ingredients", () => {
       const recipesWithoutIngredients = [
-        { name: "Recipe 1", ingredients: [{ name: "Tomato" }] },
+        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
         { name: "Recipe 2" },
       ];
-      const result = filterByIngredients(recipesWithoutIngredients, new Set(["Tomato"]));
+      const result = filterByIngredients(recipesWithoutIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should handle recipes with null ingredients", () => {
       const recipesWithNullIngredients = [
-        { name: "Recipe 1", ingredients: [{ name: "Tomato" }] },
+        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
         { name: "Recipe 2", ingredients: null },
       ];
-      const result = filterByIngredients(recipesWithNullIngredients, new Set(["Tomato"]));
+      const result = filterByIngredients(recipesWithNullIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should handle recipes with undefined ingredients", () => {
       const recipesWithUndefinedIngredients = [
-        { name: "Recipe 1", ingredients: [{ name: "Tomato" }] },
+        { name: "Recipe 1", ingredients: [{ ingredient: "Tomato" }] },
         { name: "Recipe 2", ingredients: undefined },
       ];
-      const result = filterByIngredients(recipesWithUndefinedIngredients, new Set(["Tomato"]));
+      const result = filterByIngredients(recipesWithUndefinedIngredients, ["Tomato"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
   });
 
   describe("filterByAppliances", () => {
     it("should return all recipes when no appliances filter", () => {
-      const result = filterByAppliances(mockRecipes, new Set());
+      const result = filterByAppliances(mockRecipes, []);
       expect(result).toEqual(mockRecipes);
     });
 
     it("should filter recipes by single appliance", () => {
-      const result = filterByAppliances(mockRecipes, new Set(["Oven"]));
+      const result = filterByAppliances(mockRecipes, ["Oven"]));
       expect(result).toHaveLength(2);
       expect(result.map(r => r.name)).toEqual(["Recipe 1", "Recipe 3"]);
     });
 
     it("should filter recipes by multiple appliances (OR logic)", () => {
-      const result = filterByAppliances(mockRecipes, new Set(["Oven", "Stove"]));
+      const result = filterByAppliances(mockRecipes, ["Oven", "Stove"]));
       expect(result).toHaveLength(3);
     });
 
     it("should return empty array when no recipe matches", () => {
-      const result = filterByAppliances(mockRecipes, new Set(["Microwave"]));
+      const result = filterByAppliances(mockRecipes, ["Microwave"]));
       expect(result).toHaveLength(0);
     });
 
     it("should be case insensitive", () => {
-      const result = filterByAppliances(mockRecipes, new Set(["oven"]));
+      const result = filterByAppliances(mockRecipes, ["oven"]));
       expect(result).toHaveLength(2);
     });
 
@@ -160,37 +160,37 @@ describe("filter", () => {
         { name: "Recipe 1", appliance: "Oven" },
         { name: "Recipe 2" },
       ];
-      const result = filterByAppliances(recipesWithoutAppliance, new Set(["Oven"]));
+      const result = filterByAppliances(recipesWithoutAppliance, ["Oven"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
   });
 
   describe("filterByUstensils", () => {
     it("should return all recipes when no ustensils filter", () => {
-      const result = filterByUstensils(mockRecipes, new Set());
+      const result = filterByUstensils(mockRecipes, []);
       expect(result).toEqual(mockRecipes);
     });
 
     it("should filter recipes by single ustensil", () => {
-      const result = filterByUstensils(mockRecipes, new Set(["Fork"]));
+      const result = filterByUstensils(mockRecipes, ["Fork"]);
       expect(result).toHaveLength(2);
-      expect(result.map(r => r.name)).toEqual(["Recipe 1", "Recipe 3"]);
+      expect(result.map(r => r.name)).toEqual(["Recipe One", "Recipe 3"]);
     });
 
     it("should filter recipes by multiple ustensils (AND logic)", () => {
-      const result = filterByUstensils(mockRecipes, new Set(["Spoon", "Fork"]));
+      const result = filterByUstensils(mockRecipes, ["Spoon", "Fork"]));
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should return empty array when no recipe matches all ustensils", () => {
-      const result = filterByUstensils(mockRecipes, new Set(["Fork", "Knife"]));
+      const result = filterByUstensils(mockRecipes, ["Fork", "Knife"]);
       expect(result).toHaveLength(0);
     });
 
     it("should be case insensitive", () => {
-      const result = filterByUstensils(mockRecipes, new Set(["fork"]));
+      const result = filterByUstensils(mockRecipes, ["fork"]);
       expect(result).toHaveLength(2);
     });
 
@@ -199,9 +199,9 @@ describe("filter", () => {
         { name: "Recipe 1", ustensils: ["Spoon"] },
         { name: "Recipe 2" },
       ];
-      const result = filterByUstensils(recipesWithoutUstensils, new Set(["Spoon"]));
+      const result = filterByUstensils(recipesWithoutUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should handle recipes with null ustensils", () => {
@@ -209,9 +209,9 @@ describe("filter", () => {
         { name: "Recipe 1", ustensils: ["Spoon"] },
         { name: "Recipe 2", ustensils: null },
       ];
-      const result = filterByUstensils(recipesWithNullUstensils, new Set(["Spoon"]));
+      const result = filterByUstensils(recipesWithNullUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should handle recipes with undefined ustensils", () => {
@@ -219,9 +219,9 @@ describe("filter", () => {
         { name: "Recipe 1", ustensils: ["Spoon"] },
         { name: "Recipe 2", ustensils: undefined },
       ];
-      const result = filterByUstensils(recipesWithUndefinedUstensils, new Set(["Spoon"]));
+      const result = filterByUstensils(recipesWithUndefinedUstensils, ["Spoon"]);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
   });
 
@@ -234,7 +234,7 @@ describe("filter", () => {
       };
       const result = filterRecipes(mockRecipes, "recipe", activeFilters);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should return empty array when filters are too restrictive", () => {
@@ -255,7 +255,7 @@ describe("filter", () => {
       };
       const result = filterRecipes(mockRecipes, "one", activeFilters);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should work with only ingredient filter", () => {
@@ -266,7 +266,7 @@ describe("filter", () => {
       };
       const result = filterRecipes(mockRecipes, "", activeFilters);
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe("Recipe 1");
+      expect(result[0].name).toBe("Recipe One");
     });
 
     it("should return all recipes when no filters applied", () => {

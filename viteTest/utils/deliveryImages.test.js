@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { selectRandomImages, isImageLoaded, imagesTypes } from "../src/utils/deliveryImages.js";
+import { selectRandomImages, isImageLoaded, imagesTypes } from "../../src/utils/deliveryImages.js";
 
 describe("deliveryImages", () => {
   const TEST_IMAGE_URL = "/recipes/test.jpg";

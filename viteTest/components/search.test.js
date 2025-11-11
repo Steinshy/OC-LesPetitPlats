@@ -1,22 +1,22 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderRecipes } from "../src/card.js";
+import { renderRecipes } from "../../src/card.js";
 import {
   updateCount,
   initSearch,
   addFilter,
   removeFilter,
   getActiveFilters,
-} from "../src/components/search.js";
+} from "../../src/components/search.js";
 
-vi.mock("../src/card.js", () => ({
+vi.mock("../../src/card.js", () => ({
   renderRecipes: vi.fn(),
 }));
 
-vi.mock("../src/components/dropdown.js", () => ({
+vi.mock("../../src/components/dropdown.js", () => ({
   updateDropdownsSelection: vi.fn(),
 }));
 
-vi.mock("../src/components/filterTags.js", () => ({
+vi.mock("../../src/components/filterTags.js", () => ({
   updateFilterTags: vi.fn(),
 }));
 
@@ -31,7 +31,7 @@ describe("search", () => {
     vi.clearAllMocks();
     document.body.innerHTML = `
       <div class="results-counter">
-        <h2>0 Résultats</h2>
+        <h2>0 résultats</h2>
       </div>
       <div class="search-bar-group">
         <input type="text" />
@@ -44,25 +44,25 @@ describe("search", () => {
     it("should update counter with correct count", () => {
       updateCount(5);
       const counter = document.querySelector(".results-counter h2");
-      expect(counter.textContent).toBe("5 Résultats");
+      expect(counter.textContent).toBe("5 résultats");
     });
 
     it("should handle zero count", () => {
       updateCount(0);
       const counter = document.querySelector(".results-counter h2");
-      expect(counter.textContent).toBe("0 Résultats");
+      expect(counter.textContent).toBe("0 résultats");
     });
 
     it("should handle negative count by converting to zero", () => {
       updateCount(-5);
       const counter = document.querySelector(".results-counter h2");
-      expect(counter.textContent).toBe("0 Résultats");
+      expect(counter.textContent).toBe("0 résultats");
     });
 
     it("should use default value of 0 when no count provided", () => {
       updateCount();
       const counter = document.querySelector(".results-counter h2");
-      expect(counter.textContent).toBe("0 Résultats");
+      expect(counter.textContent).toBe("0 résultats");
     });
 
     it("should handle missing counter element gracefully", () => {
@@ -108,24 +108,19 @@ describe("search", () => {
       expect(() => initSearch(mockRecipes)).not.toThrow();
     });
 
-    it("should filter recipes by search term", () => {
+    it("should filter recipes by search term", async () => {
       const input = document.querySelector(".search-bar-group input");
       initSearch(mockRecipes);
 
-      return new Promise(resolve => {
-        setTimeout(() => {
-          input.value = "one";
-          input.dispatchEvent(new Event("input"));
+      await new Promise(resolve => setTimeout(resolve, 10));
+      input.value = "one";
+      input.dispatchEvent(new Event("input"));
 
-          setTimeout(() => {
-            const filteredCalls = renderRecipes.mock.calls.filter(call =>
-              call[0].some(recipe => recipe.name === "Recipe 1"),
-            );
-            expect(filteredCalls.length).toBeGreaterThan(0);
-            resolve();
-          }, 350);
-        }, 10);
-      });
+      await new Promise(resolve => setTimeout(resolve, 350));
+      const filteredCalls = renderRecipes.mock.calls.filter(call =>
+        call[0]?.some(recipe => recipe.name && recipe.name.toLowerCase().includes("one")),
+      );
+      expect(filteredCalls.length).toBeGreaterThan(0);
     });
 
     it("should return all recipes when search is empty", () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { updateFilterTags } from "../src/components/filterTags.js";
-import { removeFilter } from "../src/components/search.js";
+import { updateFilterTags } from "../../src/components/filterTags.js";
+import { removeFilter } from "../../src/components/search.js";
 
-vi.mock("../src/components/search.js", () => ({
+vi.mock("../../src/components/search.js", () => ({
   removeFilter: vi.fn(),
 }));
 

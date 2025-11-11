@@ -7,4 +7,11 @@ dev-dist
 .idea
 package-lock.json
 coverage
+.stryker-tmp
+Benchmark
+.oc
 api/data.js
+public/api/data.js
+lighthouse-report*.html
+lighthouse-report*.json
+lighthouse-report-formatted.json

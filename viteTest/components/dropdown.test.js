@@ -3,7 +3,7 @@ import {
   extractDropdownData,
   getFilteredItems,
   normalize,
-} from "../src/components/dropdown/utils.js";
+} from "../../src/components/dropdown/utils.js";
 
 describe("dropdown utils", () => {
   const mockRecipes = [
