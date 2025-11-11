@@ -22,7 +22,12 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "analyze": "vite build --mode analyze",
     "optimize:images": "node scripts/optimizeImages.js",
-    "clean": "rm -rf dist node_modules/.vite"
+    "clean": "rm -rf dist node_modules/.vite",
+    "benchmark": "vitest run --reporter=verbose viteTest/Benchmarks",
+    "benchmark:combined": "vitest run --reporter=verbose viteTest/Benchmarks/filtersRecipes.test.js",
+    "benchmark:ingredients": "vitest run --reporter=verbose viteTest/Benchmarks/filterByIngredients.test.js",
+    "benchmark:appliances": "vitest run --reporter=verbose viteTest/Benchmarks/filterByAppliances.test.js",
+    "benchmark:ustensils": "vitest run --reporter=verbose viteTest/Benchmarks/filterByUstensils.test.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",

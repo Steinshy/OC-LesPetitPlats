@@ -1,0 +1,19 @@
+/**
+ * REFERENCE FILE - Original individual.test.js structure
+ *
+ * This file documents the original structure of individual.test.js before it was
+ * split into three separate benchmark test files:
+ * - filterByIngredients.test.js
+ * - filterByAppliances.test.js
+ * - filterByUstensils.test.js
+ *
+ * The original file contained benchmark tests for filtering recipes by:
+ * 1. Ingredients (single, multiple, empty)
+ * 2. Appliances (single, multiple, empty)
+ * 3. Ustensils (single, multiple, empty)
+ *
+ * Each test category included memory usage tracking and performance benchmarks.
+ *
+ * This refactoring improves maintainability by separating concerns into
+ * dedicated test files for each filter type.
+ */
