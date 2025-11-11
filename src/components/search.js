@@ -43,7 +43,7 @@ const handleSearch = input => {
 export const updateCount = count => {
   const counter = getElement("counter");
   if (counter) {
-    const num = Math.max(0, count);
+    const num = Math.max(0, count ?? 0);
     counter.textContent = `${num} ${num === 1 ? "résultat" : "résultats"}`;
     counter.closest(".results-counter")?.classList.remove("skeleton-loading");
   }
