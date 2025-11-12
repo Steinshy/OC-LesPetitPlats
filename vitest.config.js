@@ -1,6 +1,6 @@
+import { resolve } from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
-import { resolve } from "path";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -27,13 +27,33 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
+      include: ["src/**/*.js"],
       exclude: [
         "node_modules/",
         "dist/",
-        "*.config.js",
+        "coverage/",
+        "**/*.config.js",
+        "stryker.conf.js",
         "viteTest/**",
         "**/*.test.js",
         "**/*.spec.js",
+        "scripts/**",
+        "public/**",
+        "**/index.html",
+        "**/README.md",
+        "**/robots.txt",
+        "**/sitemap.xml",
+        // DOM manipulation and entry point files (not unit tested)
+        "src/App.js",
+        "src/card.js",
+        "src/errorHandler.js",
+        "src/mobileMenu.js",
+        "src/components/dropdown.js",
+        "src/components/headerImage.js",
+        "src/components/scrollToTop.js",
+        "src/components/skeletons.js",
+        "src/components/dropdown/behavior.js",
+        "src/components/dropdown/render.js",
       ],
       thresholds: {
         lines: 70,
