@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderRecipes } from "../../../src/card.js";
+import { renderRecipes } from "../../src/card.js";
 import {
   updateCount,
   initSearch,
   addFilter,
   removeFilter,
   getActiveFilters,
-} from "../../../src/components/search.js";
+} from "../../src/components/search.js";
 import {
   mockRecipesForSearch,
   RESULTS_COUNTER_SELECTOR,

@@ -5,7 +5,7 @@ import {
   filterByAppliances,
   filterByUstensils,
   filterRecipes,
-} from "../../../src/components/search/filter.js";
+} from "../../src/components/search/filter.js";
 import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "./test-data.js";
 
 describe("filter", () => {
