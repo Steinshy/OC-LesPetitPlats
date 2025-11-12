@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { cacheManager } from "../../src/utils/cache.js";
-import { buildRecipesData } from "../../src/utils/recipesBuilder.js";
+import { cacheManager } from "../../../src/utils/cache.js";
+import { buildRecipesData } from "../../../src/utils/recipesBuilder.js";
 
 describe("recipesBuilder", () => {
   beforeEach(() => {
@@ -8,6 +8,7 @@ describe("recipesBuilder", () => {
     cacheManager.clear();
   });
 
+  // Mock raw recipe data
   const mockRawRecipe = {
     id: 1,
     name: "Test Recipe",
@@ -31,6 +32,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes).toHaveLength(1);
@@ -52,6 +54,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes[0].ingredients).toEqual([
@@ -68,6 +71,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes[0].images).toHaveProperty("jpgUrl");
@@ -77,6 +81,7 @@ describe("recipesBuilder", () => {
   });
 
   it("should build search string from name, ingredients, ustensils, and appliance", async () => {
+    // Recipe with string ustensils
     const recipeWithStringUstensils = {
       ...mockRawRecipe,
       ustensils: ["Spoon", "Bowl"],
@@ -89,7 +94,9 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
+    // Normalized search string
     const search = recipes[0].search.toLowerCase();
 
     expect(search).toContain("test recipe");
@@ -108,6 +115,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes[0].ustensils).toEqual(["Spoon", "Bowl"]);
@@ -115,6 +123,7 @@ describe("recipesBuilder", () => {
 
   it("should handle missing optional fields", async () => {
     cacheManager.clear();
+    // Recipe with missing fields
     const incompleteRecipe = {
       id: 2,
       name: "Incomplete Recipe",
@@ -127,6 +136,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes[0]).toMatchObject({
@@ -150,6 +160,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
+    // Built recipes array
     const recipes = await buildRecipesData();
 
     expect(recipes).toEqual([]);

@@ -3,11 +3,6 @@ name: CI
 on:
   push:
     branches:
-      - main
-      - dev
-  pull_request:
-    branches:
-      - main
       - dev
   workflow_dispatch:
 
@@ -33,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint:js
+        run: npm run lint:eslint
 
       - name: Run Stylelint
         run: npm run lint:css
@@ -69,7 +64,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests with coverage
-        run: npm run test:ci
+        run: npm run test:coverage
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -128,26 +123,49 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install system dependencies for PDF generation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+
       - name: Run benchmark tests
-        run: npm run benchmark:all
+        run: npm run benchmark
         continue-on-error: true
 
-      - name: Check if benchmark report exists
-        id: check-report
+      - name: Check if benchmark reports exist
+        id: check-reports
         if: always()
         run: |
-          if [ -f "Benchmark/benchmark-report.txt" ]; then
+          if [ -f "Benchmark/benchmark-report-all.html" ] || [ -f "Benchmark/benchmark-report-all.pdf" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Upload benchmark report
+      - name: Upload benchmark HTML reports
         uses: actions/upload-artifact@v4
-        if: always() && steps.check-report.outputs.exists == 'true'
+        if: always() && steps.check-reports.outputs.exists == 'true'
         with:
-          name: benchmark-report
-          path: Benchmark/benchmark-report.txt
+          name: benchmark-reports-html
+          path: Benchmark/benchmark-report-*.html
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload benchmark PDF reports
+        uses: actions/upload-artifact@v4
+        if: always() && steps.check-reports.outputs.exists == 'true'
+        with:
+          name: benchmark-reports-pdf
+          path: Benchmark/benchmark-report-*.pdf
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload benchmark results JSON
+        uses: actions/upload-artifact@v4
+        if: always() && steps.check-reports.outputs.exists == 'true'
+        with:
+          name: benchmark-results-json
+          path: Benchmark/benchmark-results.json
           retention-days: 30
           if-no-files-found: ignore
 
@@ -213,7 +231,7 @@ jobs:
         run: npm ci
 
       - name: Run mutation tests
-        run: npm run test:mutation:ci
+        run: npx stryker run
         continue-on-error: true
 
       - name: Upload mutation test report

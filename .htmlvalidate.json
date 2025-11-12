@@ -1,0 +1,9 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {},
+  "elements": {},
+  "transform": {
+    "^coverage/.*": false,
+    "^Benchmark/.*": false
+  }
+}

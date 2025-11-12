@@ -3,6 +3,7 @@
  * These matchers provide better assertions for DOM elements
  */
 
+import "@testing-library/jest-dom/vitest";
 import { describe, it, expect, beforeEach } from "vitest";
 
 describe("jest-dom matchers examples", () => {

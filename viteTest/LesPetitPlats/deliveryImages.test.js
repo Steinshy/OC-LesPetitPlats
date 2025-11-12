@@ -2,8 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { selectRandomImages, isImageLoaded, imagesTypes } from "../../src/utils/deliveryImages.js";
 
 describe("deliveryImages", () => {
+  // Test image URL
   const TEST_IMAGE_URL = "/recipes/test.jpg";
 
+  // Mock recipes with images
   const mockRecipesWithImages = [
     {
       images: {
@@ -34,21 +36,25 @@ describe("deliveryImages", () => {
 
   describe("selectRandomImages", () => {
     it("should return null for empty array", () => {
+      // Result for empty array
       const result = selectRandomImages([]);
       expect(result).toBeNull();
     });
 
     it("should return null for null input", () => {
+      // Result for null input
       const result = selectRandomImages(null);
       expect(result).toBeNull();
     });
 
     it("should return null for undefined input", () => {
+      // Result for undefined input
       const result = selectRandomImages(undefined);
       expect(result).toBeNull();
     });
 
     it("should return an images object from recipes", () => {
+      // Selected images
       const result = selectRandomImages(mockRecipesWithImages);
 
       expect(result).not.toBeNull();
@@ -59,21 +65,27 @@ describe("deliveryImages", () => {
     });
 
     it("should return null when recipe has no images property", () => {
+      // Recipes without images
       const recipesWithoutImages = [{ name: "Recipe 1" }, { name: "Recipe 2" }];
 
+      // Result
       const result = selectRandomImages(recipesWithoutImages);
       expect(result).toBeNull();
     });
 
     it("should return null when recipe has null images", () => {
+      // Recipes with null images
       const recipesWithNullImages = [{ images: null }, { images: null }];
 
+      // Result
       const result = selectRandomImages(recipesWithNullImages);
       expect(result).toBeNull();
     });
 
     it("should return images from single recipe", () => {
+      // Single recipe array
       const singleRecipe = [mockRecipesWithImages[0]];
+      // Selected images
       const result = selectRandomImages(singleRecipe);
 
       expect(result).toEqual(mockRecipesWithImages[0].images);
@@ -98,6 +110,7 @@ describe("deliveryImages", () => {
     });
 
     it("should track loaded images after imagesTypes processes them", () => {
+      // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
           <div class="image-loading-placeholder"></div>
@@ -107,6 +120,7 @@ describe("deliveryImages", () => {
         </div>
       `);
 
+      // Image element
       const img = fragment.querySelector("img");
       Object.defineProperty(img, "complete", { value: true, writable: true });
       Object.defineProperty(img, "naturalWidth", { value: 100, writable: true });
@@ -119,6 +133,7 @@ describe("deliveryImages", () => {
 
   describe("imagesTypes", () => {
     it("should return early when no image URLs provided", () => {
+      // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
           <div class="image-loading-placeholder"></div>
@@ -130,6 +145,7 @@ describe("deliveryImages", () => {
     });
 
     it("should hide placeholder when image is already loaded", () => {
+      // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
           <div class="image-loading-placeholder"></div>
@@ -139,7 +155,9 @@ describe("deliveryImages", () => {
         </div>
       `);
 
+      // Placeholder element
       const placeholder = fragment.querySelector(".image-loading-placeholder");
+      // Image element
       const img = fragment.querySelector("img");
       Object.defineProperty(img, "complete", { value: true, writable: true });
       Object.defineProperty(img, "naturalWidth", { value: 100, writable: true });
@@ -151,6 +169,7 @@ describe("deliveryImages", () => {
     });
 
     it("should handle missing placeholder gracefully", () => {
+      // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
           <picture>
@@ -163,6 +182,7 @@ describe("deliveryImages", () => {
     });
 
     it("should handle missing image element gracefully", () => {
+      // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
           <div class="image-loading-placeholder"></div>

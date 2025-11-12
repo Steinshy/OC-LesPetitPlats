@@ -3,7 +3,10 @@ const normalize = value => (typeof value === "string" ? value.trim().toLowerCase
 export const filterBySearchTerm = (recipes, searchTerm) => {
   const query = normalize(searchTerm);
   if (!query) return recipes;
-  return recipes.filter(recipe => recipe.search?.includes(query));
+  return recipes.filter(recipe => {
+    // Production: recipes always have search property
+    return recipe.search?.includes(query);
+  });
 };
 
 export const filterByIngredients = (recipes, ingredients) => {
@@ -18,9 +21,11 @@ export const filterByIngredients = (recipes, ingredients) => {
   return recipes.filter(recipe =>
     ingredientsArray.every(selectedIngredient => {
       const normalizedSelected = normalize(selectedIngredient);
-      return recipe.ingredients?.some(
-        ingredient => normalize(ingredient.name) === normalizedSelected,
-      );
+      // Production: ingredients always have name property
+      return recipe.ingredients?.some(ingredient => {
+        const ingredientName = ingredient.name ?? "";
+        return normalize(ingredientName) === normalizedSelected;
+      });
     }),
   );
 };
@@ -59,7 +64,7 @@ export const filterByUstensils = (recipes, ustensils) => {
   );
 };
 
-// 1. filterRecipes(recipes, searchTerm, activeFilters) - used by search.js and benchmarks
+// 1. filterRecipes(recipes, searchTerm, activeFilters) - used by search.js
 export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
   let filtered = [...recipes];
   let searchTerm = null;

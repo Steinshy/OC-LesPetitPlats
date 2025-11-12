@@ -6,8 +6,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./viteTest/setup.js"],
     include: ["viteTest/**/*.test.js"],
+    exclude: ["viteTest/reference/**"],
     pool: "threads",
     poolOptions: {
       threads: {

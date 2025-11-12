@@ -8,21 +8,26 @@ describe("cacheManager", () => {
   });
 
   it("should set and get values from cache", () => {
+    // Cache key
     const key = "testKey";
+    // Cache value
     const value = { data: "test value" };
 
     cacheManager.set(key, value);
+    // Cached value
     const cached = cacheManager.get(key);
 
     expect(cached).toEqual(value);
   });
 
   it("should return undefined for non-existent keys", () => {
+    // Result for non-existent key
     const result = cacheManager.get("nonExistentKey");
     expect(result).toBeUndefined();
   });
 
   it("should check if key exists in cache", () => {
+    // Cache key
     const key = "existingKey";
     cacheManager.set(key, "some value");
 

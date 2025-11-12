@@ -1,12 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderRecipes } from "../../src/card.js";
+import { renderRecipes } from "../../../src/card.js";
 import {
   updateCount,
   initSearch,
   addFilter,
   removeFilter,
   getActiveFilters,
-} from "../../src/components/search.js";
+} from "../../../src/components/search.js";
+import {
+  mockRecipesForSearch,
+  RESULTS_COUNTER_SELECTOR,
+  SEARCH_INPUT_SELECTOR,
+  SEARCH_BUTTON_SELECTOR,
+} from "./test-data.js";
 
 vi.mock("../../src/card.js", () => ({
   renderRecipes: vi.fn(),
@@ -21,11 +27,8 @@ vi.mock("../../src/components/filterTags.js", () => ({
 }));
 
 describe("search", () => {
-  const mockRecipes = [
-    { name: "Recipe 1", search: "recipe one test" },
-    { name: "Recipe 2", search: "recipe two test" },
-    { name: "Recipe 3", search: "recipe three test" },
-  ];
+  // Mock recipes for testing
+  const mockRecipes = mockRecipesForSearch;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,26 +45,34 @@ describe("search", () => {
 
   describe("updateCount", () => {
     it("should update counter with correct count", () => {
+      // Count value
       updateCount(5);
-      const counter = document.querySelector(".results-counter h2");
+      // Counter element
+      const counter = document.querySelector(RESULTS_COUNTER_SELECTOR);
       expect(counter.textContent).toBe("5 résultats");
     });
 
     it("should handle zero count", () => {
+      // Zero count
       updateCount(0);
-      const counter = document.querySelector(".results-counter h2");
+      // Counter element
+      const counter = document.querySelector(RESULTS_COUNTER_SELECTOR);
       expect(counter.textContent).toBe("0 résultats");
     });
 
     it("should handle negative count by converting to zero", () => {
+      // Negative count
       updateCount(-5);
-      const counter = document.querySelector(".results-counter h2");
+      // Counter element
+      const counter = document.querySelector(RESULTS_COUNTER_SELECTOR);
       expect(counter.textContent).toBe("0 résultats");
     });
 
     it("should use default value of 0 when no count provided", () => {
+      // No count provided
       updateCount();
-      const counter = document.querySelector(".results-counter h2");
+      // Counter element
+      const counter = document.querySelector(RESULTS_COUNTER_SELECTOR);
       expect(counter.textContent).toBe("0 résultats");
     });
 
@@ -73,10 +84,10 @@ describe("search", () => {
 
   describe("initSearch", () => {
     it("should set up search input listener", () => {
-      const input = document.querySelector(".search-bar-group input");
+      // Search input element
+      const input = document.querySelector(SEARCH_INPUT_SELECTOR);
       initSearch(mockRecipes);
 
-      // Wait for async initialization
       return new Promise(resolve => {
         setTimeout(() => {
           input.value = "one";
@@ -91,7 +102,8 @@ describe("search", () => {
     });
 
     it("should set up search button click listener", () => {
-      const button = document.querySelector(".search-bar-group .search-btn");
+      // Search button element
+      const button = document.querySelector(SEARCH_BUTTON_SELECTOR);
       initSearch(mockRecipes);
 
       return new Promise(resolve => {
@@ -109,7 +121,8 @@ describe("search", () => {
     });
 
     it("should filter recipes by search term", async () => {
-      const input = document.querySelector(".search-bar-group input");
+      // Search input element
+      const input = document.querySelector(SEARCH_INPUT_SELECTOR);
       initSearch(mockRecipes);
 
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -117,14 +130,16 @@ describe("search", () => {
       input.dispatchEvent(new Event("input"));
 
       await new Promise(resolve => setTimeout(resolve, 350));
-      const filteredCalls = renderRecipes.mock.calls.filter(call =>
-        call[0]?.some(recipe => recipe.name && recipe.name.toLowerCase().includes("one")),
-      );
-      expect(filteredCalls.length).toBeGreaterThan(0);
+      // Last render call
+      const lastCall = renderRecipes.mock.calls[renderRecipes.mock.calls.length - 1];
+      expect(lastCall).toBeDefined();
+      expect(lastCall[0]).toBeDefined();
+      expect(lastCall[0].some(recipe => recipe.search && recipe.search.includes("one"))).toBe(true);
     });
 
     it("should return all recipes when search is empty", () => {
-      const input = document.querySelector(".search-bar-group input");
+      // Search input element
+      const input = document.querySelector(SEARCH_INPUT_SELECTOR);
       initSearch(mockRecipes);
 
       return new Promise(resolve => {
@@ -133,6 +148,7 @@ describe("search", () => {
           input.dispatchEvent(new Event("input"));
 
           setTimeout(() => {
+            // Last render call
             const lastCall = renderRecipes.mock.calls[renderRecipes.mock.calls.length - 1];
             expect(lastCall[0]).toHaveLength(3);
             resolve();
@@ -142,7 +158,9 @@ describe("search", () => {
     });
 
     it("should use requestIdleCallback when available", () => {
+      // Callback execution flag
       let callbackExecuted = false;
+      // Mock requestIdleCallback
       const mockRequestIdleCallback = vi.fn((callback, _options) => {
         setTimeout(() => {
           callback({ didTimeout: false, timeRemaining: () => 50 });
@@ -159,7 +177,8 @@ describe("search", () => {
           expect(mockRequestIdleCallback).toHaveBeenCalled();
           expect(mockRequestIdleCallback.mock.calls[0][1]).toEqual({ timeout: 2000 });
           expect(callbackExecuted).toBe(true);
-          const input = document.querySelector(".search-bar-group input");
+          // Search input element
+          const input = document.querySelector(SEARCH_INPUT_SELECTOR);
           expect(input).toBeDefined();
           delete window.requestIdleCallback;
           resolve();
@@ -175,18 +194,21 @@ describe("search", () => {
 
     it("should add ingredient filter", () => {
       addFilter("ingredients", "Tomato");
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.has("Tomato")).toBe(true);
     });
 
     it("should add appliance filter", () => {
       addFilter("appliances", "Oven");
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.appliances.has("Oven")).toBe(true);
     });
 
     it("should add ustensil filter", () => {
       addFilter("ustensils", "Spoon");
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.ustensils.has("Spoon")).toBe(true);
     });
@@ -210,6 +232,7 @@ describe("search", () => {
 
     it("should remove ingredient filter", () => {
       removeFilter("ingredients", "Tomato");
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.has("Tomato")).toBe(false);
     });
@@ -234,6 +257,7 @@ describe("search", () => {
     });
 
     it("should return empty filters initially", () => {
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.size).toBe(0);
       expect(filters.appliances.size).toBe(0);
@@ -245,6 +269,7 @@ describe("search", () => {
       addFilter("appliances", "Oven");
       addFilter("ustensils", "Spoon");
 
+      // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.has("Tomato")).toBe(true);
       expect(filters.appliances.has("Oven")).toBe(true);
@@ -252,8 +277,10 @@ describe("search", () => {
     });
 
     it("should return a copy of filters (not reference)", () => {
+      // First filters snapshot
       const filters1 = getActiveFilters();
       addFilter("ingredients", "Tomato");
+      // Second filters snapshot
       const filters2 = getActiveFilters();
 
       expect(filters1.ingredients.size).toBe(0);

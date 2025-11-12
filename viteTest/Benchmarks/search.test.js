@@ -1,77 +1,99 @@
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 import { describe, expect, it } from "vitest";
-import { filterBySearchTerm } from "../../src/components/search/filter.js";
-import { filterBySearchTermNative } from "./utils/filter-native.js";
-import { compareResults } from "./utils/formatting.js";
-import { logBenchmarkSection, logMemoryComparison } from "./utils/logger.js";
-import { measureMemoryUsage, runBenchmark } from "./utils/measurement.js";
+import { benchmarkData } from "./utils/data/benchmark-data.js";
+import { addBenchmarkResult } from "./utils/data/dataCollector.js";
+import { filterBySearchTerm } from "./utils/filters/filter-adaptator.js";
+import { filterBySearchTermNative } from "./utils/filters/filter-native.js";
+import { logBenchmarkSection, logMemoryComparison } from "./utils/logging/logger.js";
+import { compareResults } from "./utils/measurement/formatting.js";
+import { measureMemoryUsage, runBenchmark } from "./utils/measurement/measurement.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load benchmark data
-const benchmarkDataPath = join(__dirname, "../../public/api/data-benchmark.json");
-const benchmarkData = JSON.parse(readFileSync(benchmarkDataPath, "utf-8"));
+// Functional implementation label
+const FUNCTIONAL_LABEL =
+  "Functional Programming (filterBySearchTerm using filter/includes from filter.js)";
+// Native implementation label
+const NATIVE_LABEL =
+  "Native Loops (filterBySearchTermNative using for loops from filter-native.js)";
 
 describe("Search Benchmark Tests", () => {
-  const iterations = 100;
+  // Benchmark iterations count
+  const iterations = 50;
 
   it("should benchmark search with empty query", async () => {
+    // Empty search term
     const searchTerm = "";
 
+    // Functional implementation stats
     const functionalStats = await runBenchmark(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, iterations);
 
+    // Native implementation stats
     const nativeStats = await runBenchmark(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, iterations);
 
-    const comparison = compareResults(functionalStats, nativeStats, "Functional", "Native");
+    // Comparison results
+    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
 
     logBenchmarkSection("Empty Query Benchmark", functionalStats, nativeStats, comparison);
 
-    // Verify both produce same results
+    // Collect benchmark result
+    addBenchmarkResult("search", {
+      testCase: "Empty Query Benchmark",
+      functionalStats,
+      nativeStats,
+      comparison,
+    });
+
+    // Functional filter result
     const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
+    // Native filter result
     const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
     expect(functionalResult.length).toBe(nativeResult.length);
   });
 
   it("should benchmark search with short query", async () => {
+    // Short search term
     const searchTerm = "tomate";
 
+    // Functional implementation stats
     const functionalStats = await runBenchmark(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, iterations);
 
+    // Native implementation stats
     const nativeStats = await runBenchmark(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, iterations);
 
-    const comparison = compareResults(functionalStats, nativeStats, "Functional", "Native");
+    // Comparison results
+    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
 
     logBenchmarkSection("Short Query Benchmark (tomate)", functionalStats, nativeStats, comparison);
 
-    // Verify both produce same results
+    // Functional filter result
     const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
+    // Native filter result
     const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
     expect(functionalResult.length).toBe(nativeResult.length);
   });
 
   it("should benchmark search with medium query", async () => {
+    // Medium search term
     const searchTerm = "chocolat noir";
 
+    // Functional implementation stats
     const functionalStats = await runBenchmark(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, iterations);
 
+    // Native implementation stats
     const nativeStats = await runBenchmark(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, iterations);
 
-    const comparison = compareResults(functionalStats, nativeStats, "Functional", "Native");
+    // Comparison results
+    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
 
     logBenchmarkSection(
       "Medium Query Benchmark (chocolat noir)",
@@ -80,62 +102,101 @@ describe("Search Benchmark Tests", () => {
       comparison,
     );
 
-    // Verify both produce same results
+    // Collect benchmark result
+    addBenchmarkResult("search", {
+      testCase: "Medium Query Benchmark (chocolat noir)",
+      functionalStats,
+      nativeStats,
+      comparison,
+    });
+
+    // Functional filter result
     const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
+    // Native filter result
     const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
     expect(functionalResult.length).toBe(nativeResult.length);
   });
 
   it("should benchmark search with long query", async () => {
+    // Long search term
     const searchTerm = "recette de poulet avec légumes";
 
+    // Functional implementation stats
     const functionalStats = await runBenchmark(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, iterations);
 
+    // Native implementation stats
     const nativeStats = await runBenchmark(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, iterations);
 
-    const comparison = compareResults(functionalStats, nativeStats, "Functional", "Native");
+    // Comparison results
+    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
 
     logBenchmarkSection("Long Query Benchmark", functionalStats, nativeStats, comparison);
 
-    // Verify both produce same results
+    // Collect benchmark result
+    addBenchmarkResult("search", {
+      testCase: "Long Query Benchmark",
+      functionalStats,
+      nativeStats,
+      comparison,
+    });
+
+    // Functional filter result
     const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
+    // Native filter result
     const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
     expect(functionalResult.length).toBe(nativeResult.length);
   });
 
   it("should benchmark search with non-matching query", async () => {
+    // Non-matching search term
     const searchTerm = "xyzabc123nonexistent";
 
+    // Functional implementation stats
     const functionalStats = await runBenchmark(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, iterations);
 
+    // Native implementation stats
     const nativeStats = await runBenchmark(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, iterations);
 
-    const comparison = compareResults(functionalStats, nativeStats, "Functional", "Native");
+    // Comparison results
+    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
 
     logBenchmarkSection("Non-matching Query Benchmark", functionalStats, nativeStats, comparison);
 
-    // Verify both produce same results
+    // Collect benchmark result
+    addBenchmarkResult("search", {
+      testCase: "Non-matching Query Benchmark",
+      functionalStats,
+      nativeStats,
+      comparison,
+    });
+
+    // Functional filter result
     const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
+    // Native filter result
     const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
     expect(functionalResult.length).toBe(nativeResult.length);
   });
 
   it("should measure memory usage for search", () => {
+    // Search term
     const searchTerm = "tomate";
+    // Memory test iterations
     const memoryIterations = 50;
 
+    // Functional memory usage
     const functionalMemory = measureMemoryUsage(() => {
       filterBySearchTerm(benchmarkData, searchTerm);
     }, memoryIterations);
 
+    // Native memory usage
     const nativeMemory = measureMemoryUsage(() => {
       filterBySearchTermNative(benchmarkData, searchTerm);
     }, memoryIterations);
