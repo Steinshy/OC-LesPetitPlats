@@ -12,7 +12,12 @@ import {
   clearResults,
   setTimestamp,
 } from "../data/dataCollector.js";
-import { generateHtmlReport } from "./generateHtml.js";
+import {
+  getAverageExecutionTime,
+  getAverageRME,
+  getImplementations,
+  organizeByCategory,
+} from "../data/results.js";
 import { generateHtmlReport } from "./generateHtml.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,40 +54,36 @@ async function generateCharts(results) {
     return charts;
   }
 
-  // Group results by category for summary chart
-  const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
-  const categoryAverages = categories.map(category => {
-    const categoryResults = flattened.filter(r => r.category === category);
-    if (categoryResults.length === 0) return { functional: 0, native: 0 };
+  // Get all implementations (supports up to 6)
+  const implementations = getImplementations(flattened);
+  
+  // Color palette for up to 6 implementations
+  const colors = [
+    { bg: "rgba(54, 162, 235, 0.6)", border: "rgba(54, 162, 235, 1)" },
+    { bg: "rgba(255, 99, 132, 0.6)", border: "rgba(255, 99, 132, 1)" },
+    { bg: "rgba(75, 192, 192, 0.6)", border: "rgba(75, 192, 192, 1)" },
+    { bg: "rgba(255, 206, 86, 0.6)", border: "rgba(255, 206, 86, 1)" },
+    { bg: "rgba(153, 102, 255, 0.6)", border: "rgba(153, 102, 255, 1)" },
+    { bg: "rgba(255, 159, 64, 0.6)", border: "rgba(255, 159, 64, 1)" },
+  ];
 
-    const functionalAvg =
-      categoryResults.reduce((sum, r) => sum + (r.functional?.avg || 0), 0) / categoryResults.length;
-    const nativeAvg =
-      categoryResults.reduce((sum, r) => sum + (r.native?.avg || 0), 0) / categoryResults.length;
-
-    return { functional: functionalAvg, native: nativeAvg };
-  });
+  // Calculate averages for each implementation
+  const implAverages = implementations.map(impl => ({
+    name: impl,
+    avg: getAverageExecutionTime(flattened, impl),
+  }));
 
   // Quick Comparison Chart - all implementations side-by-side
-  const functionalOverallAvg = flattened.reduce((sum, r) => sum + (r.functional?.avg || 0), 0) / flattened.length;
-  const nativeOverallAvg = flattened.reduce((sum, r) => sum + (r.native?.avg || 0), 0) / flattened.length;
-
   charts.quickComparison = await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
-      labels: ["Functional Programming", "Native Loops"],
+      labels: implementations,
       datasets: [
         {
           label: "Average Execution Time (ms)",
-          data: [functionalOverallAvg, nativeOverallAvg],
-          backgroundColor: [
-            "rgba(54, 162, 235, 0.6)",
-            "rgba(255, 99, 132, 0.6)",
-          ],
-          borderColor: [
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 99, 132, 1)",
-          ],
+          data: implAverages.map(impl => impl.avg),
+          backgroundColor: implementations.map((_, index) => colors[index % colors.length].bg),
+          borderColor: implementations.map((_, index) => colors[index % colors.length].border),
           borderWidth: 1,
         },
       ],
@@ -110,30 +111,47 @@ async function generateCharts(results) {
     },
   });
 
+  // Group results by category for summary chart
+  const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
+  const categoryAverages = categories.map(category => {
+    const categoryResults = flattened.filter(r => r.category === category);
+    if (categoryResults.length === 0) {
+      return implementations.reduce((acc, impl) => {
+        acc[impl] = 0;
+        return acc;
+      }, {});
+    }
+
+    const avgs = {};
+    implementations.forEach(impl => {
+      const implResults = categoryResults.filter(r => r.implementation === impl);
+      avgs[impl] = implResults.length > 0
+        ? implResults.reduce((sum, r) => sum + (r.mean || r.executionTime || 0), 0) / implResults.length
+        : 0;
+    });
+    return avgs;
+  });
+
   // Performance comparison chart by category
+  const validCategories = categories.filter((category, index) => {
+    const avgs = categoryAverages[index];
+    return implementations.some(impl => (avgs[impl] || 0) > 0);
+  });
+
   charts.performance = await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
-      labels: categories.filter(
-        (_, index) =>
-          categoryAverages[index].functional > 0 || categoryAverages[index].native > 0,
-      ),
-      datasets: [
-        {
-          label: "Functional Avg (ms)",
-          data: categoryAverages
-            .filter(avg => avg.functional > 0 || avg.native > 0)
-            .map(avg => avg.functional),
-          backgroundColor: "rgba(54, 162, 235, 0.5)",
-        },
-        {
-          label: "Native Avg (ms)",
-          data: categoryAverages
-            .filter(avg => avg.functional > 0 || avg.native > 0)
-            .map(avg => avg.native),
-          backgroundColor: "rgba(255, 99, 132, 0.5)",
-        },
-      ],
+      labels: validCategories,
+      datasets: implementations.map((impl, index) => ({
+        label: `${impl} Avg (ms)`,
+        data: validCategories.map(category => {
+          const catIndex = categories.indexOf(category);
+          return categoryAverages[catIndex][impl] || 0;
+        }),
+        backgroundColor: colors[index % colors.length].bg,
+        borderColor: colors[index % colors.length].border,
+        borderWidth: 1,
+      })),
     },
     options: {
       responsive: true,
@@ -160,10 +178,7 @@ async function generateCharts(results) {
   });
 
   // Performance Ranking Chart - horizontal bar chart ranking implementations
-  const rankings = [
-    { name: "Functional Programming", avg: functionalOverallAvg },
-    { name: "Native Loops", avg: nativeOverallAvg },
-  ].sort((a, b) => a.avg - b.avg);
+  const rankings = [...implAverages].sort((a, b) => a.avg - b.avg);
 
   charts.ranking = await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
@@ -204,17 +219,16 @@ async function generateCharts(results) {
   });
 
   // Consistency Analysis Chart (RME)
-  const functionalRME = flattened.reduce((sum, r) => sum + (r.functional?.rme || 0), 0) / flattened.length;
-  const nativeRME = flattened.reduce((sum, r) => sum + (r.native?.rme || 0), 0) / flattened.length;
+  const rmeAverages = implementations.map(impl => getAverageRME(flattened, impl));
 
   charts.consistency = await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
-      labels: ["Functional Programming", "Native Loops"],
+      labels: implementations,
       datasets: [
         {
           label: "Average RME (%)",
-          data: [functionalRME, nativeRME],
+          data: rmeAverages,
           backgroundColor: "rgba(255, 159, 64, 0.6)",
           borderColor: "rgba(255, 159, 64, 1)",
           borderWidth: 1,
@@ -252,15 +266,20 @@ async function generateCharts(results) {
   });
 
   // Speed Comparison Heatmap - grouped bar chart with color coding
-  const testCaseNames = flattened.map((r, index) =>
-    `${r.category} - ${r.testCase || `Test ${index + 1}`}`
-  );
-  const allValues = flattened.flatMap(r => [
-    r.functional?.avg || 0,
-    r.native?.avg || 0,
-  ]);
-  const minValue = Math.min(...allValues);
-  const maxValue = Math.max(...allValues);
+  // Group by test case
+  const testCases = {};
+  flattened.forEach(result => {
+    const key = `${result.category} - ${result.testName || result.testCase || "Unknown"}`;
+    if (!testCases[key]) {
+      testCases[key] = {};
+    }
+    testCases[key][result.implementation] = result.mean || result.executionTime || 0;
+  });
+
+  const testCaseNames = Object.keys(testCases);
+  const allValues = flattened.map(r => r.mean || r.executionTime || 0).filter(v => v > 0);
+  const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
+  const maxValue = allValues.length > 0 ? Math.max(...allValues) : 1;
   const range = maxValue - minValue || 1;
 
   const getColor = (value) => {
@@ -276,22 +295,16 @@ async function generateCharts(results) {
       labels: testCaseNames.map(name =>
         name.length > 30 ? name.substring(0, 27) + "..." : name
       ),
-      datasets: [
-        {
-          label: "Functional Programming",
-          data: flattened.map(r => r.functional?.avg || 0),
-          backgroundColor: flattened.map(r => getColor(r.functional?.avg || 0)),
-          borderColor: "rgba(54, 162, 235, 1)",
-          borderWidth: 1,
-        },
-        {
-          label: "Native Loops",
-          data: flattened.map(r => r.native?.avg || 0),
-          backgroundColor: flattened.map(r => getColor(r.native?.avg || 0)),
-          borderColor: "rgba(255, 99, 132, 1)",
-          borderWidth: 1,
-        },
-      ],
+      datasets: implementations.map((impl, index) => ({
+        label: impl,
+        data: testCaseNames.map(testName => testCases[testName][impl] || 0),
+        backgroundColor: testCaseNames.map(testName => {
+          const value = testCases[testName][impl] || 0;
+          return getColor(value);
+        }),
+        borderColor: colors[index % colors.length].border,
+        borderWidth: 1,
+      })),
     },
     options: {
       responsive: true,

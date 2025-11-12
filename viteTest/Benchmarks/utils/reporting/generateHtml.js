@@ -6,6 +6,13 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  getAverageExecutionTime,
+  getAverageRME,
+  getImplementations,
+  organizeByCategory,
+  getTestCoverage,
+} from "../data/results.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,30 +48,51 @@ export function generateKeyFindings(flattened, summary) {
     return '<div class="key-findings"><p>No benchmark data available.</p></div>';
   }
 
-  const functionalWins = summary.functionalWins || 0;
-  const nativeWins = summary.nativeWins || 0;
+  const implementations = getImplementations(flattened);
   const totalTests = summary.totalTests || 0;
   const overallWinner = summary.overallWinner || "N/A";
   const averageImprovement = summary.averageImprovement || 0;
+  const winCounts = summary.winCounts || {};
 
-  // Calculate average execution times
-  const functionalAvg = flattened.reduce((sum, r) => sum + (r.functional?.avg || 0), 0) / flattened.length;
-  const nativeAvg = flattened.reduce((sum, r) => sum + (r.native?.avg || 0), 0) / flattened.length;
+  // Calculate average execution times for each implementation
+  const implStats = implementations.map(impl => ({
+    name: impl,
+    avgTime: getAverageExecutionTime(flattened, impl),
+    avgRME: getAverageRME(flattened, impl),
+    wins: winCounts[impl] || 0,
+  }));
 
   // Find most consistent (lowest RME)
-  const functionalRME = flattened.reduce((sum, r) => sum + (r.functional?.rme || 0), 0) / flattened.length;
-  const nativeRME = flattened.reduce((sum, r) => sum + (r.native?.rme || 0), 0) / flattened.length;
-  const mostConsistent = functionalRME < nativeRME ? "Functional Programming" : "Native Loops";
-  const mostConsistentRME = Math.min(functionalRME, nativeRME);
+  const mostConsistent = implStats.reduce((prev, current) =>
+    prev.avgRME < current.avgRME ? prev : current
+  );
 
   // Find fastest overall
-  const fastest = functionalAvg < nativeAvg ? "Functional Programming" : "Native Loops";
-  const fastestTime = Math.min(functionalAvg, nativeAvg);
+  const fastest = implStats.reduce((prev, current) =>
+    prev.avgTime < current.avgTime ? prev : current
+  );
 
   // Calculate win percentage
-  const winPercentage = overallWinner === "Functional Programming"
-    ? ((functionalWins / totalTests) * 100).toFixed(1)
-    : ((nativeWins / totalTests) * 100).toFixed(1);
+  const winnerWins = winCounts[overallWinner] || 0;
+  const winPercentage = totalTests > 0 ? ((winnerWins / totalTests) * 100).toFixed(1) : "0.0";
+
+  // Find significant performance gaps
+  const sortedByTime = [...implStats].sort((a, b) => a.avgTime - b.avgTime);
+  const gaps = [];
+  for (let i = 0; i < sortedByTime.length - 1; i++) {
+    const current = sortedByTime[i];
+    const next = sortedByTime[i + 1];
+    const gap = current.avgTime > 0 ? ((next.avgTime - current.avgTime) / current.avgTime) * 100 : 0;
+    if (gap > 20) {
+      gaps.push({
+        from: current.name,
+        to: next.name,
+        gap: gap.toFixed(1),
+      });
+    }
+  }
+
+  const slowest = sortedByTime[sortedByTime.length - 1];
 
   return `
     <div class="key-findings">
@@ -73,23 +101,31 @@ export function generateKeyFindings(flattened, summary) {
         <div class="finding-card">
           <h4>Overall Winner</h4>
           <p class="finding-value">${overallWinner}</p>
-          <p class="finding-detail">Wins ${overallWinner === "Functional Programming" ? functionalWins : nativeWins} of ${totalTests} tests (${winPercentage}%)</p>
+          <p class="finding-detail">Wins ${winnerWins} of ${totalTests} tests (${winPercentage}%)</p>
         </div>
         <div class="finding-card">
           <h4>Average Performance Improvement</h4>
           <p class="finding-value">${averageImprovement.toFixed(1)}%</p>
-          <p class="finding-detail">Fastest vs Slowest: ${fastest} vs ${fastest === "Functional Programming" ? "Native Loops" : "Functional Programming"}</p>
+          <p class="finding-detail">Fastest vs Slowest: ${fastest.name} vs ${slowest.name}</p>
         </div>
         <div class="finding-card">
           <h4>Most Consistent</h4>
-          <p class="finding-value">${mostConsistent}</p>
-          <p class="finding-detail">Lowest average RME: ${mostConsistentRME.toFixed(2)}%</p>
+          <p class="finding-value">${mostConsistent.name}</p>
+          <p class="finding-detail">Lowest average RME: ${mostConsistent.avgRME.toFixed(2)}%</p>
         </div>
         <div class="finding-card">
           <h4>Fastest Overall</h4>
-          <p class="finding-value">${fastest}</p>
-          <p class="finding-detail">Average time: ${fastestTime.toFixed(2)}ms</p>
+          <p class="finding-value">${fastest.name}</p>
+          <p class="finding-detail">Average time: ${fastest.avgTime.toFixed(2)}ms</p>
         </div>
+        ${gaps.length > 0 ? `
+        <div class="finding-card finding-card-wide">
+          <h4>Significant Performance Gaps</h4>
+          <ul>
+            ${gaps.map(gap => `<li>${gap.from} → ${gap.to}: ${gap.gap}% slower</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;
@@ -102,16 +138,10 @@ export function generateKeyFindings(flattened, summary) {
  * @returns {string} HTML string for test coverage
  */
 export function generateTestCoverage(flattened, allResults) {
-  const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
-  const categoryBreakdown = {};
-
-  categories.forEach(category => {
-    const categoryResults = flattened.filter(r => r.category === category);
-    categoryBreakdown[category] = categoryResults.length;
-  });
-
-  const totalTests = flattened.length;
-  const totalScenarios = totalTests * 2; // 2 implementations per test
+  const categoryResults = organizeByCategory(flattened);
+  const coverage = getTestCoverage(categoryResults);
+  const implementations = getImplementations(flattened);
+  const totalScenarios = flattened.length; // Each flattened entry is a scenario (test × implementation)
 
   return `
     <div class="test-coverage">
@@ -119,16 +149,20 @@ export function generateTestCoverage(flattened, allResults) {
       <div class="coverage-grid">
         <div class="coverage-card">
           <h4>Total Test Cases</h4>
-          <p class="coverage-value">${totalTests}</p>
+          <p class="coverage-value">${coverage.totalTests}</p>
         </div>
         <div class="coverage-card">
           <h4>Total Scenarios</h4>
-          <p class="coverage-value">${totalScenarios}</p>
+          <p class="coverage-value">${coverage.totalScenarios}</p>
+        </div>
+        <div class="coverage-card">
+          <h4>Implementations</h4>
+          <p class="coverage-value">${implementations.length}</p>
         </div>
         <div class="coverage-card coverage-card-wide">
           <h4>Breakdown by Category</h4>
           <ul class="category-list">
-            ${Object.entries(categoryBreakdown)
+            ${Object.entries(coverage.categoryBreakdown)
               .map(([category, count]) => `<li><strong>${category}:</strong> ${count} tests</li>`)
               .join("")}
           </ul>
@@ -231,31 +265,44 @@ export function generateHtmlReport(results, charts) {
       <h2>Detailed Test Results</h2>
       ${
         flattened.length > 0
-          ? `
+          ? (() => {
+              const implementations = getImplementations(flattened);
+              const categoryResults = organizeByCategory(flattened);
+              let tableHTML = `
       <table>
         <tr>
           <th>Category</th>
           <th>Test Case</th>
-          <th>Functional Avg (ms)</th>
-          <th>Native Avg (ms)</th>
+          ${implementations.map(impl => `<th>${impl} (ms)</th>`).join("")}
           <th>Winner</th>
-          <th>Improvement %</th>
-        </tr>
-        ${flattened
-          .map(
-            r => `
-          <tr>
-            <td>${r.category}</td>
-            <td>${r.testCase}</td>
-            <td>${r.functional?.avg?.toFixed(4) || "N/A"}</td>
-            <td>${r.native?.avg?.toFixed(4) || "N/A"}</td>
-            <td class="${r.winner?.includes("Functional") ? "winner-functional" : "winner-native"}">${r.winner || "Unknown"}</td>
-            <td>${r.improvement?.toFixed(2) || "0"}%</td>
-          </tr>
-        `,
-          )
-          .join("")}
-      </table>`
+        </tr>`;
+              
+              Object.entries(categoryResults).forEach(([category, tests]) => {
+                Object.entries(tests).forEach(([testName, impls]) => {
+                  const times = implementations.map(impl => {
+                    const stats = impls[impl];
+                    return stats ? (stats.mean || stats.executionTime || 0).toFixed(4) : "N/A";
+                  });
+                  const winner = implementations.reduce((prev, current) => {
+                    const prevTime = impls[prev] ? (impls[prev].mean || impls[prev].executionTime || Infinity) : Infinity;
+                    const currentTime = impls[current] ? (impls[current].mean || impls[current].executionTime || Infinity) : Infinity;
+                    return currentTime < prevTime ? current : prev;
+                  }, implementations[0]);
+                  
+                  tableHTML += `
+        <tr>
+          <td>${category}</td>
+          <td>${testName}</td>
+          ${times.map(time => `<td>${time}</td>`).join("")}
+          <td class="winner">${winner}</td>
+        </tr>`;
+                });
+              });
+              
+              tableHTML += `
+      </table>`;
+              return tableHTML;
+            })()
           : "<p>No benchmark results available. Please run the benchmark tests first.</p>"
       }
     </section>

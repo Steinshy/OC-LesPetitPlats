@@ -101,3 +101,34 @@ export function getTestCoverage(categoryResults) {
     totalScenarios,
   };
 }
+
+/**
+ * Convert flattened results from dataCollector format to categoryResults format
+ * @param {Array} flattened - Flattened results from dataCollector
+ * @returns {Object} Results organized by category -> testName -> implementation
+ */
+export function organizeByCategory(flattened) {
+  const categoryResults = {};
+
+  flattened.forEach(result => {
+    const category = result.category;
+    const testName = result.testName || result.testCase || "Unknown";
+    const implementation = result.implementation;
+
+    if (!categoryResults[category]) {
+      categoryResults[category] = {};
+    }
+    if (!categoryResults[category][testName]) {
+      categoryResults[category][testName] = {};
+    }
+
+    categoryResults[category][testName][implementation] = {
+      mean: result.mean || result.executionTime || 0,
+      executionTime: result.executionTime || result.mean || 0,
+      rme: result.rme || 0,
+      ...result,
+    };
+  });
+
+  return categoryResults;
+}
