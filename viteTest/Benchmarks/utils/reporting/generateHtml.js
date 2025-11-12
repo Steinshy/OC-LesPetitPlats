@@ -3,14 +3,12 @@
  * Creates the complete HTML report with TOC, charts, and detailed sections
  */
 
-import { generateAllCharts } from "./generateReport.js";
-import {
-  flattenCategoryResults,
-  getAverageExecutionTime,
-  getAverageRME,
-  getImplementations,
-  getTestCoverage,
-} from "../data/results.js";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Generate table of contents HTML
@@ -34,78 +32,39 @@ export function generateTableOfContents() {
 
 /**
  * Generate key findings section
- * @param {Object} categoryResults - Results organized by category
+ * @param {Array} flattened - Flattened results array
+ * @param {Object} summary - Summary statistics
  * @returns {string} HTML string for key findings
  */
-export function generateKeyFindings(categoryResults) {
-  const flattened = flattenCategoryResults(categoryResults);
-  const implementations = getImplementations(flattened);
-
-  if (implementations.length === 0) {
+export function generateKeyFindings(flattened, summary) {
+  if (flattened.length === 0) {
     return '<div class="key-findings"><p>No benchmark data available.</p></div>';
   }
 
-  // Calculate averages for each implementation
-  const implStats = implementations.map((impl) => ({
-    name: impl,
-    avgTime: getAverageExecutionTime(flattened, impl),
-    avgRME: getAverageRME(flattened, impl),
-  }));
+  const functionalWins = summary.functionalWins || 0;
+  const nativeWins = summary.nativeWins || 0;
+  const totalTests = summary.totalTests || 0;
+  const overallWinner = summary.overallWinner || "N/A";
+  const averageImprovement = summary.averageImprovement || 0;
 
-  // Find overall winner (fastest average)
-  const winner = implStats.reduce((prev, current) =>
-    prev.avgTime < current.avgTime ? prev : current
-  );
-
-  // Calculate win percentage (how many tests this implementation won)
-  const testCases = {};
-  for (const result of flattened) {
-    const key = `${result.category} - ${result.testName}`;
-    if (!testCases[key]) {
-      testCases[key] = [];
-    }
-    testCases[key].push({
-      impl: result.implementation,
-      time: result.mean || result.executionTime || 0,
-    });
-  }
-
-  const winCounts = {};
-  for (const testResults of Object.values(testCases)) {
-    const fastest = testResults.reduce((prev, current) =>
-      prev.time < current.time ? prev : current
-    );
-    winCounts[fastest.impl] = (winCounts[fastest.impl] || 0) + 1;
-  }
-
-  const totalTests = Object.keys(testCases).length;
-  const winPercentage = ((winCounts[winner.name] || 0) / totalTests) * 100;
+  // Calculate average execution times
+  const functionalAvg = flattened.reduce((sum, r) => sum + (r.functional?.avg || 0), 0) / flattened.length;
+  const nativeAvg = flattened.reduce((sum, r) => sum + (r.native?.avg || 0), 0) / flattened.length;
 
   // Find most consistent (lowest RME)
-  const mostConsistent = implStats.reduce((prev, current) =>
-    prev.avgRME < current.avgRME ? prev : current
-  );
+  const functionalRME = flattened.reduce((sum, r) => sum + (r.functional?.rme || 0), 0) / flattened.length;
+  const nativeRME = flattened.reduce((sum, r) => sum + (r.native?.rme || 0), 0) / flattened.length;
+  const mostConsistent = functionalRME < nativeRME ? "Functional Programming" : "Native Loops";
+  const mostConsistentRME = Math.min(functionalRME, nativeRME);
 
-  // Calculate average performance improvement
-  const sortedByTime = [...implStats].sort((a, b) => a.avgTime - b.avgTime);
-  const fastest = sortedByTime[0];
-  const slowest = sortedByTime[sortedByTime.length - 1];
-  const improvement = ((slowest.avgTime - fastest.avgTime) / slowest.avgTime) * 100;
+  // Find fastest overall
+  const fastest = functionalAvg < nativeAvg ? "Functional Programming" : "Native Loops";
+  const fastestTime = Math.min(functionalAvg, nativeAvg);
 
-  // Find significant performance gaps
-  const gaps = [];
-  for (let i = 0; i < sortedByTime.length - 1; i++) {
-    const current = sortedByTime[i];
-    const next = sortedByTime[i + 1];
-    const gap = ((next.avgTime - current.avgTime) / current.avgTime) * 100;
-    if (gap > 20) {
-      gaps.push({
-        from: current.name,
-        to: next.name,
-        gap: gap.toFixed(1),
-      });
-    }
-  }
+  // Calculate win percentage
+  const winPercentage = overallWinner === "Functional Programming"
+    ? ((functionalWins / totalTests) * 100).toFixed(1)
+    : ((nativeWins / totalTests) * 100).toFixed(1);
 
   return `
     <div class="key-findings">
@@ -113,32 +72,24 @@ export function generateKeyFindings(categoryResults) {
       <div class="findings-grid">
         <div class="finding-card">
           <h4>Overall Winner</h4>
-          <p class="finding-value">${winner.name}</p>
-          <p class="finding-detail">Wins ${winCounts[winner.name] || 0} of ${totalTests} tests (${winPercentage.toFixed(1)}%)</p>
+          <p class="finding-value">${overallWinner}</p>
+          <p class="finding-detail">Wins ${overallWinner === "Functional Programming" ? functionalWins : nativeWins} of ${totalTests} tests (${winPercentage}%)</p>
         </div>
         <div class="finding-card">
           <h4>Average Performance Improvement</h4>
-          <p class="finding-value">${improvement.toFixed(1)}%</p>
-          <p class="finding-detail">Fastest vs Slowest: ${fastest.name} vs ${slowest.name}</p>
+          <p class="finding-value">${averageImprovement.toFixed(1)}%</p>
+          <p class="finding-detail">Fastest vs Slowest: ${fastest} vs ${fastest === "Functional Programming" ? "Native Loops" : "Functional Programming"}</p>
         </div>
         <div class="finding-card">
           <h4>Most Consistent</h4>
-          <p class="finding-value">${mostConsistent.name}</p>
-          <p class="finding-detail">Lowest average RME: ${mostConsistent.avgRME.toFixed(2)}%</p>
+          <p class="finding-value">${mostConsistent}</p>
+          <p class="finding-detail">Lowest average RME: ${mostConsistentRME.toFixed(2)}%</p>
         </div>
         <div class="finding-card">
           <h4>Fastest Overall</h4>
-          <p class="finding-value">${fastest.name}</p>
-          <p class="finding-detail">Average time: ${fastest.avgTime.toFixed(2)}ms</p>
+          <p class="finding-value">${fastest}</p>
+          <p class="finding-detail">Average time: ${fastestTime.toFixed(2)}ms</p>
         </div>
-        ${gaps.length > 0 ? `
-        <div class="finding-card finding-card-wide">
-          <h4>Significant Performance Gaps</h4>
-          <ul>
-            ${gaps.map(gap => `<li>${gap.from} → ${gap.to}: ${gap.gap}% slower</li>`).join('')}
-          </ul>
-        </div>
-        ` : ''}
       </div>
     </div>
   `;
@@ -146,11 +97,21 @@ export function generateKeyFindings(categoryResults) {
 
 /**
  * Generate test coverage section
- * @param {Object} categoryResults - Results organized by category
+ * @param {Array} flattened - Flattened results array
+ * @param {Object} allResults - All results organized by category
  * @returns {string} HTML string for test coverage
  */
-export function generateTestCoverage(categoryResults) {
-  const coverage = getTestCoverage(categoryResults);
+export function generateTestCoverage(flattened, allResults) {
+  const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
+  const categoryBreakdown = {};
+
+  categories.forEach(category => {
+    const categoryResults = flattened.filter(r => r.category === category);
+    categoryBreakdown[category] = categoryResults.length;
+  });
+
+  const totalTests = flattened.length;
+  const totalScenarios = totalTests * 2; // 2 implementations per test
 
   return `
     <div class="test-coverage">
@@ -158,16 +119,16 @@ export function generateTestCoverage(categoryResults) {
       <div class="coverage-grid">
         <div class="coverage-card">
           <h4>Total Test Cases</h4>
-          <p class="coverage-value">${coverage.totalTests}</p>
+          <p class="coverage-value">${totalTests}</p>
         </div>
         <div class="coverage-card">
           <h4>Total Scenarios</h4>
-          <p class="coverage-value">${coverage.totalScenarios}</p>
+          <p class="coverage-value">${totalScenarios}</p>
         </div>
         <div class="coverage-card coverage-card-wide">
           <h4>Breakdown by Category</h4>
           <ul class="category-list">
-            ${Object.entries(coverage.categoryBreakdown)
+            ${Object.entries(categoryBreakdown)
               .map(([category, count]) => `<li><strong>${category}:</strong> ${count} tests</li>`)
               .join("")}
           </ul>
@@ -179,21 +140,21 @@ export function generateTestCoverage(categoryResults) {
 
 /**
  * Generate chart HTML section
- * @param {Object} charts - Chart configurations
- * @param {string} chartId - ID of the chart to generate
+ * @param {Object} charts - Chart image buffers
+ * @param {string} chartKey - Key of the chart in charts object
  * @param {string} chartName - Display name for the chart
  * @returns {string} HTML string for a chart section
  */
-export function generateChartSection(charts, chartId, chartName) {
-  if (!charts[chartId]) {
+export function generateChartSection(charts, chartKey, chartName) {
+  if (!charts[chartKey]) {
     return "";
   }
 
   return `
     <div class="chart-section">
       <h3>${chartName}</h3>
-      <div class="chart-container">
-        <canvas id="chart-${chartId}"></canvas>
+      <div class="chart">
+        <img src="data:image/png;base64,${charts[chartKey].toString("base64")}" alt="${chartName}" />
       </div>
     </div>
   `;
@@ -201,18 +162,28 @@ export function generateChartSection(charts, chartId, chartName) {
 
 /**
  * Generate the complete HTML report
- * @param {Object} categoryResults - Results organized by category
- * @param {Object} options - Additional options for report generation
+ * @param {Object} results - Benchmark results
+ * @param {Object} charts - Chart image buffers
  * @returns {string} Complete HTML report string
  */
-export function generateHtmlReport(categoryResults, options = {}) {
-  const charts = generateAllCharts(categoryResults);
-  const keyFindings = generateKeyFindings(categoryResults);
-  const testCoverage = generateTestCoverage(categoryResults);
+export function generateHtmlReport(results, charts) {
+  const flattened = results.flattened || [];
+  const summary = results.summary || {};
+  const allResults = results.all || {};
+
+  const keyFindings = generateKeyFindings(flattened, summary);
+  const testCoverage = generateTestCoverage(flattened, allResults);
   const toc = generateTableOfContents();
 
-  // Serialize charts for embedding in HTML
-  const chartsJson = JSON.stringify(charts);
+  // Load CSS
+  const cssPath = join(__dirname, "generate.css");
+  let cssContent = "";
+  try {
+    cssContent = readFileSync(cssPath, "utf-8");
+  } catch (error) {
+    console.warn("Could not load CSS file, using inline styles");
+    cssContent = "";
+  }
 
   return `
 <!DOCTYPE html>
@@ -221,87 +192,89 @@ export function generateHtmlReport(categoryResults, options = {}) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Benchmark Report</title>
+  <style>
+    ${cssContent || `
+    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
+    .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; border-bottom: 3px solid #4CAF50; padding-bottom: 10px; }
+    h2 { color: #555; margin-top: 30px; }
+    `}
+  </style>
   <link rel="stylesheet" href="generate.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Benchmark Performance Report</h1>
-    <p class="report-date">Generated: ${new Date().toLocaleString()}</p>
-  </header>
+  <div class="container">
+    <header>
+      <h1>Benchmark Performance Report</h1>
+      <p class="report-date">Generated: ${results.timestamp || new Date().toISOString()}</p>
+    </header>
 
-  ${toc}
+    ${toc}
 
-  <section id="executive-summary" class="section">
-    <h2>Executive Summary</h2>
-    ${keyFindings}
-    ${testCoverage}
-    ${generateChartSection(charts, "quickComparison", "Quick Comparison")}
-  </section>
+    <section id="executive-summary" class="section">
+      <h2>Executive Summary</h2>
+      ${keyFindings}
+      ${testCoverage}
+      ${generateChartSection(charts, "quickComparison", "Quick Comparison")}
+    </section>
 
-  <section id="performance-analysis" class="section">
-    <h2>Performance Analysis</h2>
-    ${generateChartSection(charts, "ranking", "Performance Ranking")}
-    ${generateChartSection(charts, "consistency", "Consistency Analysis (RME)")}
-    ${generateChartSection(charts, "heatmap", "Speed Comparison Heatmap")}
-  </section>
+    <section id="performance-analysis" class="section">
+      <h2>Performance Analysis</h2>
+      ${generateChartSection(charts, "performance", "Performance Comparison by Category")}
+      ${generateChartSection(charts, "ranking", "Performance Ranking")}
+      ${generateChartSection(charts, "consistency", "Consistency Analysis (RME)")}
+      ${generateChartSection(charts, "heatmap", "Speed Comparison Heatmap")}
+      ${generateChartSection(charts, "improvement", "Performance Improvement Trend")}
+    </section>
 
-  <section id="detailed-test-results" class="section">
-    <h2>Detailed Test Results</h2>
-    <!-- Detailed results will be inserted here -->
-  </section>
-
-  <section id="detailed-implementation-breakdown" class="section">
-    <h2>Detailed Implementation Breakdown</h2>
-    <!-- Implementation breakdown will be inserted here -->
-  </section>
-
-  <section id="methodology-measurement-notes" class="section">
-    <h2>Methodology & Measurement Notes</h2>
-    <!-- Methodology notes will be inserted here -->
-  </section>
-
-  <section id="key-insights-recommendations" class="section">
-    <h2>Key Insights & Recommendations</h2>
-    <!-- Insights and recommendations will be inserted here -->
-  </section>
-
-  <script>
-    // Initialize charts
-    const chartsData = ${chartsJson};
-    
-    // Quick Comparison Chart
-    if (chartsData.quickComparison) {
-      const ctx1 = document.getElementById('chart-quickComparison');
-      if (ctx1) {
-        new Chart(ctx1, chartsData.quickComparison);
+    <section id="detailed-test-results" class="section">
+      <h2>Detailed Test Results</h2>
+      ${
+        flattened.length > 0
+          ? `
+      <table>
+        <tr>
+          <th>Category</th>
+          <th>Test Case</th>
+          <th>Functional Avg (ms)</th>
+          <th>Native Avg (ms)</th>
+          <th>Winner</th>
+          <th>Improvement %</th>
+        </tr>
+        ${flattened
+          .map(
+            r => `
+          <tr>
+            <td>${r.category}</td>
+            <td>${r.testCase}</td>
+            <td>${r.functional?.avg?.toFixed(4) || "N/A"}</td>
+            <td>${r.native?.avg?.toFixed(4) || "N/A"}</td>
+            <td class="${r.winner?.includes("Functional") ? "winner-functional" : "winner-native"}">${r.winner || "Unknown"}</td>
+            <td>${r.improvement?.toFixed(2) || "0"}%</td>
+          </tr>
+        `,
+          )
+          .join("")}
+      </table>`
+          : "<p>No benchmark results available. Please run the benchmark tests first.</p>"
       }
-    }
-    
-    // Ranking Chart
-    if (chartsData.ranking) {
-      const ctx2 = document.getElementById('chart-ranking');
-      if (ctx2) {
-        new Chart(ctx2, chartsData.ranking);
-      }
-    }
-    
-    // Consistency Chart
-    if (chartsData.consistency) {
-      const ctx3 = document.getElementById('chart-consistency');
-      if (ctx3) {
-        new Chart(ctx3, chartsData.consistency);
-      }
-    }
-    
-    // Heatmap Chart
-    if (chartsData.heatmap) {
-      const ctx4 = document.getElementById('chart-heatmap');
-      if (ctx4) {
-        new Chart(ctx4, chartsData.heatmap);
-      }
-    }
-  </script>
+    </section>
+
+    <section id="detailed-implementation-breakdown" class="section">
+      <h2>Detailed Implementation Breakdown</h2>
+      <p>Implementation details and performance characteristics will be displayed here.</p>
+    </section>
+
+    <section id="methodology-measurement-notes" class="section">
+      <h2>Methodology & Measurement Notes</h2>
+      <p>Methodology and measurement details will be displayed here.</p>
+    </section>
+
+    <section id="key-insights-recommendations" class="section">
+      <h2>Key Insights & Recommendations</h2>
+      <p>Key insights and recommendations will be displayed here.</p>
+    </section>
+  </div>
 </body>
 </html>
   `;
