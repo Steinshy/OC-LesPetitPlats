@@ -18,6 +18,17 @@ export default {
     "!**/coverage/**",
     "!**/viteTest/**",
     "!**/*.config.js",
+    // Exclude DOM manipulation and entry point files (not unit tested)
+    "!src/App.js",
+    "!src/card.js",
+    "!src/errorHandler.js",
+    "!src/mobileMenu.js",
+    "!src/components/dropdown.js",
+    "!src/components/headerImage.js",
+    "!src/components/scrollToTop.js",
+    "!src/components/skeletons.js",
+    "!src/components/dropdown/behavior.js",
+    "!src/components/dropdown/render.js",
   ],
   thresholds: {
     high: 80,
