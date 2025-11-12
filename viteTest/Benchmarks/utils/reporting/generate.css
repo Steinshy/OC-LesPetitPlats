@@ -1,0 +1,288 @@
+/**
+ * Styles for benchmark report HTML generation
+ */
+
+/* Base styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+header {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+header h1 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 2.5em;
+}
+
+.report-date {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+/* Section styles */
+.section {
+  background-color: #fff;
+  padding: 30px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section h2 {
+  color: #2c3e50;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 2em;
+}
+
+.section h3 {
+  color: #34495e;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 1.5em;
+}
+
+/* Table of Contents */
+.toc {
+  background-color: #fff;
+  padding: 25px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3498db;
+}
+
+.toc h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 1.8em;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+}
+
+.toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+}
+
+.toc li {
+  margin: 10px 0;
+}
+
+.toc a {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 1.1em;
+  display: block;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.toc a:hover {
+  background-color: #ecf0f1;
+  color: #2980b9;
+  padding-left: 20px;
+}
+
+/* Key Findings */
+.key-findings {
+  margin-bottom: 30px;
+}
+
+.findings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.finding-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.finding-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.finding-card h4 {
+  margin: 0 0 15px 0;
+  font-size: 1.1em;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.finding-value {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.finding-detail {
+  font-size: 0.9em;
+  opacity: 0.9;
+  margin: 5px 0 0 0;
+}
+
+.finding-card-wide {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.finding-card-wide ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.finding-card-wide li {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.finding-card-wide li:last-child {
+  border-bottom: none;
+}
+
+/* Test Coverage */
+.test-coverage {
+  margin-bottom: 30px;
+}
+
+.coverage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.coverage-card {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #27ae60;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.coverage-card h4 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coverage-value {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #27ae60;
+  margin: 0;
+}
+
+.coverage-card-wide {
+  grid-column: 1 / -1;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.category-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.category-list li:last-child {
+  border-bottom: none;
+}
+
+.category-list strong {
+  color: #2c3e50;
+}
+
+/* Chart sections */
+.chart-section {
+  margin-bottom: 40px;
+}
+
+.chart-container {
+  position: relative;
+  height: 400px;
+  margin-top: 20px;
+  background-color: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 2em;
+  }
+
+  .section {
+    padding: 20px;
+  }
+
+  .findings-grid,
+  .coverage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background-color: #fff;
+    padding: 0;
+  }
+
+  .section {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  .toc {
+    page-break-after: always;
+  }
+
+  .chart-container {
+    height: 300px;
+  }
+}
