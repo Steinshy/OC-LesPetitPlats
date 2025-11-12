@@ -1,6 +1,8 @@
-// Native loop implementations for benchmarking (using for loops instead of functional methods)
+// For loops-based implementation for benchmarking
+// Uses traditional for loops for direct filtering without data normalization/mapping
 
-export function filterBySearchTermNative(recipes, searchTerm) {
+// Filter recipes by search term using for loops
+export function filterBySearchTermLoops(recipes, searchTerm) {
   if (!searchTerm || searchTerm.trim() === "") {
     return recipes;
   }
@@ -22,7 +24,11 @@ export function filterBySearchTermNative(recipes, searchTerm) {
       matches = true;
     }
 
-    if (!matches && recipe.description && recipe.description.toLowerCase().includes(normalizedSearchTerm)) {
+    if (
+      !matches &&
+      recipe.description &&
+      recipe.description.toLowerCase().includes(normalizedSearchTerm)
+    ) {
       matches = true;
     }
 
@@ -32,7 +38,10 @@ export function filterBySearchTermNative(recipes, searchTerm) {
       for (let j = 0; j < ingredientsLength; j++) {
         // Current ingredient
         const ingredient = recipe.ingredients[j];
-        if (ingredient.ingredient && ingredient.ingredient.toLowerCase().includes(normalizedSearchTerm)) {
+        if (
+          ingredient.ingredient &&
+          ingredient.ingredient.toLowerCase().includes(normalizedSearchTerm)
+        ) {
           matches = true;
           break;
         }
@@ -47,7 +56,8 @@ export function filterBySearchTermNative(recipes, searchTerm) {
   return filtered;
 }
 
-export function filterByIngredientsNative(recipes, selectedIngredients) {
+// Filter recipes by ingredients using for loops
+export function filterByIngredientsLoops(recipes, selectedIngredients) {
   if (!selectedIngredients || selectedIngredients.length === 0) {
     return recipes;
   }
@@ -98,7 +108,8 @@ export function filterByIngredientsNative(recipes, selectedIngredients) {
   return filtered;
 }
 
-export function filterByAppliancesNative(recipes, selectedAppliances) {
+// Filter recipes by appliances using for loops
+export function filterByAppliancesLoops(recipes, selectedAppliances) {
   if (!selectedAppliances || selectedAppliances.length === 0) {
     return recipes;
   }
@@ -135,7 +146,8 @@ export function filterByAppliancesNative(recipes, selectedAppliances) {
   return filtered;
 }
 
-export function filterByUstensilsNative(recipes, selectedUstensils) {
+// Filter recipes by ustensils using for loops
+export function filterByUstensilsLoops(recipes, selectedUstensils) {
   if (!selectedUstensils || selectedUstensils.length === 0) {
     return recipes;
   }
@@ -186,26 +198,26 @@ export function filterByUstensilsNative(recipes, selectedUstensils) {
   return filtered;
 }
 
-export function filterRecipesNative(recipes, filters) {
+// Filter recipes with multiple filters using for loops
+export function filterRecipesLoops(recipes, filters) {
   // Filtered recipes array
   let filtered = recipes;
 
   if (filters.searchTerm) {
-    filtered = filterBySearchTermNative(filtered, filters.searchTerm);
+    filtered = filterBySearchTermLoops(filtered, filters.searchTerm);
   }
 
   if (filters.ingredients && filters.ingredients.length > 0) {
-    filtered = filterByIngredientsNative(filtered, filters.ingredients);
+    filtered = filterByIngredientsLoops(filtered, filters.ingredients);
   }
 
   if (filters.appliances && filters.appliances.length > 0) {
-    filtered = filterByAppliancesNative(filtered, filters.appliances);
+    filtered = filterByAppliancesLoops(filtered, filters.appliances);
   }
 
   if (filters.ustensils && filters.ustensils.length > 0) {
-    filtered = filterByUstensilsNative(filtered, filters.ustensils);
+    filtered = filterByUstensilsLoops(filtered, filters.ustensils);
   }
 
   return filtered;
 }
-

@@ -17,6 +17,7 @@ export default defineConfig({
     },
     teardownTimeout: 1000,
     testTimeout: 30000, // 30 seconds for benchmark tests
+    setupFiles: ["viteTest/Benchmarks/setup.js"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],

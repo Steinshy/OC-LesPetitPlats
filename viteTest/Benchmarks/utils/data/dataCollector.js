@@ -1,6 +1,14 @@
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  MAPS_LABEL,
+  LOOPS_LABEL,
+  FOREACH_LABEL,
+  REDUCE_LABEL,
+  FOR_LABEL,
+  WHILE_LABEL,
+} from "../helper/helpers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -62,78 +70,157 @@ export function getFlattenedResults() {
   const benchmarkResults = loadResults();
   const flattened = [];
 
-  benchmarkResults.search.forEach((result, index) => {
-    flattened.push({
-      category: "Search",
-      testCase: result.testCase || `Search Test ${index + 1}`,
-      functional: result.functionalStats,
-      native: result.nativeStats,
-      winner: result.comparison?.faster || "Unknown",
-      improvement: result.comparison?.improvement || 0,
-    });
-  });
+  // Process each category
+  const categories = [
+    { key: "search", name: "Search" },
+    { key: "ingredients", name: "Ingredients" },
+    { key: "appliances", name: "Appliances" },
+    { key: "ustensils", name: "Ustensils" },
+    { key: "combined", name: "Combined" },
+  ];
 
-  benchmarkResults.ingredients.forEach((result, index) => {
-    flattened.push({
-      category: "Ingredients",
-      testCase: result.testCase || `Ingredients Test ${index + 1}`,
-      functional: result.functionalStats,
-      native: result.nativeStats,
-      winner: result.comparison?.faster || "Unknown",
-      improvement: result.comparison?.improvement || 0,
-    });
-  });
+  categories.forEach(({ key, name }) => {
+    if (benchmarkResults[key]) {
+      benchmarkResults[key].forEach((result, index) => {
+        // Support both old format (functional/native) and new format (implementations object)
+        if (result.implementations) {
+          // New format: result.implementations is an object with implementation names as keys
+          Object.entries(result.implementations).forEach(([implName, stats]) => {
+            flattened.push({
+              category: name,
+              testName: result.testCase || result.testName || `${name} Test ${index + 1}`,
+              implementation: implName,
+              mean: stats.avg || stats.mean || stats.executionTime || 0,
+              executionTime: stats.executionTime || stats.avg || stats.mean || 0,
+              rme: stats.rme || 0,
+              ...stats, // Include all other stats
+            });
+          });
+        } else {
+          // Current format: multiple stats objects
+          // Map stats to implementation labels
+          const statsMapping = [
+            { key: "functionalStats", label: MAPS_LABEL },
+            { key: "loopStats", label: LOOPS_LABEL },
+            { key: "forEachStats", label: FOREACH_LABEL },
+            { key: "reduceStats", label: REDUCE_LABEL },
+            { key: "forStats", label: FOR_LABEL },
+            { key: "whileStats", label: WHILE_LABEL },
+          ];
 
-  benchmarkResults.appliances.forEach((result, index) => {
-    flattened.push({
-      category: "Appliances",
-      testCase: result.testCase || `Appliances Test ${index + 1}`,
-      functional: result.functionalStats,
-      native: result.nativeStats,
-      winner: result.comparison?.faster || "Unknown",
-      improvement: result.comparison?.improvement || 0,
-    });
-  });
+          statsMapping.forEach(({ key, label }) => {
+            const stats = result[key];
+            if (stats) {
+              // Stats are already in milliseconds from measurement.js
+              const mean = stats.avg || stats.mean || stats.executionTime || 0;
+              const executionTime = stats.executionTime || stats.avg || stats.mean || 0;
 
-  benchmarkResults.ustensils.forEach((result, index) => {
-    flattened.push({
-      category: "Ustensils",
-      testCase: result.testCase || `Ustensils Test ${index + 1}`,
-      functional: result.functionalStats,
-      native: result.nativeStats,
-      winner: result.comparison?.faster || "Unknown",
-      improvement: result.comparison?.improvement || 0,
-    });
-  });
-
-  benchmarkResults.combined.forEach((result, index) => {
-    flattened.push({
-      category: "Combined",
-      testCase: result.testCase || `Combined Test ${index + 1}`,
-      functional: result.functionalStats,
-      native: result.nativeStats,
-      winner: result.comparison?.faster || "Unknown",
-      improvement: result.comparison?.improvement || 0,
-    });
+              flattened.push({
+                category: name,
+                testName: result.testCase || result.testName || `${name} Test ${index + 1}`,
+                implementation: label,
+                mean,
+                executionTime,
+                rme: stats.rme || 0,
+                ...stats, // Include all other stats (min, max, stdDev, etc.)
+              });
+            }
+          });
+        }
+      });
+    }
   });
 
   return flattened;
 }
 
 export function clearResults() {
-  saveResults({ ...defaultResults });
+  // Explicitly clear all results and reset to default state
+  // Delete the file first to ensure it's completely cleared
+  try {
+    if (existsSync(resultsFilePath)) {
+      unlinkSync(resultsFilePath);
+    }
+
+    // Also remove the clear flag file if it exists
+    const clearFlagPath = join(benchmarkDir, ".benchmark-cleared");
+    if (existsSync(clearFlagPath)) {
+      unlinkSync(clearFlagPath);
+    }
+  } catch (_error) {
+    // Ignore errors if file doesn't exist or can't be deleted
+  }
+
+  // Save fresh empty results
+  const clearedResults = {
+    search: [],
+    ingredients: [],
+    appliances: [],
+    ustensils: [],
+    combined: [],
+    timestamp: null,
+  };
+  saveResults(clearedResults);
 }
 
 export function getSummary() {
   const flattened = getFlattenedResults();
-  const functionalWins = flattened.filter(r => r.winner.includes("Functional Programming")).length;
-  const nativeWins = flattened.filter(r => r.winner.includes("Native Loops")).length;
+
+  // Group by test case to count wins per implementation
+  const testCases = {};
+  flattened.forEach(result => {
+    const key = `${result.category} - ${result.testName}`;
+    if (!testCases[key]) {
+      testCases[key] = [];
+    }
+    testCases[key].push({
+      implementation: result.implementation,
+      time: result.mean || result.executionTime || 0,
+    });
+  });
+
+  // Count wins per implementation
+  const winCounts = {};
+  Object.values(testCases).forEach(testResults => {
+    if (testResults.length > 0) {
+      const fastest = testResults.reduce((prev, current) =>
+        prev.time < current.time ? prev : current,
+      );
+      winCounts[fastest.implementation] = (winCounts[fastest.implementation] || 0) + 1;
+    }
+  });
+
+  // Find overall winner
+  const implementations = Object.keys(winCounts);
+  const overallWinner = implementations.reduce(
+    (prev, current) => (winCounts[current] > (winCounts[prev] || 0) ? current : prev),
+    implementations[0] || "Unknown",
+  );
+
+  // Calculate average improvement (fastest vs slowest per test)
+  const improvements = [];
+  Object.values(testCases).forEach(testResults => {
+    if (testResults.length > 1) {
+      const times = testResults.map(r => r.time).filter(t => t > 0);
+      if (times.length > 1) {
+        const fastest = Math.min(...times);
+        const slowest = Math.max(...times);
+        if (slowest > 0) {
+          improvements.push(((slowest - fastest) / slowest) * 100);
+        }
+      }
+    }
+  });
+
+  const averageImprovement =
+    improvements.length > 0
+      ? improvements.reduce((sum, imp) => sum + imp, 0) / improvements.length
+      : 0;
 
   return {
-    totalTests: flattened.length,
-    functionalWins,
-    nativeWins,
-    overallWinner: functionalWins > nativeWins ? "Functional Programming" : "Native Loops",
-    averageImprovement: flattened.reduce((sum, r) => sum + r.improvement, 0) / flattened.length,
+    totalTests: Object.keys(testCases).length,
+    winCounts,
+    overallWinner,
+    averageImprovement,
   };
 }

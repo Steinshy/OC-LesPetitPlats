@@ -5,10 +5,15 @@ on:
     branches:
       - dev
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Deploy static content to Pages"]
+    types:
+      - completed
+    branches:
+      - dev
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   lint:
@@ -21,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -40,24 +45,18 @@ jobs:
         run: npm run lint:md
 
   test:
-    name: Test (Node ${{ matrix.node-version }})
+    name: Test
     runs-on: ubuntu-latest
     needs:
       - lint
-    strategy:
-      matrix:
-        node-version:
-          - "lts/*"
-          - "20"
-          - "22"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -69,7 +68,7 @@ jobs:
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-${{ matrix.node-version }}
+          name: coverage-report
           path: coverage/
           retention-days: 7
 
@@ -79,8 +78,6 @@ jobs:
     needs:
       - lint
       - test
-      - test-components
-      - test-utils
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -88,7 +85,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -109,7 +106,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - lint
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -117,7 +113,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -126,7 +122,7 @@ jobs:
       - name: Install system dependencies for PDF generation
         run: |
           sudo apt-get update
-          sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
+          sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
 
       - name: Run benchmark tests
         run: npm run benchmark
@@ -169,54 +165,11 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-  test-components:
-    name: Component Tests
-    runs-on: ubuntu-latest
-    needs:
-      - lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run component tests
-        run: npx vitest run viteTest/components/ --exclude '**/Benchmark/**'
-
-  test-utils:
-    name: Utility Tests
-    runs-on: ubuntu-latest
-    needs:
-      - lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run utility tests
-        run: npx vitest run viteTest/utils/ --exclude '**/Benchmark/**'
-
   mutation-test:
     name: Mutation Testing
     runs-on: ubuntu-latest
     needs:
       - test
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -224,7 +177,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
@@ -242,3 +195,29 @@ jobs:
           path: reports/
           retention-days: 7
           if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse Report
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Get deployment URL
+        id: deployment
+        run: |
+          echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: ${{ steps.deployment.outputs.url }}
+          uploadArtifacts: true
+          temporaryPublicStorage: true

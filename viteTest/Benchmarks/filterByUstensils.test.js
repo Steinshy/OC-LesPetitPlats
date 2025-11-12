@@ -1,17 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { benchmarkData } from "./utils/data/benchmark-data.js";
-import { addBenchmarkResult } from "./utils/data/dataCollector.js";
-import { filterByUstensils } from "./utils/filters/filter-adaptator.js";
-import { filterByUstensilsNative } from "./utils/filters/filter-native.js";
-import { logBenchmarkSection, logMemoryComparison } from "./utils/logging/logger.js";
-import { compareResults } from "./utils/measurement/formatting.js";
-import { measureMemoryUsage, runBenchmark } from "./utils/measurement/measurement.js";
+import { benchmarkData } from "./utils/data/paths.js";
+import { addBenchmarkResult } from "./utils/data/results.js";
+import { filterByUstensils as filterByUstensilsFor } from "./utils/filters/filter-for.js";
+import { filterByUstensils as filterByUstensilsForEach } from "./utils/filters/filter-forEach.js";
+import { filterByUstensilsLoops } from "./utils/filters/filter-loops.js";
+import { filterByUstensils as filterByUstensilsMaps } from "./utils/filters/filter-production.js";
+import { filterByUstensils as filterByUstensilsReduce } from "./utils/filters/filter-reduce.js";
+import { filterByUstensils as filterByUstensilsWhile } from "./utils/filters/filter-while.js";
+import {
+  MAPS_LABEL,
+  LOOPS_LABEL,
+  FOREACH_LABEL,
+  REDUCE_LABEL,
+  FOR_LABEL,
+  WHILE_LABEL,
+  runAllBenchmarks,
+  findFastest,
+  verifyResults,
+  createImplementationFunctions,
+} from "./utils/helper/helpers.js";
+import {
+  logBenchmarkSection,
+  logMemoryComparison,
+  logAllImplementations,
+  logAllMemoryUsages,
+} from "./utils/logging/console.js";
+import { compareResults } from "./utils/measurement/compare.js";
+import { measureMemoryUsage } from "./utils/measurement/measurement.js";
 
-// Functional implementation label
-const FUNCTIONAL_LABEL =
-  "Functional Programming (filterByUstensils using filter/every/some from filter.js)";
-// Native implementation label
-const NATIVE_LABEL = "Native Loops (filterByUstensilsNative using for loops from filter-native.js)";
+// Labels object for logging
+const LABELS = {
+  MAPS: MAPS_LABEL,
+  LOOPS: LOOPS_LABEL,
+  FOREACH: FOREACH_LABEL,
+  REDUCE: REDUCE_LABEL,
+  FOR: FOR_LABEL,
+  WHILE: WHILE_LABEL,
+};
 
 describe("Filter Recipes by Ustensils Benchmarks", () => {
   // Benchmark iterations count
@@ -23,204 +48,306 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
     // Selected ustensils array
     const selectedUstensils = [PRESSE_CITRON];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Single Ustensil Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Single Ustensil Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Single Ustensil Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ustensils (2)", async () => {
     // Selected ustensils array
     const selectedUstensils = [PRESSE_CITRON, "cuillère"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Multiple Ustensils Filter (2)", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Multiple Ustensils Filter (2)",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Multiple Ustensils Filter (2)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ustensils (3)", async () => {
     // Selected ustensils array
     const selectedUstensils = ["couteau", "cuillère", PRESSE_CITRON];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Multiple Ustensils Filter (3)", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Multiple Ustensils Filter (3)",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Multiple Ustensils Filter (3)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ustensils (5)", async () => {
     // Selected ustensils array
     const selectedUstensils = [PRESSE_CITRON, "cuillère", "couteau", "verres", "saladier"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Multiple Ustensils Filter (5)", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Multiple Ustensils Filter (5)",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Multiple Ustensils Filter (5)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by empty ustensils array", async () => {
     // Empty ustensils array
     const selectedUstensils = [];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Empty Ustensils Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Empty Ustensils Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Empty Ustensils Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by non-existent ustensil", async () => {
     // Non-existent ustensil
     const selectedUstensils = ["nonexistentustensil12345"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByUstensilsMaps,
+      filterByUstensilsLoops,
+      filterByUstensilsForEach,
+      filterByUstensilsReduce,
+      filterByUstensilsFor,
+      filterByUstensilsWhile,
+      benchmarkData,
+      selectedUstensils,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Non-existent Ustensil Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Non-existent Ustensil Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ustensils", {
       testCase: "Non-existent Ustensil Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByUstensils(benchmarkData, selectedUstensils);
-    // Native filter result
-    const nativeResult = filterByUstensilsNative(benchmarkData, selectedUstensils);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should measure memory usage for ustensils filter", () => {
@@ -229,20 +356,52 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
     // Memory test iterations
     const memoryIterations = 50;
 
-    // Functional memory usage
-    const functionalMemory = measureMemoryUsage(() => {
-      filterByUstensils(benchmarkData, selectedUstensils);
+    // Memory usage for all implementations
+    const mapsMemory = measureMemoryUsage(() => {
+      filterByUstensilsMaps(benchmarkData, selectedUstensils);
     }, memoryIterations);
 
-    // Native memory usage
-    const nativeMemory = measureMemoryUsage(() => {
-      filterByUstensilsNative(benchmarkData, selectedUstensils);
+    const loopsMemory = measureMemoryUsage(() => {
+      filterByUstensilsLoops(benchmarkData, selectedUstensils);
     }, memoryIterations);
 
-    logMemoryComparison("Memory Usage Comparison", functionalMemory, nativeMemory);
+    const forEachMemory = measureMemoryUsage(() => {
+      filterByUstensilsForEach(benchmarkData, selectedUstensils);
+    }, memoryIterations);
+
+    const reduceMemory = measureMemoryUsage(() => {
+      filterByUstensilsReduce(benchmarkData, selectedUstensils);
+    }, memoryIterations);
+
+    const forMemory = measureMemoryUsage(() => {
+      filterByUstensilsFor(benchmarkData, selectedUstensils);
+    }, memoryIterations);
+
+    const whileMemory = measureMemoryUsage(() => {
+      filterByUstensilsWhile(benchmarkData, selectedUstensils);
+    }, memoryIterations);
+
+    logMemoryComparison("Memory Usage Comparison", mapsMemory, loopsMemory);
+
+    // Log all memory usages
+    logAllMemoryUsages(
+      {
+        maps: mapsMemory,
+        loops: loopsMemory,
+        forEach: forEachMemory,
+        reduce: reduceMemory,
+        for: forMemory,
+        while: whileMemory,
+      },
+      LABELS,
+    );
 
     // Memory comparison is informational only
-    expect(typeof functionalMemory).toBe("number");
-    expect(typeof nativeMemory).toBe("number");
+    expect(typeof mapsMemory).toBe("number");
+    expect(typeof loopsMemory).toBe("number");
+    expect(typeof forEachMemory).toBe("number");
+    expect(typeof reduceMemory).toBe("number");
+    expect(typeof forMemory).toBe("number");
+    expect(typeof whileMemory).toBe("number");
   });
 });

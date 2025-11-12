@@ -1,10 +1,11 @@
 // Enhanced script to generate a comprehensive benchmark report with PDF output
 import { execSync } from "child_process";
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync, readdirSync, unlinkSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import puppeteer from "puppeteer";
+import { pdfConfig } from "../../../../puppeteer.config.js";
 import {
   getAllResults,
   getFlattenedResults,
@@ -12,6 +13,12 @@ import {
   clearResults,
   setTimestamp,
 } from "../data/dataCollector.js";
+import {
+  getAverageExecutionTime,
+  getAverageRME,
+  getImplementations,
+} from "../data/results.js";
+import { generateHtmlReport } from "./generateHtml.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,227 +45,560 @@ async function collectBenchmarkResults() {
 
 // Generate charts using Chart.js
 async function generateCharts(results) {
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 800, height: 400 });
+  // Full width charts - use larger width for better use of available space
+  // Width should match typical screen width minus padding (around 1200-1400px)
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 1200, height: 400 });
 
   const charts = {};
   const flattened = results.flattened || [];
+
+  if (flattened.length === 0) {
+    return charts;
+  }
+
+  // Get all implementations (supports up to 6)
+  const implementations = getImplementations(flattened);
+
+  // Create very short labels for implementations (for chart axes)
+  const shortLabels = implementations.map(impl => {
+    if (impl.includes("Production") || impl.includes("production filter")) return "Production";
+    if (impl.includes("Loops") && impl.includes("filter-loops")) return "Loops";
+    if (impl.includes("forEach")) return "forEach";
+    if (impl.includes("reduce")) return "reduce";
+    if (impl.includes("for (using for loops)")) return "for";
+    if (impl.includes("while")) return "while";
+    return impl.length > 15 ? `${impl.substring(0, 15)  }...` : impl;
+  });
+
+  // Create even shorter labels for legend (just the key word)
+  const legendLabels = implementations.map(impl => {
+    if (impl.includes("Production") || impl.includes("production filter")) return "Production";
+    if (impl.includes("Loops") && impl.includes("filter-loops")) return "Loops";
+    if (impl.includes("forEach")) return "forEach";
+    if (impl.includes("reduce")) return "reduce";
+    if (impl.includes("for (using for loops)")) return "for";
+    if (impl.includes("while")) return "while";
+    return impl.split(" ")[0]; // Just take first word
+  });
+
+  // Color palette for up to 6 implementations
+  const colors = [
+    { bg: "rgba(54, 162, 235, 0.6)", border: "rgba(54, 162, 235, 1)", name: "Production" },
+    { bg: "rgba(255, 99, 132, 0.6)", border: "rgba(255, 99, 132, 1)", name: "Loops" },
+    { bg: "rgba(75, 192, 192, 0.6)", border: "rgba(75, 192, 192, 1)", name: "forEach" },
+    { bg: "rgba(255, 206, 86, 0.6)", border: "rgba(255, 206, 86, 1)", name: "reduce" },
+    { bg: "rgba(153, 102, 255, 0.6)", border: "rgba(153, 102, 255, 1)", name: "for" },
+    { bg: "rgba(255, 159, 64, 0.6)", border: "rgba(255, 159, 64, 1)", name: "while" },
+  ];
+
+  // Calculate averages for each implementation
+  const implAverages = implementations.map(impl => ({
+    name: impl,
+    avg: getAverageExecutionTime(flattened, impl),
+  }));
+
+  // Quick Comparison Chart - all implementations side-by-side
+  charts.quickComparison = await chartJSNodeCanvas.renderToBuffer({
+    type: "bar",
+    data: {
+      labels: shortLabels,
+      datasets: [
+        {
+          label: "Average Execution Time (ms)",
+          data: implAverages.map(impl => impl.avg),
+          backgroundColor: implementations.map((_, index) => colors[index % colors.length].bg),
+          borderColor: implementations.map((_, index) => colors[index % colors.length].border),
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 5,
+          right: 5,
+          top: 10,
+          bottom: 80, // Extra space for legend
+        },
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: "Quick Comparison - Average Execution Time",
+          font: { size: 13 },
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          align: "center",
+          fullSize: true,
+          labels: {
+            generateLabels: () => {
+              return implementations.map((impl, index) => ({
+                text: legendLabels[index],
+                fillStyle: colors[index % colors.length].bg,
+                strokeStyle: colors[index % colors.length].border,
+                lineWidth: 2,
+                padding: 8,
+              }));
+            },
+            boxWidth: 30,
+            boxHeight: 18,
+            padding: 15,
+            font: { size: 11, weight: "bold" },
+            usePointStyle: false,
+            textAlign: "center",
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 0,
+            minRotation: 0,
+            font: { size: 8 },
+            maxTicksLimit: 15,
+            autoSkip: true,
+          },
+          grid: {
+            display: true,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Time (ms)",
+            font: { size: 11 },
+          },
+          ticks: {
+            font: { size: 9 },
+          },
+          grid: {
+            display: true,
+          },
+        },
+      },
+    },
+  });
 
   // Group results by category for summary chart
   const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
   const categoryAverages = categories.map(category => {
     const categoryResults = flattened.filter(r => r.category === category);
-    if (categoryResults.length === 0) return { functional: 0, native: 0 };
+    if (categoryResults.length === 0) {
+      return implementations.reduce((acc, impl) => {
+        acc[impl] = 0;
+        return acc;
+      }, {});
+    }
 
-    const functionalAvg =
-      categoryResults.reduce((sum, r) => sum + r.functional.avg, 0) / categoryResults.length;
-    const nativeAvg =
-      categoryResults.reduce((sum, r) => sum + r.native.avg, 0) / categoryResults.length;
-
-    return { functional: functionalAvg, native: nativeAvg };
+    const avgs = {};
+    implementations.forEach(impl => {
+      const implResults = categoryResults.filter(r => r.implementation === impl);
+      avgs[impl] = implResults.length > 0
+        ? implResults.reduce((sum, r) => sum + (r.mean || r.executionTime || 0), 0) / implResults.length
+        : 0;
+    });
+    return avgs;
   });
 
   // Performance comparison chart by category
-  if (flattened.length > 0) {
-    charts.performance = await chartJSNodeCanvas.renderToBuffer({
-      type: "bar",
+  const validCategories = categories.filter((category, index) => {
+    const avgs = categoryAverages[index];
+    return implementations.some(impl => (avgs[impl] || 0) > 0);
+  });
+
+  charts.performance = await chartJSNodeCanvas.renderToBuffer({
+    type: "bar",
+    data: {
+      labels: validCategories,
+      datasets: implementations.map((impl, index) => ({
+        label: shortLabels[index],
+        data: validCategories.map(category => {
+          const catIndex = categories.indexOf(category);
+          return categoryAverages[catIndex][impl] || 0;
+        }),
+        backgroundColor: colors[index % colors.length].bg,
+        borderColor: colors[index % colors.length].border,
+        borderWidth: 1,
+      })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 5,
+          right: 5,
+          top: 10,
+          bottom: 80,
+        },
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: "Performance Comparison by Category",
+          font: { size: 13 },
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          align: "center",
+          fullSize: true,
+          labels: {
+            boxWidth: 30,
+            boxHeight: 18,
+            padding: 15,
+            font: { size: 11, weight: "bold" },
+            usePointStyle: false,
+            textAlign: "center",
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: { size: 8 },
+            maxTicksLimit: 10,
+            autoSkip: true,
+          },
+          grid: {
+            display: true,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Time (ms)",
+            font: { size: 11 },
+          },
+          ticks: {
+            font: { size: 9 },
+          },
+        },
+      },
+    },
+  });
+
+  // Performance Ranking Chart - horizontal bar chart ranking implementations
+  const rankings = [...implAverages].sort((a, b) => a.avg - b.avg);
+
+  charts.ranking = await chartJSNodeCanvas.renderToBuffer({
+    type: "bar",
+    data: {
+      labels: rankings.map(item => {
+        const index = implementations.indexOf(item.name);
+        return index >= 0 ? shortLabels[index] : item.name;
+      }),
+      datasets: [
+        {
+          label: "Average Execution Time (ms)",
+          data: rankings.map(item => item.avg),
+          backgroundColor: rankings.map(item => {
+            const index = implementations.indexOf(item.name);
+            return index >= 0 ? colors[index % colors.length].bg : "rgba(75, 192, 192, 0.6)";
+          }),
+          borderColor: rankings.map(item => {
+            const index = implementations.indexOf(item.name);
+            return index >= 0 ? colors[index % colors.length].border : "rgba(75, 192, 192, 1)";
+          }),
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 60,
+        },
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: "Performance Ranking (Fastest to Slowest)",
+          font: { size: 13 },
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          align: "center",
+          fullSize: true,
+          labels: {
+            generateLabels: () => {
+              return rankings.map(item => {
+                const index = implementations.indexOf(item.name);
+                return {
+                  text: index >= 0 ? legendLabels[index] : item.name.split(" ")[0],
+                  fillStyle: index >= 0 ? colors[index % colors.length].bg : "rgba(75, 192, 192, 0.6)",
+                  strokeStyle: index >= 0 ? colors[index % colors.length].border : "rgba(75, 192, 192, 1)",
+                  lineWidth: 2,
+                  padding: 8,
+                };
+              });
+            },
+            boxWidth: 30,
+            boxHeight: 18,
+            padding: 15,
+            font: { size: 11, weight: "bold" },
+            usePointStyle: false,
+            textAlign: "center",
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Average Time (ms)",
+            font: { size: 11 },
+          },
+          ticks: {
+            font: { size: 9 },
+          },
+        },
+        y: {
+          ticks: {
+            font: { size: 9 },
+          },
+        },
+      },
+    },
+  });
+
+  // Consistency Analysis Chart (RME)
+  const rmeAverages = implementations.map(impl => getAverageRME(flattened, impl));
+
+  charts.consistency = await chartJSNodeCanvas.renderToBuffer({
+    type: "bar",
+    data: {
+      labels: shortLabels,
+      datasets: [
+        {
+          label: "Average RME (%)",
+          data: rmeAverages,
+          backgroundColor: implementations.map((_, index) => colors[index % colors.length].bg),
+          borderColor: implementations.map((_, index) => colors[index % colors.length].border),
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 5,
+          right: 5,
+          top: 10,
+          bottom: 80,
+        },
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: "Consistency Analysis (Lower RME = More Consistent)",
+          font: { size: 13 },
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          align: "center",
+          fullSize: true,
+          labels: {
+            generateLabels: () => {
+              return implementations.map((impl, index) => ({
+                text: legendLabels[index],
+                fillStyle: colors[index % colors.length].bg,
+                strokeStyle: colors[index % colors.length].border,
+                lineWidth: 2,
+                padding: 8,
+              }));
+            },
+            boxWidth: 30,
+            boxHeight: 18,
+            padding: 15,
+            font: { size: 11, weight: "bold" },
+            usePointStyle: false,
+            textAlign: "center",
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label (context) {
+              return `RME: ${context.parsed.y.toFixed(2)}%`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 0,
+            minRotation: 0,
+            font: { size: 8 },
+            maxTicksLimit: 15,
+            autoSkip: true,
+          },
+          grid: {
+            display: true,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Relative Measurement Error (%)",
+            font: { size: 11 },
+          },
+          ticks: {
+            font: { size: 9 },
+          },
+        },
+      },
+    },
+  });
+
+  // Heatmap chart removed to reduce file size - detailed test results table provides this information
+
+  // Improvement percentage chart
+  const improvements = flattened.map(r => r.improvement || 0);
+  if (improvements.length > 0 && improvements.some(imp => imp !== 0)) {
+    charts.improvement = await chartJSNodeCanvas.renderToBuffer({
+      type: "line",
       data: {
-        labels: categories.filter(
-          (_, index) =>
-            categoryAverages[index].functional > 0 || categoryAverages[index].native > 0,
-        ),
+        labels: flattened.map((r, index) => `Test ${index + 1}`),
         datasets: [
           {
-            label: "Functional Avg (ms)",
-            data: categoryAverages
-              .filter(avg => avg.functional > 0 || avg.native > 0)
-              .map(avg => avg.functional),
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-          },
-          {
-            label: "Native Avg (ms)",
-            data: categoryAverages
-              .filter(avg => avg.functional > 0 || avg.native > 0)
-              .map(avg => avg.native),
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            label: "Improvement %",
+            data: improvements,
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            fill: true,
           },
         ],
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            left: 5,
+            right: 5,
+            top: 10,
+            bottom: 70,
+          },
+        },
         plugins: {
           title: {
             display: true,
-            text: "Performance Comparison by Category",
+            text: "Performance Improvement Percentage",
+            font: { size: 13 },
           },
           legend: {
             display: true,
-            position: "top",
+            position: "bottom",
+            align: "center",
+            fullSize: true,
+            labels: {
+              font: { size: 11, weight: "bold" },
+              padding: 15,
+              boxWidth: 30,
+              boxHeight: 18,
+            },
           },
         },
         scales: {
+          x: {
+            ticks: {
+              font: { size: 9 },
+              maxTicksLimit: 15,
+            },
+          },
           y: {
             beginAtZero: true,
             title: {
               display: true,
-              text: "Time (ms)",
+              text: "Improvement %",
+              font: { size: 11 },
+            },
+            ticks: {
+              font: { size: 9 },
             },
           },
         },
       },
     });
-
-    // Improvement percentage chart
-    const improvements = flattened.map(r => r.improvement);
-    if (improvements.length > 0) {
-      charts.improvement = await chartJSNodeCanvas.renderToBuffer({
-        type: "line",
-        data: {
-          labels: flattened.map((r, index) => `Test ${index + 1}`),
-          datasets: [
-            {
-              label: "Improvement %",
-              data: improvements,
-              borderColor: "rgba(75, 192, 192, 1)",
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              fill: true,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: "Performance Improvement Percentage",
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "Improvement %",
-              },
-            },
-          },
-        },
-      });
-    }
   }
 
   return charts;
 }
 
-// Generate HTML report
+// Generate HTML report using the enhanced HTML generator
 function generateHTMLReport(results, charts) {
-  const flattened = results.flattened || [];
-  const summary = results.summary || {};
-
-  let chartsHTML = "";
-  if (charts.performance) {
-    chartsHTML += `
-  <h2>Performance Comparison by Category</h2>
-  <div class="chart">
-    <img src="data:image/png;base64,${charts.performance.toString("base64")}" />
-  </div>`;
-  }
-
-  if (charts.improvement) {
-    chartsHTML += `
-  <h2>Performance Improvement Trend</h2>
-  <div class="chart">
-    <img src="data:image/png;base64,${charts.improvement.toString("base64")}" />
-  </div>`;
-  }
-
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Benchmark Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
-    .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    h1 { color: #333; border-bottom: 3px solid #4CAF50; padding-bottom: 10px; }
-    h2 { color: #555; margin-top: 30px; }
-    .summary { background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin: 20px 0; }
-    .summary-item { margin: 10px 0; font-size: 16px; }
-    .chart { margin: 20px 0; text-align: center; }
-    .chart img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-    th { background-color: #4CAF50; color: white; font-weight: bold; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
-    tr:hover { background-color: #f5f5f5; }
-    .winner-functional { color: #2196F3; font-weight: bold; }
-    .winner-native { color: #f44336; font-weight: bold; }
-    .timestamp { color: #666; font-style: italic; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Benchmark Performance Report</h1>
-    <p class="timestamp">Generated: ${results.timestamp || new Date().toISOString()}</p>
-    
-    <div class="summary">
-      <h2>Summary</h2>
-      <div class="summary-item"><strong>Total Tests:</strong> ${summary.totalTests || 0}</div>
-      <div class="summary-item"><strong>Functional Programming Wins:</strong> ${summary.functionalWins || 0}</div>
-      <div class="summary-item"><strong>Native Loops Wins:</strong> ${summary.nativeWins || 0}</div>
-      <div class="summary-item"><strong>Overall Winner:</strong> <span class="${summary.overallWinner === "Functional Programming" ? "winner-functional" : "winner-native"}">${summary.overallWinner || "N/A"}</span></div>
-      ${summary.averageImprovement ? `<div class="summary-item"><strong>Average Improvement:</strong> ${summary.averageImprovement.toFixed(2)}%</div>` : ""}
-    </div>
-    
-    ${chartsHTML}
-    
-    <h2>Detailed Results</h2>
-    ${
-      flattened.length > 0
-        ? `
-    <table>
-      <tr>
-        <th>Category</th>
-        <th>Test Case</th>
-        <th>Functional Avg (ms)</th>
-        <th>Native Avg (ms)</th>
-        <th>Winner</th>
-        <th>Improvement %</th>
-      </tr>
-      ${flattened
-        .map(
-          r => `
-        <tr>
-          <td>${r.category}</td>
-          <td>${r.testCase}</td>
-          <td>${r.functional.avg.toFixed(4)}</td>
-          <td>${r.native.avg.toFixed(4)}</td>
-          <td class="${r.winner.includes("Functional") ? "winner-functional" : "winner-native"}">${r.winner}</td>
-          <td>${r.improvement.toFixed(2)}%</td>
-        </tr>
-      `,
-        )
-        .join("")}
-    </table>`
-        : "<p>No benchmark results available. Please run the benchmark tests first.</p>"
-    }
-  </div>
-</body>
-</html>
-  `;
+  return generateHtmlReport(results, charts);
 }
 
-// Generate PDF from HTML
+// Generate PDF from HTML using configuration file
 async function generatePDF(html, outputPath) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch(pdfConfig.browser);
   const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-  await page.pdf({
-    path: outputPath,
-    format: "A4",
-    printBackground: true,
-    margin: { top: "20px", right: "20px", bottom: "20px", left: "20px" },
-  });
-  await browser.close();
+  
+  try {
+    // Set content and wait for it to load
+    await page.setContent(html, pdfConfig.page);
+    
+    // Emulate print media to ensure print CSS (@media print) is applied
+    // This is critical for page-break CSS properties to work
+    await page.emulateMediaType(pdfConfig.mediaType);
+    
+    // Generate PDF with configuration from config file
+    await page.pdf({
+      ...pdfConfig.pdf,
+      path: outputPath,
+    });
+  } finally {
+    await browser.close();
+  }
+}
+
+// Clean up existing benchmark files
+function cleanupBenchmarkFiles() {
+  try {
+    if (existsSync(benchmarkDir)) {
+      const files = readdirSync(benchmarkDir);
+      const filesToDelete = files.filter(file =>
+        file.endsWith(".html") ||
+        file.endsWith(".pdf"),
+        // Note: .json file is handled by clearResults() separately
+      );
+
+      if (filesToDelete.length > 0) {
+        console.log(`\nCleaning up ${filesToDelete.length} existing benchmark file(s)...`);
+        filesToDelete.forEach(file => {
+          const filePath = join(benchmarkDir, file);
+          try {
+            unlinkSync(filePath);
+            console.log(`  ✓ Deleted: ${file}`);
+          } catch (error) {
+            console.warn(`  ⚠ Failed to delete ${file}: ${error.message}`);
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.warn(`⚠ Warning: Could not clean up benchmark files: ${error.message}`);
+  }
 }
 
 // Main execution
@@ -268,6 +608,14 @@ async function main() {
   console.log("=".repeat(60));
 
   try {
+    // 0. Clean up existing benchmark files (HTML/PDF)
+    cleanupBenchmarkFiles();
+
+    // 0.5. Always clear benchmark results at the very start
+    // This ensures we start with a clean slate, even if tests were run manually before
+    console.log("\n0. Clearing previous benchmark results...");
+    clearResults();
+
     // Get test files from command line arguments, or use all tests by default
     const testFiles = process.argv.slice(2);
     const allTests = [
@@ -289,9 +637,6 @@ async function main() {
       process.exit(1);
     }
 
-    // 0. Clear previous results before running tests
-    clearResults();
-
     // 1. Run benchmark tests
     testsToRun.forEach((test, index) => {
       console.log(`\n${index + 1}. Running ${test.name} Benchmark Tests...`);
@@ -310,7 +655,7 @@ async function main() {
       console.warn("For now, generating report with empty data structure...\n");
     }
 
-    // 3. Generate charts
+    // 4. Generate charts
     console.log(`${testsToRun.length + 2}. Generating charts...`);
     const charts = await generateCharts(results);
 
@@ -318,7 +663,7 @@ async function main() {
       console.warn("⚠ No charts generated - no data available");
     }
 
-    // 4. Generate HTML report
+    // 5. Generate HTML report
     console.log(`${testsToRun.length + 3}. Generating HTML report...`);
     const html = generateHTMLReport(results, charts);
 
@@ -332,7 +677,7 @@ async function main() {
     writeFileSync(htmlPath, html, "utf-8");
     console.log(`✓ HTML Report saved to: ${htmlPath}`);
 
-    // 5. Convert to PDF
+    // 6. Convert to PDF
     if (Object.keys(charts).length > 0) {
       console.log(`${testsToRun.length + 4}. Converting to PDF...`);
       const pdfPath = join(benchmarkDir, `benchmark-report-${reportSuffix}.pdf`);

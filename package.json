@@ -22,12 +22,17 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "analyze": "vite build --mode analyze",
     "optimize:images": "node scripts/optimizeImages.js",
-    "clean": "rm -rf dist node_modules/.vite",
-    "benchmark": "node viteTest/Benchmarks/utils/reporting/generateReport.js",
-    "benchmark:ingredients": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByIngredients",
-    "benchmark:appliances": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByAppliances",
-    "benchmark:ustensils": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByUstensils",
-    "benchmark:search": "node viteTest/Benchmarks/utils/reporting/generateReport.js search"
+    "clean": "rm -rf dist node_modules/.vite coverage Benchmark",
+    "benchmark": "vitest run viteTest/Benchmarks/filterByIngredients.test.js viteTest/Benchmarks/filterByAppliances.test.js viteTest/Benchmarks/filterByUstensils.test.js viteTest/Benchmarks/search.test.js viteTest/Benchmarks/filtersRecipes.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js",
+    "benchmark:ingredients": "vitest run viteTest/Benchmarks/filterByIngredients.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js filterByIngredients",
+    "benchmark:appliances": "vitest run viteTest/Benchmarks/filterByAppliances.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js filterByAppliances",
+    "benchmark:ustensils": "vitest run viteTest/Benchmarks/filterByUstensils.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js filterByUstensils",
+    "benchmark:search": "vitest run viteTest/Benchmarks/search.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js search",
+    "benchmark:report": "node viteTest/Benchmarks/utils/reporting/generateReport.js",
+    "benchmark:report:ingredients": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByIngredients",
+    "benchmark:report:appliances": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByAppliances",
+    "benchmark:report:ustensils": "node viteTest/Benchmarks/utils/reporting/generateReport.js filterByUstensils",
+    "benchmark:report:search": "node viteTest/Benchmarks/utils/reporting/generateReport.js search"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
@@ -68,6 +73,7 @@
     "vite-plugin-pwa": "^1.1.0",
     "vite-plugin-webfont-dl": "^3.11.1",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
   }
 }

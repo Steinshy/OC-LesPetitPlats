@@ -1,18 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { benchmarkData } from "./utils/data/benchmark-data.js";
-import { addBenchmarkResult } from "./utils/data/dataCollector.js";
-import { filterBySearchTerm } from "./utils/filters/filter-adaptator.js";
-import { filterBySearchTermNative } from "./utils/filters/filter-native.js";
-import { logBenchmarkSection, logMemoryComparison } from "./utils/logging/logger.js";
-import { compareResults } from "./utils/measurement/formatting.js";
-import { measureMemoryUsage, runBenchmark } from "./utils/measurement/measurement.js";
+import { benchmarkData } from "./utils/data/paths.js";
+import { addBenchmarkResult } from "./utils/data/results.js";
+import { filterBySearchTerm as filterBySearchTermFor } from "./utils/filters/filter-for.js";
+import { filterBySearchTerm as filterBySearchTermForEach } from "./utils/filters/filter-forEach.js";
+import { filterBySearchTermLoops } from "./utils/filters/filter-loops.js";
+import { filterBySearchTerm as filterBySearchTermMaps } from "./utils/filters/filter-production.js";
+import { filterBySearchTerm as filterBySearchTermReduce } from "./utils/filters/filter-reduce.js";
+import { filterBySearchTerm as filterBySearchTermWhile } from "./utils/filters/filter-while.js";
+import {
+  MAPS_LABEL,
+  LOOPS_LABEL,
+  FOREACH_LABEL,
+  REDUCE_LABEL,
+  FOR_LABEL,
+  WHILE_LABEL,
+  runAllBenchmarks,
+  findFastest,
+  verifyResults,
+  createImplementationFunctions,
+} from "./utils/helper/helpers.js";
+import {
+  logBenchmarkSection,
+  logMemoryComparison,
+  logAllImplementations,
+  logAllMemoryUsages,
+} from "./utils/logging/console.js";
+import { compareResults } from "./utils/measurement/compare.js";
+import { measureMemoryUsage } from "./utils/measurement/measurement.js";
 
-// Functional implementation label
-const FUNCTIONAL_LABEL =
-  "Functional Programming (filterBySearchTerm using filter/includes from filter.js)";
-// Native implementation label
-const NATIVE_LABEL =
-  "Native Loops (filterBySearchTermNative using for loops from filter-native.js)";
+// Labels object for logging
+const LABELS = {
+  MAPS: MAPS_LABEL,
+  LOOPS: LOOPS_LABEL,
+  FOREACH: FOREACH_LABEL,
+  REDUCE: REDUCE_LABEL,
+  FOR: FOR_LABEL,
+  WHILE: WHILE_LABEL,
+};
 
 describe("Search Benchmark Tests", () => {
   // Benchmark iterations count
@@ -22,167 +46,255 @@ describe("Search Benchmark Tests", () => {
     // Empty search term
     const searchTerm = "";
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterBySearchTermMaps,
+      filterBySearchTermLoops,
+      filterBySearchTermForEach,
+      filterBySearchTermReduce,
+      filterBySearchTermFor,
+      filterBySearchTermWhile,
+      benchmarkData,
+      searchTerm,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Empty Query Benchmark", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Empty Query Benchmark",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("search", {
       testCase: "Empty Query Benchmark",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
-    // Native filter result
-    const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark search with short query", async () => {
     // Short search term
     const searchTerm = "tomate";
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterBySearchTermMaps,
+      filterBySearchTermLoops,
+      filterBySearchTermForEach,
+      filterBySearchTermReduce,
+      filterBySearchTermFor,
+      filterBySearchTermWhile,
+      benchmarkData,
+      searchTerm,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Short Query Benchmark (tomate)", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Short Query Benchmark (tomate)",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
-    // Functional filter result
-    const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
-    // Native filter result
-    const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    // Collect benchmark result
+    addBenchmarkResult("search", {
+      testCase: "Short Query Benchmark (tomate)",
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
+      comparison,
+    });
+
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark search with medium query", async () => {
     // Medium search term
     const searchTerm = "chocolat noir";
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterBySearchTermMaps,
+      filterBySearchTermLoops,
+      filterBySearchTermForEach,
+      filterBySearchTermReduce,
+      filterBySearchTermFor,
+      filterBySearchTermWhile,
+      benchmarkData,
+      searchTerm,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
     logBenchmarkSection(
       "Medium Query Benchmark (chocolat noir)",
-      functionalStats,
-      nativeStats,
+      allStats.mapsStats,
+      allStats.loopsStats,
       comparison,
     );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("search", {
       testCase: "Medium Query Benchmark (chocolat noir)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
-    // Native filter result
-    const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark search with long query", async () => {
     // Long search term
     const searchTerm = "recette de poulet avec légumes";
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterBySearchTermMaps,
+      filterBySearchTermLoops,
+      filterBySearchTermForEach,
+      filterBySearchTermReduce,
+      filterBySearchTermFor,
+      filterBySearchTermWhile,
+      benchmarkData,
+      searchTerm,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Long Query Benchmark", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Long Query Benchmark",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("search", {
       testCase: "Long Query Benchmark",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
-    // Native filter result
-    const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark search with non-matching query", async () => {
     // Non-matching search term
     const searchTerm = "xyzabc123nonexistent";
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterBySearchTermMaps,
+      filterBySearchTermLoops,
+      filterBySearchTermForEach,
+      filterBySearchTermReduce,
+      filterBySearchTermFor,
+      filterBySearchTermWhile,
+      benchmarkData,
+      searchTerm,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Non-matching Query Benchmark", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Non-matching Query Benchmark",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("search", {
       testCase: "Non-matching Query Benchmark",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterBySearchTerm(benchmarkData, searchTerm);
-    // Native filter result
-    const nativeResult = filterBySearchTermNative(benchmarkData, searchTerm);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should measure memory usage for search", () => {
@@ -191,20 +303,52 @@ describe("Search Benchmark Tests", () => {
     // Memory test iterations
     const memoryIterations = 50;
 
-    // Functional memory usage
-    const functionalMemory = measureMemoryUsage(() => {
-      filterBySearchTerm(benchmarkData, searchTerm);
+    // Memory usage for all implementations
+    const mapsMemory = measureMemoryUsage(() => {
+      filterBySearchTermMaps(benchmarkData, searchTerm);
     }, memoryIterations);
 
-    // Native memory usage
-    const nativeMemory = measureMemoryUsage(() => {
-      filterBySearchTermNative(benchmarkData, searchTerm);
+    const loopsMemory = measureMemoryUsage(() => {
+      filterBySearchTermLoops(benchmarkData, searchTerm);
     }, memoryIterations);
 
-    logMemoryComparison("Memory Usage Comparison", functionalMemory, nativeMemory);
+    const forEachMemory = measureMemoryUsage(() => {
+      filterBySearchTermForEach(benchmarkData, searchTerm);
+    }, memoryIterations);
+
+    const reduceMemory = measureMemoryUsage(() => {
+      filterBySearchTermReduce(benchmarkData, searchTerm);
+    }, memoryIterations);
+
+    const forMemory = measureMemoryUsage(() => {
+      filterBySearchTermFor(benchmarkData, searchTerm);
+    }, memoryIterations);
+
+    const whileMemory = measureMemoryUsage(() => {
+      filterBySearchTermWhile(benchmarkData, searchTerm);
+    }, memoryIterations);
+
+    logMemoryComparison("Memory Usage Comparison", mapsMemory, loopsMemory);
+
+    // Log all memory usages
+    logAllMemoryUsages(
+      {
+        maps: mapsMemory,
+        loops: loopsMemory,
+        forEach: forEachMemory,
+        reduce: reduceMemory,
+        for: forMemory,
+        while: whileMemory,
+      },
+      LABELS,
+    );
 
     // Memory comparison is informational only
-    expect(typeof functionalMemory).toBe("number");
-    expect(typeof nativeMemory).toBe("number");
+    expect(typeof mapsMemory).toBe("number");
+    expect(typeof loopsMemory).toBe("number");
+    expect(typeof forEachMemory).toBe("number");
+    expect(typeof reduceMemory).toBe("number");
+    expect(typeof forMemory).toBe("number");
+    expect(typeof whileMemory).toBe("number");
   });
 });

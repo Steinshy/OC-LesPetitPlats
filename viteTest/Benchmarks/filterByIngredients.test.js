@@ -1,18 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { benchmarkData } from "./utils/data/benchmark-data.js";
-import { addBenchmarkResult } from "./utils/data/dataCollector.js";
-import { filterByIngredients } from "./utils/filters/filter-adaptator.js";
-import { filterByIngredientsNative } from "./utils/filters/filter-native.js";
-import { logBenchmarkSection, logMemoryComparison } from "./utils/logging/logger.js";
-import { compareResults } from "./utils/measurement/formatting.js";
-import { measureMemoryUsage, runBenchmark } from "./utils/measurement/measurement.js";
+import { benchmarkData } from "./utils/data/paths.js";
+import { addBenchmarkResult } from "./utils/data/results.js";
+import { filterByIngredients as filterByIngredientsFor } from "./utils/filters/filter-for.js";
+import { filterByIngredients as filterByIngredientsForEach } from "./utils/filters/filter-forEach.js";
+import { filterByIngredientsLoops } from "./utils/filters/filter-loops.js";
+import { filterByIngredients as filterByIngredientsMaps } from "./utils/filters/filter-production.js";
+import { filterByIngredients as filterByIngredientsReduce } from "./utils/filters/filter-reduce.js";
+import { filterByIngredients as filterByIngredientsWhile } from "./utils/filters/filter-while.js";
+import {
+  MAPS_LABEL,
+  LOOPS_LABEL,
+  FOREACH_LABEL,
+  REDUCE_LABEL,
+  FOR_LABEL,
+  WHILE_LABEL,
+  runAllBenchmarks,
+  findFastest,
+  verifyResults,
+  createImplementationFunctions,
+} from "./utils/helper/helpers.js";
+import {
+  logBenchmarkSection,
+  logMemoryComparison,
+  logAllImplementations,
+  logAllMemoryUsages,
+} from "./utils/logging/console.js";
+import { compareResults } from "./utils/measurement/compare.js";
+import { measureMemoryUsage } from "./utils/measurement/measurement.js";
 
-// Functional implementation label
-const FUNCTIONAL_LABEL =
-  "Functional Programming (filterByIngredients using filter/every/some from filter.js)";
-// Native implementation label
-const NATIVE_LABEL =
-  "Native Loops (filterByIngredientsNative using for loops from filter-native.js)";
+// Labels object for logging
+const LABELS = {
+  MAPS: MAPS_LABEL,
+  LOOPS: LOOPS_LABEL,
+  FOREACH: FOREACH_LABEL,
+  REDUCE: REDUCE_LABEL,
+  FOR: FOR_LABEL,
+  WHILE: WHILE_LABEL,
+};
 
 describe("Filter Recipes by Ingredients Benchmarks", () => {
   // Benchmark iterations count
@@ -22,219 +46,306 @@ describe("Filter Recipes by Ingredients Benchmarks", () => {
     // Selected ingredients array
     const selectedIngredients = ["citron"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Single Ingredient Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Single Ingredient Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Single Ingredient Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ingredients (2)", async () => {
     // Selected ingredients array
     const selectedIngredients = ["citron", "coco"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
     logBenchmarkSection(
       "Multiple Ingredients Filter (2)",
-      functionalStats,
-      nativeStats,
+      allStats.mapsStats,
+      allStats.loopsStats,
       comparison,
     );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Multiple Ingredients Filter (2)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ingredients (3)", async () => {
     // Selected ingredients array
     const selectedIngredients = ["poulet", "tomate", "oignon"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
     logBenchmarkSection(
       "Multiple Ingredients Filter (3)",
-      functionalStats,
-      nativeStats,
+      allStats.mapsStats,
+      allStats.loopsStats,
       comparison,
     );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Multiple Ingredients Filter (3)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by multiple ingredients (5)", async () => {
     // Selected ingredients array
     const selectedIngredients = ["citron", "coco", "poulet", "tomate", "oignon"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
     logBenchmarkSection(
       "Multiple Ingredients Filter (5)",
-      functionalStats,
-      nativeStats,
+      allStats.mapsStats,
+      allStats.loopsStats,
       comparison,
     );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Multiple Ingredients Filter (5)",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by empty ingredients array", async () => {
     // Empty ingredients array
     const selectedIngredients = [];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Empty Ingredients Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Empty Ingredients Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Empty Ingredients Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should benchmark filter by non-existent ingredient", async () => {
     // Non-existent ingredient
     const selectedIngredients = ["nonexistentingredient12345"];
 
-    // Functional implementation stats
-    const functionalStats = await runBenchmark(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Create implementation functions
+    const implementations = createImplementationFunctions(
+      filterByIngredientsMaps,
+      filterByIngredientsLoops,
+      filterByIngredientsForEach,
+      filterByIngredientsReduce,
+      filterByIngredientsFor,
+      filterByIngredientsWhile,
+      benchmarkData,
+      selectedIngredients,
+    );
 
-    // Native implementation stats
-    const nativeStats = await runBenchmark(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
-    }, iterations);
+    // Run all benchmarks
+    const allStats = await runAllBenchmarks(implementations, iterations);
 
-    // Comparison results
-    const comparison = compareResults(functionalStats, nativeStats, FUNCTIONAL_LABEL, NATIVE_LABEL);
+    // Primary comparison (maps vs loops for backward compatibility)
+    const comparison = compareResults(
+      allStats.mapsStats,
+      allStats.loopsStats,
+      MAPS_LABEL,
+      LOOPS_LABEL,
+    );
 
-    logBenchmarkSection("Non-existent Ingredient Filter", functionalStats, nativeStats, comparison);
+    logBenchmarkSection(
+      "Non-existent Ingredient Filter",
+      allStats.mapsStats,
+      allStats.loopsStats,
+      comparison,
+    );
+    logAllImplementations(allStats, LABELS);
+    console.log(`  Fastest: ${findFastest(allStats)}`);
 
     // Collect benchmark result
     addBenchmarkResult("ingredients", {
       testCase: "Non-existent Ingredient Filter",
-      functionalStats,
-      nativeStats,
+      functionalStats: allStats.mapsStats,
+      loopStats: allStats.loopsStats,
+      forEachStats: allStats.forEachStats,
+      reduceStats: allStats.reduceStats,
+      forStats: allStats.forStats,
+      whileStats: allStats.whileStats,
       comparison,
     });
 
-    // Functional filter result
-    const functionalResult = filterByIngredients(benchmarkData, selectedIngredients);
-    // Native filter result
-    const nativeResult = filterByIngredientsNative(benchmarkData, selectedIngredients);
-    expect(functionalResult.length).toBe(nativeResult.length);
+    verifyResults(implementations, expect);
   });
 
   it("should measure memory usage for ingredients filter", () => {
@@ -243,20 +354,52 @@ describe("Filter Recipes by Ingredients Benchmarks", () => {
     // Memory test iterations
     const memoryIterations = 50;
 
-    // Functional memory usage
-    const functionalMemory = measureMemoryUsage(() => {
-      filterByIngredients(benchmarkData, selectedIngredients);
+    // Memory usage for all implementations
+    const mapsMemory = measureMemoryUsage(() => {
+      filterByIngredientsMaps(benchmarkData, selectedIngredients);
     }, memoryIterations);
 
-    // Native memory usage
-    const nativeMemory = measureMemoryUsage(() => {
-      filterByIngredientsNative(benchmarkData, selectedIngredients);
+    const loopsMemory = measureMemoryUsage(() => {
+      filterByIngredientsLoops(benchmarkData, selectedIngredients);
     }, memoryIterations);
 
-    logMemoryComparison("Memory Usage Comparison", functionalMemory, nativeMemory);
+    const forEachMemory = measureMemoryUsage(() => {
+      filterByIngredientsForEach(benchmarkData, selectedIngredients);
+    }, memoryIterations);
+
+    const reduceMemory = measureMemoryUsage(() => {
+      filterByIngredientsReduce(benchmarkData, selectedIngredients);
+    }, memoryIterations);
+
+    const forMemory = measureMemoryUsage(() => {
+      filterByIngredientsFor(benchmarkData, selectedIngredients);
+    }, memoryIterations);
+
+    const whileMemory = measureMemoryUsage(() => {
+      filterByIngredientsWhile(benchmarkData, selectedIngredients);
+    }, memoryIterations);
+
+    logMemoryComparison("Memory Usage Comparison", mapsMemory, loopsMemory);
+
+    // Log all memory usages
+    logAllMemoryUsages(
+      {
+        maps: mapsMemory,
+        loops: loopsMemory,
+        forEach: forEachMemory,
+        reduce: reduceMemory,
+        for: forMemory,
+        while: whileMemory,
+      },
+      LABELS,
+    );
 
     // Memory comparison is informational only
-    expect(typeof functionalMemory).toBe("number");
-    expect(typeof nativeMemory).toBe("number");
+    expect(typeof mapsMemory).toBe("number");
+    expect(typeof loopsMemory).toBe("number");
+    expect(typeof forEachMemory).toBe("number");
+    expect(typeof reduceMemory).toBe("number");
+    expect(typeof forMemory).toBe("number");
+    expect(typeof whileMemory).toBe("number");
   });
 });

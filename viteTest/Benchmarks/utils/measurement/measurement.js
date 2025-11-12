@@ -1,83 +1,83 @@
-// Core measurement functions for benchmarking using tinybench
+// Core measurement and calculation functions for benchmarking using tinybench
 import { Bench } from "tinybench";
 
+// Constants
+const NS_TO_MS_DIVISOR = 1_000_000;
+const MS_TO_SECONDS_DIVISOR = 1000;
+const BYTES_TO_MB_DIVISOR = 1024 * 1024;
+const DEFAULT_ITERATIONS = 100;
+const DEFAULT_MEMORY_ITERATIONS = 10;
+const BENCHMARK_TIME = 75;
+const MAX_ITERATIONS = 25;
+const WARMUP_TIME = 15;
+const WARMUP_ITERATIONS = 2;
+
+// Calculation functions
 export function calculateOpsPerSecond(timeMs) {
-  if (timeMs === 0) {
-    return Infinity;
+  return timeMs === 0 ? Infinity : MS_TO_SECONDS_DIVISOR / timeMs;
+}
+
+export function calculateImprovement(baselineTime, comparisonTime) {
+  if (baselineTime === 0) {
+    return comparisonTime === 0 ? 0 : -Infinity;
   }
-  return 1000 / timeMs;
+  return ((baselineTime - comparisonTime) / baselineTime) * 100;
+}
+
+// Memory measurement functions
+function hasMemoryAPI() {
+  return typeof performance.memory !== "undefined";
 }
 
 export function measureMemoryDelta(fn) {
-  if (typeof performance.memory === "undefined") {
+  if (!hasMemoryAPI()) {
     return 0;
   }
-
-  // Memory before execution
   const before = performance.memory.usedJSHeapSize;
   fn();
-  // Memory after execution
   const after = performance.memory.usedJSHeapSize;
-  return (after - before) / 1024 / 1024;
+  return (after - before) / BYTES_TO_MB_DIVISOR;
 }
 
-export function measureMemoryUsage(fn, iterations = 10) {
-  if (typeof performance.memory === "undefined") {
+export function measureMemoryUsage(fn, iterations = DEFAULT_MEMORY_ITERATIONS) {
+  if (!hasMemoryAPI()) {
     return 0;
   }
-
-  // Total memory delta across iterations
   let totalDelta = 0;
-  // Iteration counter
-  let i = 0;
-  while (i < iterations) {
+  for (let i = 0; i < iterations; i++) {
     totalDelta += measureMemoryDelta(fn);
-    i++;
   }
-
   return totalDelta / iterations;
 }
 
+// Benchmark execution functions
 function convertTinybenchResult(result) {
-  // Average time in ms
-  const avg = result.mean / 1_000_000;
-  // Min time in ms
-  const min = result.min / 1_000_000;
-  // Max time in ms
-  const max = result.max / 1_000_000;
-  // Std dev in ms
-  const stdDev = Number.isNaN(result.stdDev) ? 0 : result.stdDev / 1_000_000;
-
-  // Sample array
-  const sampleArray = result.samples || [];
-  // Total sample count
-  const totalSamples = sampleArray.reduce(sum => sum + 1, 0) || result.samples?.length || 0;
+  const convertToMs = value => value / NS_TO_MS_DIVISOR;
+  const stdDev = Number.isNaN(result.stdDev) ? 0 : convertToMs(result.stdDev);
+  const samples = result.samples?.length || 0;
 
   return {
-    avg,
-    min,
-    max,
+    avg: convertToMs(result.mean),
+    min: convertToMs(result.min),
+    max: convertToMs(result.max),
     stdDev,
-    opsPerSecond: calculateOpsPerSecond(avg),
-    samples: totalSamples,
+    opsPerSecond: calculateOpsPerSecond(convertToMs(result.mean)),
+    samples,
     rme: result.rme || 0,
   };
 }
 
-export async function runBenchmark(fn, iterations = 100) {
-  // Benchmark instance
+export async function runBenchmark(fn, iterations = DEFAULT_ITERATIONS) {
   const bench = new Bench({
-    time: 75,
-    iterations: Math.min(iterations, 25),
-    warmupTime: 15,
-    warmupIterations: 2,
+    time: BENCHMARK_TIME,
+    iterations: Math.min(iterations, MAX_ITERATIONS),
+    warmupTime: WARMUP_TIME,
+    warmupIterations: WARMUP_ITERATIONS,
   });
 
   bench.add("benchmark", fn);
-
   await bench.run();
 
-  // First benchmark result
   const result = bench.results[0];
   if (!result) {
     throw new Error("Benchmark failed to produce results");
