@@ -43,23 +43,8 @@ async function collectBenchmarkResults() {
   };
 }
 
-// Generate charts using Chart.js
-async function generateCharts(results) {
-  // Full width charts - use larger width for better use of available space
-  // Width should match typical screen width minus padding (around 1200-1400px)
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 1200, height: 400 });
-
-  const charts = {};
-  const flattened = results.flattened || [];
-
-  if (flattened.length === 0) {
-    return charts;
-  }
-
-  // Get all implementations (supports up to 6)
-  const implementations = getImplementations(flattened);
-
-  // Create very short labels for implementations (for chart axes)
+// Helper function to create chart labels
+function createChartLabels(implementations) {
   const shortLabels = implementations.map(impl => {
     if (impl.includes("Production") || impl.includes("production filter")) return "Production";
     if (impl.includes("Loops") && impl.includes("filter-loops")) return "Loops";
@@ -70,7 +55,6 @@ async function generateCharts(results) {
     return impl.length > 15 ? `${impl.substring(0, 15)  }...` : impl;
   });
 
-  // Create even shorter labels for legend (just the key word)
   const legendLabels = implementations.map(impl => {
     if (impl.includes("Production") || impl.includes("production filter")) return "Production";
     if (impl.includes("Loops") && impl.includes("filter-loops")) return "Loops";
@@ -78,11 +62,15 @@ async function generateCharts(results) {
     if (impl.includes("reduce")) return "reduce";
     if (impl.includes("for (using for loops)")) return "for";
     if (impl.includes("while")) return "while";
-    return impl.split(" ")[0]; // Just take first word
+    return impl.split(" ")[0];
   });
 
-  // Color palette for up to 6 implementations
-  const colors = [
+  return { shortLabels, legendLabels };
+}
+
+// Helper function to get color palette
+function getColorPalette() {
+  return [
     { bg: "rgba(54, 162, 235, 0.6)", border: "rgba(54, 162, 235, 1)", name: "Production" },
     { bg: "rgba(255, 99, 132, 0.6)", border: "rgba(255, 99, 132, 1)", name: "Loops" },
     { bg: "rgba(75, 192, 192, 0.6)", border: "rgba(75, 192, 192, 1)", name: "forEach" },
@@ -90,15 +78,11 @@ async function generateCharts(results) {
     { bg: "rgba(153, 102, 255, 0.6)", border: "rgba(153, 102, 255, 1)", name: "for" },
     { bg: "rgba(255, 159, 64, 0.6)", border: "rgba(255, 159, 64, 1)", name: "while" },
   ];
+}
 
-  // Calculate averages for each implementation
-  const implAverages = implementations.map(impl => ({
-    name: impl,
-    avg: getAverageExecutionTime(flattened, impl),
-  }));
-
-  // Quick Comparison Chart - all implementations side-by-side
-  charts.quickComparison = await chartJSNodeCanvas.renderToBuffer({
+// Generate quick comparison chart
+async function generateQuickComparisonChart(chartJSNodeCanvas, implementations, shortLabels, legendLabels, colors, implAverages) {
+  return await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
       labels: shortLabels,
@@ -120,7 +104,7 @@ async function generateCharts(results) {
           left: 5,
           right: 5,
           top: 10,
-          bottom: 80, // Extra space for legend
+          bottom: 80,
         },
       },
       plugins: {
@@ -183,8 +167,10 @@ async function generateCharts(results) {
       },
     },
   });
+}
 
-  // Group results by category for summary chart
+// Generate performance comparison chart by category
+async function generatePerformanceChart(chartJSNodeCanvas, implementations, shortLabels, colors, flattened) {
   const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
   const categoryAverages = categories.map(category => {
     const categoryResults = flattened.filter(r => r.category === category);
@@ -205,13 +191,12 @@ async function generateCharts(results) {
     return avgs;
   });
 
-  // Performance comparison chart by category
   const validCategories = categories.filter((category, index) => {
     const avgs = categoryAverages[index];
     return implementations.some(impl => (avgs[impl] || 0) > 0);
   });
 
-  charts.performance = await chartJSNodeCanvas.renderToBuffer({
+  return await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
       labels: validCategories,
@@ -283,11 +268,13 @@ async function generateCharts(results) {
       },
     },
   });
+}
 
-  // Performance Ranking Chart - horizontal bar chart ranking implementations
+// Generate ranking chart
+async function generateRankingChart(chartJSNodeCanvas, implementations, shortLabels, legendLabels, colors, implAverages) {
   const rankings = [...implAverages].sort((a, b) => a.avg - b.avg);
 
-  charts.ranking = await chartJSNodeCanvas.renderToBuffer({
+  return await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
       labels: rankings.map(item => {
@@ -375,11 +362,13 @@ async function generateCharts(results) {
       },
     },
   });
+}
 
-  // Consistency Analysis Chart (RME)
+// Generate consistency chart (RME)
+async function generateConsistencyChart(chartJSNodeCanvas, implementations, shortLabels, legendLabels, colors, flattened) {
   const rmeAverages = implementations.map(impl => getAverageRME(flattened, impl));
 
-  charts.consistency = await chartJSNodeCanvas.renderToBuffer({
+  return await chartJSNodeCanvas.renderToBuffer({
     type: "bar",
     data: {
       labels: shortLabels,
@@ -468,77 +457,138 @@ async function generateCharts(results) {
       },
     },
   });
+}
 
-  // Heatmap chart removed to reduce file size - detailed test results table provides this information
-
-  // Improvement percentage chart
+// Generate improvement chart
+async function generateImprovementChart(chartJSNodeCanvas, flattened) {
   const improvements = flattened.map(r => r.improvement || 0);
-  if (improvements.length > 0 && improvements.some(imp => imp !== 0)) {
-    charts.improvement = await chartJSNodeCanvas.renderToBuffer({
-      type: "line",
-      data: {
-        labels: flattened.map((r, index) => `Test ${index + 1}`),
-        datasets: [
-          {
-            label: "Improvement %",
-            data: improvements,
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            fill: true,
-          },
-        ],
+  if (improvements.length === 0 || !improvements.some(imp => imp !== 0)) {
+    return null;
+  }
+
+  return await chartJSNodeCanvas.renderToBuffer({
+    type: "line",
+    data: {
+      labels: flattened.map((r, index) => `Test ${index + 1}`),
+      datasets: [
+        {
+          label: "Improvement %",
+          data: improvements,
+          borderColor: "rgba(75, 192, 192, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 5,
+          right: 5,
+          top: 10,
+          bottom: 70,
+        },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            left: 5,
-            right: 5,
-            top: 10,
-            bottom: 70,
+      plugins: {
+        title: {
+          display: true,
+          text: "Performance Improvement Percentage",
+          font: { size: 13 },
+        },
+        legend: {
+          display: true,
+          position: "bottom",
+          align: "center",
+          fullSize: true,
+          labels: {
+            font: { size: 11, weight: "bold" },
+            padding: 15,
+            boxWidth: 30,
+            boxHeight: 18,
           },
         },
-        plugins: {
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: { size: 9 },
+            maxTicksLimit: 15,
+          },
+        },
+        y: {
+          beginAtZero: true,
           title: {
             display: true,
-            text: "Performance Improvement Percentage",
-            font: { size: 13 },
+            text: "Improvement %",
+            font: { size: 11 },
           },
-          legend: {
-            display: true,
-            position: "bottom",
-            align: "center",
-            fullSize: true,
-            labels: {
-              font: { size: 11, weight: "bold" },
-              padding: 15,
-              boxWidth: 30,
-              boxHeight: 18,
-            },
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              font: { size: 9 },
-              maxTicksLimit: 15,
-            },
-          },
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: "Improvement %",
-              font: { size: 11 },
-            },
-            ticks: {
-              font: { size: 9 },
-            },
+          ticks: {
+            font: { size: 9 },
           },
         },
       },
-    });
+    },
+  });
+}
+
+// Generate charts using Chart.js
+async function generateCharts(results) {
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 1200, height: 400 });
+  const charts = {};
+  const flattened = results.flattened || [];
+
+  if (flattened.length === 0) {
+    return charts;
+  }
+
+  const implementations = getImplementations(flattened);
+  const { shortLabels, legendLabels } = createChartLabels(implementations);
+  const colors = getColorPalette();
+  const implAverages = implementations.map(impl => ({
+    name: impl,
+    avg: getAverageExecutionTime(flattened, impl),
+  }));
+
+  charts.quickComparison = await generateQuickComparisonChart(
+    chartJSNodeCanvas,
+    implementations,
+    shortLabels,
+    legendLabels,
+    colors,
+    implAverages,
+  );
+
+  charts.performance = await generatePerformanceChart(
+    chartJSNodeCanvas,
+    implementations,
+    shortLabels,
+    colors,
+    flattened,
+  );
+
+  charts.ranking = await generateRankingChart(
+    chartJSNodeCanvas,
+    implementations,
+    shortLabels,
+    legendLabels,
+    colors,
+    implAverages,
+  );
+
+  charts.consistency = await generateConsistencyChart(
+    chartJSNodeCanvas,
+    implementations,
+    shortLabels,
+    legendLabels,
+    colors,
+    flattened,
+  );
+
+  const improvementChart = await generateImprovementChart(chartJSNodeCanvas, flattened);
+  if (improvementChart) {
+    charts.improvement = improvementChart;
   }
 
   return charts;
@@ -553,15 +603,15 @@ function generateHTMLReport(results, charts) {
 async function generatePDF(html, outputPath) {
   const browser = await puppeteer.launch(pdfConfig.browser);
   const page = await browser.newPage();
-  
+
   try {
     // Set content and wait for it to load
     await page.setContent(html, pdfConfig.page);
-    
+
     // Emulate print media to ensure print CSS (@media print) is applied
     // This is critical for page-break CSS properties to work
     await page.emulateMediaType(pdfConfig.mediaType);
-    
+
     // Generate PDF with configuration from config file
     await page.pdf({
       ...pdfConfig.pdf,

@@ -73,6 +73,32 @@ function mapIngredientsToNormalized(recipes) {
   return normalized;
 }
 
+function recipeMatchesIngredient(recipe, normalizedSelected) {
+  if (!recipe.ingredients) {
+    return false;
+  }
+
+  for (let k = 0; k < recipe.ingredients.length; k++) {
+    const ingredient = recipe.ingredients[k];
+    const ingredientName = ingredient.name ?? "";
+    if (normalize(ingredientName) === normalizedSelected) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function recipeMatchesAllIngredients(recipe, ingredientsArray) {
+  for (let j = 0; j < ingredientsArray.length; j++) {
+    const selectedIngredient = ingredientsArray[j];
+    const normalizedSelected = normalize(selectedIngredient);
+    if (!recipeMatchesIngredient(recipe, normalizedSelected)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Filter recipes by ingredients using for loops
 export function filterByIngredients(recipes, ingredients) {
   if (
@@ -89,31 +115,7 @@ export function filterByIngredients(recipes, ingredients) {
 
   for (let i = 0; i < normalizedRecipes.length; i++) {
     const recipe = normalizedRecipes[i];
-    let matchesAll = true;
-
-    for (let j = 0; j < ingredientsArray.length; j++) {
-      const selectedIngredient = ingredientsArray[j];
-      const normalizedSelected = normalize(selectedIngredient);
-      let found = false;
-
-      if (recipe.ingredients) {
-        for (let k = 0; k < recipe.ingredients.length; k++) {
-          const ingredient = recipe.ingredients[k];
-          const ingredientName = ingredient.name ?? "";
-          if (normalize(ingredientName) === normalizedSelected) {
-            found = true;
-            break;
-          }
-        }
-      }
-
-      if (!found) {
-        matchesAll = false;
-        break;
-      }
-    }
-
-    if (matchesAll) {
+    if (recipeMatchesAllIngredients(recipe, ingredientsArray)) {
       filtered.push(recipe);
     }
   }
@@ -155,6 +157,31 @@ export function filterByAppliances(recipes, appliances) {
   return filtered;
 }
 
+function recipeMatchesUstensil(recipe, normalizedSelected) {
+  if (!recipe.ustensils) {
+    return false;
+  }
+
+  for (let k = 0; k < recipe.ustensils.length; k++) {
+    const ustensil = recipe.ustensils[k];
+    if (normalize(ustensil) === normalizedSelected) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function recipeMatchesAllUstensils(recipe, ustensilsArray) {
+  for (let j = 0; j < ustensilsArray.length; j++) {
+    const selectedUstensil = ustensilsArray[j];
+    const normalizedSelected = normalize(selectedUstensil);
+    if (!recipeMatchesUstensil(recipe, normalizedSelected)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Filter recipes by ustensils using for loops
 export function filterByUstensils(recipes, ustensils) {
   if (
@@ -170,30 +197,7 @@ export function filterByUstensils(recipes, ustensils) {
 
   for (let i = 0; i < recipes.length; i++) {
     const recipe = recipes[i];
-    let matchesAll = true;
-
-    for (let j = 0; j < ustensilsArray.length; j++) {
-      const selectedUstensil = ustensilsArray[j];
-      const normalizedSelected = normalize(selectedUstensil);
-      let found = false;
-
-      if (recipe.ustensils) {
-        for (let k = 0; k < recipe.ustensils.length; k++) {
-          const ustensil = recipe.ustensils[k];
-          if (normalize(ustensil) === normalizedSelected) {
-            found = true;
-            break;
-          }
-        }
-      }
-
-      if (!found) {
-        matchesAll = false;
-        break;
-      }
-    }
-
-    if (matchesAll) {
+    if (recipeMatchesAllUstensils(recipe, ustensilsArray)) {
       filtered.push(recipe);
     }
   }

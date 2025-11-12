@@ -83,6 +83,36 @@ function mapIngredientsToNormalized(recipes) {
   return normalized;
 }
 
+function recipeMatchesIngredient(recipe, normalizedSelected) {
+  if (!recipe.ingredients) {
+    return false;
+  }
+
+  let k = 0;
+  while (k < recipe.ingredients.length) {
+    const ingredient = recipe.ingredients[k];
+    const ingredientName = ingredient.name ?? "";
+    if (normalize(ingredientName) === normalizedSelected) {
+      return true;
+    }
+    k++;
+  }
+  return false;
+}
+
+function recipeMatchesAllIngredients(recipe, ingredientsArray) {
+  let j = 0;
+  while (j < ingredientsArray.length) {
+    const selectedIngredient = ingredientsArray[j];
+    const normalizedSelected = normalize(selectedIngredient);
+    if (!recipeMatchesIngredient(recipe, normalizedSelected)) {
+      return false;
+    }
+    j++;
+  }
+  return true;
+}
+
 // Filter recipes by ingredients using while loops
 export function filterByIngredients(recipes, ingredients) {
   if (
@@ -100,35 +130,7 @@ export function filterByIngredients(recipes, ingredients) {
 
   while (i < normalizedRecipes.length) {
     const recipe = normalizedRecipes[i];
-    let matchesAll = true;
-    let j = 0;
-
-    while (j < ingredientsArray.length) {
-      const selectedIngredient = ingredientsArray[j];
-      const normalizedSelected = normalize(selectedIngredient);
-      let found = false;
-
-      if (recipe.ingredients) {
-        let k = 0;
-        while (k < recipe.ingredients.length) {
-          const ingredient = recipe.ingredients[k];
-          const ingredientName = ingredient.name ?? "";
-          if (normalize(ingredientName) === normalizedSelected) {
-            found = true;
-            break;
-          }
-          k++;
-        }
-      }
-
-      if (!found) {
-        matchesAll = false;
-        break;
-      }
-      j++;
-    }
-
-    if (matchesAll) {
+    if (recipeMatchesAllIngredients(recipe, ingredientsArray)) {
       filtered.push(recipe);
     }
     i++;
@@ -175,6 +177,35 @@ export function filterByAppliances(recipes, appliances) {
   return filtered;
 }
 
+function recipeMatchesUstensil(recipe, normalizedSelected) {
+  if (!recipe.ustensils) {
+    return false;
+  }
+
+  let k = 0;
+  while (k < recipe.ustensils.length) {
+    const ustensil = recipe.ustensils[k];
+    if (normalize(ustensil) === normalizedSelected) {
+      return true;
+    }
+    k++;
+  }
+  return false;
+}
+
+function recipeMatchesAllUstensils(recipe, ustensilsArray) {
+  let j = 0;
+  while (j < ustensilsArray.length) {
+    const selectedUstensil = ustensilsArray[j];
+    const normalizedSelected = normalize(selectedUstensil);
+    if (!recipeMatchesUstensil(recipe, normalizedSelected)) {
+      return false;
+    }
+    j++;
+  }
+  return true;
+}
+
 // Filter recipes by ustensils using while loops
 export function filterByUstensils(recipes, ustensils) {
   if (
@@ -191,34 +222,7 @@ export function filterByUstensils(recipes, ustensils) {
 
   while (i < recipes.length) {
     const recipe = recipes[i];
-    let matchesAll = true;
-    let j = 0;
-
-    while (j < ustensilsArray.length) {
-      const selectedUstensil = ustensilsArray[j];
-      const normalizedSelected = normalize(selectedUstensil);
-      let found = false;
-
-      if (recipe.ustensils) {
-        let k = 0;
-        while (k < recipe.ustensils.length) {
-          const ustensil = recipe.ustensils[k];
-          if (normalize(ustensil) === normalizedSelected) {
-            found = true;
-            break;
-          }
-          k++;
-        }
-      }
-
-      if (!found) {
-        matchesAll = false;
-        break;
-      }
-      j++;
-    }
-
-    if (matchesAll) {
+    if (recipeMatchesAllUstensils(recipe, ustensilsArray)) {
       filtered.push(recipe);
     }
     i++;
