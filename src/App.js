@@ -18,18 +18,18 @@ const initApp = async () => {
   if (container) renderCardsSkeletons(50);
 
   try {
-    const recipesData = await buildRecipesData();
+    const { recipes, dropdownData } = await buildRecipesData();
 
-    console.log("recipesData", recipesData);
+    console.log("recipesData", recipes);
 
-    updateCount(recipesData.length);
+    updateCount(recipes.length);
     hideSearchSkeleton();
-    await renderHeader(recipesData);
-    renderRecipes(recipesData);
-    initSearch(recipesData);
-    initDropdowns(recipesData, (type, value, remove = false) => {
+    await renderHeader(recipes);
+    renderRecipes(recipes);
+    initSearch(recipes);
+    initDropdowns(dropdownData, (type, value, remove = false) => {
       remove ? removeFilter(type, value) : addFilter(type, value);
-    });
+    }, recipes);
   } catch (error) {
     console.error("Error loading recipes:", error);
 

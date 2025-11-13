@@ -219,8 +219,7 @@
   padding: 0;
 }
 
-.search-clear-btn.hidden,
-.dropdown-search-clear.hidden {
+.search-clear-btn.hidden {
   display: none;
 }
 
@@ -389,23 +388,20 @@
 
 .dropdown-search-icon {
   color: var(--color-text-muted);
+  display: block;
   font-size: var(--font-size-sm);
+  opacity: 1;
   pointer-events: none;
   position: absolute;
   right: 24px;
   top: 50%;
   transform: translateY(-50%);
-  transition: right var(--transition-fast);
+  transition: opacity var(--transition-fast), right var(--transition-fast), visibility var(--transition-fast);
+  visibility: visible;
 }
 
-.dropdown-search:has(.dropdown-search-clear:not(.hidden)) {
-  .dropdown-search-input {
-    padding-right: 32px;
-  }
-
-  .dropdown-search-icon {
-    display: none;
-  }
+.dropdown-search-input {
+  padding-right: 32px;
 }
 
 .dropdown-search-clear {
@@ -415,9 +411,23 @@
   height: 32px;
   justify-content: center;
   margin: 0;
+  opacity: 0;
   padding: 0;
   right: 24px;
+  transition: opacity var(--transition-fast), visibility var(--transition-fast);
+  visibility: hidden;
   width: 32px;
+}
+
+.dropdown-search .dropdown-search-icon.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.dropdown-search .dropdown-search-clear:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
 }
 
 .dropdown-list {
@@ -1698,14 +1708,8 @@
     right: 60px;
   }
 
-  .dropdown-search:has(.dropdown-search-clear:not(.hidden)) {
-    .dropdown-search-input {
-      padding-right: 48px;
-    }
-
-    .dropdown-search-icon {
-      display: none;
-    }
+  .dropdown-search-input {
+    padding-right: 48px;
   }
 
   .dropdown-search-clear {
@@ -1714,6 +1718,17 @@
     padding: 0;
     right: 60px;
     width: 32px;
+  }
+
+  .dropdown-search .dropdown-search-icon.hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .dropdown-search .dropdown-search-clear:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
   }
 
   .dropdown-search-clear i {
@@ -2123,14 +2138,8 @@
     right: 24px;
   }
 
-  .dropdown-search:has(.dropdown-search-clear:not(.hidden)) {
-    .dropdown-search-input {
-      padding-right: 32px;
-    }
-
-    .dropdown-search-icon {
-      display: none;
-    }
+  .dropdown-search-input {
+    padding-right: 32px;
   }
 
   .dropdown-search-clear {
@@ -2139,6 +2148,17 @@
     padding: 0;
     right: 24px;
     width: 24px;
+  }
+
+  .dropdown-search .dropdown-search-icon.hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .dropdown-search .dropdown-search-clear:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
   }
 
   .dropdown-search-clear i {

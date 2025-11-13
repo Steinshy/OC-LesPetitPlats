@@ -3,7 +3,20 @@ import { updateDropdownsSelection } from "./dropdown.js";
 import { updateFilterTags } from "./filterTags.js";
 import { filterRecipes } from "./search/filter.js";
 
-const debounce = (fn, delay = 300) => {
+const DEBOUNCE_DELAY = 300;
+const SELECTORS = {
+  input: "#recipe-search, .search-bar-group input",
+  button: ".search-bar-group .search-btn",
+  counter: ".results-counter h2",
+};
+
+const createInitialFilters = () => ({
+  ingredients: new Set(),
+  appliances: new Set(),
+  ustensils: new Set(),
+});
+
+const debounce = (fn, delay = DEBOUNCE_DELAY) => {
   let timeoutId;
   return (...args) => {
     clearTimeout(timeoutId);
@@ -11,42 +24,74 @@ const debounce = (fn, delay = 300) => {
   };
 };
 
-const selectors = {
-  input: "#recipe-search, .search-bar-group input",
-  button: ".search-bar-group .search-btn",
-  counter: ".results-counter h2",
-};
-
-const getElement = key => document.querySelector(selectors[key]);
+const getElement = key => document.querySelector(SELECTORS[key]);
 
 let allRecipes = [];
 let currentSearchTerm = "";
-let activeFilters = {
-  ingredients: new Set(),
-  appliances: new Set(),
-  ustensils: new Set(),
-};
+let activeFilters = createInitialFilters();
 
 const applyFilters = () => {
   const filtered = filterRecipes(allRecipes, currentSearchTerm, activeFilters);
   renderRecipes(filtered);
   updateCount(filtered.length);
   updateFilterTags(activeFilters);
-  updateDropdownsSelection(activeFilters);
+  updateDropdownsSelection(activeFilters, filtered);
 };
 
-const handleSearch = input => {
+const handleSearchInput = input => {
   currentSearchTerm = input.value;
   applyFilters();
 };
 
+const updateClearButtonVisibility = (clearButton, input) => {
+  clearButton?.classList.toggle("hidden", !input.value.trim());
+};
+
+const handleClearClick = (input, clearButton) => {
+  input.value = "";
+  input.focus();
+  updateClearButtonVisibility(clearButton, input);
+  handleSearchInput(input);
+};
+
+const setupSearchInput = (input, clearButton) => {
+  const debouncedSearch = debounce(() => handleSearchInput(input), DEBOUNCE_DELAY);
+
+  input.addEventListener("input", () => {
+    updateClearButtonVisibility(clearButton, input);
+    debouncedSearch();
+  });
+
+  clearButton?.addEventListener("click", () => handleClearClick(input, clearButton));
+
+  getElement("button")?.addEventListener("click", () => handleSearchInput(input));
+
+  updateClearButtonVisibility(clearButton, input);
+};
+
+const initializeSearch = () => {
+  const input = getElement("input");
+  const clearButton = document.getElementById("clear-recipe-search");
+  if (!input) return;
+
+  setupSearchInput(input, clearButton);
+};
+
+const scheduleInitialization = () => {
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(initializeSearch, { timeout: 2000 });
+  } else {
+    setTimeout(initializeSearch, 0);
+  }
+};
+
 export const updateCount = count => {
   const counter = getElement("counter");
-  if (counter) {
-    const num = Math.max(0, count ?? 0);
-    counter.textContent = `${num} ${num === 1 ? "résultat" : "résultats"}`;
-    counter.closest(".results-counter")?.classList.remove("skeleton-loading");
-  }
+  if (!counter) return;
+
+  const num = Math.max(0, count ?? 0);
+  counter.textContent = `${num} ${num === 1 ? "résultat" : "résultats"}`;
+  counter.closest(".results-counter")?.classList.remove("skeleton-loading");
 };
 
 export const addFilter = (type, value) => {
@@ -64,9 +109,7 @@ export const removeFilter = (type, value) => {
 };
 
 export const clearAllFilters = () => {
-  activeFilters.ingredients.clear();
-  activeFilters.appliances.clear();
-  activeFilters.ustensils.clear();
+  activeFilters = createInitialFilters();
   applyFilters();
 };
 
@@ -79,49 +122,6 @@ export const getActiveFilters = () => ({
 export const initSearch = recipesData => {
   allRecipes = recipesData;
   currentSearchTerm = "";
-  activeFilters = {
-    ingredients: new Set(),
-    appliances: new Set(),
-    ustensils: new Set(),
-  };
-
-  const onReady = () => {
-    const input = getElement("input");
-    const clearButton = document.getElementById("clear-recipe-search");
-    if (!input) return;
-
-    const updateClearButton = () => {
-      clearButton?.classList.toggle("hidden", !input.value.trim());
-    };
-
-    const updateSearch = () => {
-      handleSearch(input);
-    };
-
-    const debouncedSearch = debounce(updateSearch, 300);
-
-    input.addEventListener("input", () => {
-      updateClearButton();
-      debouncedSearch();
-    });
-
-    clearButton?.addEventListener("click", () => {
-      input.value = "";
-      input.focus();
-      updateClearButton();
-      updateSearch();
-    });
-
-    getElement("button")?.addEventListener("click", () => {
-      updateSearch();
-    });
-
-    updateClearButton();
-  };
-
-  if ("requestIdleCallback" in window) {
-    requestIdleCallback(onReady, { timeout: 2000 });
-  } else {
-    setTimeout(onReady, 0);
-  }
+  activeFilters = createInitialFilters();
+  scheduleInitialization();
 };

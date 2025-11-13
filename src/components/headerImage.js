@@ -1,13 +1,7 @@
 import { selectRandomImages } from "../utils/deliveryImages.js";
 
-const selectors = {
-  searchSection: ".search-section",
-};
-
-const getElement = key => document.querySelector(selectors[key]);
-
 export const renderHeader = async recipesData => {
-  const searchSection = getElement("searchSection");
+  const searchSection = document.getElementById("search-section");
   if (!searchSection) return;
 
   if (!recipesData || recipesData.length === 0) return;

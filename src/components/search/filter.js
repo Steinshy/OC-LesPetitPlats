@@ -1,7 +1,7 @@
-const normalize = value => (typeof value === "string" ? value.trim().toLowerCase() : "");
+import { normalizeString } from "@/helper/helper.js";
 
 export const filterBySearchTerm = (recipes, searchTerm) => {
-  const query = normalize(searchTerm);
+  const query = normalizeString(searchTerm);
   if (!query) return recipes;
   return recipes.filter(recipe => {
     // Production: recipes always have search property
@@ -20,11 +20,11 @@ export const filterByIngredients = (recipes, ingredients) => {
   const ingredientsArray = Array.isArray(ingredients) ? ingredients : [...ingredients];
   return recipes.filter(recipe =>
     ingredientsArray.every(selectedIngredient => {
-      const normalizedSelected = normalize(selectedIngredient);
+      const normalizedSelected = normalizeString(selectedIngredient);
       // Production: ingredients always have name property
       return recipe.ingredients?.some(ingredient => {
         const ingredientName = ingredient.name ?? "";
-        return normalize(ingredientName) === normalizedSelected;
+        return normalizeString(ingredientName) === normalizedSelected;
       });
     }),
   );
@@ -40,9 +40,9 @@ export const filterByAppliances = (recipes, appliances) => {
   }
   const appliancesArray = Array.isArray(appliances) ? appliances : [...appliances];
   return recipes.filter(recipe => {
-    const normalizedAppliance = normalize(recipe.appliance);
+    const normalizedAppliance = normalizeString(recipe.appliance);
     return appliancesArray.some(
-      selectedAppliance => normalize(selectedAppliance) === normalizedAppliance,
+      selectedAppliance => normalizeString(selectedAppliance) === normalizedAppliance,
     );
   });
 };
@@ -58,8 +58,8 @@ export const filterByUstensils = (recipes, ustensils) => {
   const ustensilsArray = Array.isArray(ustensils) ? ustensils : [...ustensils];
   return recipes.filter(recipe =>
     ustensilsArray.every(selectedUstensil => {
-      const normalizedSelected = normalize(selectedUstensil);
-      return recipe.ustensils?.some(ustensil => normalize(ustensil) === normalizedSelected);
+      const normalizedSelected = normalizeString(selectedUstensil);
+      return recipe.ustensils?.some(ustensil => normalizeString(ustensil) === normalizedSelected);
     }),
   );
 };

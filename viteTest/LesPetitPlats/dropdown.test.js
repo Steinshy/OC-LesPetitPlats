@@ -1,116 +1,57 @@
 import { describe, it, expect } from "vitest";
-import {
-  extractDropdownData,
-  getFilteredItems,
-  normalize,
-} from "../../src/components/dropdown/utils.js";
-import { mockRecipesForDropdown } from "./test-data.js";
+import { formatDropdownData, getFilteredItems } from "../../src/components/dropdown/utils.js";
 
 describe("dropdown utils", () => {
-  // Mock recipes for testing
-  const mockRecipes = mockRecipesForDropdown;
-
-  describe("normalize", () => {
-    it("should convert string to lowercase and trim", () => {
-      // String with whitespace
-      expect(normalize("  TEST  ")).toBe("test");
+  describe("formatDropdownData", () => {
+    it("should capitalize first letter of each item", () => {
+      // Dropdown data with normalized values
+      const dropdownData = {
+        ingredients: ["tomato", "onion", "potato"],
+        appliances: ["oven", "stove"],
+        ustensils: ["fork", "knife", "spoon"],
+      };
+      // Formatted dropdown data
+      const result = formatDropdownData(dropdownData);
+      expect(result.ingredients).toEqual(["Tomato", "Onion", "Potato"]);
+      expect(result.appliances).toEqual(["Oven", "Stove"]);
+      expect(result.ustensils).toEqual(["Fork", "Knife", "Spoon"]);
     });
 
-    it("should return empty string for non-string values", () => {
-      expect(normalize(null)).toBe("");
-      expect(normalize(undefined)).toBe("");
-      expect(normalize(123)).toBe("");
-      expect(normalize({})).toBe("");
+    it("should handle empty arrays", () => {
+      // Dropdown data with empty arrays
+      const dropdownData = {
+        ingredients: [],
+        appliances: [],
+        ustensils: [],
+      };
+      // Formatted dropdown data
+      const result = formatDropdownData(dropdownData);
+      expect(result.ingredients).toEqual([]);
+      expect(result.appliances).toEqual([]);
+      expect(result.ustensils).toEqual([]);
     });
 
-    it("should handle empty string", () => {
-      // Empty string
-      expect(normalize("")).toBe("");
-    });
-  });
-
-  describe("extractDropdownData", () => {
-    it("should extract ingredients from recipes", () => {
-      // Extracted ingredients
-      const result = extractDropdownData(mockRecipes, "ingredients");
-      expect(result).toEqual(["Carrot", "Onion", "Potato", "Tomato"]);
-    });
-
-    it("should extract appliances from recipes", () => {
-      // Extracted appliances
-      const result = extractDropdownData(mockRecipes, "appliances");
-      expect(result).toEqual(["Oven", "Stove"]);
-    });
-
-    it("should extract ustensils from recipes", () => {
-      // Extracted ustensils
-      const result = extractDropdownData(mockRecipes, "ustensils");
-      expect(result).toEqual(["Fork", "Knife", "Spoon"]);
-    });
-
-    it("should return empty array for empty recipes", () => {
-      // Empty recipes array
-      const result = extractDropdownData([], "ingredients");
-      expect(result).toEqual([]);
-    });
-
-    it("should handle recipes without ingredients", () => {
-      // Recipes without ingredients property
-      const recipesWithoutIngredients = [
-        { name: "Recipe 1" },
-        { ingredients: [{ name: "Tomato" }] },
-      ];
-      // Extracted ingredients
-      const result = extractDropdownData(recipesWithoutIngredients, "ingredients");
-      expect(result).toEqual(["Tomato"]);
-    });
-
-    it("should handle recipes with null/undefined ingredients", () => {
-      // Recipes with null/undefined ingredients
-      const recipesWithNull = [
-        { ingredients: null },
-        { ingredients: [{ name: "Tomato" }, { name: null }] },
-        { ingredients: [{ name: undefined }] },
-      ];
-      // Extracted ingredients
-      const result = extractDropdownData(recipesWithNull, "ingredients");
-      expect(result).toEqual(["Tomato"]);
-    });
-
-    it("should handle recipes without appliance", () => {
-      // Recipes without appliance property
-      const recipesWithoutAppliance = [{ name: "Recipe 1" }, { appliance: "Oven" }];
-      // Extracted appliances
-      const result = extractDropdownData(recipesWithoutAppliance, "appliances");
-      expect(result).toEqual(["Oven"]);
-    });
-
-    it("should handle recipes without ustensils", () => {
-      // Recipes without ustensils property
-      const recipesWithoutUstensils = [{ name: "Recipe 1" }, { ustensils: ["Spoon"] }];
-      // Extracted ustensils
-      const result = extractDropdownData(recipesWithoutUstensils, "ustensils");
-      expect(result).toEqual(["Spoon"]);
-    });
-
-    it("should remove duplicates", () => {
-      // Recipes with duplicate ingredients
-      const recipesWithDuplicates = [
-        { ingredients: [{ name: "Tomato" }, { name: "Tomato" }] },
-        { ingredients: [{ name: "Tomato" }] },
-      ];
-      // Extracted ingredients
-      const result = extractDropdownData(recipesWithDuplicates, "ingredients");
-      expect(result).toEqual(["Tomato"]);
+    it("should preserve casing after first letter", () => {
+      // Dropdown data with mixed casing
+      const dropdownData = {
+        ingredients: ["tOmAtO", "onION"],
+        appliances: ["oVeN"],
+        ustensils: ["fOrK"],
+      };
+      // Formatted dropdown data
+      const result = formatDropdownData(dropdownData);
+      expect(result.ingredients).toEqual(["TOmAtO", "OnION"]);
+      expect(result.appliances).toEqual(["OVeN"]);
+      expect(result.ustensils).toEqual(["FOrK"]);
     });
   });
 
   describe("getFilteredItems", () => {
-    // Dropdown data for testing
+    // Dropdown data for testing (normalized values as used in production)
     const dropdownData = {
-      ingredients: ["Carrot", "Onion", "Potato", "Tomato"],
-      appliances: ["Oven", "Stove"],
-      ustensils: ["Fork", "Knife", "Spoon"],
+      ingredients: ["carrot", "onion", "potato", "tomato"],
+      appliances: ["oven", "stove"],
+      ustensils: ["fork", "knife", "spoon"],
     };
 
     it("should return all items when search input is empty", () => {
@@ -132,7 +73,7 @@ describe("dropdown utils", () => {
       const searchInput = { value: "TO" };
       // Filtered items
       const result = getFilteredItems("ingredients", dropdownData, searchInput);
-      expect(result).toEqual(["Potato", "Tomato"]);
+      expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should filter items by partial match", () => {
@@ -140,7 +81,7 @@ describe("dropdown utils", () => {
       const searchInput = { value: "ato" };
       // Filtered items
       const result = getFilteredItems("ingredients", dropdownData, searchInput);
-      expect(result).toEqual(["Potato", "Tomato"]);
+      expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should return empty array when no match found", () => {
@@ -156,7 +97,7 @@ describe("dropdown utils", () => {
       const searchInput = { value: "  tomato  " };
       // Filtered items
       const result = getFilteredItems("ingredients", dropdownData, searchInput);
-      expect(result).toEqual(["Tomato"]);
+      expect(result).toEqual(["tomato"]);
     });
 
     it("should filter appliances", () => {
@@ -164,7 +105,7 @@ describe("dropdown utils", () => {
       const searchInput = { value: "ov" };
       // Filtered items
       const result = getFilteredItems("appliances", dropdownData, searchInput);
-      expect(result).toEqual(["Oven", "Stove"]);
+      expect(result).toEqual(["oven", "stove"]);
     });
 
     it("should filter ustensils", () => {
@@ -172,7 +113,7 @@ describe("dropdown utils", () => {
       const searchInput = { value: "oo" };
       // Filtered items
       const result = getFilteredItems("ustensils", dropdownData, searchInput);
-      expect(result).toEqual(["Spoon"]);
+      expect(result).toEqual(["spoon"]);
     });
   });
 });

@@ -20,7 +20,7 @@ describe("recipesBuilder", () => {
       { ingredient: "Flour", quantity: 200, unit: "g" },
       { ingredient: "Sugar", quantity: 100, unit: "g" },
     ],
-    ustensils: [{ name: "Spoon" }, { name: "Bowl" }],
+    ustensils: ["Spoon", "Bowl"],
     image: "recipes/test.jpg",
   };
 
@@ -32,8 +32,8 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
     expect(recipes).toHaveLength(1);
     expect(recipes[0]).toMatchObject({
@@ -42,7 +42,7 @@ describe("recipesBuilder", () => {
       description: "A test recipe",
       servings: 4,
       time: 30,
-      appliance: "Oven",
+      appliance: "oven",
     });
   });
 
@@ -54,12 +54,12 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
     expect(recipes[0].ingredients).toEqual([
-      { name: "Flour", quantity: 200, unitType: "g" },
-      { name: "Sugar", quantity: 100, unitType: "g" },
+      { name: "flour", quantity: 200, unitType: "g" },
+      { name: "sugar", quantity: 100, unitType: "g" },
     ]);
   });
 
@@ -71,13 +71,13 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
-    expect(recipes[0].images).toHaveProperty("jpgUrl");
-    expect(recipes[0].images).toHaveProperty("webpUrl");
-    expect(recipes[0].images.jpgUrl).toContain("recipes/test.jpg");
-    expect(recipes[0].images.webpUrl).toContain("recipes/test.webp");
+    expect(recipes[0].image).toHaveProperty("jpgUrl");
+    expect(recipes[0].image).toHaveProperty("webpUrl");
+    expect(recipes[0].image.jpgUrl).toContain("recipes/test.jpg");
+    expect(recipes[0].image.webpUrl).toContain("recipes/test.webp");
   });
 
   it("should build search string from name, ingredients, ustensils, and appliance", async () => {
@@ -94,8 +94,8 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
     // Normalized search string
     const search = recipes[0].search.toLowerCase();
 
@@ -115,10 +115,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
-    expect(recipes[0].ustensils).toEqual(["Spoon", "Bowl"]);
+    expect(recipes[0].ustensils).toEqual(expect.arrayContaining(["spoon", "bowl"]));
   });
 
   it("should handle missing optional fields", async () => {
@@ -136,8 +136,8 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
     expect(recipes[0]).toMatchObject({
       id: 2,
@@ -160,8 +160,8 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes array
-    const recipes = await buildRecipesData();
+    // Built recipes data
+    const { recipes } = await buildRecipesData();
 
     expect(recipes).toEqual([]);
   });
@@ -176,5 +176,46 @@ describe("recipesBuilder", () => {
     );
 
     await expect(buildRecipesData()).rejects.toThrow("Network error: 404");
+  });
+
+  it("should build dropdown data with unique values", async () => {
+    cacheManager.clear();
+    const multipleRecipes = [
+      {
+        ...mockRawRecipe,
+        ingredients: [
+          { ingredient: "Flour", quantity: 200, unit: "g" },
+          { ingredient: "Sugar", quantity: 100, unit: "g" },
+        ],
+        appliance: "Oven",
+        ustensils: ["Spoon", "Bowl"],
+      },
+      {
+        ...mockRawRecipe,
+        id: 2,
+        ingredients: [
+          { ingredient: "Flour", quantity: 300, unit: "g" },
+          { ingredient: "Butter", quantity: 100, unit: "g" },
+        ],
+        appliance: "Oven",
+        ustensils: ["Spoon", "Fork"],
+      },
+    ];
+
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(multipleRecipes),
+      }),
+    );
+
+    // Built recipes data
+    const { dropdownData } = await buildRecipesData();
+
+    expect(dropdownData.ingredients).toEqual(expect.arrayContaining(["butter", "flour", "sugar"]));
+    expect(dropdownData.appliances).toEqual(["oven"]);
+    expect(dropdownData.ustensils).toEqual(expect.arrayContaining(["bowl", "fork", "spoon"]));
+    expect(dropdownData.ingredients.length).toBe(3);
+    expect(dropdownData.appliances.length).toBe(1);
   });
 });
