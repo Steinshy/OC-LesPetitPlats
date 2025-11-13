@@ -22,7 +22,7 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "analyze": "vite build --mode analyze",
     "optimize:images": "node scripts/optimizeImages.js",
-    "clean": "rm -rf dist node_modules/.vite coverage Benchmark",
+    "clean": "rm -rf dist node_modules/.vite coverage Benchmark .stryker-tmp",
     "benchmark": "vitest run viteTest/Benchmarks/filterByIngredients.test.js viteTest/Benchmarks/filterByAppliances.test.js viteTest/Benchmarks/filterByUstensils.test.js viteTest/Benchmarks/search.test.js viteTest/Benchmarks/filtersRecipes.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js",
     "benchmark:ingredients": "vitest run viteTest/Benchmarks/filterByIngredients.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js filterByIngredients",
     "benchmark:appliances": "vitest run viteTest/Benchmarks/filterByAppliances.test.js && node viteTest/Benchmarks/utils/reporting/generateReport.js filterByAppliances",

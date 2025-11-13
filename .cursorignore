@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+dev-dist
+
+# Test coverage
+coverage
+.stryker-tmp
+
+# Benchmark results
+Benchmark
+
+# Cache directories
+.cache
+.eslintcache
+.prettier-cache
+
+# Editor directories
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project-specific
+.oc
+
+# API data
+api/data.js
+public/api/data.js
+
+# Lighthouse reports
+lighthouse-report*.html
+lighthouse-report*.json
+lighthouse-report-formatted.json
+.lighthouseci
+

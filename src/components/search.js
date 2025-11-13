@@ -90,24 +90,33 @@ export const initSearch = recipesData => {
     const clearButton = document.getElementById("clear-recipe-search");
     if (!input) return;
 
-    const updateSearch = () => {
+    const updateClearButton = () => {
       clearButton?.classList.toggle("hidden", !input.value.trim());
+    };
+
+    const updateSearch = () => {
       handleSearch(input);
     };
 
     const debouncedSearch = debounce(updateSearch, 300);
 
-    input.addEventListener("input", debouncedSearch);
+    input.addEventListener("input", event => {
+      updateClearButton();
+      debouncedSearch();
+    });
 
     clearButton?.addEventListener("click", () => {
       input.value = "";
       input.focus();
+      updateClearButton();
       updateSearch();
     });
 
-    getElement("button")?.addEventListener("click", updateSearch);
+    getElement("button")?.addEventListener("click", () => {
+      updateSearch();
+    });
 
-    clearButton?.classList.toggle("hidden", !input.value.trim());
+    updateClearButton();
   };
 
   if ("requestIdleCallback" in window) {

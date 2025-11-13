@@ -1,4 +1,4 @@
-import { renderItem } from "./render.js";
+import { renderItem, renderEmptyState } from "./render.js";
 import { getFilteredItems, getDropdownElements } from "./utils.js";
 
 export const toggleDropdown = (type, isOpen) => {
@@ -43,34 +43,47 @@ export const closeAllDropdowns = () => {
   });
 };
 
-export const updateDropdownList = (type, items, onFilterChange, activeFilters) => {
+export const updateDropdownList = (
+  type,
+  items,
+  onFilterChange,
+  activeFilters,
+  hasSearchQuery = false,
+) => {
   const listElement = document.getElementById(`dropdown-${type}-list`);
   if (!listElement) return;
   const selectedSet = activeFilters?.[type] || new Set();
-  listElement.innerHTML = items.map(item => renderItem(item, type, selectedSet.has(item))).join("");
 
-  listElement.querySelectorAll(".dropdown-item").forEach(item => {
-    item.addEventListener("click", event => {
-      event.preventDefault();
-      item.blur();
-      const wasSelected = item.classList.contains("selected");
-      const textSpan = item.querySelector("span");
-      const checkIcon = item.querySelector(".dropdown-item-check");
+  if (items.length === 0 && hasSearchQuery) {
+    listElement.innerHTML = renderEmptyState();
+  } else {
+    listElement.innerHTML = items
+      .map(item => renderItem(item, type, selectedSet.has(item)))
+      .join("");
 
-      item.classList.toggle("selected", !wasSelected);
+    listElement.querySelectorAll(".dropdown-item").forEach(item => {
+      item.addEventListener("click", event => {
+        event.preventDefault();
+        item.blur();
+        const wasSelected = item.classList.contains("selected");
+        const textSpan = item.querySelector("span");
+        const checkIcon = item.querySelector(".dropdown-item-check");
 
-      if (!wasSelected && !checkIcon && textSpan) {
-        const icon = document.createElement("i");
-        icon.className = "fa-solid fa-check dropdown-item-check";
-        icon.setAttribute("aria-hidden", "true");
-        item.appendChild(icon);
-      } else if (wasSelected && checkIcon) {
-        checkIcon.remove();
-      }
+        item.classList.toggle("selected", !wasSelected);
 
-      onFilterChange?.(item.dataset.type, item.dataset.value, wasSelected);
+        if (!wasSelected && !checkIcon && textSpan) {
+          const icon = document.createElement("i");
+          icon.className = "fa-solid fa-check dropdown-item-check";
+          icon.setAttribute("aria-hidden", "true");
+          item.appendChild(icon);
+        } else if (wasSelected && checkIcon) {
+          checkIcon.remove();
+        }
+
+        onFilterChange?.(item.dataset.type, item.dataset.value, wasSelected);
+      });
     });
-  });
+  }
 };
 
 export const updateDropdown = (
@@ -82,12 +95,14 @@ export const updateDropdown = (
   activeFilters,
 ) => {
   if (!searchInput) return;
-  clearButton?.classList.toggle("hidden", !searchInput.value.trim());
+  const hasSearchQuery = !!searchInput.value.trim();
+  clearButton?.classList.toggle("hidden", !hasSearchQuery);
   updateDropdownList(
     type,
     getFilteredItems(type, dropdownData, searchInput),
     onFilterChange,
     activeFilters,
+    hasSearchQuery,
   );
 };
 
