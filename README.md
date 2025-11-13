@@ -54,7 +54,6 @@ LesPetitPlats/
 ├── src/
 │   ├── App.js                    # Point d'entrée principal
 │   ├── card.js                   # Génération des cartes de recettes
-│   ├── mobileMenu.js             # Gestion du menu mobile
 │   ├── errorHandler.js           # Gestion des erreurs
 │   ├── components/
 │   │   ├── dropdown/

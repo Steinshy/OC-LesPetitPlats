@@ -100,7 +100,7 @@ export const initSearch = recipesData => {
 
     const debouncedSearch = debounce(updateSearch, 300);
 
-    input.addEventListener("input", event => {
+    input.addEventListener("input", () => {
       updateClearButton();
       debouncedSearch();
     });

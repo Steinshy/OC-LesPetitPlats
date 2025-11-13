@@ -165,6 +165,7 @@ export default [
     ignores: [
       "node_modules/",
       "dist/",
+      "@dist/",
       "dev-dist/",
       "build/",
       "public/",

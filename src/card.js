@@ -51,17 +51,20 @@ export const buildCardContents = (description, ingredients) => {
     ? `<div class="ingredients-details">${ingredientsHTML}</div>`
     : "";
 
+  const ingredientsCount = ingredients.length;
+  const ingredientsTitle = `INGRÉDIENTS${ingredientsCount > 0 ? ` (${ingredientsCount})` : ""}`;
+
   return `
     <div class="contents-container">
       ${buildSection("RECETTE", recipeSection, "contents-recipe")}
-      ${buildSection("INGRÉDIENTS", ingredientsSection, "contents-ingredients")}
+      ${buildSection(ingredientsTitle, ingredientsSection, "contents-ingredients")}
     </div>
   `;
 };
 
 const buildCard = recipe => {
   const {
-    images: { webpUrl = "", jpgUrl = "", alt = "" } = {},
+    image: { webpUrl = "", jpgUrl = "", alt = "" } = {},
     name = "",
     time = 0,
     description = "",

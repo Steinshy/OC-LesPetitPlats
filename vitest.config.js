@@ -47,7 +47,6 @@ export default defineConfig({
         "src/App.js",
         "src/card.js",
         "src/errorHandler.js",
-        "src/mobileMenu.js",
         "src/components/dropdown.js",
         "src/components/headerImage.js",
         "src/components/scrollToTop.js",

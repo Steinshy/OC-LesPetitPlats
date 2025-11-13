@@ -20,9 +20,3 @@ export const showError = message => {
 export const hideError = () => {
   getBanner()?.setAttribute("hidden", "");
 };
-
-export const initErrorTestButton = () => {
-  document.getElementById("error-test-button")?.addEventListener("click", () => {
-    showError("Message d'erreur de test");
-  });
-};

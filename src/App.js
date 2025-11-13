@@ -4,22 +4,17 @@ import { renderHeader } from "./components/headerImage.js";
 import { initScrollToTop } from "./components/scrollToTop.js";
 import { initSearch, updateCount, addFilter, removeFilter } from "./components/search.js";
 import { hideSearchSkeleton } from "./components/skeletons.js";
-import { showError, initErrorTestButton } from "./errorHandler.js";
-import { mobileMenuManager } from "./mobileMenu.js";
+import { showError } from "./errorHandler.js";
 
 import { buildRecipesData } from "./utils/recipesBuilder.js";
 
 import "../styles/global.css";
 
-const getContainer = () => document.querySelector(".cards-container");
-
 const initApp = async () => {
   updateCount(0);
-  mobileMenuManager();
-  initErrorTestButton();
   initScrollToTop();
 
-  const container = getContainer();
+  const container = document.querySelector(".cards-container");
   if (container) renderCardsSkeletons(50);
 
   try {

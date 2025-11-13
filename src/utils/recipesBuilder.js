@@ -9,43 +9,40 @@ const encodePath = path =>
 
 const fetchRecipes = async () => {
   return cacheGetOrSet("recipes_v1", async () => {
-    const fetchRawRecipes = async () => {
-      const response = await fetch(DATA_URL);
-      if (!response.ok) throw new Error(`Network error: ${response.status}`);
-      const recipes = await response.json();
-      return Array.isArray(recipes) ? recipes : [];
-    };
-    return fetchRawRecipes();
+    const response = await fetch(DATA_URL);
+    if (!response.ok) throw new Error(`Network error: ${response.status}`);
+    const recipes = await response.json();
+    return recipes || [];
   });
 };
 
-const buildIngredients = item => {
-  const ingredients = Array.isArray(item?.ingredients) ? item.ingredients : [];
+const buildIngredients = recipe => {
+  const ingredients = recipe?.ingredients || [];
   return ingredients.map(ingredient => ({
     name: ingredient?.ingredient ?? "",
-    quantity: ingredient?.quantity ?? 0,
+    quantity: ingredient?.quantity ?? null,
     unitType: ingredient?.unit ?? "",
   }));
 };
 
-const buildImages = item => {
-  const alt = item?.name ?? "";
-  let src = item?.image ?? "";
+const buildUstensils = recipe => {
+  return recipe?.ustensils || [];
+};
 
-  if (!src || /^https?:\/\//i.test(src)) {
-    return { alt, jpgUrl: src || "", webpUrl: "" };
+const buildImage = recipe => {
+  const alt = recipe?.name ?? "";
+  const src = recipe?.image;
+  const imagePath = `recipes/${src}`;
+  if (!src) {
+    return { alt, jpgUrl: "", webpUrl: "" };
   }
-
-  src = src.replace(/^\/+/, "").replace(/^(?!recipes\/)/, "recipes/");
-  return {
-    alt,
-    jpgUrl: withBase(encodePath(src)),
-    webpUrl: withBase(encodePath(src.replace(/\.jpg$/, ".webp"))),
-  };
+  const jpgUrl = withBase(encodePath(imagePath));
+  const webpUrl = withBase(encodePath(imagePath.replace(/\.jpg$/, ".webp")));
+  return { alt, jpgUrl, webpUrl };
 };
 
 const buildSearch = (ingredients, item) => {
-  const ustensils = Array.isArray(item?.ustensils) ? item.ustensils : [];
+  const ustensils = item?.ustensils || [];
   const words = [
     item?.name ?? "",
     ...ingredients.map(ingredient => ingredient?.name ?? ""),
@@ -55,32 +52,28 @@ const buildSearch = (ingredients, item) => {
   return words.join(" ").toLowerCase();
 };
 
-const buildUstensils = rawItem => {
-  const ustensils = Array.isArray(rawItem?.ustensils) ? rawItem.ustensils : [];
-  return ustensils.map(ustensil => (typeof ustensil === "string" ? ustensil : ustensil?.name || ""));
-};
-
-const buildRecipe = rawItem => {
-  const ingredients = buildIngredients(rawItem);
-  const images = buildImages(rawItem);
-  const search = buildSearch(ingredients, rawItem);
-  const ustensils = buildUstensils(rawItem);
-
-  return {
-    id: rawItem?.id || 0,
-    name: rawItem?.name || "",
-    description: rawItem?.description || "",
-    servings: rawItem?.servings || 0,
-    time: rawItem?.time || 0,
-    appliance: rawItem?.appliance || "",
-    ingredients,
-    ustensils,
-    images,
-    search,
-  };
-};
-
 export const buildRecipesData = async () => {
-  const recipes = await fetchRecipes();
-  return recipes.map(buildRecipe);
+  const recipesData = await fetchRecipes();
+
+  const recipes = recipesData.map(recipe => {
+    const ingredients = buildIngredients(recipe);
+    const image = buildImage(recipe);
+    const search = buildSearch(ingredients, recipe);
+    const ustensils = buildUstensils(recipe);
+
+    return {
+      id: recipe?.id || 0,
+      name: recipe?.name || "",
+      description: recipe?.description || "",
+      servings: recipe?.servings || 0,
+      time: recipe?.time || 0,
+
+      ingredients,
+      ustensils,
+      image,
+      search,
+    };
+  });
+
+  return recipes;
 };
