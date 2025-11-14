@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderRecipes } from "../../src/card.js";
 import {
   updateCount,
-  initSearch,
+  enableSearch,
   addFilter,
   removeFilter,
   getActiveFilters,
@@ -83,11 +83,11 @@ describe("search", () => {
     });
   });
 
-  describe("initSearch", () => {
+  describe("enableSearch", () => {
     it("should set up search input listener", () => {
       // Search input element
       const input = document.querySelector(SEARCH_INPUT_SELECTOR);
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -114,7 +114,7 @@ describe("search", () => {
         </div>
       `;
 
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -138,7 +138,7 @@ describe("search", () => {
     it("should set up search button click listener", () => {
       // Search button element
       const button = document.querySelector(SEARCH_BUTTON_SELECTOR);
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -151,13 +151,13 @@ describe("search", () => {
 
     it("should handle missing input element", () => {
       document.body.innerHTML = "";
-      expect(() => initSearch(mockRecipes)).not.toThrow();
+      expect(() => enableSearch(mockRecipes)).not.toThrow();
     });
 
     it("should filter recipes by search term", async () => {
       // Search input element
       const input = document.querySelector(SEARCH_INPUT_SELECTOR);
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       await new Promise(resolve => setTimeout(resolve, 10));
       input.value = "one";
@@ -174,7 +174,7 @@ describe("search", () => {
     it("should return all recipes when search is empty", () => {
       // Search input element
       const input = document.querySelector(SEARCH_INPUT_SELECTOR);
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -204,7 +204,7 @@ describe("search", () => {
       });
       window.requestIdleCallback = mockRequestIdleCallback;
 
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
 
       return new Promise(resolve => {
         setTimeout(() => {
@@ -223,7 +223,7 @@ describe("search", () => {
 
   describe("addFilter", () => {
     beforeEach(() => {
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
     });
 
     it("should add ingredient filter", () => {
@@ -259,7 +259,7 @@ describe("search", () => {
 
   describe("removeFilter", () => {
     beforeEach(() => {
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
       addFilter("ingredients", "Tomato");
       vi.clearAllMocks();
     });
@@ -287,7 +287,7 @@ describe("search", () => {
 
   describe("getActiveFilters", () => {
     beforeEach(() => {
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
     });
 
     it("should return empty filters initially", () => {
@@ -324,7 +324,7 @@ describe("search", () => {
 
   describe("clearAllFilters", () => {
     beforeEach(() => {
-      initSearch(mockRecipes);
+      enableSearch(mockRecipes);
       addFilter("ingredients", "Tomato");
       addFilter("appliances", "Oven");
       addFilter("ustensils", "Spoon");
