@@ -2,7 +2,13 @@ import { renderRecipes, renderCardsSkeletons } from "./card.js";
 import { enableDropdowns, renderDropdowns } from "./components/dropdown.js";
 import { renderHeader } from "./components/headerImage.js";
 import { initScrollToTop } from "./components/scrollToTop.js";
-import { enableSearch, renderSearch, updateCount } from "./components/search.js";
+import {
+  enableSearch,
+  renderSearch,
+  updateCount,
+  addFilter,
+  removeFilter,
+} from "./components/search.js";
 import { showError } from "./errorHandler.js";
 
 import { buildRecipesData } from "./utils/recipesBuilder.js";
@@ -21,7 +27,17 @@ const initApp = async () => {
     await renderHeader(recipes);
     renderRecipes(recipes);
     enableSearch(recipes);
-    enableDropdowns(dropdownData);
+
+    // Create filter change callback for dropdowns
+    const onFilterChange = (type, value, wasSelected) => {
+      if (wasSelected) {
+        removeFilter(type, value);
+      } else {
+        addFilter(type, value);
+      }
+    };
+
+    enableDropdowns(dropdownData, onFilterChange, recipes);
   } catch (error) {
     console.error("Error loading recipes:", error);
 
