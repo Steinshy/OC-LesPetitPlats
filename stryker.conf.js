@@ -6,6 +6,7 @@
 export default {
   packageManager: "npm",
   reporters: ["html", "clear-text", "progress"],
+  reportDir: "reports",
   testRunner: "vitest",
   testRunnerNodeArgs: ["--no-watch"],
   coverageAnalysis: "perTest",

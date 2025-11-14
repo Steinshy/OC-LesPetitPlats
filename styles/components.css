@@ -94,7 +94,7 @@
 }
 
 .nav-link:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-text);
 }
 
 .nav-link:hover::after {
@@ -127,7 +127,7 @@
 }
 
 .search-header h2 {
-  color: var(--color-primary);
+  color: var(--color-text);
   font-size: var(--font-size-2xl);
   font-weight: 600;
   line-height: 1.5;

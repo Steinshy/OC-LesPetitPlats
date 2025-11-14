@@ -7,7 +7,7 @@ import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 const require = createRequire(import.meta.url);
-const BASE_PATH = "/OC-LesPetitPlats/";
+const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
 const PORT = 5173;
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const ONE_MONTH = 60 * 60 * 24 * 30;
@@ -90,7 +90,7 @@ export default defineConfig(({ mode }) => {
         devOptions: {
           enabled: false,
           type: "module",
-          navigateFallbackAllowlist: [/^\/OC-LesPetitPlats\/?$/],
+          navigateFallbackAllowlist: [new RegExp(`^${BASE_PATH.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}?$`)],
         },
       }),
       tailwindcss(),

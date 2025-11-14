@@ -21,6 +21,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,24 +64,20 @@ jobs:
   lighthouse:
     name: Lighthouse Report
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: deploy
     if: success()
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
       - name: Get deployment URL
         id: deployment
         run: |
-          echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event.repository.name }}" == "${{ github.repository_owner }}.github.io" ]]; then
+            echo "url=https://${{ github.repository_owner }}.github.io/" >> $GITHUB_OUTPUT
+          else
+            echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse CI on deployed page
         uses: treosh/lighthouse-ci-action@v11
         with:
           urls: ${{ steps.deployment.outputs.url }}

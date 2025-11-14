@@ -8,21 +8,21 @@ describe("deliveryImages", () => {
   // Mock recipes with images
   const mockRecipesWithImages = [
     {
-      images: {
+      image: {
         jpgUrl: "/recipes/test1.jpg",
         webpUrl: "/recipes/test1.webp",
         alt: "Test Recipe 1",
       },
     },
     {
-      images: {
+      image: {
         jpgUrl: "/recipes/test2.jpg",
         webpUrl: "/recipes/test2.webp",
         alt: "Test Recipe 2",
       },
     },
     {
-      images: {
+      image: {
         jpgUrl: "/recipes/test3.jpg",
         webpUrl: "/recipes/test3.webp",
         alt: "Test Recipe 3",
@@ -61,7 +61,7 @@ describe("deliveryImages", () => {
       expect(result).toHaveProperty("jpgUrl");
       expect(result).toHaveProperty("webpUrl");
       expect(result).toHaveProperty("alt");
-      expect(mockRecipesWithImages.some(recipe => recipe.images === result)).toBe(true);
+      expect(mockRecipesWithImages.some(recipe => recipe.image === result)).toBe(true);
     });
 
     it("should return null when recipe has no images property", () => {
@@ -88,7 +88,7 @@ describe("deliveryImages", () => {
       // Selected images
       const result = selectRandomImages(singleRecipe);
 
-      expect(result).toEqual(mockRecipesWithImages[0].images);
+      expect(result).toEqual(mockRecipesWithImages[0].image);
     });
   });
 

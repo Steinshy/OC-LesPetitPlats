@@ -58,6 +58,7 @@ Benchmark
 api/data.js
 
 # Lighthouse reports
+lighthouse/
 lighthouse-report*.html
 lighthouse-report*.json
 lighthouse-report-formatted.json

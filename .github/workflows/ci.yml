@@ -20,6 +20,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,6 +49,7 @@ jobs:
   test:
     name: LesPetitPlats Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,7 +76,10 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs:
+      - lint
+      - test
       - mutation-test
     steps:
       - name: Checkout code
@@ -102,6 +107,7 @@ jobs:
   benchmark:
     name: Benchmark Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs:
       - test
     steps:
@@ -166,6 +172,7 @@ jobs:
   mutation-test:
     name: Mutation Testing
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs:
       - benchmark
     steps:

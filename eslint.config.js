@@ -177,6 +177,7 @@ export default [
       "*.min.js",
       "*.min.css",
       "*.log",
+      "lighthouse/",
       "lighthouse-report*.html",
       "lighthouse-report*.json",
       "lighthouse-report-formatted.json",

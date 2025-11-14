@@ -12,6 +12,7 @@ Benchmark
 .oc
 api/data.js
 public/api/data.js
+lighthouse/
 lighthouse-report*.html
 lighthouse-report*.json
 lighthouse-report-formatted.json
