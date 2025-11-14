@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { selectRandomImages, isImageLoaded, imagesTypes } from "../../src/utils/deliveryImages.js";
 
 describe("deliveryImages", () => {
@@ -248,6 +248,85 @@ describe("deliveryImages", () => {
       expect(webpSource).toBeTruthy();
     });
 
+    it("should handle webp image load success and mark as loaded", () => {
+      const webpUrl = "/recipes/test.webp";
+      // DOM fragment
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+          <picture>
+            <source type="image/webp" srcset="${webpUrl}" />
+            <img src="${TEST_IMAGE_URL}" alt="Test" />
+          </picture>
+        </div>
+      `);
+
+      // Mock Image constructor to control load event
+      const mockImage = {
+        onload: null,
+        onerror: null,
+        src: "",
+      };
+      const OriginalImage = global.Image;
+      global.Image = vi.fn(() => mockImage);
+
+      imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl });
+
+      // Simulate successful load
+      return new Promise(resolve => {
+        setTimeout(() => {
+          if (mockImage.onload) {
+            mockImage.onload();
+          }
+          // Verify webp source still exists (not removed on success)
+          const webpSource = fragment.querySelector("source[type='image/webp']");
+          expect(webpSource).toBeTruthy();
+          expect(isImageLoaded(webpUrl)).toBe(true);
+          global.Image = OriginalImage;
+          resolve();
+        }, 10);
+      });
+    });
+
+    it("should handle webp image load error and remove source", () => {
+      const invalidWebpUrl = "/recipes/invalid.webp";
+      // DOM fragment
+      const fragment = document.createRange().createContextualFragment(`
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+          <picture>
+            <source type="image/webp" srcset="${invalidWebpUrl}" />
+            <img src="${TEST_IMAGE_URL}" alt="Test" />
+          </picture>
+        </div>
+      `);
+
+      // Mock Image constructor to control error event
+      const mockImage = {
+        onload: null,
+        onerror: null,
+        src: "",
+      };
+      const OriginalImage = global.Image;
+      global.Image = vi.fn(() => mockImage);
+
+      imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: invalidWebpUrl });
+
+      // Simulate error
+      return new Promise(resolve => {
+        setTimeout(() => {
+          if (mockImage.onerror) {
+            mockImage.onerror();
+            // Verify webp source is removed on error
+            const webpSource = fragment.querySelector("source[type='image/webp']");
+            expect(webpSource).toBeNull();
+          }
+          global.Image = OriginalImage;
+          resolve();
+        }, 10);
+      });
+    });
+
     it("should handle webp load error", () => {
       // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
@@ -298,7 +377,7 @@ describe("deliveryImages", () => {
       expect(placeholder.classList.contains("hidden")).toBe(true);
     });
 
-    it("should handle jpeg image load event", () => {
+    it("should handle jpeg image load event and mark as loaded", () => {
       // DOM fragment
       const fragment = document.createRange().createContextualFragment(`
         <div class="card-picture">
@@ -312,10 +391,14 @@ describe("deliveryImages", () => {
       const placeholder = fragment.querySelector(".image-loading-placeholder");
       const img = fragment.querySelector("img");
 
+      // Ensure image is not complete initially
+      Object.defineProperty(img, "complete", { value: false, writable: true });
+      Object.defineProperty(img, "naturalWidth", { value: 0, writable: true });
+
       imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
 
       // Simulate image load
-      const loadEvent = new Event("load");
+      const loadEvent = new Event("load", { bubbles: true });
       img.dispatchEvent(loadEvent);
 
       expect(placeholder.classList.contains("hidden")).toBe(true);

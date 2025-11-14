@@ -7,6 +7,7 @@ import {
   removeFilter,
   getActiveFilters,
   clearAllFilters,
+  renderSearch,
 } from "../../src/components/search.js";
 import {
   mockRecipesForSearch,
@@ -42,6 +43,47 @@ describe("search", () => {
         <button class="search-btn"></button>
       </div>
     `;
+  });
+
+  describe("renderSearch", () => {
+    it("should disable search input and button", () => {
+      document.body.innerHTML = `
+        <input type="text" id="recipe-search" />
+        <div class="search-bar-group">
+          <button class="search-btn"></button>
+        </div>
+      `;
+
+      renderSearch();
+
+      const input = document.getElementById("recipe-search");
+      const button = document.querySelector(".search-btn");
+
+      expect(input.disabled).toBe(true);
+      expect(input.classList.contains("disabled")).toBe(true);
+      expect(input.getAttribute("aria-disabled")).toBe("true");
+      expect(button.disabled).toBe(true);
+      expect(button.classList.contains("disabled")).toBe(true);
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+    });
+
+    it("should handle missing input element gracefully", () => {
+      document.body.innerHTML = `
+        <div class="search-bar-group">
+          <button class="search-btn"></button>
+        </div>
+      `;
+
+      expect(() => renderSearch()).not.toThrow();
+    });
+
+    it("should handle missing button element gracefully", () => {
+      document.body.innerHTML = `
+        <input type="text" id="recipe-search" />
+      `;
+
+      expect(() => renderSearch()).not.toThrow();
+    });
   });
 
   describe("updateCount", () => {

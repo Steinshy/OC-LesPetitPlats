@@ -27,7 +27,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
-      include: ["src/**/*.js", "viteTest/Benchmarks/utils/**/*.js"],
+      include: ["src/**/*.js"],
       exclude: [
         "node_modules/",
         "dist/",

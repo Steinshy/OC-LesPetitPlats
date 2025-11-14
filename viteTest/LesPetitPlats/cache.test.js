@@ -88,27 +88,31 @@ describe("cacheManager", () => {
   });
 
   it("should get or set cache value with async fetcher", async () => {
+    // Fetched value constant
+    const FETCHED_VALUE = "fetched value";
     // Async fetcher function
-    const fetcher = vi.fn(async () => "fetched value");
+    const fetcher = vi.fn(async () => FETCHED_VALUE);
 
     // First call should fetch
     const result1 = await cacheGetOrSet("key1", fetcher);
-    expect(result1).toBe("fetched value");
+    expect(result1).toBe(FETCHED_VALUE);
     expect(fetcher).toHaveBeenCalledTimes(1);
 
     // Second call should use cache
     const result2 = await cacheGetOrSet("key1", fetcher);
-    expect(result2).toBe("fetched value");
+    expect(result2).toBe(FETCHED_VALUE);
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
   it("should use custom TTL for cacheGetOrSet", async () => {
     cacheManager.clear();
+    // Fetched value constant
+    const FETCHED_VALUE = "fetched value";
     // Async fetcher function
-    const fetcher = vi.fn(async () => "fetched value");
+    const fetcher = vi.fn(async () => FETCHED_VALUE);
 
     await cacheGetOrSet("key1", fetcher, 0);
     const result = cacheGet("key1");
-    expect(result).toBe("fetched value");
+    expect(result).toBe(FETCHED_VALUE);
   });
 });
