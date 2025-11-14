@@ -45,6 +45,34 @@ export const getCurrentDropdownData = () => {
   return currentDropdownData;
 };
 
+export const renderDropdowns = () => {
+  const container = document.getElementById("filter-dropdown-wrapper");
+  if (!container) return;
+
+  const fragment = document.createDocumentFragment();
+  const tempDiv = document.createElement("div");
+
+  DROPDOWN_TYPES.forEach(({ name, type }) => {
+    const placeholderName = name.toLowerCase();
+    const dropdownHTML = renderDropdown(name, type, placeholderName, "");
+    tempDiv.innerHTML = dropdownHTML;
+    while (tempDiv.firstChild) {
+      fragment.appendChild(tempDiv.firstChild);
+    }
+  });
+
+  container.appendChild(fragment);
+
+  // Disable dropdowns until data is loaded
+  DROPDOWN_TYPES.forEach(({ type }) => {
+    const button = document.getElementById(`dropdown-${type}-button`);
+    if (button) {
+      button.disabled = true;
+      button.classList.add("disabled");
+    }
+  });
+};
+
 export const updateDropdownsSelection = (activeFilters, filteredRecipes) => {
   currentActiveFilters = activeFilters;
   currentFilteredRecipes = filteredRecipes || null;
@@ -64,24 +92,32 @@ export const updateDropdownsSelection = (activeFilters, filteredRecipes) => {
   });
 };
 
-export const initDropdowns = (dropdownData, onFilterChange, recipes) => {
-  const container = document.querySelector(".filter-dropdown-wrapper");
+export const enableDropdowns = (dropdownData, onFilterChange, recipes) => {
+  const container = document.getElementById("filter-dropdown-wrapper");
   if (!container) return;
 
+  // If structure not yet rendered, render it first
+  if (container.children.length === 0) {
+    renderDropdowns();
+  }
+
   currentDropdownData = dropdownData;
-  currentOnFilterChange = onFilterChange;
+  currentOnFilterChange = onFilterChange || null;
   _allRecipes = recipes || [];
   currentActiveFilters = { ingredients: new Set(), appliances: new Set(), ustensils: new Set() };
 
-  container.innerHTML = DROPDOWN_TYPES.map(({ name, type }) => {
-    const placeholderName = name.toLowerCase();
-    return renderDropdown(name, type, placeholderName, "");
-  }).join("");
-
+  // Enable dropdowns and populate with data
   const getActiveFilters = () =>
     currentActiveFilters || { ingredients: new Set(), appliances: new Set(), ustensils: new Set() };
-  DROPDOWN_TYPES.forEach(({ type }) =>
-    setupDropdown(type, dropdownData, onFilterChange, getActiveFilters),
-  );
+
+  DROPDOWN_TYPES.forEach(({ type }) => {
+    const button = document.getElementById(`dropdown-${type}-button`);
+    if (button) {
+      button.disabled = false;
+      button.classList.remove("disabled");
+    }
+    setupDropdown(type, dropdownData, onFilterChange || null, getActiveFilters);
+  });
+
   setupGlobalListeners();
 };

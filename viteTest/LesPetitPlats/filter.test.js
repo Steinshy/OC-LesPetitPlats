@@ -304,5 +304,56 @@ describe("filter", () => {
       const result = filterRecipes(mockRecipes, "", activeFilters);
       expect(result).toHaveLength(3);
     });
+
+    it("should handle object signature with filters object", () => {
+      // Filters object signature
+      const filters = {
+        searchTerm: "one",
+        ingredients: new Set(["Onion"]),
+        appliances: new Set(["Oven"]),
+        ustensils: new Set(),
+      };
+      // Filter result
+      const result = filterRecipes(mockRecipes, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe(RECIPE_ONE);
+    });
+
+    it("should handle object signature without searchTerm", () => {
+      // Filters object without searchTerm
+      const filters = {
+        ingredients: new Set(["Tomato"]),
+        appliances: new Set(),
+        ustensils: new Set(),
+      };
+      // Filter result
+      const result = filterRecipes(mockRecipes, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe(RECIPE_ONE);
+    });
+
+    it("should handle null searchTermOrFilters", () => {
+      // Null searchTermOrFilters
+      const activeFilters = {
+        ingredients: new Set(),
+        appliances: new Set(),
+        ustensils: new Set(),
+      };
+      // Filter result
+      const result = filterRecipes(mockRecipes, null, activeFilters);
+      expect(result).toHaveLength(3);
+    });
+
+    it("should handle undefined searchTermOrFilters", () => {
+      // Undefined searchTermOrFilters
+      const activeFilters = {
+        ingredients: new Set(),
+        appliances: new Set(),
+        ustensils: new Set(),
+      };
+      // Filter result
+      const result = filterRecipes(mockRecipes, undefined, activeFilters);
+      expect(result).toHaveLength(3);
+    });
   });
 });

@@ -2,6 +2,7 @@ import { renderRecipes } from "../card.js";
 import { updateDropdownsSelection } from "./dropdown.js";
 import { updateFilterTags } from "./filterTags.js";
 import { filterRecipes } from "./search/filter.js";
+import { hideSearchSkeleton } from "./skeletons.js";
 
 const DEBOUNCE_DELAY = 300;
 const SELECTORS = {
@@ -29,6 +30,21 @@ const getElement = key => document.querySelector(SELECTORS[key]);
 let allRecipes = [];
 let currentSearchTerm = "";
 let activeFilters = createInitialFilters();
+
+export const renderSearch = () => {
+  const input = document.getElementById("recipe-search");
+  const searchButton = document.querySelector(".search-bar-group .search-btn");
+  if (input) {
+    input.disabled = true;
+    input.classList.add("disabled");
+    input.setAttribute("aria-disabled", "true");
+  }
+  if (searchButton) {
+    searchButton.disabled = true;
+    searchButton.classList.add("disabled");
+    searchButton.setAttribute("aria-disabled", "true");
+  }
+};
 
 const applyFilters = () => {
   const filtered = filterRecipes(allRecipes, currentSearchTerm, activeFilters);
@@ -119,7 +135,23 @@ export const getActiveFilters = () => ({
   ustensils: new Set(activeFilters.ustensils),
 });
 
-export const initSearch = recipesData => {
+export const enableSearch = recipesData => {
+  const input = document.getElementById("recipe-search");
+  const searchButton = document.querySelector(".search-bar-group .search-btn");
+
+  if (input) {
+    input.disabled = false;
+    input.classList.remove("disabled");
+    input.removeAttribute("aria-disabled");
+  }
+  if (searchButton) {
+    searchButton.disabled = false;
+    searchButton.classList.remove("disabled");
+    searchButton.removeAttribute("aria-disabled");
+  }
+
+  hideSearchSkeleton();
+
   allRecipes = recipesData;
   currentSearchTerm = "";
   activeFilters = createInitialFilters();

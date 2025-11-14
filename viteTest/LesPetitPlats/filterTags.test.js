@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { updateFilterTags } from "../../src/components/filterTags.js";
-import { removeFilter } from "../../src/components/search.js";
+import { removeFilter, clearAllFilters } from "../../src/components/search.js";
 import {
   FILTER_TAG_SELECTOR,
   FILTERS_BOX_SELECTOR,
@@ -9,6 +9,7 @@ import {
 
 vi.mock("../../src/components/search.js", () => ({
   removeFilter: vi.fn(),
+  clearAllFilters: vi.fn(),
 }));
 
 describe("filterTags", () => {
@@ -231,5 +232,61 @@ describe("filterTags", () => {
     expect(tag).toBeDefined();
     expect(tag.getAttribute("aria-label")).toContain("unknownType");
     expect(tag.getAttribute("aria-label")).toContain("TestValue");
+  });
+
+  it("should handle missing filter-count element gracefully", () => {
+    document.body.innerHTML = `
+      <aside class="filters-box">
+        <section class="filter-box">
+          <div class="ingredients-list-wrapper">
+            <div class="ingredients-list"></div>
+          </div>
+        </section>
+      </aside>
+    `;
+
+    // Active filters
+    const activeFilters = {
+      ingredients: new Set(["Tomato"]),
+      appliances: new Set(),
+      ustensils: new Set(),
+    };
+
+    expect(() => updateFilterTags(activeFilters)).not.toThrow();
+  });
+
+  it("should call clearAllFilters when clear all button is clicked", () => {
+    document.body.innerHTML = `
+      <aside class="filters-box">
+        <section class="filter-box">
+          <div class="filter-box-header">
+            <h3 class="filter-box-title">
+              Filtres sélectionnés
+              <span class="filter-count" id="filter-count">(0)</span>
+            </h3>
+            <button type="button" id="clear-all-filters" class="clear-all-btn">Tout effacer</button>
+          </div>
+          <div class="ingredients-list-wrapper">
+            <div class="ingredients-list"></div>
+          </div>
+        </section>
+      </aside>
+    `;
+
+    // Active filters
+    const activeFilters = {
+      ingredients: new Set(["Tomato"]),
+      appliances: new Set(),
+      ustensils: new Set(),
+    };
+
+    updateFilterTags(activeFilters);
+
+    // Clear all button
+    const clearAllButton = document.getElementById("clear-all-filters");
+    const clickEvent = new MouseEvent("click", { cancelable: true });
+    clearAllButton.dispatchEvent(clickEvent);
+
+    expect(clearAllFilters).toHaveBeenCalled();
   });
 });

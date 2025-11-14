@@ -6,6 +6,7 @@ import {
   addFilter,
   removeFilter,
   getActiveFilters,
+  clearAllFilters,
 } from "../../src/components/search.js";
 import {
   mockRecipesForSearch,
@@ -94,6 +95,39 @@ describe("search", () => {
           input.dispatchEvent(new Event("input"));
 
           setTimeout(() => {
+            expect(renderRecipes).toHaveBeenCalled();
+            resolve();
+          }, 350);
+        }, 10);
+      });
+    });
+
+    it("should handle clear button click", () => {
+      document.body.innerHTML = `
+        <div class="results-counter">
+          <h2>0 résultats</h2>
+        </div>
+        <div class="search-bar-group">
+          <input type="text" id="recipe-search" value="test" />
+          <button id="clear-recipe-search" class="search-clear-btn"></button>
+          <button class="search-btn"></button>
+        </div>
+      `;
+
+      initSearch(mockRecipes);
+
+      return new Promise(resolve => {
+        setTimeout(() => {
+          // Clear button
+          const clearButton = document.getElementById("clear-recipe-search");
+          // Search input
+          const input = document.getElementById("recipe-search");
+          expect(input.value).toBe("test");
+
+          clearButton.click();
+
+          setTimeout(() => {
+            expect(input.value).toBe("");
             expect(renderRecipes).toHaveBeenCalled();
             resolve();
           }, 350);
@@ -285,6 +319,32 @@ describe("search", () => {
 
       expect(filters1.ingredients.size).toBe(0);
       expect(filters2.ingredients.size).toBe(1);
+    });
+  });
+
+  describe("clearAllFilters", () => {
+    beforeEach(() => {
+      initSearch(mockRecipes);
+      addFilter("ingredients", "Tomato");
+      addFilter("appliances", "Oven");
+      addFilter("ustensils", "Spoon");
+      vi.clearAllMocks();
+    });
+
+    it("should clear all active filters", () => {
+      clearAllFilters();
+
+      // Active filters
+      const filters = getActiveFilters();
+      expect(filters.ingredients.size).toBe(0);
+      expect(filters.appliances.size).toBe(0);
+      expect(filters.ustensils.size).toBe(0);
+    });
+
+    it("should trigger applyFilters when clearing all filters", () => {
+      clearAllFilters();
+
+      expect(renderRecipes).toHaveBeenCalled();
     });
   });
 });

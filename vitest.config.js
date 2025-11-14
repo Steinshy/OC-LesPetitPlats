@@ -27,14 +27,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
-      include: ["src/**/*.js"],
+      include: ["src/**/*.js", "viteTest/Benchmarks/utils/**/*.js"],
       exclude: [
         "node_modules/",
         "dist/",
         "coverage/",
         "**/*.config.js",
         "stryker.conf.js",
-        "viteTest/**",
+        "viteTest/**/*.test.js",
+        "viteTest/reference/**",
         "**/*.test.js",
         "**/*.spec.js",
         "scripts/**",
