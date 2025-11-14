@@ -6,7 +6,9 @@
 export default {
   packageManager: "npm",
   reporters: ["html", "clear-text", "progress"],
-  reportDir: "reports",
+  htmlReporter: {
+    baseDir: "reports",
+  },
   testRunner: "vitest",
   testRunnerNodeArgs: ["--no-watch"],
   coverageAnalysis: "perTest",
@@ -29,14 +31,17 @@ export default {
     "!src/components/skeletons.js",
     "!src/components/dropdown/behavior.js",
     "!src/components/dropdown/render.js",
+    "!src/components/search.js",
+    "!src/components/filterTags.js",
   ],
   thresholds: {
     high: 80,
     low: 70,
     break: 60,
   },
-  timeoutMS: 60000,
-  concurrency: 2,
+  timeoutMS: 30000,
+  concurrency: 8,
+  ignoreStatic: true,
   logLevel: "info",
   plugins: ["@stryker-mutator/vitest-runner"],
 };

@@ -90,7 +90,7 @@ export default defineConfig(({ mode }) => {
         devOptions: {
           enabled: false,
           type: "module",
-          navigateFallbackAllowlist: [new RegExp(`^${BASE_PATH.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}?$`)],
+          navigateFallbackAllowlist: [new RegExp(`^${BASE_PATH.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&")}?$`)],
         },
       }),
       tailwindcss(),

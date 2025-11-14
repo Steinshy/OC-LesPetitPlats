@@ -1,12 +1,12 @@
-import { normalizeString } from "@/helper/helper.js";
 import { updateDropdown, setupDropdown, setupGlobalListeners } from "./dropdown/behavior.js";
 import { renderDropdown } from "./dropdown/render.js";
 import { DROPDOWN_TYPES } from "./dropdown/utils.js";
+import { normalizeString } from "@/helper/helper.js";
 
 let currentActiveFilters = null;
 let currentDropdownData = null;
 let currentOnFilterChange = null;
-let allRecipes = [];
+let _allRecipes = [];
 let currentFilteredRecipes = null;
 
 const buildDropdownDataFromRecipes = recipes => {
@@ -70,7 +70,7 @@ export const initDropdowns = (dropdownData, onFilterChange, recipes) => {
 
   currentDropdownData = dropdownData;
   currentOnFilterChange = onFilterChange;
-  allRecipes = recipes || [];
+  _allRecipes = recipes || [];
   currentActiveFilters = { ingredients: new Set(), appliances: new Set(), ustensils: new Set() };
 
   container.innerHTML = DROPDOWN_TYPES.map(({ name, type }) => {
