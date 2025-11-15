@@ -1003,9 +1003,11 @@
 }
 
 .footer-nav-list a {
+  align-items: center;
   color: var(--color-text-muted);
-  display: inline-block;
+  display: inline-flex;
   font-size: var(--font-size-sm);
+  gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
   position: relative;
   text-decoration: none;
@@ -1013,8 +1015,10 @@
 }
 
 .footer-contact-list a {
+  align-items: center;
   color: var(--color-text-muted);
-  display: inline-block;
+  display: inline-flex;
+  gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
   position: relative;
   text-decoration: none;
@@ -1101,6 +1105,12 @@
   gap: var(--spacing-xs);
 }
 
+.footer-nav-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .footer-nav,
 .footer-contact {
   border-left: 2px solid var(--color-border);
@@ -1120,13 +1130,30 @@
   gap: var(--spacing-sm);
 }
 
+.footer-contact-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+
+.footer-contact-list li i {
+  align-items: center;
+  color: var(--color-primary);
+  display: inline-flex;
+  flex-shrink: 0;
+  justify-content: flex-start;
+  line-height: 1;
+  min-width: 1.2em;
+  width: 1.2em;
+  vertical-align: middle;
+}
+
 .footer-contact-list li:not(:has(a)) {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   line-height: 1.7;
 }
-
-/* removed newsletter styles */
 
 .footer-copy {
   border-top: 1px solid var(--color-border);
@@ -1392,7 +1419,9 @@
   }
 
   .footer-nav-list a {
-    display: block;
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
     min-height: 40px;
     padding: var(--spacing-xs) 0;
@@ -1403,6 +1432,14 @@
   .footer-nav-list a::after {
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .footer-nav-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
   }
 
   .footer-contact {
@@ -1430,7 +1467,9 @@
   }
 
   .footer-contact-list a {
-    display: block;
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
     min-height: 40px;
     padding: var(--spacing-xs) 0;
@@ -1440,6 +1479,14 @@
   .footer-contact-list a::after {
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .footer-contact-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
   }
 
   .footer-contact-list li:not(:has(a)) {
@@ -1960,7 +2007,9 @@
   }
 
   .footer-nav-list a {
+    align-items: center;
     display: inline-flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
     justify-content: center;
     padding: var(--spacing-xs) 0;
@@ -1994,6 +2043,9 @@
   }
 
   .footer-contact-list a {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
   }
 
@@ -2006,6 +2058,24 @@
     font-size: var(--font-size-sm);
     line-height: 1.7;
     text-align: center;
+  }
+
+  .footer-nav-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
+    vertical-align: middle;
+  }
+
+  .footer-contact-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
+    vertical-align: middle;
   }
 
   .footer-copy {
@@ -2043,7 +2113,7 @@
 /* Tablet (768px - 991px) */
 @media (width >= 768px) and (width <= 991px) {
   html {
-    font-size: 18px; /* Base font size for tablet */
+    font-size: 18px;
   }
 
   .header {
@@ -2162,7 +2232,7 @@
   }
 
   .dropdown-search-clear i {
-    font-size: 0.611rem; /* 11px at 18px base ≈ 0.611rem */
+    font-size: 0.6rem;
     line-height: 1;
     margin: 0;
     padding: 0;
@@ -2260,7 +2330,9 @@
   }
 
   .footer-nav-list a {
+    align-items: center;
     display: inline-flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
     justify-content: center;
     padding: var(--spacing-xs) 0;
@@ -2294,6 +2366,9 @@
   }
 
   .footer-contact-list a {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
   }
 
@@ -2306,6 +2381,24 @@
     font-size: var(--font-size-sm);
     line-height: 1.7;
     text-align: center;
+  }
+
+  .footer-nav-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
+    vertical-align: middle;
+  }
+
+  .footer-contact-list li i {
+    align-self: center;
+    flex-shrink: 0;
+    line-height: 1;
+    text-align: left;
+    width: 1.2em;
+    vertical-align: middle;
   }
 
   .footer-copy {

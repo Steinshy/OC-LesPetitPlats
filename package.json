@@ -81,5 +81,8 @@
     "vite-plugin-webfont-dl": "^3.11.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.0"
   }
 }
