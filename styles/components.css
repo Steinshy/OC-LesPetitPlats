@@ -1106,8 +1106,8 @@
 }
 
 .footer-nav-list li {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: var(--spacing-sm);
 }
 
@@ -1131,8 +1131,8 @@
 }
 
 .footer-contact-list li {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: var(--spacing-sm);
 }
 
@@ -1145,8 +1145,8 @@
   justify-content: flex-start;
   line-height: 1;
   min-width: 1.2em;
-  width: 1.2em;
   vertical-align: middle;
+  width: 1.2em;
 }
 
 .footer-contact-list li:not(:has(a)) {
@@ -1421,8 +1421,8 @@
   .footer-nav-list a {
     align-items: center;
     display: flex;
-    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
+    gap: var(--spacing-sm);
     min-height: 40px;
     padding: var(--spacing-xs) 0;
     text-align: center;
@@ -1469,8 +1469,8 @@
   .footer-contact-list a {
     align-items: center;
     display: flex;
-    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
+    gap: var(--spacing-sm);
     min-height: 40px;
     padding: var(--spacing-xs) 0;
     text-align: center;
@@ -2065,8 +2065,8 @@
     flex-shrink: 0;
     line-height: 1;
     text-align: left;
-    width: 1.2em;
     vertical-align: middle;
+    width: 1.2em;
   }
 
   .footer-contact-list li i {
@@ -2074,8 +2074,8 @@
     flex-shrink: 0;
     line-height: 1;
     text-align: left;
-    width: 1.2em;
     vertical-align: middle;
+    width: 1.2em;
   }
 
   .footer-copy {
@@ -2332,8 +2332,8 @@
   .footer-nav-list a {
     align-items: center;
     display: inline-flex;
-    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
+    gap: var(--spacing-sm);
     justify-content: center;
     padding: var(--spacing-xs) 0;
   }
@@ -2368,8 +2368,8 @@
   .footer-contact-list a {
     align-items: center;
     display: inline-flex;
-    gap: var(--spacing-sm);
     font-size: var(--font-size-sm);
+    gap: var(--spacing-sm);
   }
 
   .footer-contact-list a::after {
@@ -2388,8 +2388,8 @@
     flex-shrink: 0;
     line-height: 1;
     text-align: left;
-    width: 1.2em;
     vertical-align: middle;
+    width: 1.2em;
   }
 
   .footer-contact-list li i {
@@ -2397,8 +2397,8 @@
     flex-shrink: 0;
     line-height: 1;
     text-align: left;
-    width: 1.2em;
     vertical-align: middle;
+    width: 1.2em;
   }
 
   .footer-copy {
