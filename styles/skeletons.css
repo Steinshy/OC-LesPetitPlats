@@ -215,4 +215,22 @@
     min-height: 16px;
     min-width: 150px;
   }
+
+  /* Dropdown skeleton styles */
+  .dropdown-container.skeleton-loading .filter-dropdown {
+    animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
+    background-image: var(--skeleton-bg), var(--skeleton-shine);
+    background-size: var(--skeleton-size), var(--skeleton-size);
+    color: transparent;
+    pointer-events: none;
+  }
+
+  .dropdown-container.skeleton-loading .filter-dropdown :is(.filter-label, i) {
+    opacity: 0;
+  }
+
+  .dropdown-container.skeleton-loading .filter-dropdown .filter-label {
+    display: block;
+    min-width: 100px;
+  }
 }

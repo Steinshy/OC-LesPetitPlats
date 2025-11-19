@@ -7,7 +7,7 @@ import {
   filterByAppliances as filterByAppliancesProd,
   filterByUstensils as filterByUstensilsProd,
   filterRecipes as filterRecipesProd,
-} from "../../../../src/components/search/filter.js";
+} from "../../../../src/components/filters/filtersBy.js";
 
 function mapRecipeToSearchString(recipe) {
   const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : [];

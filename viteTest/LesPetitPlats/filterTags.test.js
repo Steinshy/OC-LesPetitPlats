@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { updateFilterTags } from "../../src/components/filterTags.js";
-import { removeFilter, clearAllFilters } from "../../src/components/search.js";
+import { updateFilterTags } from "../../src/components/filters/render.js";
+import { removeFilter, clearAllFilters } from "../../src/components/filters/manager.js";
 import {
   FILTER_TAG_SELECTOR,
   FILTERS_BOX_SELECTOR,

@@ -1,16 +1,58 @@
-export const getSkeletonList = count => Array.from({ length: count }, () => ({}));
-
-const selectors = {
-  searchHeader: ".search-header",
-  searchBarGroup: ".search-bar-group",
+export const showSearchSkeleton = () => {
+  document.querySelector(".search-bar-group")?.classList.add("skeleton-loading");
 };
 
-const getElement = key => document.querySelector(selectors[key]);
-
-const toggleSearchSkeleton = isEnabled => {
-  [getElement("searchHeader"), getElement("searchBarGroup")]
-    .filter(Boolean)
-    .forEach(element => element.classList.toggle("skeleton-loading", isEnabled));
+export const hideSearchSkeleton = () => {
+  document.querySelector(".search-bar-group")?.classList.remove("skeleton-loading");
 };
 
-export const hideSearchSkeleton = () => toggleSearchSkeleton(false);
+export const showDropdownsSkeletons = () => {
+  const skeletonElements = [
+    document.getElementById("dropdown-ingredients-container"),
+    document.getElementById("dropdown-ustensils-container"),
+    document.getElementById("dropdown-appliances-container"),
+  ];
+
+  skeletonElements.forEach(element => {
+    if (element) {
+      element.classList.add("skeleton-loading");
+    }
+  });
+};
+
+export const hideDropdownsSkeletons = () => {
+  const skeletonElements = [
+    document.getElementById("dropdown-ingredients-container"),
+    document.getElementById("dropdown-ustensils-container"),
+    document.getElementById("dropdown-appliances-container"),
+  ];
+
+  skeletonElements.forEach(element => {
+    if (element) {
+      element.classList.remove("skeleton-loading");
+    }
+  });
+};
+
+export const buildCardSkeletons = (length, container) => {
+  if (!length || !container) return;
+
+  container.innerHTML = "";
+  for (let i = 0; i < length; i++) {
+    const skeleton = document.createElement("div");
+    skeleton.innerHTML = `
+      <div class="card skeleton">
+        <div class="card-picture">
+          <div class="image-loading-placeholder"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(skeleton);
+  }
+};
+
+export const hideCardSkeletons = () => {
+  document.querySelectorAll(".card.skeleton").forEach(skeleton => {
+    skeleton.classList.remove("skeleton");
+  });
+};

@@ -61,7 +61,7 @@
 
   <body>
     <div id="root" class="app">
-      <header class="header">
+      <header class="header" id="header">
         <!-- Navigation Bar -->
         <nav class="header-nav" aria-label="Navigation principale">
           <div class="header-brand">
@@ -74,36 +74,12 @@
             <li><a href="#about-us" class="nav-link" aria-label="En savoir plus">À propos</a></li>
           </ul>
         </nav>
-
-        <!-- Hero Search Section -->
-        <section id="search-section" class="search-section">
-          <div id="search-header" class="search-header">
-            <h2>
-              Cherchez parmi plus de 1500 recettes <br>
-              du quotidien, simples et délicieuses
-            </h2>
-          </div>
-          <div class="search-bar-group skeleton-loading">
-            <label for="recipe-search" class="sr-only">Rechercher une recette, un ingrédient</label>
-            <input 
-              type="text" 
-              id="recipe-search"
-              name="recipe-search"
-              placeholder="Rechercher une recette, un ingrédient...">
-            <button type="button" id="clear-recipe-search" class="search-clear-btn hidden" aria-label="Effacer la recherche">
-              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-            </button>
-            <button type="button" aria-label="Lancer la recherche" class="search-btn">
-              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            </button>
-          </div>
-        </section>
       </header>
       <!-- Main Content Section -->
       <main class="main">
         <!-- Filter Dropdowns -->
-        <section class="filters-dropdowns">
-          <div id="filter-dropdown-wrapper" class="filter-dropdown-wrapper">
+        <section class="dropdowns">
+          <div id="dropdowns-container" class="dropdowns-container">
             <!-- Dropdowns -->
           </div>
           <div id="results-counter" class="results-counter">
@@ -112,41 +88,12 @@
         </section>
 
         <!-- Selected Filters Display -->
-        <aside class="filters-box">
-          <section class="filter-box">
-            <div class="filter-box-header">
-              <h3 class="filter-box-title skeleton-loading">
-                Filtres sélectionnés
-                <span class="filter-count" id="filter-count">(0)</span>
-              </h3>
-              <button type="button" id="clear-all-filters" class="clear-all-btn" aria-label="Retirer tous les filtres">
-                Tout effacer
-              </button>
-            </div>
-            <input type="checkbox" id="toggle-filters" class="toggle-checkbox">
-            <div class="ingredients-list-wrapper">
-              <div class="ingredients-list">
-                <!-- Filter tags -->
-              </div>
-            </div>
-            <label for="toggle-filters" class="toggle-label">
-              <span class="label-see-all">Voir tout</span>
-              <span class="label-see-less">Voir moins</span>
-            </label>
-          </section>
+        <aside class="filters">
+          <!-- Filters section -->
         </aside>
-
         <!-- Recipe Cards Grid -->
-        <section id="recipes" class="cards-container">
-          <div class="empty-state hidden" id="empty-state">
-            <div class="empty-state-icon">
-              <i class="fa-solid fa-utensils" aria-hidden="true"></i>
-            </div>
-            <h2 class="empty-state-title">Aucune recette trouvée</h2>
-            <p class="empty-state-message">
-              Essayez de modifier vos critères de recherche ou vos filtres pour trouver des recettes.
-            </p>
-          </div>
+        <section class="cards-container" id="cards-container" aria-label="Liste des recettes">
+
         </section>
       </main>
 

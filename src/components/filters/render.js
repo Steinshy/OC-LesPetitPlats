@@ -1,0 +1,36 @@
+import { normalizeString } from "@/utils/string.js";
+
+export const renderFilters = () => {
+  return `
+      <div class="filters-container" id="filters-container">
+        <div class="filters-header">
+          <h3 class="filters-title">
+            Filtres sélectionnés
+            <span class="filters-count" id="filters-count">(0)</span>
+          </h3>
+          <button type="button" id="clear-filters-btn" class="clear-filters-btn" aria-label="Retirer tous les filtres">
+            Tout effacer
+          </button>
+        </div>
+
+        <input type="checkbox" id="toggle-filters" class="toggle-filters">
+        <div class="lists-container" id="filters-tags">
+          <!-- Filter tags -->
+        </div>
+      </div>
+      <label for="toggle-filters" class="toggle-filters-label">
+        <span class="see-more-less">Voir plus</span>
+      </label>
+  `;
+};
+
+export const renderFilterTag = (value, type) => {
+  const displayValue = normalizeString(value);
+  return `
+  <button type="button" class="filter-tag selected" id="filter-tag-btn" data-value="${value}" data-type="${type}"
+    aria-label="Retirer le filtre ${displayValue}">
+    <span>${displayValue}</span>
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+`;
+};
