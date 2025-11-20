@@ -9,6 +9,10 @@ import {
 } from "@/components/filters/filtersBy.js";
 import { updateCounter } from "@/utils/string.js";
 
+const ARIA_HIDDEN = "aria-hidden";
+const ARIA_HIDDEN_TRUE = "true";
+const ARIA_HIDDEN_FALSE = "false";
+
 let allRecipes = [];
 let filteredRecipes = [];
 
@@ -108,24 +112,24 @@ const updateFiltersContainer = () => {
     container.style.display = "none";
     if (clearButton) {
       clearButton.classList.remove("visible");
-      clearButton.setAttribute("aria-hidden", "true");
+      clearButton.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
       clearButton.setAttribute("aria-label", "Aucun filtre sélectionné");
     }
     if (count) {
       count.textContent = "(0)";
-      count.setAttribute("aria-hidden", "true");
+      count.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
       count.setAttribute("aria-label", "Aucun filtre sélectionné");
     }
   } else {
     container.style.display = "";
     if (clearButton) {
       clearButton.classList.add("visible");
-      clearButton.setAttribute("aria-hidden", "false");
+      clearButton.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_FALSE);
       clearButton.setAttribute("aria-label", "Retirer tous les filtres");
     }
     if (count) {
       count.textContent = `(${total})`;
-      count.setAttribute("aria-hidden", "false");
+      count.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_FALSE);
       count.setAttribute("aria-label", "Nombre de filtres sélectionnés");
     }
   }
@@ -195,10 +199,10 @@ const restoreDropdownSelections = () => {
 
       const checkIcon = itemButton.querySelector(".dropdown-item-check");
       if (!checkIcon) {
-        const icon = document.createElement("i");
-        icon.className = "fa-solid fa-check dropdown-item-check";
-        icon.setAttribute("aria-hidden", "true");
-        itemButton.appendChild(icon);
+      const icon = document.createElement("i");
+      icon.className = "fa-solid fa-check dropdown-item-check";
+      icon.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
+      itemButton.appendChild(icon);
       }
     });
   });
