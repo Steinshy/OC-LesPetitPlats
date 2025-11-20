@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderRecipes } from "../../src/card.js";
+import { setupRecipesCards } from "../../src/components/cards/manager.js";
 import {
   updateCount,
   enableSearch,
@@ -8,7 +8,7 @@ import {
   getActiveFilters,
   clearAllFilters,
   renderSearch,
-} from "../../src/components/search.js";
+} from "../../src/components/filters/manager.js";
 import {
   mockRecipesForSearch,
   RESULTS_COUNTER_SELECTOR,
@@ -16,8 +16,8 @@ import {
   SEARCH_BUTTON_SELECTOR,
 } from "./test-data.js";
 
-vi.mock("../../src/card.js", () => ({
-  renderRecipes: vi.fn(),
+vi.mock("../../src/components/cards/manager.js", () => ({
+  setupRecipesCards: vi.fn(),
 }));
 
 vi.mock("../../src/components/dropdown.js", () => ({
@@ -38,7 +38,7 @@ describe("search", () => {
       <div class="results-counter">
         <h2>0 résultats</h2>
       </div>
-      <div class="search-bar-group">
+      <div class="main-search-bar">
         <input type="text" />
         <button class="search-btn"></button>
       </div>
@@ -49,7 +49,7 @@ describe("search", () => {
     it("should disable search input and button", () => {
       document.body.innerHTML = `
         <input type="text" id="recipe-search" />
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <button class="search-btn"></button>
         </div>
       `;
@@ -69,7 +69,7 @@ describe("search", () => {
 
     it("should handle missing input element gracefully", () => {
       document.body.innerHTML = `
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <button class="search-btn"></button>
         </div>
       `;
@@ -137,7 +137,7 @@ describe("search", () => {
           input.dispatchEvent(new Event("input"));
 
           setTimeout(() => {
-            expect(renderRecipes).toHaveBeenCalled();
+            expect(setupRecipesCards).toHaveBeenCalled();
             resolve();
           }, 350);
         }, 10);
@@ -149,7 +149,7 @@ describe("search", () => {
         <div class="results-counter">
           <h2>0 résultats</h2>
         </div>
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <input type="text" id="recipe-search" value="test" />
           <button id="clear-recipe-search" class="search-clear-btn"></button>
           <button class="search-btn"></button>
@@ -170,7 +170,7 @@ describe("search", () => {
 
           setTimeout(() => {
             expect(input.value).toBe("");
-            expect(renderRecipes).toHaveBeenCalled();
+            expect(setupRecipesCards).toHaveBeenCalled();
             resolve();
           }, 350);
         }, 10);
@@ -185,7 +185,7 @@ describe("search", () => {
       return new Promise(resolve => {
         setTimeout(() => {
           button.click();
-          expect(renderRecipes).toHaveBeenCalled();
+          expect(setupRecipesCards).toHaveBeenCalled();
           resolve();
         }, 10);
       });
@@ -207,7 +207,7 @@ describe("search", () => {
 
       await new Promise(resolve => setTimeout(resolve, 350));
       // Last render call
-      const lastCall = renderRecipes.mock.calls[renderRecipes.mock.calls.length - 1];
+      const lastCall = setupRecipesCards.mock.calls[setupRecipesCards.mock.calls.length - 1];
       expect(lastCall).toBeDefined();
       expect(lastCall[0]).toBeDefined();
       expect(lastCall[0].some(recipe => recipe.search && recipe.search.includes("one"))).toBe(true);
@@ -225,7 +225,7 @@ describe("search", () => {
 
           setTimeout(() => {
             // Last render call
-            const lastCall = renderRecipes.mock.calls[renderRecipes.mock.calls.length - 1];
+            const lastCall = setupRecipesCards.mock.calls[setupRecipesCards.mock.calls.length - 1];
             expect(lastCall[0]).toHaveLength(3);
             resolve();
           }, 350);
@@ -291,7 +291,7 @@ describe("search", () => {
 
     it("should trigger applyFilters when filter is added", () => {
       addFilter("ingredients", "Tomato");
-      expect(renderRecipes).toHaveBeenCalled();
+      expect(setupRecipesCards).toHaveBeenCalled();
     });
 
     it("should handle invalid filter type gracefully", () => {
@@ -315,7 +315,7 @@ describe("search", () => {
 
     it("should trigger applyFilters when filter is removed", () => {
       removeFilter("ingredients", "Tomato");
-      expect(renderRecipes).toHaveBeenCalled();
+      expect(setupRecipesCards).toHaveBeenCalled();
     });
 
     it("should handle removing non-existent filter", () => {
@@ -386,7 +386,7 @@ describe("search", () => {
     it("should trigger applyFilters when clearing all filters", () => {
       clearAllFilters();
 
-      expect(renderRecipes).toHaveBeenCalled();
+      expect(setupRecipesCards).toHaveBeenCalled();
     });
   });
 });
