@@ -38,7 +38,7 @@ describe("search", () => {
       <div class="results-counter">
         <h2>0 résultats</h2>
       </div>
-      <div class="search-bar-group">
+      <div class="main-search-bar">
         <input type="text" />
         <button class="search-btn"></button>
       </div>
@@ -49,7 +49,7 @@ describe("search", () => {
     it("should disable search input and button", () => {
       document.body.innerHTML = `
         <input type="text" id="recipe-search" />
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <button class="search-btn"></button>
         </div>
       `;
@@ -69,7 +69,7 @@ describe("search", () => {
 
     it("should handle missing input element gracefully", () => {
       document.body.innerHTML = `
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <button class="search-btn"></button>
         </div>
       `;
@@ -149,7 +149,7 @@ describe("search", () => {
         <div class="results-counter">
           <h2>0 résultats</h2>
         </div>
-        <div class="search-bar-group">
+        <div class="main-search-bar">
           <input type="text" id="recipe-search" value="test" />
           <button id="clear-recipe-search" class="search-clear-btn"></button>
           <button class="search-btn"></button>

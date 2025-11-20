@@ -1,9 +1,3 @@
-export const selectRandomImages = recipesData => {
-  if (!recipesData?.length) return null;
-  const recipe = recipesData[Math.floor(Math.random() * recipesData.length)];
-  return recipe?.images || null;
-};
-
 const loadedImages = new Set();
 const webpTested = new Map();
 

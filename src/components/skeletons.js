@@ -1,9 +1,9 @@
 export const showSearchSkeleton = () => {
-  document.querySelector(".search-bar-group")?.classList.add("skeleton-loading");
+  document.querySelector(".main-search-bar")?.classList.add("skeleton-loading");
 };
 
 export const hideSearchSkeleton = () => {
-  document.querySelector(".search-bar-group")?.classList.remove("skeleton-loading");
+  document.querySelector(".main-search-bar")?.classList.remove("skeleton-loading");
 };
 
 export const showDropdownsSkeletons = () => {

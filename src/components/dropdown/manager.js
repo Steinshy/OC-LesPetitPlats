@@ -1,4 +1,4 @@
-import { hideDropdownsSkeletons } from "../skeletons.js";
+import { showDropdownsSkeletons, hideDropdownsSkeletons } from "../skeletons.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
@@ -6,45 +6,53 @@ import {
   renderDropdownsSkeletons,
   renderEmptyStateItem,
 } from "./render.js";
-import { deduplicateItems, normalizeString } from "@/utils/string.js";
+import { cleanupDuplicatedItems, normalizeString } from "@/utils/string.js";
 
-// Constants
+export let currentDropdownsData = {};
+let dropdownTypes = [];
+let isDropdownHandlersInitialized = false;
 const ARIA_HIDDEN = "aria-hidden";
 
-// Store dropdown data globally for filtering
-export let currentDropdownsData = {};
-export let dropdownTypes = [];
+const getDropdownsElements = () => ({
+  root: document.getElementById("dropdowns-container"),
+});
 
-// Get dropdown (single)elements
+// Get dropdown (single-type) elements
 const getDropdownElements = dropdownType => ({
   button: document.getElementById(`dropdown-${dropdownType}-button`),
-  items: document.querySelectorAll(`#dropdown-${dropdownType}-list button`),
   searchInput: document.getElementById(`search-${dropdownType}`),
   searchIcon: document.getElementById(`search-icon-${dropdownType}`),
   clearButton: document.getElementById(`clear-search-${dropdownType}`),
   menu: document.getElementById(`menu-${dropdownType}`),
   container: document.getElementById(`dropdown-${dropdownType}-container`),
   backdrop: document.getElementById(`dropdown-${dropdownType}-backdrop`),
-  list: document.getElementById(`dropdown-${dropdownType}-list`),
+  itemsList: document.getElementById(`dropdown-${dropdownType}-list`),
 });
 
+const getDropdownListElements = dropdownType => {
+  const { itemsList } = getDropdownElements(dropdownType);
+  if (!itemsList) return null;
+  const itemsElements = [...itemsList.querySelectorAll(".dropdown-item")];
+  const emptyStateElement = document.getElementById("dropdown-empty-state");
+  const searchWrapperElement = document.getElementById(`dropdown-${dropdownType}-search`);
+  return { itemsElements, emptyStateElement, searchWrapperElement };
+};
+
+// Collect all ingredients from all recipes for dropdowns data
 export const buildDropdownsData = recipesData => {
   let dropdownsData = {};
-  // Collect all ingredients from all recipes (raw values)
+
   const allIngredients = recipesData
     .flatMap(recipe => recipe?.ingredients?.map(ingredient => ingredient?.ingredient) || [])
     .filter(Boolean);
 
-  // Collect all ustensils from all recipes (raw values)
   const allUstensils = recipesData.flatMap(recipe => recipe?.ustensils || []).filter(Boolean);
-
-  // Collect all appliances from all recipes (raw values)
   const allAppliances = recipesData.map(recipe => recipe?.appliance).filter(Boolean);
 
   dropdownsData = {
-    ingredients: deduplicateItems(allIngredients),
-    ustensils: deduplicateItems(allUstensils),
-    appliances: deduplicateItems(allAppliances),
+    ingredients: cleanupDuplicatedItems(allIngredients),
+    ustensils: cleanupDuplicatedItems(allUstensils),
+    appliances: cleanupDuplicatedItems(allAppliances),
   };
 
   return dropdownsData;
@@ -52,35 +60,38 @@ export const buildDropdownsData = recipesData => {
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
-  // Show skeletons before building dropdowns data
-  const dropdownsContainer = document.getElementById("dropdowns-container");
-  dropdownsContainer.innerHTML = renderDropdownsSkeletons();
+
+  const { root } = getDropdownsElements();
+  if (!root) return;
+
+  root.querySelector(".dropdown-container")
+    ? showDropdownsSkeletons()
+    : (root.innerHTML = renderDropdownsSkeletons());
 
   currentDropdownsData = buildDropdownsData(recipesData);
   dropdownTypes = Object.keys(currentDropdownsData);
 
-  // Render dropdowns content
-  dropdownsContainer.innerHTML =
+  root.innerHTML =
+    // Render dropdowns content
     ingredientsDropdown(currentDropdownsData.ingredients || []) +
     ustensilsDropdown(currentDropdownsData.ustensils || []) +
     appliancesDropdown(currentDropdownsData.appliances || []);
 
-  // Hide skeletons after rendering
   hideDropdownsSkeletons();
-
-  // Setup global listeners
   setupGlobalListeners(dropdownTypes);
-
-  // Initialize show class for dropdown-search based on items count
   dropdownTypes.forEach(dropdownType => {
+    // Initialize dropdown lists content
     updateDropdownList(dropdownType);
   });
 };
 
 const setupGlobalListeners = dropdownTypes => {
-  // Handle search input changes using event delegation
+  const { root } = getDropdownsElements();
+  if (!root) return;
+
   dropdownTypes.forEach(dropdownType => {
-    const { searchInput, backdrop, list, button, clearButton } = getDropdownElements(dropdownType);
+    const { searchInput, backdrop, itemsList, button, clearButton } =
+      getDropdownElements(dropdownType);
 
     if (searchInput) {
       searchInput.addEventListener("input", () => updateDropdownContent(dropdownType));
@@ -90,26 +101,26 @@ const setupGlobalListeners = dropdownTypes => {
       backdrop.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        closeDropdown(dropdownType);
+        toggleDropdown(dropdownType, false);
       });
     }
 
-    if (list) {
-      list.addEventListener("click", event => {
+    if (itemsList) {
+      itemsList.addEventListener("click", event => {
+        const clickedButton = event.target.closest(".item-btn");
+        if (!clickedButton) return;
+
         event.preventDefault();
         event.stopPropagation();
-        const itemButton = event.target.closest(".dropdown-item");
-        if (itemButton) {
-          manageItemsClicks(itemButton);
-        }
+        manageItemsClicks(clickedButton);
       });
     }
 
     if (clearButton) {
       clearButton.addEventListener("click", event => {
+        searchInput.value = "";
         event.preventDefault();
         event.stopPropagation();
-        searchInput.value = "";
         updateDropdownContent(dropdownType);
       });
     }
@@ -122,19 +133,27 @@ const setupGlobalListeners = dropdownTypes => {
       });
     }
   });
+  // Setup global handlers
+  setupDropdownHandlers();
+};
 
-  // Handle Escape key to close all dropdowns
+export const setupDropdownHandlers = () => {
+  if (isDropdownHandlersInitialized) return;
+  isDropdownHandlersInitialized = true;
+
+  // Escape key closes all dropdowns
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       closeAllDropdowns();
     }
   });
 
-  // Handle clicks outside dropdowns to close them
+  // Click outside any dropdown closes them
   document.addEventListener("click", event => {
     const clickedElement = event.target;
-    const isClickInsideDropdown = dropdownTypes.some(dropdownType => {
-      const { container } = getDropdownElements(dropdownType);
+
+    const isClickInsideDropdown = dropdownTypes.some(type => {
+      const { container } = getDropdownElements(type);
       return container && container.contains(clickedElement);
     });
 
@@ -144,141 +163,113 @@ const setupGlobalListeners = dropdownTypes => {
   });
 };
 
-// Close a specific dropdown
-const closeDropdown = dropdownType => {
-  const { container, button, backdrop, menu } = getDropdownElements(dropdownType);
-  if (!container || !button) return;
-
-  container.classList.remove("open");
-  button.classList.remove("active");
-  button.setAttribute("aria-expanded", "false");
-  if (backdrop) {
-    backdrop.setAttribute(ARIA_HIDDEN, "true");
-  }
-  if (menu) {
-    menu.setAttribute(ARIA_HIDDEN, "true");
-  }
+// Helper for Filters Manager too
+const closeAllDropdowns = () => {
+  dropdownTypes.forEach(type => toggleDropdown(type, false));
 };
 
-// Close all dropdowns
-const closeAllDropdowns = () => {
+export const getOpenDropdownType = () => {
+  return (
+    dropdownTypes.find(type => {
+      const { container } = getDropdownElements(type);
+      return container && container.classList.contains("open");
+    }) || null
+  );
+};
+
+// Toggle a specific dropdown to handle open/close state
+export const toggleDropdown = (targetType, desiredOpen = null) => {
   dropdownTypes.forEach(type => {
-    const { container } = getDropdownElements(type);
-    if (container?.classList.contains("open")) {
-      closeDropdown(type);
-    }
+    const { container, button } = getDropdownElements(type);
+    if (!container || !button) return;
+
+    const isTargetedType = type === targetType;
+    const isCurrentlyOpen = getOpenDropdownType() === type;
+    const shouldOpen = desiredOpen === null ? !isCurrentlyOpen : desiredOpen;
+    const needsToOpen = isTargetedType ? shouldOpen : false;
+
+    applyDropdownState(type, needsToOpen);
   });
 };
 
-const toggleDropdown = dropdownType => {
-  const { container, button, backdrop, menu } = getDropdownElements(dropdownType);
-  if (!container || !button) return;
+const applyDropdownState = (type, needsToOpen) => {
+  const { container, button, backdrop, menu } = getDropdownElements(type);
 
-  const isCurrentlyOpen = container.classList.contains("open");
+  container.classList.toggle("open", needsToOpen);
+  button.classList.toggle("active", needsToOpen);
+  button.setAttribute("aria-expanded", String(needsToOpen));
 
-  if (isCurrentlyOpen) {
-    closeDropdown(dropdownType);
-  } else {
-    // Close all other dropdowns before opening this one
-    closeAllDropdowns();
-
-    // Open the selected dropdown
-    container.classList.add("open");
-    button.classList.add("active");
-    button.setAttribute("aria-expanded", "true");
-    if (backdrop) {
-      backdrop.setAttribute(ARIA_HIDDEN, "false");
-    }
-    if (menu) {
-      menu.setAttribute(ARIA_HIDDEN, "false");
-    }
-  }
+  backdrop?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
+  menu?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
 };
 
 // Update dropdown content based on search
-const updateDropdownContent = type => {
+export const updateDropdownContent = type => {
   const { searchInput, searchIcon, clearButton } = getDropdownElements(type);
   if (!searchInput) return;
 
-  const hasSearchQuery = Boolean(searchInput.value.trim());
-  searchIcon?.classList.toggle("hidden", hasSearchQuery);
-  clearButton?.classList.toggle("hidden", !hasSearchQuery);
-
-  // Update dropdown list content
+  const hasQuery = !!searchInput.value.trim();
+  searchIcon?.classList.toggle("hidden", hasQuery);
+  clearButton?.classList.toggle("hidden", !hasQuery);
   updateDropdownList(type);
 };
 
-// Handle dropdown item click
-const manageItemsClicks = itemButton => {
+export const manageItemsClicks = itemButton => {
   if (!itemButton) return;
 
-  const wasSelected = itemButton.classList.contains("selected");
-  const checkIcon = itemButton.querySelector(".dropdown-item-check");
+  const isSelected = itemButton.classList.toggle("selected");
+  itemButton.setAttribute("aria-pressed", String(isSelected));
 
-  itemButton.classList.toggle("selected", !wasSelected);
-
-  if (!wasSelected) {
-    // Add check icon if not present
-    if (!checkIcon) {
-      const icon = document.createElement("i");
-      icon.className = "fa-solid fa-check dropdown-item-check";
-      icon.setAttribute(ARIA_HIDDEN, "true");
-      itemButton.appendChild(icon);
-    }
-  } else {
-    // Remove check icon
-    if (checkIcon) {
-      checkIcon.remove();
-    }
-  }
-
-  const event = new CustomEvent("dropdown:itemToggled", {
-    detail: {
-      type: itemButton.dataset.type,
-      value: itemButton.dataset.value,
-      selected: !wasSelected,
-    },
-  });
-  document.dispatchEvent(event);
+  document.dispatchEvent(
+    new CustomEvent("dropdown:itemToggled", {
+      detail: {
+        type: itemButton.dataset.type,
+        value: itemButton.dataset.value,
+        selected: isSelected,
+      },
+    }),
+  );
 };
 
 // Update dropdown list content
 const updateDropdownList = type => {
-  const { list, searchInput, container } = getDropdownElements(type);
-  if (!list) return;
+  const { searchInput, itemsList } = getDropdownElements(type);
+  const listEls = getDropdownListElements(type);
 
-  const normalizedQuery = normalizeString(searchInput?.value || "");
-  const items = list.querySelectorAll(".dropdown-item");
-  let visibleCount = 0;
+  if (!searchInput || !itemsList || !listEls) return;
 
-  // Filter items based on search query
-  items.forEach(item => {
-    const itemText = item.querySelector("span")?.textContent || "";
-    const isVisible = !normalizedQuery || normalizeString(itemText).includes(normalizedQuery);
+  const { itemsElements, emptyStateElement, searchWrapperElement } = listEls;
+  const query = normalizeString(searchInput.value || "");
+
+  // Filter + show/hide items
+  const visibleItems = itemsElements.filter(item => {
+    const labelEl = item.querySelector(".dropdown-item-label, span");
+    const label = labelEl?.textContent || "";
+    const matches = !query || normalizeString(label).includes(query);
     const listItem = item.closest("li");
 
     if (listItem) {
-      listItem.style.display = isVisible ? "" : "none";
+      listItem.style.display = matches ? "" : "none";
     }
-    if (isVisible) visibleCount++;
+
+    return matches;
   });
 
-  // Show/hide empty state
-  const emptyElement = list.querySelector(".dropdown-empty-state");
-  const shouldShowEmpty = visibleCount === 0;
+  // Empty state
+  let emptyElement = emptyStateElement;
+  const shouldShowEmpty = visibleItems.length === 0;
 
   if (shouldShowEmpty && !emptyElement) {
-    list.insertAdjacentHTML("beforeend", renderEmptyStateItem());
+    itemsList.insertAdjacentHTML("beforeend", renderEmptyStateItem());
+    emptyElement = itemsList.querySelector(".dropdown-empty-state");
   }
 
   if (emptyElement) {
     emptyElement.style.display = shouldShowEmpty ? "" : "none";
   }
 
-  // Manage show class for dropdown-search based on total items count
-  const searchElement = container?.querySelector(".dropdown-search");
-  if (searchElement) {
-    const totalItems = items.length;
-    searchElement.classList.toggle("show", totalItems > 0);
+  // Show/hide the search bar depending on whether there are any items at all
+  if (searchWrapperElement) {
+    searchWrapperElement.classList.toggle("show", itemsElements.length > 0);
   }
 };

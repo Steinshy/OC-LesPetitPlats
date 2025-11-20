@@ -196,14 +196,14 @@
     width: 40%;
   }
 
-  .search-bar-group.skeleton-loading {
+  .main-search-bar.skeleton-loading {
     border-radius: 12px;
     color: transparent;
     min-height: 55px;
     position: relative;
   }
 
-  .search-bar-group.skeleton-loading :is(input, button) {
+  .main-search-bar.skeleton-loading :is(input, button) {
     opacity: 0;
     pointer-events: none;
   }

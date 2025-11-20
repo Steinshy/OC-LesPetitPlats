@@ -18,12 +18,12 @@ export const normalizeString = value =>
     .toLowerCase();
 
 export const updateCounter = count => {
-  const counter = document.querySelector("#results-counter h2");
+  const counter = document.getElementById("results-counter");
   if (!counter) return;
-  counter.textContent = `${count} ${count === 1 ? "résultat" : "résultats"}`;
+  counter.innerHTML = `${count} ${count === 1 ? "résultat" : "résultats"}`;
 };
 
-export const deduplicateItems = (items = []) => {
+export const cleanupDuplicatedItems = (items = []) => {
   const seen = new Set();
   const result = [];
 
@@ -31,18 +31,18 @@ export const deduplicateItems = (items = []) => {
     const trimmedRaw = String(raw)?.trim();
     if (!trimmedRaw) continue;
 
-    // Key for deduplication
+    // Key for cleanup
     const normalized = normalizeString(trimmedRaw);
     const key = normalized.replace(/s\b/g, "");
     if (!key || seen.has(key)) continue;
 
     seen.add(key);
 
-    // Front User Friendly Label
+    // Front-end user-friendly label
     const label = trimmedRaw.charAt(0).toUpperCase() + trimmedRaw.slice(1);
     result.push(label);
   }
 
-  // Sort in a user-friendly way
+  // Sort in a user-friendly manner
   return result.sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
 };

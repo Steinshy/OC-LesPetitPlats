@@ -1,5 +1,5 @@
 import { setupRecipesCards } from "../cards/manager.js";
-import { setupDropdowns } from "../dropdown/manager.js";
+import { setupDropdowns, getOpenDropdownType, toggleDropdown } from "../dropdown/manager.js";
 import { renderFilters, renderFilterTag } from "./render.js";
 import {
   SearchInput,
@@ -35,7 +35,6 @@ const getFiltersElements = () => {
 export const setupFilters = recipesData => {
   allRecipes = recipesData;
   filteredRecipes = recipesData;
-
   const { root } = getFiltersElements();
   const filtersAside = root || document.querySelector(".filters");
 
@@ -57,13 +56,13 @@ export const setupFilters = recipesData => {
   syncUI();
 };
 
-const applyAllFilters = recipes => {
-  let result = recipes;
-  result = SearchInput(result, filtersState.mainSearchText);
-  result = IngredientsInput(result, filtersState.tags.ingredients);
-  result = AppliancesInput(result, filtersState.tags.appliances);
-  result = UstensilsInput(result, filtersState.tags.ustensils);
-  return result;
+const applyAllFilters = allRecipes => {
+  let filteredRecipes = allRecipes;
+  filteredRecipes = SearchInput(filteredRecipes, filtersState.mainSearchText);
+  filteredRecipes = IngredientsInput(filteredRecipes, filtersState.tags.ingredients);
+  filteredRecipes = AppliancesInput(filteredRecipes, filtersState.tags.appliances);
+  filteredRecipes = UstensilsInput(filteredRecipes, filtersState.tags.ustensils);
+  return filteredRecipes;
 };
 
 const onSearchChanged = query => {
@@ -72,58 +71,62 @@ const onSearchChanged = query => {
 };
 
 const syncUI = () => {
+  // 0. remember which dropdown is currently open
+  const openDropdownType = getOpenDropdownType?.() || null;
+
+  // 1. apply filters
   filteredRecipes = applyAllFilters(allRecipes);
 
-  // 1. update cards
+  // 2. update cards
   setupRecipesCards(filteredRecipes);
 
-  // 2. update dropdown options based on filtered recipes
+  // 3. rebuild dropdowns from filtered recipes
   setupDropdowns(filteredRecipes);
 
-  // Re-apply selected state in dropdowns
+  // 4. re-apply selected state in dropdowns
   restoreDropdownSelections();
 
-  // 3. update tag chips display (optional)
+  // 5. reopen the dropdown that was open (if any)
+  if (openDropdownType) toggleDropdown(openDropdownType, true);
+
+  // 6. update tag chips and misc UI
   updateFilterTagsUI();
-
-  // 4. update UI
-  updateFiltersCount();
-  updateFiltersVisibility();
-
+  updateFiltersContainer();
   updateCounter(filteredRecipes.length);
 };
 
-const updateFiltersCount = () => {
-  const { count } = getFiltersElements();
-  if (!count) return;
+const updateFiltersContainer = () => {
+  const { container, count, clearButton } = getFiltersElements();
+  if (!container || !count || !clearButton) return;
 
   const total =
     filtersState.tags.ingredients.size +
     filtersState.tags.appliances.size +
     filtersState.tags.ustensils.size;
 
-  count.textContent = `(${total})`;
-};
-
-const updateFiltersVisibility = () => {
-  const { container, clearButton } = getFiltersElements();
-  if (!container) return;
-
-  const total =
-    filtersState.tags.ingredients.size +
-    filtersState.tags.appliances.size +
-    filtersState.tags.ustensils.size;
-
-  // Hide the entire filters container if no filters are active
   if (total === 0) {
     container.style.display = "none";
     if (clearButton) {
       clearButton.classList.remove("visible");
+      clearButton.setAttribute("aria-hidden", "true");
+      clearButton.setAttribute("aria-label", "Aucun filtre sélectionné");
+    }
+    if (count) {
+      count.textContent = "(0)";
+      count.setAttribute("aria-hidden", "true");
+      count.setAttribute("aria-label", "Aucun filtre sélectionné");
     }
   } else {
     container.style.display = "";
     if (clearButton) {
       clearButton.classList.add("visible");
+      clearButton.setAttribute("aria-hidden", "false");
+      clearButton.setAttribute("aria-label", "Retirer tous les filtres");
+    }
+    if (count) {
+      count.textContent = `(${total})`;
+      count.setAttribute("aria-hidden", "false");
+      count.setAttribute("aria-label", "Nombre de filtres sélectionnés");
     }
   }
 };

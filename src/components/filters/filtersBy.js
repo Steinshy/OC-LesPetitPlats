@@ -31,7 +31,7 @@ export const IngredientsInput = (recipes, ingredients) => {
     return recipes;
   }
 
-  const ingredientsArray = Array.isArray(ingredients) ? ingredients : [...ingredients];
+  const ingredientsArray = [...ingredients];
 
   return recipes.filter(recipe =>
     ingredientsArray.every(selectedIngredient => {
@@ -53,7 +53,7 @@ export const AppliancesInput = (recipes, appliances) => {
     return recipes;
   }
 
-  const appliancesArray = Array.isArray(appliances) ? appliances : [...appliances];
+  const appliancesArray = [...appliances];
 
   return recipes.filter(recipe => {
     const normalizedAppliance = canonicalizeTerm(recipe.appliance);
@@ -72,7 +72,7 @@ export const UstensilsInput = (recipes, ustensils) => {
     return recipes;
   }
 
-  const ustensilsArray = Array.isArray(ustensils) ? ustensils : [...ustensils];
+  const ustensilsArray = [...ustensils];
 
   return recipes.filter(recipe =>
     ustensilsArray.every(selectedUstensil => {

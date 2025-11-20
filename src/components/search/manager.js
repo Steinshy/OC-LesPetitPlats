@@ -1,68 +1,79 @@
-import { selectRandomImages } from "../../utils/deliveryImages.js";
 import { showSearchSkeleton, hideSearchSkeleton } from "../skeletons.js";
-import { searchSection } from "./render.js";
+import { mainHeader } from "./render.js";
 
-const toggleSearchState = isEnabled => {
-  const searchSection = document.getElementById("search-section");
-  if (!searchSection) return;
+const getSearchSectionElements = () => ({
+  root: document.getElementById("header"),
+  headerTitle: document.getElementById("header-title"),
+});
 
-  searchSection.classList.toggle("disabled", !isEnabled);
-  isEnabled ? hideSearchSkeleton() : showSearchSkeleton();
+const getSearchElements = () => ({
+  root: document.getElementById("main-search-bar"),
+  container: document.getElementById("search-bar-container"),
+  searchInput: document.getElementById("main-search-input"),
+  clearButton: document.getElementById("main-clear-search-btn"),
+  searchButton: document.getElementById("main-search-btn"),
+});
+
+export const setupMainHeader = recipesData => {
+  const { root } = getSearchSectionElements();
+  if (!root || !recipesData) return;
+
+  const images = recipesData.map(recipe => recipe?.images).filter(Boolean);
+
+  if (!images) return;
+
+  const randomIndex = Math.floor(Math.random() * images.length);
+  const imageData = images[randomIndex];
+
+  root.insertAdjacentHTML("beforeend", mainHeader(imageData));
 };
 
-export const setupSearchSection = recipesData => {
-  const header = document.getElementById("header");
-  if (!header) return;
+export const setupSearchSection = () => {
+  const { root, container, searchInput, clearButton, searchButton } = getSearchElements();
 
-  const searchSectionElement = document.getElementById("search-section");
-  const imageData = recipesData?.length ? selectRandomImages(recipesData) : null;
-  const searchSectionHTML = searchSection(imageData);
-
-  if (searchSectionElement) {
-    searchSectionElement.outerHTML = searchSectionHTML;
-  } else {
-    header.insertAdjacentHTML("beforeend", searchSectionHTML);
+  if (!root || !container || !searchInput) {
+    return;
   }
 
-  const searchInput = document.getElementById("recipe-search");
-  const clearBtn = document.getElementById("clear-recipe-search");
-
-  const emitSearchChange = () => {
-    const query = searchInput?.value || "";
-
-    // 🔗 talk to filters manager
-    const event = new CustomEvent("filters:searchChanged", {
-      detail: { query },
-    });
-    document.dispatchEvent(event);
-
-    const hasText = query.trim().length > 0;
-    if (clearBtn) {
-      clearBtn.classList.toggle("hidden", !hasText);
-    }
+  const toggleSearchState = isEnabled => {
+    root.classList.toggle("disabled", !isEnabled);
+    container.classList.toggle("disabled", !isEnabled);
+    isEnabled ? hideSearchSkeleton() : showSearchSkeleton();
   };
 
-  searchInput.addEventListener("input", emitSearchChange);
+  const runSearch = () => {
+    const query = searchInput.value || "";
+    const hasText = query.trim().length > 0;
 
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      searchInput.value = "";
-      emitSearchChange();
-      searchInput.focus();
-    });
-  }
+    if (hasText) {
+      document.dispatchEvent(
+        new CustomEvent("main-search:searchChanged", {
+          detail: { query },
+        }),
+      );
+    }
 
-  // Hide placeholder skeleton when background image loads
-  if (imageData?.jpgUrl || imageData?.webpUrl) {
-    const testImg = new Image();
-    const hidePlaceholder = () => {
-      document.querySelector(".header-image-placeholder")?.classList.add("hidden");
-    };
+    clearButton?.classList.toggle("hidden", !hasText);
+    searchButton?.classList.toggle("hidden", hasText);
+  };
 
-    testImg.onload = hidePlaceholder;
-    testImg.onerror = hidePlaceholder; // Hide on error to prevent permanent skeleton
-    testImg.src = imageData.webpUrl || imageData.jpgUrl;
-  }
+  searchInput.addEventListener("input", runSearch);
+  clearButton?.addEventListener("click", event => {
+    searchInput.value = "";
+    clearButton?.classList.add("hidden");
+    searchButton?.classList.remove("hidden");
+    event.preventDefault();
+    event.stopPropagation();
+    searchInput.focus();
+    runSearch();
+  });
+
+  searchButton?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    searchInput.focus();
+    runSearch();
+  });
 
   toggleSearchState(true);
 };
