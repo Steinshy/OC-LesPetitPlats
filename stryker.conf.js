@@ -19,6 +19,7 @@ export default {
     "!**/node_modules/**",
     "!**/dist/**",
     "!**/coverage/**",
+    "!**/temp/**",
     "!**/viteTest/**",
     "!**/*.config.js",
     // Exclude DOM manipulation and entry point files (not unit tested)

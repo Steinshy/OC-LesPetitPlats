@@ -1,6 +1,10 @@
+import { cpus } from "os";
 import { resolve } from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
+
+// Get CPU count for optimal worker/thread configuration
+const CPU_COUNT = cpus().length;
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -19,11 +23,24 @@ export default defineConfig({
       threads: {
         singleThread: false,
         isolate: true,
+        useAtomics: true, // Enable shared memory for better performance
+        minThreads: 1,
+        maxThreads: CPU_COUNT, // Use all available CPU cores
       },
     },
+    maxWorkers: CPU_COUNT, // Use all available CPU cores
+    minWorkers: 1,
     teardownTimeout: 1000,
     testTimeout: 30000, // 30 seconds for benchmark tests
     setupFiles: ["viteTest/Benchmarks/setup.js"],
+    reporters: [
+      [
+        "default",
+        {
+          summary: false,
+        },
+      ],
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
@@ -32,6 +49,7 @@ export default defineConfig({
         "node_modules/",
         "dist/",
         "coverage/",
+        "temp/",
         "**/*.config.js",
         "stryker.conf.js",
         "viteTest/**/*.test.js",

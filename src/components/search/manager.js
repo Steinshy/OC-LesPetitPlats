@@ -45,13 +45,11 @@ export const setupSearchSection = () => {
     const query = searchInput.value || "";
     const hasText = query.trim().length > 0;
 
-    if (hasText) {
-      document.dispatchEvent(
-        new CustomEvent("main-search:searchChanged", {
-          detail: { query },
-        }),
-      );
-    }
+    document.dispatchEvent(
+      new CustomEvent("filters:searchChanged", {
+        detail: { query },
+      }),
+    );
 
     clearButton?.classList.toggle("hidden", !hasText);
     searchButton?.classList.toggle("hidden", hasText);

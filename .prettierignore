@@ -7,8 +7,8 @@ dev-dist
 .idea
 package-lock.json
 coverage
+temp
 .stryker-tmp
-Benchmark
 .oc
 api/data.js
 public/api/data.js

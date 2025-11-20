@@ -80,7 +80,6 @@ jobs:
     needs:
       - lint
       - test
-      - mutation-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -123,7 +122,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install system dependencies for PDF generation
+      - name: Install system dependencies for benchmark
         run: |
           sudo apt-get update
           sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
@@ -136,7 +135,7 @@ jobs:
         id: check-reports
         if: always()
         run: |
-          if [ -f "Benchmark/benchmark-report-all.html" ] || [ -f "Benchmark/benchmark-report-all.pdf" ]; then
+          if [ -f "Benchmark/benchmark-report-all.html" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -148,15 +147,6 @@ jobs:
         with:
           name: benchmark-reports-html
           path: Benchmark/benchmark-report-*.html
-          retention-days: 30
-          if-no-files-found: ignore
-
-      - name: Upload benchmark PDF reports
-        uses: actions/upload-artifact@v4
-        if: always() && steps.check-reports.outputs.exists == 'true'
-        with:
-          name: benchmark-reports-pdf
-          path: Benchmark/benchmark-report-*.pdf
           retention-days: 30
           if-no-files-found: ignore
 
@@ -174,7 +164,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs:
-      - benchmark
+      - test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

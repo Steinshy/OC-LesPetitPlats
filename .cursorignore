@@ -10,9 +10,6 @@ dev-dist
 coverage
 .stryker-tmp
 
-# Benchmark results
-Benchmark
-
 # Cache directories
 .cache
 .eslintcache

@@ -52,7 +52,7 @@ Thumbs.db
 
 # Project-specific
 .oc
-Benchmark
+temp
 
 # API data
 api/data.js
