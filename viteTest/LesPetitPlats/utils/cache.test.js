@@ -6,8 +6,8 @@ import {
   cacheHas,
   cacheDel,
   cacheGetOrSet,
-} from "../../src/utils/cache.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/utils/cache.js";
+import { logCategorySummary } from "./logging/console.js";
 
 describe("cacheManager", () => {
   beforeEach(() => {

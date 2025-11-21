@@ -5,9 +5,9 @@ import {
   filterByAppliances,
   filterByUstensils,
   filterRecipes,
-} from "../../src/components/filters/filtersBy.js";
-import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "./utils/data/testData.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/components/filters/filtersBy.js";
+import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "../../utils/data/testData.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 describe("filter", () => {
   // Mock recipes for testing

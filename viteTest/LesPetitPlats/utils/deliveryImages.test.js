@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { selectRandomImages, isImageLoaded, imagesTypes } from "../../src/utils/deliveryImages.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+import { selectRandomImages, isImageLoaded, imagesTypes } from "@/utils/deliveryImages.js";
+import { logCategorySummary } from "./logging/console.js";
 
 // Test image URL
 const TEST_IMAGE_URL = "/recipes/test.jpg";

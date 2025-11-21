@@ -6,8 +6,8 @@ import {
   hideDropdownsSkeletons,
   buildCardSkeletons,
   hideCardSkeletons,
-} from "../../src/components/skeletons.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/components/skeletons.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const MAIN_SEARCH_BAR_SELECTOR = ".main-search-bar";
 const SKELETON_LOADING_CLASS = "skeleton-loading";

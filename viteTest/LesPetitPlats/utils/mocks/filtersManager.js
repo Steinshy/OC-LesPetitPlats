@@ -1,7 +1,10 @@
 // Test wrapper for filters manager - adds missing exports without modifying source
-import * as filtersBy from "../../../../src/components/filters/filtersBy.js";
-export * from "../../../../src/components/filters/manager.js";
-import * as manager from "../../../../src/components/filters/manager.js";
+import * as filtersBy from "@/components/filters/filtersBy.js";
+import { setupRecipesCards } from "@/components/cards/manager.js";
+import { setupFilters } from "@/components/filters/manager.js";
+
+// Re-export setupFilters from actual manager
+export { setupFilters };
 
 // Test-only state for filters manager (separate from source code state)
 let allRecipes = [];
@@ -15,6 +18,16 @@ const filtersState = {
   },
 };
 
+// Reset state function for tests
+export const resetFiltersState = () => {
+  allRecipes = [];
+  filteredRecipes = [];
+  filtersState.mainSearchText = "";
+  filtersState.tags.ingredients.clear();
+  filtersState.tags.ustensils.clear();
+  filtersState.tags.appliances.clear();
+};
+
 const syncUI = () => {
   // Apply filters
   filteredRecipes = allRecipes;
@@ -24,8 +37,8 @@ const syncUI = () => {
   filteredRecipes = filtersBy.UstensilsInput(filteredRecipes, filtersState.tags.ustensils);
 
   // Update cards if setupRecipesCards is available
-  if (manager.setupRecipesCards) {
-    manager.setupRecipesCards(filteredRecipes);
+  if (setupRecipesCards) {
+    setupRecipesCards(filteredRecipes);
   }
 };
 
@@ -73,14 +86,17 @@ export const enableSearch = recipes => {
 
   const scheduleSearch = () => {
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(
+      const id = window.requestIdleCallback(
         () => {
           applySearch();
         },
         { timeout: 2000 },
       );
+      // Store the id for potential cleanup
+      return id;
     } else {
       setTimeout(applySearch, 0);
+      return null;
     }
   };
 

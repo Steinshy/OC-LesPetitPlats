@@ -1,18 +1,18 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { setupRecipesCards } from "../../src/components/cards/manager.js";
+import { setupRecipesCards } from "@/components/cards/manager.js";
 import {
   renderNoResults,
   renderCardPicture,
   renderCardHeader,
   renderCardContents,
-} from "../../src/components/cards/render.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/components/cards/render.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
-vi.mock("../../src/utils/deliveryImages.js", () => ({
+vi.mock("@/utils/deliveryImages.js", () => ({
   imagesTypes: vi.fn(),
 }));
 
-vi.mock("../../src/components/skeletons.js", () => ({
+vi.mock("@/components/skeletons.js", () => ({
   buildCardSkeletons: vi.fn(),
   hideCardSkeletons: vi.fn(),
 }));

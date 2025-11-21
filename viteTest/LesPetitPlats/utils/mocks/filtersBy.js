@@ -1,7 +1,7 @@
 // Test wrapper for filtersBy - adds missing exports without modifying source
-export * from "../../../../src/components/filters/filtersBy.js";
-import * as filtersBy from "../../../../src/components/filters/filtersBy.js";
-import { normalizeString } from "../../../../src/utils/string.js";
+export * from "@/components/filters/filtersBy.js";
+import * as filtersBy from "@/components/filters/filtersBy.js";
+import { normalizeString } from "@/utils/string.js";
 
 // Export aliases for test compatibility
 // Override filterBySearchTerm to handle both ingredient.ingredient and ingredient.name

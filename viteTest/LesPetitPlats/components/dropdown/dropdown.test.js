@@ -4,8 +4,8 @@ import {
   formatDropdownData,
   getFilteredItems,
   getDropdownElements,
-} from "../../src/components/dropdown/utils.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "../../helpers/dropdownUtils.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 describe("dropdown utils", () => {
   describe("DROPDOWN_TYPES", () => {

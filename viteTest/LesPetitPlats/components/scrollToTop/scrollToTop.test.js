@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { initScrollToTop } from "../../src/components/scrollToTop.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+import { initScrollToTop } from "@/components/scrollToTop.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
 
@@ -143,7 +143,7 @@ describe("scrollToTop", () => {
       expect(typeof button.classList.contains("show")).toBe("boolean");
     });
 
-    it("should handle rapid scroll events with throttling", () => {
+    it("should handle rapid scroll events with throttling", async () => {
       document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
 
       initScrollToTop();
@@ -157,8 +157,16 @@ describe("scrollToTop", () => {
         window.dispatchEvent(new Event("scroll"));
       }
 
-      // Should throttle with requestAnimationFrame
-      expect(classListSpy).toHaveBeenCalled();
+      // Wait for requestAnimationFrame to execute
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Should throttle with requestAnimationFrame
+            expect(classListSpy).toHaveBeenCalled();
+            resolve();
+          });
+        });
+      });
     });
   });
 

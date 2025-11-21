@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach } from "vitest";
-import { showError, hideError } from "../../src/utils/errorHandler.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+import { showError, hideError } from "@/utils/errorHandler.js";
+import { logCategorySummary } from "./logging/console.js";
 
 const ERROR_BANNER_SELECTOR = "#error-banner";
 

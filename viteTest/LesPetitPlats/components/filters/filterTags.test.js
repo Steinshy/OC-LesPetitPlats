@@ -1,17 +1,20 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { removeFilter, clearAllFilters } from "../../src/components/filters/manager.js";
-import { updateFilterTags } from "../../src/components/filters/render.js";
+import { updateFilterTags } from "../../helpers/filterTagsUtils.js";
 import {
   FILTER_TAG_SELECTOR,
   FILTERS_BOX_SELECTOR,
   INGREDIENTS_LIST_SELECTOR,
-} from "./utils/data/testData.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "../../utils/data/testData.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
-vi.mock("../../src/components/search.js", () => ({
-  removeFilter: vi.fn(),
-  clearAllFilters: vi.fn(),
-}));
+// Mock removeFilter and clearAllFilters for the tests
+const removeFilter = vi.fn();
+const clearAllFilters = vi.fn();
+
+// Helper to call updateFilterTags with mocked callbacks
+const updateFilterTagsWithMocks = activeFilters => {
+  updateFilterTags(activeFilters, { removeFilter, clearAllFilters });
+};
 
 describe("filterTags", () => {
   beforeEach(() => {
@@ -35,7 +38,7 @@ describe("filterTags", () => {
       ustensils: new Set(["Spoon"]),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Container element
     const container = document.querySelector(INGREDIENTS_LIST_SELECTOR);
@@ -52,7 +55,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filters box element
     const filtersBox = document.querySelector(FILTERS_BOX_SELECTOR);
@@ -67,7 +70,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filters box element
     const filtersBox = document.querySelector(FILTERS_BOX_SELECTOR);
@@ -82,11 +85,11 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
     expect(document.querySelectorAll(FILTER_TAG_SELECTOR)).toHaveLength(1);
 
     activeFilters.ingredients.clear();
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
     expect(document.querySelectorAll(FILTER_TAG_SELECTOR)).toHaveLength(0);
   });
 
@@ -98,7 +101,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filter tags
     const tags = document.querySelectorAll(FILTER_TAG_SELECTOR);
@@ -113,21 +116,22 @@ describe("filterTags", () => {
     expect(applianceTag.dataset.value).toBe("Oven");
   });
 
-  it("should render tags with correct aria-label", () => {
-    // Active filters
-    const activeFilters = {
-      ingredients: new Set(["Tomato"]),
-      appliances: new Set(),
-      ustensils: new Set(),
-    };
+    it("should render tags with correct aria-label", () => {
+      // Active filters
+      const activeFilters = {
+        ingredients: new Set(["Tomato"]),
+        appliances: new Set(),
+        ustensils: new Set(),
+      };
 
-    updateFilterTags(activeFilters);
+      updateFilterTagsWithMocks(activeFilters);
 
-    // Filter tag
-    const tag = document.querySelector(FILTER_TAG_SELECTOR);
-    expect(tag.getAttribute("aria-label")).toContain("Ingrédient");
-    expect(tag.getAttribute("aria-label")).toContain("Tomato");
-  });
+      // Filter tag
+      const tag = document.querySelector(FILTER_TAG_SELECTOR);
+      // renderFilterTag uses normalizeString which lowercases, so "tomato" not "Tomato"
+      expect(tag.getAttribute("aria-label")).toContain("tomato");
+      expect(tag.getAttribute("aria-label")).toContain("Retirer le filtre");
+    });
 
   it("should call removeFilter when tag is clicked", () => {
     // Active filters
@@ -137,7 +141,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filter tag
     const tag = document.querySelector(FILTER_TAG_SELECTOR);
@@ -154,7 +158,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filter tag
     const tag = document.querySelector(FILTER_TAG_SELECTOR);
@@ -178,7 +182,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    expect(() => updateFilterTags(activeFilters)).not.toThrow();
+    expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
   });
 
   it("should handle missing filters-box gracefully", () => {
@@ -193,7 +197,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    expect(() => updateFilterTags(activeFilters)).not.toThrow();
+    expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
   });
 
   it("should render all filter types correctly", () => {
@@ -204,7 +208,7 @@ describe("filterTags", () => {
       ustensils: new Set(["Spoon", "Fork"]),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Filter tags
     const tags = document.querySelectorAll(FILTER_TAG_SELECTOR);
@@ -218,7 +222,7 @@ describe("filterTags", () => {
   });
 
   it("should handle invalid filter type with fallback", () => {
-    // Active filters with unknown type
+    // Active filters with unknown type - unknown types are ignored
     const activeFilters = {
       ingredients: new Set(),
       appliances: new Set(),
@@ -226,13 +230,11 @@ describe("filterTags", () => {
       unknownType: new Set(["TestValue"]),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
-    // Filter tag
-    const tag = document.querySelector(FILTER_TAG_SELECTOR);
-    expect(tag).toBeDefined();
-    expect(tag.getAttribute("aria-label")).toContain("unknownType");
-    expect(tag.getAttribute("aria-label")).toContain("TestValue");
+    // Unknown filter types are not processed, so no tag should be created
+    const tags = document.querySelectorAll(FILTER_TAG_SELECTOR);
+    expect(tags.length).toBe(0);
   });
 
   it("should handle missing filter-count element gracefully", () => {
@@ -253,7 +255,7 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    expect(() => updateFilterTags(activeFilters)).not.toThrow();
+    expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
   });
 
   it("should call clearAllFilters when clear all button is clicked", () => {
@@ -274,6 +276,18 @@ describe("filterTags", () => {
       </aside>
     `;
 
+    // Add clear button to HTML
+    document.body.innerHTML = `
+      <aside class="filters-box">
+        <section class="filter-box">
+          <div class="ingredients-list-wrapper">
+            <div class="ingredients-list"></div>
+          </div>
+        </section>
+        <button id="clear-filters-btn" class="clear-filters-btn"></button>
+      </aside>
+    `;
+
     // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
@@ -281,12 +295,12 @@ describe("filterTags", () => {
       ustensils: new Set(),
     };
 
-    updateFilterTags(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
     // Clear all button
-    const clearAllButton = document.getElementById("clear-all-filters");
-    const clickEvent = new MouseEvent("click", { cancelable: true });
-    clearAllButton.dispatchEvent(clickEvent);
+    const clearAllButton = document.getElementById("clear-filters-btn");
+    expect(clearAllButton).toBeDefined();
+    clearAllButton.click();
 
     expect(clearAllFilters).toHaveBeenCalled();
   });

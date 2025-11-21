@@ -6,8 +6,8 @@ import {
   buildDropdownsData,
   updateDropdownContent,
   manageItemsClicks,
-} from "../../src/components/dropdown/manager.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/components/dropdown/manager.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";
@@ -18,15 +18,33 @@ const DATA_TYPE_APPLIANCES = "data-type=\"appliances\"";
 
 const ITEMS_SEPARATOR = ",";
 
-vi.mock("../../src/components/dropdown/render.js", () => ({
-  ingredientsDropdown: vi.fn(items => `<div id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>${items.join(ITEMS_SEPARATOR)}</div>`),
-  ustensilsDropdown: vi.fn(items => `<div id="${DROPDOWN_USTENSILS_CONTAINER_ID}" ${DATA_TYPE_USTENSILS}>${items.join(ITEMS_SEPARATOR)}</div>`),
-  appliancesDropdown: vi.fn(items => `<div id="${DROPDOWN_APPLIANCES_CONTAINER_ID}" ${DATA_TYPE_APPLIANCES}>${items.join(ITEMS_SEPARATOR)}</div>`),
+vi.mock("@/components/dropdown/render.js", () => ({
+  ingredientsDropdown: vi.fn(items => `
+    <div id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
+      <button id="dropdown-ingredients-button"></button>
+      <div id="menu-ingredients"></div>
+      <div id="dropdown-ingredients-backdrop"></div>
+      ${items.join(ITEMS_SEPARATOR)}
+    </div>`),
+  ustensilsDropdown: vi.fn(items => `
+    <div id="${DROPDOWN_USTENSILS_CONTAINER_ID}" ${DATA_TYPE_USTENSILS}>
+      <button id="dropdown-ustensils-button"></button>
+      <div id="menu-ustensils"></div>
+      <div id="dropdown-ustensils-backdrop"></div>
+      ${items.join(ITEMS_SEPARATOR)}
+    </div>`),
+  appliancesDropdown: vi.fn(items => `
+    <div id="${DROPDOWN_APPLIANCES_CONTAINER_ID}" ${DATA_TYPE_APPLIANCES}>
+      <button id="dropdown-appliances-button"></button>
+      <div id="menu-appliances"></div>
+      <div id="dropdown-appliances-backdrop"></div>
+      ${items.join(ITEMS_SEPARATOR)}
+    </div>`),
   renderDropdownsSkeletons: vi.fn(() => "<div class='skeleton'></div>"),
   renderEmptyStateItem: vi.fn(() => "<li id='dropdown-empty-state'>Empty</li>"),
 }));
 
-vi.mock("../../src/components/skeletons.js", () => ({
+vi.mock("@/components/skeletons.js", () => ({
   showDropdownsSkeletons: vi.fn(),
   hideDropdownsSkeletons: vi.fn(),
 }));
@@ -182,7 +200,12 @@ describe("dropdown manager", () => {
     });
 
     it("should return dropdown type when one is open", () => {
+      setupDropdowns(mockRecipes);
+      // Wait for DOM to update
+      const container = document.getElementById("dropdown-ingredients-container");
       toggleDropdown("ingredients", true);
+      // Verify container has open class
+      expect(container?.classList.contains("open")).toBe(true);
       const result = getOpenDropdownType();
       expect(result).toBe("ingredients");
     });
@@ -194,13 +217,17 @@ describe("dropdown manager", () => {
     });
 
     it("should return currently open dropdown type", () => {
+      setupDropdowns(mockRecipes);
       toggleDropdown("ustensils", true);
+      expect(document.getElementById("dropdown-ustensils-container")?.classList.contains("open")).toBe(true);
       expect(getOpenDropdownType()).toBe("ustensils");
 
       toggleDropdown("appliances", true);
+      expect(document.getElementById("dropdown-appliances-container")?.classList.contains("open")).toBe(true);
       expect(getOpenDropdownType()).toBe("appliances");
 
       toggleDropdown("ingredients", true);
+      expect(document.getElementById("dropdown-ingredients-container")?.classList.contains("open")).toBe(true);
       expect(getOpenDropdownType()).toBe("ingredients");
     });
   });

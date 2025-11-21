@@ -8,8 +8,8 @@ import {
   imageUrl,
   baseUrl,
   dataUrl,
-} from "../../src/utils/string.js";
-import { logCategorySummary } from "./utils/logging/console.js";
+} from "@/utils/string.js";
+import { logCategorySummary } from "./logging/console.js";
 
 describe("string", () => {
   describe("normalizeString", () => {
