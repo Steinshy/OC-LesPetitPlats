@@ -3,7 +3,6 @@ import { uniqueValues } from "./utils/data/paths.js";
 import { filterByAppliances as filterByAppliancesMaps } from "./utils/filters/filtersMap.js";
 import { filterByAppliances as filterByAppliancesProduction } from "./utils/filters/production.js";
 import {
-  runFilterBenchmark,
   runMemoryBenchmark,
   createAllItemsTest,
   createFilterTestCases,

@@ -1,6 +1,6 @@
 // Formatting helper functions for HTML reports
-import numeral from "numeral";
 import { format } from "date-fns";
+import numeral from "numeral";
 
 // Helper to ensure a value is a safe number, converting invalid to 0
 export function getSafeNumber(value) {

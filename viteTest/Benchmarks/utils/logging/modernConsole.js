@@ -136,6 +136,6 @@ export function logMemory(label, value, unit = "MB") {
   console.log(`  ${colors.dim(label.padEnd(20))} ${colors.bold(value.toFixed(2))}${unit}`);
 }
 
-function clearLine() {
+function _clearLine() {
   process.stdout.write("\r\x1b[K");
 }

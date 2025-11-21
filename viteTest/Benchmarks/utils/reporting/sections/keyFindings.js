@@ -1,7 +1,6 @@
 // Key findings section generator
 import numeral from "numeral";
 import { getAverageExecutionTime, getAverageRME, getImplementations } from "../../data/results.js";
-import { formatFriendlyTime } from "../helpers/formatting.js";
 
 export function generateKeyFindings(flattened, summary) {
   if (flattened.length === 0) {

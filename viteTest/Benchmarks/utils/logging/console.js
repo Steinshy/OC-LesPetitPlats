@@ -11,7 +11,6 @@ import {
   logInfo as modernLogInfo,
   logBenchmarkResult,
   logComparison as modernLogComparison,
-  logHeader as modernLogHeader,
   logStep as modernLogStep,
   logCategorySummary as modernLogCategorySummary,
   logMemory as modernLogMemory,
@@ -30,10 +29,6 @@ function logSeparator() {
   console.log(`\n${SEPARATOR}`);
 }
 
-function logMemoryLine(label, memory, prefix = "") {
-  const formatted = formatMemory(memory);
-  console.log(prefix ? `${prefix} - ${label}: ${formatted}` : `${label}: ${formatted}`);
-}
 
 // Benchmark logging functions
 export function logSection(title) {

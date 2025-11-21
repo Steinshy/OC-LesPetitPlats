@@ -4,6 +4,12 @@ import prettier from "prettier";
 
 const { html: beautifyHtml } = jsBeautify;
 
+// Import helpers
+import { formatFriendlyDate } from "./helpers/formatting.js";
+import { getLucideIconSVG } from "./helpers/icons.js";
+import { loadCss } from "./helpers/loadCss.js";
+import { generateSkippedTestsNote } from "./helpers/skippedTests.js";
+
 // Import section generators
 import { generateTableOfContents } from "./sections/tableOfContents.js";
 import { generateKeyFindings } from "./sections/keyFindings.js";
@@ -14,12 +20,6 @@ import { generateImplementationBreakdown } from "./sections/implementationBreakd
 import { generateMethodologyNotes } from "./sections/methodology.js";
 import { generateInsightsAndRecommendations } from "./sections/insights.js";
 import { generateDetailedTestResultsHTML } from "./sections/detailedTestResults.js";
-
-// Import helpers
-import { formatFriendlyDate } from "./helpers/formatting.js";
-import { getLucideIconSVG } from "./helpers/icons.js";
-import { generateSkippedTestsNote } from "./helpers/skippedTests.js";
-import { loadCss } from "./helpers/loadCss.js";
 
 // Generate the complete HTML report
 export async function generateHtmlReport(results, charts) {
