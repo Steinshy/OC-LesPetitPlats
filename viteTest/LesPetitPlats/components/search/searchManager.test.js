@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { setupMainHeader, setupSearchSection } from "@/components/search/manager.js";
 import { logCategorySummary } from "../../utils/logging/console.js";
+import { setupMainHeader, setupSearchSection } from "@/components/search/manager.js";
 
 vi.mock("@/components/skeletons.js", () => ({
   showSearchSkeleton: vi.fn(),

@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect } from "vitest";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
@@ -8,7 +9,6 @@ import {
   renderDropdownSkeleton,
   renderDropdownsSkeletons,
 } from "@/components/dropdown/render.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR = "dropdown-ingredients-container";
 const DROPDOWN_SEARCH_STRING = "dropdown-search";

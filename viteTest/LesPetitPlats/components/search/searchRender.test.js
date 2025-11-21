@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect } from "vitest";
-import { mainHeader, mainSearchBar, renderDropdownSearch } from "@/components/search/render.js";
 import { logCategorySummary } from "../../utils/logging/console.js";
+import { mainHeader, mainSearchBar, renderDropdownSearch } from "@/components/search/render.js";
 
 describe("search render", () => {
   describe("mainHeader", () => {

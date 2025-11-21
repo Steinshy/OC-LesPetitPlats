@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import { setupRecipesCards } from "@/components/cards/manager.js";
 import {
   renderNoResults,
@@ -6,7 +7,6 @@ import {
   renderCardHeader,
   renderCardContents,
 } from "@/components/cards/render.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 vi.mock("@/utils/deliveryImages.js", () => ({
   imagesTypes: vi.fn(),

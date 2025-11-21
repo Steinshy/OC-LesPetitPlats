@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
+import { logCategorySummary } from "./logging/console.js";
 import { cacheManager } from "@/utils/cache.js";
 import { buildRecipesData } from "@/utils/recipesBuilder.js";
-import { logCategorySummary } from "./logging/console.js";
 
 describe("recipesBuilder", () => {
   beforeEach(() => {
@@ -99,7 +99,7 @@ describe("recipesBuilder", () => {
 
     // Built recipes data - returns array directly
     const recipes = await buildRecipesData();
-    
+
     // No search property in actual code - recipe data is returned as-is
     expect(recipes[0]).not.toHaveProperty("search");
     expect(recipes[0].name).toBe("Test Recipe");

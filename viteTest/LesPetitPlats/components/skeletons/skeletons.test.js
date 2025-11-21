@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach } from "vitest";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   showSearchSkeleton,
   hideSearchSkeleton,
@@ -7,7 +8,6 @@ import {
   buildCardSkeletons,
   hideCardSkeletons,
 } from "@/components/skeletons.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 const MAIN_SEARCH_BAR_SELECTOR = ".main-search-bar";
 const SKELETON_LOADING_CLASS = "skeleton-loading";

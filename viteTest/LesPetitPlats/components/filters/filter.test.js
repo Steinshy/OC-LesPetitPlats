@@ -1,4 +1,6 @@
 import { afterAll, describe, it, expect } from "vitest";
+import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "../../utils/data/testData.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   filterBySearchTerm,
   filterByIngredients,
@@ -6,8 +8,6 @@ import {
   filterByUstensils,
   filterRecipes,
 } from "@/components/filters/filtersBy.js";
-import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "../../utils/data/testData.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 describe("filter", () => {
   // Mock recipes for testing

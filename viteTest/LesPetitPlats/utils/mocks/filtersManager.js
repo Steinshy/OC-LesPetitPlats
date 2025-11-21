@@ -1,6 +1,6 @@
 // Test wrapper for filters manager - adds missing exports without modifying source
-import * as filtersBy from "@/components/filters/filtersBy.js";
 import { setupRecipesCards } from "@/components/cards/manager.js";
+import * as filtersBy from "@/components/filters/filtersBy.js";
 import { setupFilters } from "@/components/filters/manager.js";
 
 // Re-export setupFilters from actual manager

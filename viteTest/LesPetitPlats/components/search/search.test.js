@@ -1,4 +1,11 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  mockRecipesForSearch,
+  RESULTS_COUNTER_SELECTOR,
+  SEARCH_INPUT_SELECTOR,
+  SEARCH_BUTTON_SELECTOR,
+} from "../../utils/data/testData.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import { setupRecipesCards } from "@/components/cards/manager.js";
 import {
   updateCount,
@@ -9,13 +16,6 @@ import {
   clearAllFilters,
   renderSearch,
 } from "@/components/filters/manager.js";
-import {
-  mockRecipesForSearch,
-  RESULTS_COUNTER_SELECTOR,
-  SEARCH_INPUT_SELECTOR,
-  SEARCH_BUTTON_SELECTOR,
-} from "../../utils/data/testData.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 vi.mock("@/components/cards/manager.js", () => ({
   setupRecipesCards: vi.fn(),
@@ -192,12 +192,12 @@ describe("search", () => {
 
       // Wait a bit for setup to complete
       await new Promise(resolve => setTimeout(resolve, 50));
-      
+
       button.click();
-      
+
       // Wait for async operations (requestIdleCallback or setTimeout)
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       expect(setupRecipesCards).toHaveBeenCalled();
     });
 

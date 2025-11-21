@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
+import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   setupDropdowns,
   toggleDropdown,
@@ -7,7 +8,6 @@ import {
   updateDropdownContent,
   manageItemsClicks,
 } from "@/components/dropdown/manager.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";

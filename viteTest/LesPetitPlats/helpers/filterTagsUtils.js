@@ -17,7 +17,7 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
   // Build active filters array - handle both Sets and Arrays
   const toArray = value => {
     if (!value) return [];
-    if (value instanceof Set) return Array.from(value);
+    if (value instanceof Set) return [...value];
     if (Array.isArray(value)) return value;
     return [];
   };

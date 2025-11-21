@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach } from "vitest";
+import { logCategorySummary } from "./logging/console.js";
 import {
   normalizeString,
   cleanupDuplicatedItems,
@@ -9,7 +10,6 @@ import {
   baseUrl,
   dataUrl,
 } from "@/utils/string.js";
-import { logCategorySummary } from "./logging/console.js";
 
 describe("string", () => {
   describe("normalizeString", () => {

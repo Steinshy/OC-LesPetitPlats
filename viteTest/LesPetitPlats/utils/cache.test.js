@@ -1,4 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
+import { logCategorySummary } from "./logging/console.js";
 import {
   cacheManager,
   cacheGet,
@@ -7,7 +8,6 @@ import {
   cacheDel,
   cacheGetOrSet,
 } from "@/utils/cache.js";
-import { logCategorySummary } from "./logging/console.js";
 
 describe("cacheManager", () => {
   beforeEach(() => {
