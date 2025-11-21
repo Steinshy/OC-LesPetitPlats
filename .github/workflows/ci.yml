@@ -13,7 +13,6 @@ on:
       - completed
     branches:
       - dev
-      - benchmarkV2
 
 permissions:
   contents: read
@@ -48,33 +47,12 @@ jobs:
       - name: Run Markdown lint
         run: npm run lint:md
 
-  test:
-    name: Benchmark Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run benchmark tests
-        run: npx vitest viteTest/Benchmarks
-
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
       - lint
-      - test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,11 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
-      - test
-    # Benchmark tests are located in viteTest/Benchmarks/
-    # Test files: search.test.js, filterByIngredients.test.js, filterByAppliances.test.js, filterByUstensils.test.js
-    # Report generator: viteTest/Benchmarks/utils/reporting/generateReport.js
-    # Reports are saved to: Benchmark/benchmark-report-*.html
+      - lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -175,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs:
-      - test
+      - lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
