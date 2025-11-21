@@ -31,7 +31,8 @@ export default defineConfig({
     maxWorkers: CPU_COUNT, // Use all available CPU cores
     minWorkers: 1,
     teardownTimeout: 1000,
-    testTimeout: 30000, // 30 seconds for benchmark tests
+    testTimeout: 30000, // 30 seconds (increased for benchmark tests)
+    // Setup file runs for all tests but uses atomic flag to only clear benchmark results once
     setupFiles: ["viteTest/Benchmarks/setup.js"],
     reporters: [
       [

@@ -36,3 +36,5 @@ lighthouse-report*.json
 lighthouse-report-formatted.json
 .lighthouseci
 
+# Benchmark reports (generated)
+Benchmark/

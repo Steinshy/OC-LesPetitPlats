@@ -66,7 +66,10 @@ export default defineConfig(({ mode }) => {
         filename: "sw.js",
         injectManifest: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
-          globIgnores: ["**/recipes/*.jpg"],
+          globIgnores: [
+            "**/recipes/*.jpg",
+            "**/api/data-benchmark.json", // Exclude large benchmark data file (14.6 MB) from PWA cache
+          ],
           maximumFileSizeToCacheInBytes: 5242880,
         },
         workbox: {

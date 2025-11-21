@@ -1,7 +1,7 @@
 {
   "extends": ["stylelint-config-standard"],
   "plugins": ["stylelint-order"],
-  "ignoreFiles": ["**/dist/**", "**/@dist/**"],
+  "ignoreFiles": ["**/dist/**", "**/@dist/**", "**/Benchmark/**"],
   "rules": {
     "order/properties-alphabetical-order": true,
     "color-hex-length": "short",

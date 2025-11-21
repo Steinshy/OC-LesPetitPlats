@@ -188,6 +188,7 @@ export default [
       ".idea/",
       ".oc/",
       ".DS_Store",
+      "Benchmark/",
     ],
   },
 ];
