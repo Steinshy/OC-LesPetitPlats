@@ -98,40 +98,6 @@ export function logMemoryComparison(title, productionMemory, mapsMemory) {
   modernLogMemory(MAPS_LABEL, mapsMemory);
 }
 
-/**
- * Logs all implementations with their performance stats
- * @param {Object} allStats - Stats object from runAllBenchmarks
- * @param {Object} labels - Implementation labels object
- */
-export function logAllImplementations(allStats, labels) {
-  console.log("\nAll Implementations:");
-  console.log(`  ${labels.PRODUCTION}: ${allStats.productionStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.MAPS}: ${allStats.mapsStats.avg.toFixed(2)}ms`);
-}
-
-/**
- * Logs all memory usages for all implementations
- * @param {Object} memoryUsages - Object with memory usage for each implementation
- * @param {Object} labels - Implementation labels object
- */
-export function logAllMemoryUsages(memoryUsages, labels) {
-  console.log("\nAll Memory Usages:");
-  console.log(`  ${labels.PRODUCTION}: ${memoryUsages.production.toFixed(2)}MB`);
-  console.log(`  ${labels.MAPS}: ${memoryUsages.maps.toFixed(2)}MB`);
-}
-
-export function logMemoryUsage(label, productionMemory, mapsMemory) {
-  logMemoryLine(PRODUCTION_LABEL, productionMemory, label);
-  logMemoryLine(MAPS_LABEL, mapsMemory, label);
-}
-
-export function logReportHeader(title, width = SEPARATOR_WIDTH) {
-  modernLogHeader(title, width);
-}
-
-export function logSuccess(message) {
-  modernLogSuccess(message);
-}
 
 export function logRecommendations(winner, message) {
   console.log("\nRECOMMENDATIONS:");
@@ -240,12 +206,6 @@ export function logClearingDirectory() {
   console.log("Clearing Benchmark directory...");
 }
 
-/**
- * Logs category summary for a specific category
- * @param {string} category - Category name (e.g., "search", "ingredients")
- * @param {string} categoryLabel - Display label (e.g., "Search", "Ingredients")
- * @param {string} allLabel - Label for "All" summary (e.g., "All query", "All ingredient")
- */
 export function logCategorySummary(category, categoryLabel, allLabel) {
   const allResults = getAllResults();
 
@@ -254,8 +214,6 @@ export function logCategorySummary(category, categoryLabel, allLabel) {
   }
 
   const categoryTests = allResults[category];
-  const PRODUCTION_LABEL = "Production";
-  const MAPS_LABEL = "Maps";
 
   // Calculate averages for each implementation
   let productionTotal = 0;

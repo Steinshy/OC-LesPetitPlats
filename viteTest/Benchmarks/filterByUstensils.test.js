@@ -6,81 +6,32 @@ import {
   runFilterBenchmark,
   runMemoryBenchmark,
   createAllItemsTest,
+  createFilterTestCases,
+  TEST_CONFIG,
 } from "./utils/helper/testHelpers.js";
 import { logCategorySummary } from "./utils/logging/console.js";
 
 describe("Filter Recipes by Ustensils Benchmarks", () => {
-  // Benchmark iterations count - increased for big data scenarios
-  const iterations = 50;
-  const bigDataIterations = 150; // Heavier iterations for multiple filter tests
-
-  // Extract available ustensils from benchmark data
+  const { iterations, bigDataIterations } = TEST_CONFIG;
   const availableUstensils = uniqueValues.ustensils;
+  const category = "Ustensils";
+  const categoryKey = "ustensils";
+  const itemName = "ustensils";
 
-  it("should benchmark filter by empty ustensils array", async () => {
-    await runFilterBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: [],
-      testCase: "0 ustensils",
-      category: "Ustensils",
-      categoryKey: "ustensils",
-      iterations,
-      expectInstance: expect,
-    });
+  const testCases = createFilterTestCases({
+    it,
+    productionFn: filterByUstensilsProduction,
+    mapsFn: filterByUstensilsMaps,
+    availableItems: availableUstensils,
+    itemName,
+    category,
+    categoryKey,
+    iterations,
+    bigDataIterations,
+    expectInstance: expect,
   });
 
-  it("should benchmark filter by multiple ustensils (10)", async () => {
-    await runFilterBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: availableUstensils.slice(0, 10),
-      testCase: "10 ustensils",
-      category: "Ustensils",
-      categoryKey: "ustensils",
-      iterations: bigDataIterations,
-      expectInstance: expect,
-    });
-  }, 60000); // 1 minute timeout for 10 ustensils test
-
-  it("should benchmark filter by multiple ustensils (20)", async () => {
-    await runFilterBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: availableUstensils.slice(0, 20),
-      testCase: "20 ustensils",
-      category: "Ustensils",
-      categoryKey: "ustensils",
-      iterations: bigDataIterations,
-      expectInstance: expect,
-    });
-  }, 90000); // 1.5 minutes timeout for 20 ustensils test
-
-  it("should benchmark filter by multiple ustensils (30)", async () => {
-    await runFilterBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: availableUstensils.slice(0, 30),
-      testCase: "30 ustensils",
-      category: "Ustensils",
-      categoryKey: "ustensils",
-      iterations: bigDataIterations,
-      expectInstance: expect,
-    });
-  }, 120000); // 2 minutes timeout for 30 ustensils test
-
-  it("should benchmark filter by multiple ustensils (40)", async () => {
-    await runFilterBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: availableUstensils.slice(0, 40),
-      testCase: "40 ustensils",
-      category: "Ustensils",
-      categoryKey: "ustensils",
-      iterations: bigDataIterations,
-      expectInstance: expect,
-    });
-  }, 150000); // 2.5 minutes timeout for 40 ustensils test
+  testCases.forEach(({ test }) => test());
 
   it("should measure memory usage for ustensils filter", () => {
     runMemoryBenchmark({
@@ -96,8 +47,8 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
     productionFn: filterByUstensilsProduction,
     mapsFn: filterByUstensilsMaps,
     allItems: availableUstensils,
-    category: "Ustensils",
-    categoryKey: "ustensils",
+    category,
+    categoryKey,
     allTestIterations: 30,
     expectInstance: expect,
   });
@@ -105,10 +56,10 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
   (process.env.RUN_ALL_TESTS === "true" ? it : it.skip)(
     "should benchmark filter by all ustensils",
     allUstensilsTest,
-    600000,
-  ); // 10 minutes timeout for all ustensils test
+    TEST_CONFIG.timeouts.all,
+  );
 
   afterAll(() => {
-    logCategorySummary("ustensils", "Ustensils", "All ustensil");
+    logCategorySummary(categoryKey, category, "All ustensil");
   });
 });

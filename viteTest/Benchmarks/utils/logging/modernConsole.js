@@ -18,12 +18,6 @@ const colors = {
 // Progress bar instance
 let progressBar = null;
 
-/**
- * Initialize a progress bar
- * @param {number} total - Total number of items
- * @param {string} label - Label for the progress bar
- * @returns {Object} Progress bar instance
- */
 export function createProgressBar(total, label = "Progress") {
   if (progressBar) {
     progressBar.stop();
@@ -44,19 +38,12 @@ export function createProgressBar(total, label = "Progress") {
   return progressBar;
 }
 
-/**
- * Update progress bar
- * @param {number} value - Current progress value
- */
 export function updateProgress(value) {
   if (progressBar) {
     progressBar.update(value);
   }
 }
 
-/**
- * Stop and clear progress bar
- */
 export function stopProgress() {
   if (progressBar) {
     progressBar.stop();
@@ -64,11 +51,6 @@ export function stopProgress() {
   }
 }
 
-/**
- * Create a spinner
- * @param {string} text - Spinner text
- * @returns {Object} Spinner instance
- */
 export function createSpinner(text) {
   return ora({
     text: colors.cyan(text),
@@ -76,54 +58,30 @@ export function createSpinner(text) {
   }).start();
 }
 
-/**
- * Log success message
- */
 export function logSuccess(message, icon = "✓") {
   console.log(colors.success(`${icon} ${message}`));
 }
 
-/**
- * Log error message
- */
-export function logError(message, icon = "✗") {
-  console.log(colors.error(`${icon} ${message}`));
-}
 
-/**
- * Log warning message
- */
 export function logWarning(message, icon = "⚠") {
   console.log(colors.warning(`${icon} ${message}`));
 }
 
-/**
- * Log info message
- */
 export function logInfo(message, icon = "ℹ") {
   console.log(colors.info(`${icon} ${message}`));
 }
 
-/**
- * Log section header
- */
 export function logSection(title, emoji = "📊") {
   console.log(`\n${colors.bold(colors.cyan(`${emoji} ${title}`))}`);
   console.log(colors.dim("─".repeat(60)));
 }
 
-/**
- * Log benchmark result with colors
- */
 export function logBenchmarkResult(label, value, unit = "ms", isWinner = false) {
   const formattedValue = typeof value === "number" ? value.toFixed(4) : value;
   const color = isWinner ? colors.success : colors.dim;
   console.log(`  ${color(label.padEnd(20))} ${colors.bold(formattedValue)}${unit}`);
 }
 
-/**
- * Log comparison result
- */
 export function logComparison(winner, improvement, faster, slower) {
   console.log(`\n${colors.bold("Comparison:")}`);
   console.log(`  ${colors.success("Winner:")} ${colors.bold(winner)}`);
@@ -133,9 +91,6 @@ export function logComparison(winner, improvement, faster, slower) {
   console.log(`  ${colors.dim(`${faster} vs ${slower}`)}`);
 }
 
-/**
- * Log header with style
- */
 export function logHeader(title, width = 60) {
   const border = "═".repeat(width);
   console.log(`\n${colors.bold(colors.cyan(border))}`);
@@ -143,9 +98,6 @@ export function logHeader(title, width = 60) {
   console.log(colors.bold(colors.cyan(border)));
 }
 
-/**
- * Log step with number
- */
 export function logStep(stepNumber, message, status = "pending") {
   const icons = {
     pending: "○",
@@ -165,9 +117,6 @@ export function logStep(stepNumber, message, status = "pending") {
   console.log(`\n${color(`${icon} [${stepNumber}]`)} ${message}`);
 }
 
-/**
- * Log category summary with modern formatting
- */
 export function logCategorySummary(category, stats) {
   logSection(`${category} Summary`, "📈");
   console.log(`  ${colors.bold("Tests:")} ${stats.testCount}`);
@@ -182,68 +131,11 @@ export function logCategorySummary(category, stats) {
   }
 }
 
-/**
- * Log table row
- */
-export function logTableRow(columns, widths = []) {
-  const padded = columns.map((col, i) => {
-    const width = widths[i] || 15;
-    return String(col).padEnd(width);
-  });
-  console.log(`  ${padded.join(" │ ")}`);
-}
 
-/**
- * Log table header
- */
-export function logTableHeader(headers, widths = []) {
-  const padded = headers.map((h, i) => {
-    const width = widths[i] || 15;
-    return colors.bold(String(h).padEnd(width));
-  });
-  console.log(`  ${padded.join(" │ ")}`);
-  console.log(`  ${"─".repeat(padded.join(" │ ").length - 2)}`);
-}
-
-/**
- * Log memory usage
- */
 export function logMemory(label, value, unit = "MB") {
   console.log(`  ${colors.dim(label.padEnd(20))} ${colors.bold(value.toFixed(2))}${unit}`);
 }
 
-/**
- * Log separator
- */
-export function logSeparator(char = "─", width = 60) {
-  console.log(colors.dim(char.repeat(width)));
-}
-
-/**
- * Log with emoji prefix
- */
-export function logWithEmoji(emoji, message, color = "dim") {
-  const colorFn = colors[color] || colors.dim;
-  console.log(colorFn(`${emoji} ${message}`));
-}
-
-/**
- * Clear line (useful for updating progress)
- */
-export function clearLine() {
+function clearLine() {
   process.stdout.write("\r\x1b[K");
-}
-
-/**
- * Log test progress
- */
-export function logTestProgress(current, total, testName) {
-  const percentage = ((current / total) * 100).toFixed(0);
-  clearLine();
-  process.stdout.write(
-    `  ${colors.cyan("⟳")} Running test ${current}/${total} (${percentage}%): ${colors.dim(testName)}`,
-  );
-  if (current === total) {
-    console.log(); // New line when complete
-  }
 }

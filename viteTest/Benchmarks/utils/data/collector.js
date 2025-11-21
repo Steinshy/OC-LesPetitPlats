@@ -1,3 +1,4 @@
+// Benchmark results collection and persistence
 import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "fs";
 import { tmpdir } from "os";
 import { join, dirname } from "path";
@@ -6,8 +7,9 @@ import { PRODUCTION_LABEL, MAPS_LABEL } from "../constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Configuration
 const benchmarkDir = join(__dirname, "../../../../Benchmark");
-// Use temp directory for temporary benchmark results file
 const tempDir = join(tmpdir(), "lespetitplats-benchmark");
 const resultsFilePath = join(tempDir, "benchmark-results.json");
 
@@ -20,6 +22,20 @@ const defaultResults = {
   timestamp: null,
 };
 
+const categories = [
+  { key: "search", name: "Search" },
+  { key: "ingredients", name: "Ingredients" },
+  { key: "appliances", name: "Appliances" },
+  { key: "ustensils", name: "Ustensils" },
+  { key: "combined", name: "Combined" },
+];
+
+const statsMapping = [
+  { key: "functionalStats", label: PRODUCTION_LABEL },
+  { key: "loopStats", label: MAPS_LABEL },
+];
+
+// File Operations
 function loadResults() {
   if (existsSync(resultsFilePath)) {
     try {
@@ -35,7 +51,6 @@ function loadResults() {
 
 function saveResults(results) {
   try {
-    // Ensure temp directory exists
     mkdirSync(tempDir, { recursive: true });
     writeFileSync(resultsFilePath, JSON.stringify(results, null, 2), "utf-8");
   } catch (error) {
@@ -43,10 +58,96 @@ function saveResults(results) {
   }
 }
 
-export function saveResultsData(results) {
-  saveResults(results);
+// Utilities
+function getSafeNumber(value) {
+  if (typeof value === "number" && !isNaN(value) && isFinite(value)) {
+    return value;
+  }
+  return 0;
 }
 
+function getMeanValue(stats) {
+  return (
+    getSafeNumber(stats.avg) ||
+    getSafeNumber(stats.mean) ||
+    getSafeNumber(stats.executionTime) ||
+    0
+  );
+}
+
+function getExecutionTime(stats) {
+  return (
+    getSafeNumber(stats.executionTime) ||
+    getSafeNumber(stats.avg) ||
+    getSafeNumber(stats.mean) ||
+    0
+  );
+}
+
+function getTestName(result, categoryName, index) {
+  return result.testCase || result.testName || `${categoryName} Test ${index + 1}`;
+}
+
+// Result Processing
+function flattenNewFormat(result, categoryName, index) {
+  const flattened = [];
+  Object.entries(result.implementations).forEach(([implName, stats]) => {
+    flattened.push({
+      category: categoryName,
+      testName: getTestName(result, categoryName, index),
+      implementation: implName,
+      mean: getMeanValue(stats),
+      executionTime: getExecutionTime(stats),
+      rme: getSafeNumber(stats.rme) || 0,
+      queryCount: result.queryCount,
+      filterCount: result.filterCount,
+      ...stats,
+    });
+  });
+  return flattened;
+}
+
+function flattenCurrentFormat(result, categoryName, index) {
+  const flattened = [];
+  statsMapping.forEach(({ key, label }) => {
+    const stats = result[key];
+    if (stats) {
+      flattened.push({
+        category: categoryName,
+        testName: getTestName(result, categoryName, index),
+        implementation: label,
+        mean: getMeanValue(stats),
+        executionTime: getExecutionTime(stats),
+        rme: getSafeNumber(stats.rme) || 0,
+        queryCount: result.queryCount,
+        filterCount: result.filterCount,
+        ...stats,
+      });
+    }
+  });
+  return flattened;
+}
+
+function flattenCategoryResults(benchmarkResults, category) {
+  const flattened = [];
+  const { key, name } = category;
+
+  if (!benchmarkResults[key]) {
+    return flattened;
+  }
+
+  benchmarkResults[key].forEach((result, index) => {
+    if (result.implementations) {
+      flattened.push(...flattenNewFormat(result, name, index));
+    } else {
+      flattened.push(...flattenCurrentFormat(result, name, index));
+    }
+  });
+
+  return flattened;
+}
+
+// Public API
 export function addBenchmarkResult(category, result) {
   const benchmarkResults = loadResults();
   if (!benchmarkResults[category]) {
@@ -66,108 +167,23 @@ export function getAllResults() {
   return loadResults();
 }
 
-// Helper function to safely get numeric value, defaulting to 0 if NaN/invalid
-function getSafeNumber(value) {
-  if (typeof value === "number" && !isNaN(value) && isFinite(value)) {
-    return value;
-  }
-  return 0;
-}
-
 export function getFlattenedResults() {
   const benchmarkResults = loadResults();
   const flattened = [];
 
-  // Process each category
-  const categories = [
-    { key: "search", name: "Search" },
-    { key: "ingredients", name: "Ingredients" },
-    { key: "appliances", name: "Appliances" },
-    { key: "ustensils", name: "Ustensils" },
-    { key: "combined", name: "Combined" },
-  ];
-
-  categories.forEach(({ key, name }) => {
-    if (benchmarkResults[key]) {
-      benchmarkResults[key].forEach((result, index) => {
-        // Support both old format (functional/native) and new format (implementations object)
-        if (result.implementations) {
-          // New format: result.implementations is an object with implementation names as keys
-          Object.entries(result.implementations).forEach(([implName, stats]) => {
-            flattened.push({
-              category: name,
-              testName: result.testCase || result.testName || `${name} Test ${index + 1}`,
-              implementation: implName,
-              mean:
-                getSafeNumber(stats.avg) ||
-                getSafeNumber(stats.mean) ||
-                getSafeNumber(stats.executionTime) ||
-                0,
-              executionTime:
-                getSafeNumber(stats.executionTime) ||
-                getSafeNumber(stats.avg) ||
-                getSafeNumber(stats.mean) ||
-                0,
-              rme: getSafeNumber(stats.rme) || 0,
-              queryCount: result.queryCount,
-              filterCount: result.filterCount,
-              ...stats, // Include all other stats
-            });
-          });
-        } else {
-          // Current format: multiple stats objects
-          // Map stats to implementation labels
-          const statsMapping = [
-            { key: "functionalStats", label: PRODUCTION_LABEL },
-            { key: "loopStats", label: MAPS_LABEL },
-          ];
-
-          statsMapping.forEach(({ key, label }) => {
-            const stats = result[key];
-            if (stats) {
-              // Stats are already in milliseconds from measurement.js
-
-              const mean =
-                getSafeNumber(stats.avg) ||
-                getSafeNumber(stats.mean) ||
-                getSafeNumber(stats.executionTime) ||
-                0;
-              const executionTime =
-                getSafeNumber(stats.executionTime) ||
-                getSafeNumber(stats.avg) ||
-                getSafeNumber(stats.mean) ||
-                0;
-
-              flattened.push({
-                category: name,
-                testName: result.testCase || result.testName || `${name} Test ${index + 1}`,
-                implementation: label,
-                mean,
-                executionTime,
-                rme: getSafeNumber(stats.rme) || 0,
-                queryCount: result.queryCount,
-                filterCount: result.filterCount,
-                ...stats, // Include all other stats (min, max, stdDev, etc.)
-              });
-            }
-          });
-        }
-      });
-    }
+  categories.forEach(category => {
+    flattened.push(...flattenCategoryResults(benchmarkResults, category));
   });
 
   return flattened;
 }
 
 export function clearResults() {
-  // Explicitly clear all results and reset to default state
-  // Delete the file first to ensure it's completely cleared
   try {
     if (existsSync(resultsFilePath)) {
       unlinkSync(resultsFilePath);
     }
 
-    // Also remove the clear flag file if it exists
     const clearFlagPath = join(benchmarkDir, ".benchmark-cleared");
     if (existsSync(clearFlagPath)) {
       unlinkSync(clearFlagPath);
@@ -176,36 +192,25 @@ export function clearResults() {
     // Ignore errors if file doesn't exist or can't be deleted
   }
 
-  // Save fresh empty results
-  const clearedResults = {
-    search: [],
-    ingredients: [],
-    appliances: [],
-    ustensils: [],
-    combined: [],
-    timestamp: null,
-  };
-  saveResults(clearedResults);
+  saveResults({ ...defaultResults });
 }
 
 export function getSummary() {
   const flattened = getFlattenedResults();
 
-  // Group by test case to count wins per implementation
   const testCases = {};
   flattened.forEach(result => {
     const key = `${result.category} - ${result.testName}`;
     if (!testCases[key]) {
       testCases[key] = [];
     }
-    const timeValue = getSafeNumber(result.mean) || getSafeNumber(result.executionTime) || 0;
+    const timeValue = getMeanValue(result) || getExecutionTime(result) || 0;
     testCases[key].push({
       implementation: result.implementation,
       time: timeValue,
     });
   });
 
-  // Count wins per implementation
   const winCounts = {};
   Object.values(testCases).forEach(testResults => {
     if (testResults.length > 0) {
@@ -216,18 +221,15 @@ export function getSummary() {
     }
   });
 
-  // Find overall winner
   const implementations = Object.keys(winCounts);
   const overallWinner = implementations.reduce(
     (prev, current) => (winCounts[current] > (winCounts[prev] || 0) ? current : prev),
     implementations[0] || "Unknown",
   );
 
-  // Calculate average improvement (fastest vs slowest per test)
   const improvements = [];
   Object.values(testCases).forEach(testResults => {
     if (testResults.length > 1) {
-      // Filter out NaN, invalid, and zero values
       const times = testResults
         .map(r => r.time)
         .filter(t => typeof t === "number" && !isNaN(t) && isFinite(t) && t > 0);
@@ -252,4 +254,8 @@ export function getSummary() {
     overallWinner,
     averageImprovement,
   };
+}
+
+export function saveResultsData(results) {
+  saveResults(results);
 }

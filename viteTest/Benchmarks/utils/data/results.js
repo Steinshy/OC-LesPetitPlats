@@ -1,20 +1,6 @@
 export { addBenchmarkResult } from "./collector.js";
 import { mean } from "simple-statistics";
 
-// Flattens category results into a single array
-export function flattenCategoryResults(categoryResults) {
-  return Object.entries(categoryResults).flatMap(([category, tests]) =>
-    Object.entries(tests).flatMap(([testName, implementations]) =>
-      Object.entries(implementations).map(([implName, stats]) => ({
-        category,
-        testName,
-        implementation: implName,
-        ...stats,
-      })),
-    ),
-  );
-}
-
 // Calculate average execution time for an implementation using simple-statistics
 export function getAverageExecutionTime(flattenedResults, implementation) {
   const implResults = flattenedResults.filter(result => result.implementation === implementation);

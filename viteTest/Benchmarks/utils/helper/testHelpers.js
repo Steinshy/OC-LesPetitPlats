@@ -6,12 +6,6 @@ import { logBenchmarkSection, logMemoryComparison } from "../logging/console.js"
 import { compareResults } from "../measurement/compare.js";
 import { measureMemoryUsage, runBenchmark } from "../measurement/measurement.js";
 
-/**
- * Run benchmarks for both implementations
- * @param {Object} implementations - Object with production and maps functions
- * @param {number} iterations - Number of iterations to run
- * @returns {Promise<Object>} Object with productionStats and mapsStats
- */
 export async function runAllBenchmarks(implementations, iterations) {
   const productionStats = await runBenchmark(implementations.production, iterations);
   const mapsStats = await runBenchmark(implementations.maps, iterations);
@@ -19,11 +13,6 @@ export async function runAllBenchmarks(implementations, iterations) {
   return { productionStats, mapsStats };
 }
 
-/**
- * Verify that both implementations return the same result length
- * @param {Object} implementations - Object with production and maps functions
- * @param {Function} expectInstance - Vitest expect function
- */
 export function verifyResults(implementations, expectInstance) {
   const productionResult = implementations.production();
   const mapsResult = implementations.maps();
@@ -32,13 +21,6 @@ export function verifyResults(implementations, expectInstance) {
   expectInstance(baseLength).toBe(mapsResult.length);
 }
 
-/**
- * Create implementation functions object for a filter function
- * @param {Function} productionFn - Production filter function
- * @param {Function} mapsFn - Maps filter function
- * @param {...any} args - Arguments to pass to the filter functions
- * @returns {Object} Object with production and maps functions
- */
 export function createImplementationFunctions(productionFn, mapsFn, ...args) {
   return {
     production: () => productionFn(...args),
@@ -46,19 +28,6 @@ export function createImplementationFunctions(productionFn, mapsFn, ...args) {
   };
 }
 
-/**
- * Run a filter benchmark test
- * @param {Object} config - Configuration object
- * @param {Function} config.productionFn - Production filter function
- * @param {Function} config.mapsFn - Maps filter function
- * @param {string|Array} config.filterValue - Filter value (array for filters, string for search)
- * @param {string} config.testCase - Test case name
- * @param {string} config.category - Category name (e.g., "Ingredients", "Appliances")
- * @param {string} config.categoryKey - Category key for results (e.g., "ingredients", "appliances")
- * @param {number} config.iterations - Number of iterations
- * @param {Function} config.expectInstance - Vitest expect function
- * @returns {Promise<void>}
- */
 export async function runFilterBenchmark({
   productionFn,
   mapsFn,
@@ -119,15 +88,6 @@ export async function runSearchBenchmark({
   });
 }
 
-/**
- * Run a memory usage benchmark test
- * @param {Object} config - Configuration object
- * @param {Function} config.productionFn - Production filter function
- * @param {Function} config.mapsFn - Maps filter function
- * @param {string|Array} config.filterValue - Filter value
- * @param {number} config.iterations - Number of iterations (default: 50)
- * @param {Function} config.expectInstance - Vitest expect function
- */
 export function runMemoryBenchmark({
   productionFn,
   mapsFn,
@@ -149,18 +109,6 @@ export function runMemoryBenchmark({
   expectInstance(typeof mapsMemory).toBe("number");
 }
 
-/**
- * Run a filter benchmark test with "All" items (conditionally)
- * @param {Object} config - Configuration object
- * @param {Function} config.productionFn - Production filter function
- * @param {Function} config.mapsFn - Maps filter function
- * @param {Array} config.allItems - All available items
- * @param {string} config.category - Category name
- * @param {string} config.categoryKey - Category key for results
- * @param {number} config.allTestIterations - Number of iterations for "all" test (default: 30)
- * @param {Function} config.expectInstance - Vitest expect function
- * @returns {Function} - Test function to be called with it() or it.skip()
- */
 export function createAllItemsTest({
   productionFn,
   mapsFn,
@@ -184,4 +132,84 @@ export function createAllItemsTest({
       expectInstance,
     });
   };
+}
+
+// Test configuration constants
+export const TEST_CONFIG = {
+  iterations: 50,
+  bigDataIterations: 150,
+  searchBigDataIterations: 100,
+  timeouts: {
+    small: 60000,
+    medium: 90000,
+    large: 120000,
+    xlarge: 150000,
+    all: 600000,
+  },
+};
+
+// Helper to create filter test cases
+export function createFilterTestCases({
+  it,
+  productionFn,
+  mapsFn,
+  availableItems,
+  itemName,
+  category,
+  categoryKey,
+  iterations,
+  bigDataIterations,
+  expectInstance,
+}) {
+  const testCases = [];
+
+  // Empty array test
+  testCases.push({
+    test: () =>
+      it(`should benchmark filter by empty ${itemName} array`, async () => {
+        await runFilterBenchmark({
+          productionFn,
+          mapsFn,
+          filterValue: [],
+          testCase: `0 ${itemName}`,
+          category,
+          categoryKey,
+          iterations,
+          expectInstance,
+        });
+      }),
+  });
+
+  // Multiple items tests (10, 20, 30, 40)
+  const counts = [10, 20, 30, 40];
+  const timeouts = [
+    TEST_CONFIG.timeouts.small,
+    TEST_CONFIG.timeouts.medium,
+    TEST_CONFIG.timeouts.large,
+    TEST_CONFIG.timeouts.xlarge,
+  ];
+
+  counts.forEach((count, index) => {
+    testCases.push({
+      test: () =>
+        it(
+          `should benchmark filter by multiple ${itemName} (${count})`,
+          async () => {
+            await runFilterBenchmark({
+              productionFn,
+              mapsFn,
+              filterValue: availableItems.slice(0, count),
+              testCase: `${count} ${itemName}`,
+              category,
+              categoryKey,
+              iterations: bigDataIterations,
+              expectInstance,
+            });
+          },
+          timeouts[index],
+        ),
+    });
+  });
+
+  return testCases;
 }

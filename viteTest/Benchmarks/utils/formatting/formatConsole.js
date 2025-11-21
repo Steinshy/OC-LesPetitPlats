@@ -1,6 +1,5 @@
 // Formatting utilities for console output
 import { PRODUCTION_LABEL, MAPS_LABEL } from "../constants.js";
-import { logRecommendations } from "../logging/console.js";
 import { formatTime } from "./formatMeasurement.js";
 
 // Constants
@@ -20,13 +19,6 @@ function formatStatsLine(label, avgTime) {
   return `  ${label}: ${formatTime(avgTime)}\n`;
 }
 
-export function formatReportHeader() {
-  const header = formatSeparator();
-  const title = "COMPREHENSIVE BENCHMARK SUMMARY REPORT\n";
-  const separator = formatSeparator(true);
-  const timestamp = `Generated: ${new Date().toISOString()}\n\n`;
-  return header + title + separator + timestamp;
-}
 
 export function formatTestCaseResult(testCaseName, productionStats, mapsStats, comparison) {
   const testResult = `\n${testCaseName}:\n`;
@@ -60,16 +52,3 @@ export function formatSummarySection(results) {
   return { output, overallWinner, productionWins, mapsWins };
 }
 
-export function formatRecommendations(overallWinner) {
-  const isMapsWinner = overallWinner.includes("Maps");
-  const winner = isMapsWinner
-    ? "Map-based implementation (using map/filter) is faster overall"
-    : "Production implementation (using forEach) is faster overall";
-  const message = isMapsWinner
-    ? "Consider using map/filter methods for better performance"
-    : "Consider using forEach-based implementation for better performance";
-
-  const recommendations = `\nRECOMMENDATIONS:\n✓ ${winner}\n  ${message}\n`;
-  logRecommendations(winner, message);
-  return recommendations;
-}

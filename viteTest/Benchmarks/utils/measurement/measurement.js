@@ -1,18 +1,20 @@
-// Core measurement and calculation functions for benchmarking using tinybench
+// Core measurement and calculation functions for benchmarking using TinyBench
 import { Bench } from "tinybench";
 
-// Constants
-const NS_TO_MS_DIVISOR = 1_000_000;
-const MS_TO_SECONDS_DIVISOR = 1000;
-const BYTES_TO_MB_DIVISOR = 1024 * 1024;
-const DEFAULT_ITERATIONS = 100;
-const DEFAULT_MEMORY_ITERATIONS = 10;
+// Configuration Constants
 export const BENCHMARK_TIME = 75;
 export const MAX_ITERATIONS = 25;
 export const WARMUP_TIME = 15;
 export const WARMUP_ITERATIONS = 2;
 
-// Calculation functions
+// Internal constants
+const NS_TO_MS_DIVISOR = 1_000_000;
+const MS_TO_SECONDS_DIVISOR = 1000;
+const BYTES_TO_MB_DIVISOR = 1024 * 1024;
+const DEFAULT_ITERATIONS = 100;
+const DEFAULT_MEMORY_ITERATIONS = 10;
+
+// Calculation Utilities
 export function calculateOpsPerSecond(timeMs) {
   return timeMs === 0 ? Infinity : MS_TO_SECONDS_DIVISOR / timeMs;
 }
@@ -24,7 +26,7 @@ export function calculateImprovement(baselineTime, comparisonTime) {
   return ((baselineTime - comparisonTime) / baselineTime) * 100;
 }
 
-// Memory measurement functions
+// Memory Measurement
 function hasMemoryAPI() {
   return typeof performance.memory !== "undefined";
 }
@@ -50,7 +52,7 @@ export function measureMemoryUsage(fn, iterations = DEFAULT_MEMORY_ITERATIONS) {
   return totalDelta / iterations;
 }
 
-// Benchmark execution functions
+// Benchmark Execution
 function convertTinybenchResult(result) {
   const convertToMs = value => value / NS_TO_MS_DIVISOR;
   const stdDev = Number.isNaN(result.stdDev) ? 0 : convertToMs(result.stdDev);

@@ -7,11 +7,8 @@ export function compareResults(
   name1 = "Implementation 1",
   name2 = "Implementation 2",
 ) {
-  // Speed improvement %
   const improvement = calculateImprovement(result1.avg, result2.avg);
-  // Faster implementation name
   const faster = result1.avg < result2.avg ? name1 : name2;
-  // Slower implementation name
   const slower = result1.avg < result2.avg ? name2 : name1;
 
   return {
