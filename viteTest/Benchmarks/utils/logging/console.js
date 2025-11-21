@@ -3,7 +3,6 @@ import chalk from "chalk";
 import { PRODUCTION_LABEL, MAPS_LABEL } from "../constants.js";
 import { getAllResults } from "../data/collector.js";
 import { formatTestCaseResult, formatSummarySection } from "../formatting/formatConsole.js";
-import { formatMemory } from "../formatting/formatMeasurement.js";
 import {
   logSection as modernLogSection,
   logSuccess as modernLogSuccess,

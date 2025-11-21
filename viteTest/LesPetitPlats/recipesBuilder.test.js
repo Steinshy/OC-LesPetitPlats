@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
 import { cacheManager } from "../../src/utils/cache.js";
 import { buildRecipesData } from "../../src/utils/recipesBuilder.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 describe("recipesBuilder", () => {
   beforeEach(() => {
@@ -217,5 +218,9 @@ describe("recipesBuilder", () => {
     expect(dropdownData.ustensils).toEqual(expect.arrayContaining(["bowl", "fork", "spoon"]));
     expect(dropdownData.ingredients.length).toBe(3);
     expect(dropdownData.appliances.length).toBe(1);
+  });
+
+  afterAll(() => {
+    logCategorySummary("recipesBuilder", "Recipes Builder", "All recipes builder tests");
   });
 });

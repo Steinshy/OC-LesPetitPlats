@@ -1,11 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { removeFilter, clearAllFilters } from "../../src/components/filters/manager.js";
 import { updateFilterTags } from "../../src/components/filters/render.js";
 import {
   FILTER_TAG_SELECTOR,
   FILTERS_BOX_SELECTOR,
   INGREDIENTS_LIST_SELECTOR,
-} from "./test-data.js";
+} from "./utils/data/testData.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 vi.mock("../../src/components/search.js", () => ({
   removeFilter: vi.fn(),
@@ -288,5 +289,9 @@ describe("filterTags", () => {
     clearAllButton.dispatchEvent(clickEvent);
 
     expect(clearAllFilters).toHaveBeenCalled();
+  });
+
+  afterAll(() => {
+    logCategorySummary("filterTags", "Filter Tags", "All filter tags tests");
   });
 });

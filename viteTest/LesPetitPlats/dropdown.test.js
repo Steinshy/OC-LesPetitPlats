@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   DROPDOWN_TYPES,
   formatDropdownData,
   getFilteredItems,
   getDropdownElements,
 } from "../../src/components/dropdown/utils.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 describe("dropdown utils", () => {
   describe("DROPDOWN_TYPES", () => {
@@ -273,5 +274,9 @@ describe("dropdown utils", () => {
       expect(elements.container).toBeNull();
       expect(elements.backdrop).toBeNull();
     });
+  });
+
+  afterAll(() => {
+    logCategorySummary("dropdown", "Dropdown", "All dropdown tests");
   });
 });

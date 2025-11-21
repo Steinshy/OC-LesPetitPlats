@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { selectRandomImages, isImageLoaded, imagesTypes } from "../../src/utils/deliveryImages.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 // Test image URL
 const TEST_IMAGE_URL = "/recipes/test.jpg";
@@ -371,5 +372,9 @@ describe("deliveryImages", () => {
         });
       });
     });
+  });
+
+  afterAll(() => {
+    logCategorySummary("deliveryImages", "Delivery Images", "All delivery images tests");
   });
 });

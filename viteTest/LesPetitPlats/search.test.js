@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupRecipesCards } from "../../src/components/cards/manager.js";
 import {
   updateCount,
@@ -14,7 +14,8 @@ import {
   RESULTS_COUNTER_SELECTOR,
   SEARCH_INPUT_SELECTOR,
   SEARCH_BUTTON_SELECTOR,
-} from "./test-data.js";
+} from "./utils/data/testData.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 vi.mock("../../src/components/cards/manager.js", () => ({
   setupRecipesCards: vi.fn(),
@@ -388,5 +389,9 @@ describe("search", () => {
 
       expect(setupRecipesCards).toHaveBeenCalled();
     });
+  });
+
+  afterAll(() => {
+    logCategorySummary("search", "Search", "All search tests");
   });
 });

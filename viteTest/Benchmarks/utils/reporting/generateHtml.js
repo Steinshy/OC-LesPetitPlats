@@ -11,15 +11,15 @@ import { loadCss } from "./helpers/loadCss.js";
 import { generateSkippedTestsNote } from "./helpers/skippedTests.js";
 
 // Import section generators
-import { generateTableOfContents } from "./sections/tableOfContents.js";
-import { generateKeyFindings } from "./sections/keyFindings.js";
 import { generateBenchmarkDataStats } from "./sections/benchmarkDataStats.js";
-import { generateTestCoverage } from "./sections/testCoverage.js";
 import { generateChartSection } from "./sections/chartSection.js";
-import { generateImplementationBreakdown } from "./sections/implementationBreakdown.js";
-import { generateMethodologyNotes } from "./sections/methodology.js";
-import { generateInsightsAndRecommendations } from "./sections/insights.js";
 import { generateDetailedTestResultsHTML } from "./sections/detailedTestResults.js";
+import { generateImplementationBreakdown } from "./sections/implementationBreakdown.js";
+import { generateInsightsAndRecommendations } from "./sections/insights.js";
+import { generateKeyFindings } from "./sections/keyFindings.js";
+import { generateMethodologyNotes } from "./sections/methodology.js";
+import { generateTableOfContents } from "./sections/tableOfContents.js";
+import { generateTestCoverage } from "./sections/testCoverage.js";
 
 // Generate the complete HTML report
 export async function generateHtmlReport(results, charts) {

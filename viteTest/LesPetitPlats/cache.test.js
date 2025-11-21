@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import {
   cacheManager,
   cacheGet,
@@ -7,6 +7,7 @@ import {
   cacheDel,
   cacheGetOrSet,
 } from "../../src/utils/cache.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 describe("cacheManager", () => {
   beforeEach(() => {
@@ -114,5 +115,9 @@ describe("cacheManager", () => {
     await cacheGetOrSet("key1", fetcher, 0);
     const result = cacheGet("key1");
     expect(result).toBe(FETCHED_VALUE);
+  });
+
+  afterAll(() => {
+    logCategorySummary("cache", "Cache", "All cache tests");
   });
 });

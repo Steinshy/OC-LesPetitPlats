@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { afterAll, describe, it, expect } from "vitest";
 import {
   filterBySearchTerm,
   filterByIngredients,
@@ -6,7 +6,8 @@ import {
   filterByUstensils,
   filterRecipes,
 } from "../../src/components/filters/filtersBy.js";
-import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "./test-data.js";
+import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "./utils/data/testData.js";
+import { logCategorySummary } from "./utils/logging/console.js";
 
 describe("filter", () => {
   // Mock recipes for testing
@@ -355,5 +356,9 @@ describe("filter", () => {
       const result = filterRecipes(mockRecipes, undefined, activeFilters);
       expect(result).toHaveLength(3);
     });
+  });
+
+  afterAll(() => {
+    logCategorySummary("filter", "Filter", "All filter tests");
   });
 });
