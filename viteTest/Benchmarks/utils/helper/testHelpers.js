@@ -100,6 +100,37 @@ export async function runFilterBenchmark({
 }
 
 /**
+ * Run a search benchmark test
+ * @param {Object} config - Configuration object
+ * @param {Function} config.productionFn - Production search function
+ * @param {Function} config.mapsFn - Maps search function
+ * @param {string} config.searchTerm - Search term
+ * @param {string} config.testCase - Test case name
+ * @param {number} config.iterations - Number of iterations
+ * @param {Function} config.expectInstance - Vitest expect function
+ * @returns {Promise<void>}
+ */
+export async function runSearchBenchmark({
+  productionFn,
+  mapsFn,
+  searchTerm,
+  testCase,
+  iterations,
+  expectInstance,
+}) {
+  await runFilterBenchmark({
+    productionFn,
+    mapsFn,
+    filterValue: searchTerm,
+    testCase,
+    category: "Search",
+    categoryKey: "search",
+    iterations,
+    expectInstance,
+  });
+}
+
+/**
  * Run a memory usage benchmark test
  * @param {Object} config - Configuration object
  * @param {Function} config.productionFn - Production filter function
