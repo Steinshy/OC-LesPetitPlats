@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - benchmarkV2
   workflow_dispatch:
   workflow_run:
     workflows:
@@ -12,6 +13,7 @@ on:
       - completed
     branches:
       - dev
+      - benchmarkV2
 
 permissions:
   contents: read
