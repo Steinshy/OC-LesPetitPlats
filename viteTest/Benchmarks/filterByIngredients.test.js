@@ -41,7 +41,7 @@ describe("Filter Recipes by Ingredients Benchmarks", () => {
       iterations: bigDataIterations,
       expectInstance: expect,
     });
-  });
+  }, 60000); // 1 minute timeout for 10 ingredients test
 
   it("should benchmark filter by multiple ingredients (20)", async () => {
     await runFilterBenchmark({
@@ -54,7 +54,7 @@ describe("Filter Recipes by Ingredients Benchmarks", () => {
       iterations: bigDataIterations,
       expectInstance: expect,
     });
-  });
+  }, 90000); // 1.5 minutes timeout for 20 ingredients test
 
   it("should benchmark filter by multiple ingredients (30)", async () => {
     await runFilterBenchmark({

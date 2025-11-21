@@ -95,6 +95,7 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.0"
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.0",
+    "source-map": "^0.7.4"
   }
 }

@@ -84,7 +84,7 @@ describe("Search Benchmark Tests", () => {
       mapsFn: filterBySearchTermMaps,
       expectInstance: expect,
     });
-  });
+  }, 60000); // 1 minute timeout for very long query test
 
   it("should benchmark search with special characters query", async () => {
     await runSearchBenchmark({

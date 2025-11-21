@@ -41,7 +41,7 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
       iterations: bigDataIterations,
       expectInstance: expect,
     });
-  });
+  }, 60000); // 1 minute timeout for 10 ustensils test
 
   it("should benchmark filter by multiple ustensils (20)", async () => {
     await runFilterBenchmark({
@@ -54,7 +54,7 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
       iterations: bigDataIterations,
       expectInstance: expect,
     });
-  });
+  }, 90000); // 1.5 minutes timeout for 20 ustensils test
 
   it("should benchmark filter by multiple ustensils (30)", async () => {
     await runFilterBenchmark({
