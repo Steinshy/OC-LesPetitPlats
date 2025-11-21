@@ -1,17 +1,16 @@
 // Script to save benchmark results after tests run
 import { writeFileSync, mkdirSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { tmpdir } from "os";
+import { join } from "path";
 import { getBenchmarkResults } from "../data/results.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const outputPath = join(__dirname, "../../../../Benchmark/benchmark-results.json");
+// Use temp directory for temporary benchmark results file
+const tempDir = join(tmpdir(), "lespetitplats-benchmark");
+const outputPath = join(tempDir, "benchmark-results.json");
 const results = getBenchmarkResults();
 
 if (Object.keys(results).length > 0) {
-  mkdirSync(dirname(outputPath), { recursive: true });
+  mkdirSync(tempDir, { recursive: true });
   writeFileSync(outputPath, JSON.stringify(results, null, 2), "utf-8");
   console.log(`✅ Benchmark results saved to: ${outputPath}`);
 } else {

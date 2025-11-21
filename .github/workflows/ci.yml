@@ -109,6 +109,10 @@ jobs:
     timeout-minutes: 30
     needs:
       - test
+    # Benchmark tests are located in viteTest/Benchmarks/
+    # Test files: search.test.js, filterByIngredients.test.js, filterByAppliances.test.js, filterByUstensils.test.js
+    # Report generator: viteTest/Benchmarks/utils/reporting/generateReport.js
+    # Reports are saved to: Benchmark/benchmark-report-*.html
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -128,13 +132,23 @@ jobs:
           sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64
 
       - name: Run benchmark tests
-        run: npm run benchmark
+        env:
+          CI: true
+          RUN_ALL_TESTS: true
+        run: |
+          # Run benchmark tests non-interactively with "All" tests enabled
+          # - CI=true: Script auto-detects CI and skips all interactive prompts
+          # - RUN_ALL_TESTS=true: Enable expensive "All" tests in CI (up to 10 min each)
+          # Script automatically skips browser opening prompt in CI mode
+          npm run benchmark || true
         continue-on-error: true
 
       - name: Check if benchmark reports exist
         id: check-reports
         if: always()
         run: |
+          # Check for generated benchmark reports
+          # Reports are generated in Benchmark/ directory by viteTest/Benchmarks/utils/reporting/generateReport.js
           if [ -f "Benchmark/benchmark-report-all.html" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -155,6 +169,8 @@ jobs:
         if: always() && steps.check-reports.outputs.exists == 'true'
         with:
           name: benchmark-results-json
+          # Note: Results JSON is stored in temp directory during execution
+          # HTML report contains all benchmark data
           path: Benchmark/benchmark-results.json
           retention-days: 30
           if-no-files-found: ignore

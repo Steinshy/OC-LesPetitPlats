@@ -1,8 +1,19 @@
-import { normalizeString } from "@/utils/string.js";
+// Production filter functions using forEach-based implementation
+// Adapted from src/components/filters/filtersBy.js
+
+// Normalize string function (copied from src/utils/string.js)
+const normalizeString = value =>
+  String(value || "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 
 const canonicalizeTerm = value => normalizeString(value);
 
-export const SearchInput = (recipes, searchTerm) => {
+// Search filter - filters recipes by search term
+export const filterBySearchTerm = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
   if (!query) return recipes;
 
@@ -42,7 +53,8 @@ export const SearchInput = (recipes, searchTerm) => {
   return filtered;
 };
 
-export const IngredientsInput = (recipes, ingredients) => {
+// Ingredients filter - filters recipes by selected ingredients
+export const filterByIngredients = (recipes, ingredients) => {
   if (
     !ingredients ||
     (Array.isArray(ingredients) && ingredients.length === 0) ||
@@ -83,7 +95,8 @@ export const IngredientsInput = (recipes, ingredients) => {
   return filtered;
 };
 
-export const AppliancesInput = (recipes, appliances) => {
+// Appliances filter - filters recipes by selected appliances
+export const filterByAppliances = (recipes, appliances) => {
   if (
     !appliances ||
     (Array.isArray(appliances) && appliances.length === 0) ||
@@ -113,7 +126,8 @@ export const AppliancesInput = (recipes, appliances) => {
   return filtered;
 };
 
-export const UstensilsInput = (recipes, ustensils) => {
+// Ustensils filter - filters recipes by selected ustensils
+export const filterByUstensils = (recipes, ustensils) => {
   if (
     !ustensils ||
     (Array.isArray(ustensils) && ustensils.length === 0) ||

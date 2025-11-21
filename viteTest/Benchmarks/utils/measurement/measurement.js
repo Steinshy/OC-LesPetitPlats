@@ -7,10 +7,10 @@ const MS_TO_SECONDS_DIVISOR = 1000;
 const BYTES_TO_MB_DIVISOR = 1024 * 1024;
 const DEFAULT_ITERATIONS = 100;
 const DEFAULT_MEMORY_ITERATIONS = 10;
-const BENCHMARK_TIME = 75;
-const MAX_ITERATIONS = 25;
-const WARMUP_TIME = 15;
-const WARMUP_ITERATIONS = 2;
+export const BENCHMARK_TIME = 75;
+export const MAX_ITERATIONS = 25;
+export const WARMUP_TIME = 15;
+export const WARMUP_ITERATIONS = 2;
 
 // Calculation functions
 export function calculateOpsPerSecond(timeMs) {

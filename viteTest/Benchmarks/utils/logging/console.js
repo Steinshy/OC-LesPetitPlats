@@ -1,11 +1,27 @@
 // Console logging utilities for benchmark tests
-import { formatBenchmarkResults } from "../formatting/formatBenchmarkResults.js";
+import chalk from "chalk";
+import { PRODUCTION_LABEL, MAPS_LABEL } from "../constants.js";
+import { getAllResults } from "../data/collector.js";
 import { formatTestCaseResult, formatSummarySection } from "../formatting/formatConsole.js";
 import { formatMemory } from "../formatting/formatMeasurement.js";
+import {
+  logSection as modernLogSection,
+  logSuccess as modernLogSuccess,
+  logWarning as modernLogWarning,
+  logInfo as modernLogInfo,
+  logBenchmarkResult,
+  logComparison as modernLogComparison,
+  logHeader as modernLogHeader,
+  logStep as modernLogStep,
+  logCategorySummary as modernLogCategorySummary,
+  logMemory as modernLogMemory,
+  createSpinner,
+  createProgressBar,
+  updateProgress,
+  stopProgress,
+} from "./modernConsole.js";
 
 // Constants
-const FUNCTIONAL_LABEL = "Functional Programming (using filter/every/some/includes)";
-const NATIVE_LABEL = "Native Loops (using for loops)";
 const SEPARATOR_WIDTH = 60;
 const SEPARATOR = "=".repeat(SEPARATOR_WIDTH);
 
@@ -21,27 +37,65 @@ function logMemoryLine(label, memory, prefix = "") {
 
 // Benchmark logging functions
 export function logSection(title) {
-  console.log(`\n=== ${title} ===`);
+  modernLogSection(title);
 }
 
-export function logBenchmarkComparison(functionalStats, nativeStats, comparison) {
-  const functionalLabel = comparison.result1.name || "Functional";
-  const nativeLabel = comparison.result2.name || "Native";
-  console.log(formatBenchmarkResults(functionalStats, functionalLabel));
-  console.log(formatBenchmarkResults(nativeStats, nativeLabel));
-  console.log(`\nWinner: ${comparison.faster}`);
-  console.log(`Improvement: ${comparison.improvement.toFixed(2)}%`);
+export function logBenchmarkComparison(productionStats, mapsStats, comparison) {
+  const productionLabel = comparison.result1.name || PRODUCTION_LABEL;
+  const mapsLabel = comparison.result2.name || MAPS_LABEL;
+
+  const prodTime = productionStats.avg || productionStats.mean || 0;
+  const mapsTime = mapsStats.avg || mapsStats.mean || 0;
+  const isProductionWinner = prodTime < mapsTime;
+
+  // More explicit output with additional stats
+  console.log(chalk.dim("  Execution Times:"));
+  logBenchmarkResult(productionLabel, prodTime, "ms", isProductionWinner);
+  logBenchmarkResult(mapsLabel, mapsTime, "ms", !isProductionWinner);
+
+  // Show min/max ranges for context
+  const prodMin = productionStats.min || 0;
+  const prodMax = productionStats.max || 0;
+  const mapsMin = mapsStats.min || 0;
+  const mapsMax = mapsStats.max || 0;
+
+  if (prodMin > 0 || mapsMin > 0) {
+    console.log(chalk.dim("  Range:"));
+    console.log(`    ${productionLabel}: ${prodMin.toFixed(4)}ms - ${prodMax.toFixed(4)}ms`);
+    console.log(`    ${mapsLabel}: ${mapsMin.toFixed(4)}ms - ${mapsMax.toFixed(4)}ms`);
+  }
+
+  modernLogComparison(
+    comparison.faster,
+    comparison.improvement,
+    comparison.faster,
+    comparison.slower || mapsLabel,
+  );
 }
 
-export function logBenchmarkSection(title, functionalStats, nativeStats, comparison) {
+export function logBenchmarkSection(
+  title,
+  productionStats,
+  mapsStats,
+  comparison,
+  category = null,
+) {
+  // Extract category from title if not provided, or use provided category
+  let categoryLabel = category;
+  if (!categoryLabel) {
+    // Try to infer from context or use generic
+    categoryLabel = "Benchmark";
+  }
+
+  logSection(`${categoryLabel} - ${title}`);
+  console.log(chalk.dim(`  Benchmarking: ${categoryLabel} - ${title}`));
+  logBenchmarkComparison(productionStats, mapsStats, comparison);
+}
+
+export function logMemoryComparison(title, productionMemory, mapsMemory) {
   logSection(title);
-  logBenchmarkComparison(functionalStats, nativeStats, comparison);
-}
-
-export function logMemoryComparison(title, functionalMemory, nativeMemory) {
-  logSection(title);
-  logMemoryLine(FUNCTIONAL_LABEL, functionalMemory);
-  logMemoryLine(NATIVE_LABEL, nativeMemory);
+  modernLogMemory(PRODUCTION_LABEL, productionMemory);
+  modernLogMemory(MAPS_LABEL, mapsMemory);
 }
 
 /**
@@ -51,12 +105,8 @@ export function logMemoryComparison(title, functionalMemory, nativeMemory) {
  */
 export function logAllImplementations(allStats, labels) {
   console.log("\nAll Implementations:");
+  console.log(`  ${labels.PRODUCTION}: ${allStats.productionStats.avg.toFixed(2)}ms`);
   console.log(`  ${labels.MAPS}: ${allStats.mapsStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.LOOPS}: ${allStats.loopsStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.FOREACH}: ${allStats.forEachStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.REDUCE}: ${allStats.reduceStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.FOR}: ${allStats.forStats.avg.toFixed(2)}ms`);
-  console.log(`  ${labels.WHILE}: ${allStats.whileStats.avg.toFixed(2)}ms`);
 }
 
 /**
@@ -66,27 +116,21 @@ export function logAllImplementations(allStats, labels) {
  */
 export function logAllMemoryUsages(memoryUsages, labels) {
   console.log("\nAll Memory Usages:");
+  console.log(`  ${labels.PRODUCTION}: ${memoryUsages.production.toFixed(2)}MB`);
   console.log(`  ${labels.MAPS}: ${memoryUsages.maps.toFixed(2)}MB`);
-  console.log(`  ${labels.LOOPS}: ${memoryUsages.loops.toFixed(2)}MB`);
-  console.log(`  ${labels.FOREACH}: ${memoryUsages.forEach.toFixed(2)}MB`);
-  console.log(`  ${labels.REDUCE}: ${memoryUsages.reduce.toFixed(2)}MB`);
-  console.log(`  ${labels.FOR}: ${memoryUsages.for.toFixed(2)}MB`);
-  console.log(`  ${labels.WHILE}: ${memoryUsages.while.toFixed(2)}MB`);
 }
 
-export function logMemoryUsage(label, functionalMemory, nativeMemory) {
-  logMemoryLine(FUNCTIONAL_LABEL, functionalMemory, label);
-  logMemoryLine(NATIVE_LABEL, nativeMemory, label);
+export function logMemoryUsage(label, productionMemory, mapsMemory) {
+  logMemoryLine(PRODUCTION_LABEL, productionMemory, label);
+  logMemoryLine(MAPS_LABEL, mapsMemory, label);
 }
 
 export function logReportHeader(title, width = SEPARATOR_WIDTH) {
-  console.log(`\n${"=".repeat(width)}`);
-  console.log(title);
-  console.log("=".repeat(width));
+  modernLogHeader(title, width);
 }
 
 export function logSuccess(message) {
-  console.log(`\n✓ ${message}`);
+  modernLogSuccess(message);
 }
 
 export function logRecommendations(winner, message) {
@@ -95,11 +139,11 @@ export function logRecommendations(winner, message) {
   console.log(`  ${message}`);
 }
 
-export function logTestCaseResult(testCaseName, functionalStats, nativeStats, comparison) {
+export function logTestCaseResult(testCaseName, productionStats, mapsStats, comparison) {
   const { consoleOutput, reportContent } = formatTestCaseResult(
     testCaseName,
-    functionalStats,
-    nativeStats,
+    productionStats,
+    mapsStats,
     comparison,
   );
   console.log(consoleOutput);
@@ -107,9 +151,9 @@ export function logTestCaseResult(testCaseName, functionalStats, nativeStats, co
 }
 
 export function logSummarySection(results) {
-  const { output, overallWinner, functionalWins, nativeWins } = formatSummarySection(results);
+  const { output, overallWinner, productionWins, mapsWins } = formatSummarySection(results);
   console.log(output);
-  return { overallWinner, functionalWins, nativeWins, reportContent: output };
+  return { overallWinner, productionWins, mapsWins, reportContent: output };
 }
 
 // Report generation logging functions
@@ -119,8 +163,8 @@ export function logReportGenerationHeader() {
   console.log(SEPARATOR);
 }
 
-export function logStep(stepNumber, message) {
-  console.log(`\n${stepNumber}. ${message}`);
+export function logStep(stepNumber, message, status = "pending") {
+  modernLogStep(stepNumber, message, status);
 }
 
 export function logCollectingResults(stepNumber) {
@@ -128,9 +172,9 @@ export function logCollectingResults(stepNumber) {
 }
 
 export function logNoResultsWarning() {
-  console.warn("\n⚠ Warning: No benchmark results found.");
-  console.warn("Tests need to be modified to use addBenchmarkResult() from results.js");
-  console.warn("For now, generating report with empty data structure...\n");
+  modernLogWarning("No benchmark results found.");
+  modernLogInfo("Tests need to be modified to use addBenchmarkResult() from results.js");
+  modernLogInfo("For now, generating report with empty data structure...\n");
 }
 
 export function logRunningTest(stepNumber, testName) {
@@ -142,7 +186,7 @@ export function logGeneratingCharts(stepNumber) {
 }
 
 export function logNoChartsWarning() {
-  console.warn("⚠ No charts generated - no data available");
+  modernLogWarning("No charts generated - no data available");
 }
 
 export function logGeneratingHTML(stepNumber) {
@@ -150,7 +194,7 @@ export function logGeneratingHTML(stepNumber) {
 }
 
 export function logFileSaved(fileType, path) {
-  console.log(`✓ ${fileType} saved to: ${path}`);
+  modernLogSuccess(`${fileType} saved to: ${path}`);
 }
 
 export function logHTMLReportSaved(path) {
@@ -170,7 +214,7 @@ export function logPDFReportSaved(path) {
 }
 
 export function logSkippingPDFWarning() {
-  console.warn("⚠ Skipping PDF generation - no charts available");
+  modernLogWarning("Skipping PDF generation - no charts available");
 }
 
 export function logReportCompleted(htmlPath, pdfPath) {
@@ -195,3 +239,73 @@ export function logReportError(error) {
 export function logClearingDirectory() {
   console.log("Clearing Benchmark directory...");
 }
+
+/**
+ * Logs category summary for a specific category
+ * @param {string} category - Category name (e.g., "search", "ingredients")
+ * @param {string} categoryLabel - Display label (e.g., "Search", "Ingredients")
+ * @param {string} allLabel - Label for "All" summary (e.g., "All query", "All ingredient")
+ */
+export function logCategorySummary(category, categoryLabel, allLabel) {
+  const allResults = getAllResults();
+
+  if (!allResults[category] || allResults[category].length === 0) {
+    return;
+  }
+
+  const categoryTests = allResults[category];
+  const PRODUCTION_LABEL = "Production";
+  const MAPS_LABEL = "Maps";
+
+  // Calculate averages for each implementation
+  let productionTotal = 0;
+  let mapsTotal = 0;
+  let productionCount = 0;
+  let mapsCount = 0;
+  let productionWins = 0;
+  let mapsWins = 0;
+
+  categoryTests.forEach(result => {
+    if (result.functionalStats) {
+      const prodTime = result.functionalStats.avg || result.functionalStats.mean || 0;
+      productionTotal += prodTime;
+      productionCount++;
+    }
+    if (result.loopStats) {
+      const mapsTime = result.loopStats.avg || result.loopStats.mean || 0;
+      mapsTotal += mapsTime;
+      mapsCount++;
+    }
+
+    // Count wins
+    if (result.comparison) {
+      const winner = result.comparison.faster || "";
+      if (winner.includes("Production") || winner.includes(PRODUCTION_LABEL)) {
+        productionWins++;
+      } else if (winner.includes("Maps") || winner.includes(MAPS_LABEL)) {
+        mapsWins++;
+      }
+    }
+  });
+
+  const productionAvg = productionCount > 0 ? productionTotal / productionCount : 0;
+  const mapsAvg = mapsCount > 0 ? mapsTotal / mapsCount : 0;
+  const winner = productionAvg < mapsAvg ? PRODUCTION_LABEL : MAPS_LABEL;
+  const improvement =
+    productionAvg > 0 && mapsAvg > 0
+      ? ((Math.max(productionAvg, mapsAvg) - Math.min(productionAvg, mapsAvg)) /
+          Math.max(productionAvg, mapsAvg)) *
+        100
+      : 0;
+
+  modernLogCategorySummary(allLabel, {
+    testCount: categoryTests.length,
+    winner,
+    wins: winner === PRODUCTION_LABEL ? productionWins : mapsWins,
+    avgTime: winner === PRODUCTION_LABEL ? productionAvg : mapsAvg,
+    improvement,
+  });
+}
+
+// Export modern console utilities
+export { createSpinner, createProgressBar, updateProgress, stopProgress };

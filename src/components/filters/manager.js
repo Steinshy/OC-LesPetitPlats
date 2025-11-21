@@ -199,10 +199,10 @@ const restoreDropdownSelections = () => {
 
       const checkIcon = itemButton.querySelector(".dropdown-item-check");
       if (!checkIcon) {
-      const icon = document.createElement("i");
-      icon.className = "fa-solid fa-check dropdown-item-check";
-      icon.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
-      itemButton.appendChild(icon);
+        const icon = document.createElement("i");
+        icon.className = "fa-solid fa-check dropdown-item-check";
+        icon.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
+        itemButton.appendChild(icon);
       }
     });
   });
