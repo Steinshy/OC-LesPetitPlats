@@ -39,7 +39,7 @@ describe("cards render", () => {
 
     it("should include utensils icon", () => {
       const html = renderNoResults();
-      expect(html).toContain("fa-utensils");
+      expect(html).toContain("ri-knife-line");
     });
   });
 

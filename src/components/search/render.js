@@ -25,11 +25,11 @@ export const mainSearchBar = () => {
           placeholder="Rechercher une recette, un ingrédient...">
 
         <button type="button" id="main-clear-search-btn" class="search-clear-btn hidden" aria-label="Effacer la recherche">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <i class="ri-close-line" aria-hidden="true"></i>
         </button>
 
         <button type="button" id="main-search-btn" aria-label="Lancer la recherche" class="search-btn">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <i class="ri-search-line" aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -38,12 +38,12 @@ export const mainSearchBar = () => {
 
 export const renderDropdownSearch = dropdownType => {
   return `
-  <div class="dropdown-search" id="dropdown-${dropdownType}-search">
+    <div class="dropdown-search" id="dropdown-${dropdownType}-search">
     <input type="text" id="search-${dropdownType}" class="dropdown-search-input" aria-hidden="true"
       placeholder="Rechercher un ${dropdownType}...">
-    <i class="fa-solid fa-magnifying-glass dropdown-search-icon" id="search-icon-${dropdownType}" aria-hidden="true"></i>
+    <i class="ri-search-line dropdown-search-icon" id="search-icon-${dropdownType}" aria-hidden="true"></i>
     <button type="button" class="dropdown-search-clear hidden" id="clear-search-${dropdownType}" aria-label="Effacer la recherche" aria-hidden="true">
-      <i class="fa-solid fa-xmark"></i>
+      <i class="ri-close-line"></i>
     </button>
   </div>
     `;

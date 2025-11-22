@@ -120,7 +120,7 @@ describe("dropdown render", () => {
       const html = renderDropdownList(items, "ingredients");
 
       expect(html).toContain("dropdown-item-check");
-      expect(html).toContain("fa-check");
+      expect(html).toContain("ri-check-line");
     });
 
     it("should set aria-pressed to false by default", () => {

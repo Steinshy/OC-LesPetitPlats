@@ -4,6 +4,7 @@ import { initScrollToTop } from "./components/scrollToTop.js";
 import { setupMainHeader, setupSearchSection } from "./components/search/manager.js";
 import { buildRecipesData } from "./utils/recipesBuilder.js";
 import { updateCounter } from "./utils/string.js";
+import "remixicon/fonts/remixicon.css";
 import "../styles/global.css";
 
 const initApp = async () => {

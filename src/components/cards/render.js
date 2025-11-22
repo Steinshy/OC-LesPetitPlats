@@ -1,7 +1,7 @@
 export const renderNoResults = () => {
   return `
     <div class="no-results-icon">
-      <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+      <i class="ri-knife-line" aria-hidden="true"></i>
     </div>
     <h2>Aucune recette trouvée</h2>
     <p>

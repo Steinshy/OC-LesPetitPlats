@@ -73,7 +73,7 @@ describe("search render", () => {
     it("should include search button", () => {
       const html = mainSearchBar();
       expect(html).toContain("main-search-btn");
-      expect(html).toContain("fa-magnifying-glass");
+      expect(html).toContain("ri-search-line");
     });
   });
 
@@ -111,7 +111,7 @@ describe("search render", () => {
     it("should include search icon", () => {
       const html = renderDropdownSearch("ingredients");
       expect(html).toContain("search-icon");
-      expect(html).toContain("fa-magnifying-glass");
+      expect(html).toContain("ri-search-line");
     });
 
     it("should include clear button with hidden class", () => {

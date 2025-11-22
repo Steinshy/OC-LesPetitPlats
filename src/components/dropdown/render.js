@@ -5,7 +5,7 @@ export const ingredientsDropdown = (ingredientsItems = []) => {
       <button type="button" class="filter-dropdown" id="dropdown-ingredients-button"
         aria-expanded="false" aria-controls="menu-ingredients" aria-label="Ouvrir le menu ingredients">
         <span class="filter-label">Ingrédients</span>
-        <i class="fa-solid fa-chevron-down"></i>
+        <i class="ri-arrow-down-s-line"></i>
       </button>
       <div class="dropdown-backdrop" id="dropdown-ingredients-backdrop" aria-hidden="true"></div>
       <div class="dropdown-menu" id="menu-ingredients" aria-hidden="true" role="menu">
@@ -22,7 +22,7 @@ export const ustensilsDropdown = (ustensilsItems = []) => {
       <button type="button" class="filter-dropdown" id="dropdown-ustensils-button"
         aria-expanded="false" aria-controls="menu-ustensils" aria-label="Ouvrir le menu ustensils">
         <span class="filter-label">Ustensiles</span>
-        <i class="fa-solid fa-chevron-down"></i>
+        <i class="ri-arrow-down-s-line"></i>
       </button>
       <div class="dropdown-backdrop" id="dropdown-ustensils-backdrop" aria-hidden="true"></div>
       <div class="dropdown-menu" id="menu-ustensils" aria-hidden="true" role="menu">
@@ -39,7 +39,7 @@ export const appliancesDropdown = (appliancesItems = []) => {
       <button type="button" class="filter-dropdown" id="dropdown-appliances-button"
         aria-expanded="false" aria-controls="menu-appliances" aria-label="Ouvrir le menu appliances">
         <span class="filter-label">Appareils</span>
-        <i class="fa-solid fa-chevron-down"></i>
+        <i class="ri-arrow-down-s-line"></i>
       </button>
       <div class="dropdown-backdrop" id="dropdown-appliances-backdrop" aria-hidden="true"></div>
       <div class="dropdown-menu" id="menu-appliances" aria-hidden="true" role="menu">
@@ -73,7 +73,7 @@ export const renderDropdownList = (items, type) => `
             aria-pressed="false"
           >
             <span class="dropdown-item-label">${item}</span>
-            <i class="fa-solid fa-check dropdown-item-check" aria-hidden="true"></i>
+            <i class="ri-check-line dropdown-item-check" aria-hidden="true"></i>
           </button>
         </li>
       `,
@@ -88,7 +88,7 @@ export const renderDropdownSkeleton = (type, label) => {
       <button type="button" class="filter-dropdown" id="dropdown-${type}-button" disabled
         aria-expanded="false" aria-label="Chargement ${label}">
         <span class="filter-label"></span>
-        <i class="fa-solid fa-chevron-down"></i>
+        <i class="ri-arrow-down-s-line"></i>
       </button>
     </div>
   `;
