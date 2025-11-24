@@ -1,16 +1,34 @@
+import {
+  renderCardSkeletons,
+  renderMainHeaderSkeleton,
+  renderDropdownsSkeletons,
+} from "./renderSqueletons.js";
+
+export const squeletonsElements = {
+  header: document.getElementById("header"),
+  mainSearchBar: document.getElementById("main-search-bar"),
+  headerTitle: document.getElementById("header-title"),
+  dropdownsContainer: document.getElementById("dropdowns-container"),
+  dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+  dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
+  dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+  cardsContainer: document.getElementById("cards-container"),
+  cards: document.querySelectorAll(".card.skeleton"),
+};
+
 export const showSearchSkeleton = () => {
-  document.querySelector(".main-search-bar")?.classList.add("skeleton-loading");
+  squeletonsElements.mainSearchBar?.classList.add("skeleton-loading");
 };
 
 export const hideSearchSkeleton = () => {
-  document.querySelector(".main-search-bar")?.classList.remove("skeleton-loading");
+  squeletonsElements.mainSearchBar?.classList.remove("skeleton-loading");
 };
 
 export const showDropdownsSkeletons = () => {
   const skeletonElements = [
-    document.getElementById("dropdown-ingredients-container"),
-    document.getElementById("dropdown-ustensils-container"),
-    document.getElementById("dropdown-appliances-container"),
+    squeletonsElements.dropdownIngredients,
+    squeletonsElements.dropdownUstensils,
+    squeletonsElements.dropdownAppliances,
   ];
 
   skeletonElements.forEach(element => {
@@ -22,9 +40,9 @@ export const showDropdownsSkeletons = () => {
 
 export const hideDropdownsSkeletons = () => {
   const skeletonElements = [
-    document.getElementById("dropdown-ingredients-container"),
-    document.getElementById("dropdown-ustensils-container"),
-    document.getElementById("dropdown-appliances-container"),
+    squeletonsElements.dropdownIngredients,
+    squeletonsElements.dropdownUstensils,
+    squeletonsElements.dropdownAppliances,
   ];
 
   skeletonElements.forEach(element => {
@@ -34,25 +52,26 @@ export const hideDropdownsSkeletons = () => {
   });
 };
 
-export const buildCardSkeletons = (length, container) => {
-  if (!length || !container) return;
+export const buildCardSkeletons = length => {
+  if (!length) return;
 
-  container.innerHTML = "";
-  for (let i = 0; i < length; i++) {
-    const skeleton = document.createElement("div");
-    skeleton.innerHTML = `
-      <div class="card skeleton">
-        <div class="card-picture">
-          <div class="image-loading-placeholder"></div>
-        </div>
-      </div>
-    `;
-    container.appendChild(skeleton);
-  }
+  squeletonsElements.cardsContainer.innerHTML = renderCardSkeletons(length);
 };
 
 export const hideCardSkeletons = () => {
-  document.querySelectorAll(".card.skeleton").forEach(skeleton => {
-    skeleton.classList.remove("skeleton");
+  squeletonsElements.cards?.forEach(skeleton => {
+    if (skeleton) {
+      skeleton.classList.remove("skeleton");
+    }
   });
+};
+
+export const initSkeletons = () => {
+  squeletonsElements.header.insertAdjacentHTML("beforeend", renderMainHeaderSkeleton());
+  showSearchSkeleton();
+  squeletonsElements.dropdownsContainer.innerHTML = renderDropdownsSkeletons();
+  showDropdownsSkeletons();
+
+  // Render card skeletons
+  buildCardSkeletons(12);
 };

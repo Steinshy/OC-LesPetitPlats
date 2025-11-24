@@ -1,4 +1,4 @@
-import { showSearchSkeleton, hideSearchSkeleton } from "../skeletons.js";
+import { showSearchSkeleton, hideSearchSkeleton, squeletonsElements } from "../skeletons.js";
 import { mainHeader } from "./render.js";
 
 const getSearchSectionElements = () => ({
@@ -18,6 +18,11 @@ export const setupMainHeader = recipesData => {
   const { root } = getSearchSectionElements();
   if (!root || !recipesData) return;
 
+  const skeletonHeader = document.getElementById("header-title");
+  if (skeletonHeader && skeletonHeader.classList.contains("skeleton-loading")) {
+    skeletonHeader.remove();
+  }
+
   const images = recipesData.map(recipe => recipe?.images).filter(Boolean);
 
   if (!images) return;
@@ -34,6 +39,8 @@ export const setupSearchSection = () => {
   if (!root || !container || !searchInput) {
     return;
   }
+
+  root.classList.remove("skeleton-loading");
 
   const toggleSearchState = isEnabled => {
     root.classList.toggle("disabled", !isEnabled);

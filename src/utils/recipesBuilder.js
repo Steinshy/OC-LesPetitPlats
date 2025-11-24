@@ -8,10 +8,9 @@ const buildImages = recipe => {
     webpUrl: webpUrl(recipe?.image) || null,
   };
 };
-export const buildRecipesData = async () => {
-  const apiRecipesData = await fetchRecipes();
 
-  const builtRecipesData = apiRecipesData.map(recipe => {
+const transformRecipes = apiRecipesData =>
+  apiRecipesData.map(recipe => {
     const images = buildImages(recipe);
 
     return {
@@ -27,5 +26,7 @@ export const buildRecipesData = async () => {
     };
   });
 
-  return builtRecipesData;
+export const buildRecipesData = async () => {
+  const recipesResult = await fetchRecipes();
+  return recipesResult.map(transformRecipes);
 };

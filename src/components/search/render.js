@@ -1,12 +1,10 @@
 export const mainHeader = imageData => {
   return `
-    <section id="main-header" class="main-header" style="background-image: url(${imageData?.webpUrl || imageData?.jpgUrl || ""})">
-      <div id="header-title" class="header-title">
-        <h2>
-          Cherchez parmi plus de 1500 recettes <br>
-          du quotidien, simples et délicieuses
-        </h2>
-      </div>
+    <section id="header-title" class="header-title" style="background-image: url(${imageData?.webpUrl || imageData?.jpgUrl || ""})">
+      <h2>
+        Cherchez parmi plus de 1500 recettes <br>
+        du quotidien, simples et délicieuses
+      </h2>
       ${mainSearchBar()}
     </section>
   `;

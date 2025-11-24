@@ -27,14 +27,22 @@
     background-size: var(--skeleton-size), var(--skeleton-size);
   }
 
-  .card-picture .image-loading-placeholder,
-  .header-image-placeholder {
+  .card-picture .image-loading-placeholder {
     height: 100%;
     left: 0;
     position: absolute;
     top: 0;
     width: 100%;
     z-index: 1;
+  }
+
+  .header-image-placeholder {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
   }
 
   .image-loading-placeholder.hidden,
@@ -201,6 +209,12 @@
     color: transparent;
     min-height: 55px;
     position: relative;
+  }
+
+  .main-search-bar.skeleton-loading .search-bar-container {
+    animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
+    background-image: var(--skeleton-bg), var(--skeleton-shine);
+    background-size: var(--skeleton-size), var(--skeleton-size);
   }
 
   .main-search-bar.skeleton-loading :is(input, button) {

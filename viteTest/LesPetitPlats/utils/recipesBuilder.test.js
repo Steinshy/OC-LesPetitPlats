@@ -33,8 +33,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly, not object
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     expect(recipes).toHaveLength(1);
     expect(recipes[0]).toMatchObject({
@@ -55,8 +57,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     // Ingredients are returned as-is from API, not transformed
     expect(recipes[0].ingredients).toEqual([
@@ -73,8 +77,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     // Property is 'images' not 'image'
     expect(recipes[0].images).toHaveProperty("jpgUrl");
@@ -97,8 +103,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     // No search property in actual code - recipe data is returned as-is
     expect(recipes[0]).not.toHaveProperty("search");
@@ -114,8 +122,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     // Ustensils are returned as-is, not normalized
     expect(recipes[0].ustensils).toEqual(expect.arrayContaining(["Spoon", "Bowl"]));
@@ -136,8 +146,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     expect(recipes[0]).toMatchObject({
       id: 2,
@@ -161,11 +173,12 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
-    // When API returns non-array, map will fail or return empty
-    // Actual behavior depends on fetchRecipes implementation
+    // When API returns non-array, it's converted to empty array
     expect(Array.isArray(recipes)).toBe(true);
   });
 
@@ -178,7 +191,9 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    await expect(buildRecipesData()).rejects.toThrow("Network error: 404");
+    const result = await buildRecipesData();
+    expect(result.isErr()).toBe(true);
+    expect(result.error.message).toBe("Network error: 404");
   });
 
   it("should build dropdown data with unique values", async () => {
@@ -212,8 +227,10 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    // Built recipes data - returns array directly, not object with dropdownData
-    const recipes = await buildRecipesData();
+    // Built recipes data - returns Result with array
+    const result = await buildRecipesData();
+    expect(result.isOk()).toBe(true);
+    const recipes = result.value;
 
     // buildRecipesData doesn't return dropdownData - that's built separately
     // Test that recipes are built correctly instead

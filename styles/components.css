@@ -126,7 +126,19 @@
 }
 
 .header-title {
-  max-width: 700px;
+  align-items: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  contain-intrinsic-size: 900px 400px;
+  content-visibility: auto;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  max-width: 100%;
+  padding: var(--spacing-2xl) 5%;
   position: relative;
   text-align: center;
   width: 100%;
@@ -1301,6 +1313,11 @@
     padding: var(--spacing-md) 3%;
   }
 
+  .header-title {
+    gap: 12px;
+    padding: var(--spacing-md) 3%;
+  }
+
   .header-title h2 {
     font-size: var(--font-size-lg);
     line-height: 1.5;
@@ -1631,6 +1648,11 @@
 
 
   .main-header {
+    gap: 15px;
+    padding: var(--spacing-lg) 5%;
+  }
+
+  .header-title {
     gap: 15px;
     padding: var(--spacing-lg) 5%;
   }
@@ -2250,6 +2272,10 @@
 
 
   .main-header {
+    padding: var(--spacing-xl) 3%;
+  }
+
+  .header-title {
     padding: var(--spacing-xl) 3%;
   }
 

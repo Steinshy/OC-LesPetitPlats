@@ -1,6 +1,7 @@
 export const baseUrl = import.meta.env.BASE_URL || "/";
 
 export const dataUrl = `${baseUrl}api/data.json`;
+// export const dataUrl = `${baseUrl}api/data-invalid.json`; Testing
 
 export const imageUrl = url => `${baseUrl}recipes/${url}`;
 

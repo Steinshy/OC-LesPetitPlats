@@ -9,10 +9,10 @@ export const showError = message => {
     existing.hidden = false;
     return;
   }
-  const root = document.querySelector("#root");
-  if (!root) return;
-  root.insertAdjacentHTML(
-    "afterbegin",
+  const headerNav = document.querySelector("#header .header-nav");
+  if (!headerNav) return;
+  headerNav.insertAdjacentHTML(
+    "afterend",
     `<div id="${ERROR_BANNER_ID}" role="alert" class="error-banner">${message}</div>`,
   );
 };

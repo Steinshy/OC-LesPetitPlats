@@ -1,9 +1,9 @@
 import { showDropdownsSkeletons, hideDropdownsSkeletons } from "../skeletons.js";
+import { renderDropdownsSkeletons } from "../renderSqueletons.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
-  renderDropdownsSkeletons,
   renderEmptyStateItem,
 } from "./render.js";
 import { cleanupDuplicatedItems, normalizeString } from "@/utils/string.js";
@@ -64,9 +64,11 @@ export const setupDropdowns = recipesData => {
   const { root } = getDropdownsElements();
   if (!root) return;
 
-  root.querySelector(".dropdown-container")
-    ? showDropdownsSkeletons()
-    : (root.innerHTML = renderDropdownsSkeletons());
+  if (root.querySelector(".dropdown-container")) {
+    showDropdownsSkeletons();
+  } else {
+    root.innerHTML = renderDropdownsSkeletons();
+  }
 
   currentDropdownsData = buildDropdownsData(recipesData);
   dropdownTypes = Object.keys(currentDropdownsData);

@@ -1,3 +1,4 @@
+import { ok } from "neverthrow";
 import { lru } from "tiny-lru";
 
 const MAX_ITEMS = 500;
@@ -47,10 +48,18 @@ export function cacheDel(key) {
 
 export async function cacheGetOrSet(key, fetcher, ttlMs) {
   const cachedValue = cacheGet(key);
-  if (cachedValue !== undefined) return cachedValue;
-  const value = await fetcher();
-  cacheSet(key, value, ttlMs);
-  return value;
+  if (cachedValue !== undefined) {
+    if (cachedValue && typeof cachedValue === "object" && "isOk" in cachedValue) {
+      return cachedValue;
+    }
+    return ok(cachedValue);
+  }
+  const result = await fetcher();
+  // Only cache successful values
+  if (result.isOk()) {
+    cacheSet(key, result.value, ttlMs);
+  }
+  return result;
 }
 
 export const cacheManager = {

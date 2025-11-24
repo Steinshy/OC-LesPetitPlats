@@ -33,7 +33,8 @@ describe("recipeApi", () => {
 
     const result = await fetchRecipes();
 
-    expect(result).toEqual(mockRecipes);
+    expect(result.isOk()).toBe(true);
+    expect(result.value).toEqual(mockRecipes);
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining("api/data.json"));
   });
@@ -46,12 +47,14 @@ describe("recipeApi", () => {
 
     // First fetch
     const result1 = await fetchRecipes();
-    expect(result1).toEqual(mockRecipes);
+    expect(result1.isOk()).toBe(true);
+    expect(result1.value).toEqual(mockRecipes);
     expect(global.fetch).toHaveBeenCalledTimes(1);
 
     // Second fetch should use cache
     const result2 = await fetchRecipes();
-    expect(result2).toEqual(mockRecipes);
+    expect(result2.isOk()).toBe(true);
+    expect(result2.value).toEqual(mockRecipes);
     expect(global.fetch).toHaveBeenCalledTimes(1); // Still 1, not 2
   });
 
@@ -62,7 +65,8 @@ describe("recipeApi", () => {
     });
 
     const result = await fetchRecipes();
-    expect(result).toEqual([]);
+    expect(result.isOk()).toBe(true);
+    expect(result.value).toEqual([]);
   });
 
   it("should return empty array when response is null", async () => {
@@ -72,22 +76,27 @@ describe("recipeApi", () => {
     });
 
     const result = await fetchRecipes();
-    expect(result).toEqual([]);
+    expect(result.isOk()).toBe(true);
+    expect(result.value).toEqual([]);
   });
 
-  it("should throw error on network failure", async () => {
+  it("should return error on network failure", async () => {
     global.fetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
     });
 
-    await expect(fetchRecipes()).rejects.toThrow("Network error: 404");
+    const result = await fetchRecipes();
+    expect(result.isErr()).toBe(true);
+    expect(result.error.message).toBe("Network error: 404");
   });
 
-  it("should throw error on fetch rejection", async () => {
+  it("should return error on fetch rejection", async () => {
     global.fetch.mockRejectedValueOnce(new Error("Network error"));
 
-    await expect(fetchRecipes()).rejects.toThrow("Network error");
+    const result = await fetchRecipes();
+    expect(result.isErr()).toBe(true);
+    expect(result.error.message).toBe("Network error");
   });
 
   it("should use cache key 'recipes_v1'", async () => {
@@ -111,11 +120,11 @@ describe("recipeApi", () => {
     });
 
     const result = await fetchRecipes();
-    expect(result).toEqual([]);
+    expect(result.isOk()).toBe(true);
+    expect(result.value).toEqual([]);
   });
 
   afterAll(() => {
     logCategorySummary("recipeApi", "Recipe API", "All recipe API tests");
   });
 });
-

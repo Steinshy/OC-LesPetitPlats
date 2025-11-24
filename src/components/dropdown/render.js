@@ -81,23 +81,3 @@ export const renderDropdownList = (items, type) => `
       .join("")}
   </ul>
 `;
-
-export const renderDropdownSkeleton = (type, label) => {
-  return `
-    <div class="dropdown-container skeleton-loading" id="dropdown-${type}-container" data-type="${type}">
-      <button type="button" class="filter-dropdown" id="dropdown-${type}-button" disabled
-        aria-expanded="false" aria-label="Chargement ${label}">
-        <span class="filter-label"></span>
-        <i class="ri-arrow-down-s-line"></i>
-      </button>
-    </div>
-  `;
-};
-
-export const renderDropdownsSkeletons = () => {
-  return (
-    renderDropdownSkeleton("ingredients", "Ingrédients") +
-    renderDropdownSkeleton("ustensils", "Ustensiles") +
-    renderDropdownSkeleton("appliances", "Appareils")
-  );
-};
