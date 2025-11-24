@@ -1,5 +1,3 @@
-import { normalizeString } from "@/utils/string.js";
-
 export const renderFilters = () => {
   return `
       <div class="filters-container" id="filters-container">
@@ -25,11 +23,11 @@ export const renderFilters = () => {
 };
 
 export const renderFilterTag = (value, type) => {
-  const displayValue = normalizeString(value);
+  const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
   return `
   <button type="button" class="filter-tag selected" id="filter-tag-btn" data-value="${value}" data-type="${type}"
-    aria-label="Retirer le filtre ${displayValue}">
-    <span>${displayValue}</span>
+    aria-label="Retirer le filtre ${value}">
+    <span>${capitalizedValue}</span>
     <i class="fa-solid fa-xmark"></i>
   </button>
 `;

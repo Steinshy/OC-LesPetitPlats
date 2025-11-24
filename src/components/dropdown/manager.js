@@ -1,109 +1,102 @@
-import { showDropdownsSkeletons, hideDropdownsSkeletons } from "../skeletons.js";
-import { renderDropdownsSkeletons } from "../renderSqueletons.js";
+import { buildDropdownsData } from "./data.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
   renderEmptyStateItem,
 } from "./render.js";
-import { cleanupDuplicatedItems, normalizeString } from "@/utils/string.js";
+import { filterDropdownItems } from "@/components/filters/recipeFilters.js";
+import { renderDropdownsSkeletons } from "@/components/renderSqueletons.js";
+import { showDropdownsSkeletons, hideDropdownsSkeletons } from "@/components/skeletons.js";
 
 export let currentDropdownsData = {};
 let dropdownTypes = [];
-let isDropdownHandlersInitialized = false;
+let isGlobalHandlersInitialized = false;
 const ARIA_HIDDEN = "aria-hidden";
 
-const getDropdownsElements = () => ({
-  root: document.getElementById("dropdowns-container"),
-});
-
-// Get dropdown (single-type) elements
-const getDropdownElements = dropdownType => ({
-  button: document.getElementById(`dropdown-${dropdownType}-button`),
-  searchInput: document.getElementById(`search-${dropdownType}`),
-  searchIcon: document.getElementById(`search-icon-${dropdownType}`),
-  clearButton: document.getElementById(`clear-search-${dropdownType}`),
-  menu: document.getElementById(`menu-${dropdownType}`),
-  container: document.getElementById(`dropdown-${dropdownType}-container`),
-  backdrop: document.getElementById(`dropdown-${dropdownType}-backdrop`),
-  itemsList: document.getElementById(`dropdown-${dropdownType}-list`),
-});
-
-const getDropdownListElements = dropdownType => {
-  const { itemsList } = getDropdownElements(dropdownType);
-  if (!itemsList) return null;
-  const itemsElements = [...itemsList.querySelectorAll(".dropdown-item")];
-  const emptyStateElement = document.getElementById("dropdown-empty-state");
-  const searchWrapperElement = document.getElementById(`dropdown-${dropdownType}-search`);
-  return { itemsElements, emptyStateElement, searchWrapperElement };
+const getDropdownsElements = () => {
+  return {
+    dropdownsContainer: document.getElementById("dropdowns-container"),
+  };
 };
 
-// Collect all ingredients from all recipes for dropdowns data
-export const buildDropdownsData = recipesData => {
-  let dropdownsData = {};
-
-  const allIngredients = recipesData
-    .flatMap(recipe => recipe?.ingredients?.map(ingredient => ingredient?.ingredient) || [])
-    .filter(Boolean);
-
-  const allUstensils = recipesData.flatMap(recipe => recipe?.ustensils || []).filter(Boolean);
-  const allAppliances = recipesData.map(recipe => recipe?.appliance).filter(Boolean);
-
-  dropdownsData = {
-    ingredients: cleanupDuplicatedItems(allIngredients),
-    ustensils: cleanupDuplicatedItems(allUstensils),
-    appliances: cleanupDuplicatedItems(allAppliances),
+const getDropdownElements = dropdownType => {
+  return {
+    button: document.getElementById(`dropdown-${dropdownType}-button`),
+    searchInput: document.getElementById(`search-${dropdownType}`),
+    searchIcon: document.getElementById(`search-icon-${dropdownType}`),
+    clearButton: document.getElementById(`clear-search-${dropdownType}`),
+    menu: document.getElementById(`menu-${dropdownType}`),
+    container: document.getElementById(`dropdown-${dropdownType}-container`),
+    backdrop: document.getElementById(`dropdown-${dropdownType}-backdrop`),
+    itemsList: document.getElementById(`dropdown-${dropdownType}-list`),
   };
+};
 
-  return dropdownsData;
+const getDropdownSearchElements = type => {
+  return {
+    list: document.getElementById(`dropdown-${type}-list`),
+    searchWrapper: document.getElementById(`dropdown-${type}-search`),
+    searchInput: document.getElementById(`search-${type}`),
+    searchClear: document.getElementById(`clear-search-${type}`),
+  };
+};
+
+const getDropdownListElements = (type, list) => {
+  return {
+    itemsElements: [...list.querySelectorAll(".dropdown-item")],
+    emptyElement: document.getElementById(`dropdown-empty-state-${type}`),
+  };
 };
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
 
-  const { root } = getDropdownsElements();
-  if (!root) return;
+  const { dropdownsContainer } = getDropdownsElements();
+  if (!dropdownsContainer) return;
 
-  if (root.querySelector(".dropdown-container")) {
+  if (dropdownsContainer.querySelector(".dropdown-container")) {
     showDropdownsSkeletons();
   } else {
-    root.innerHTML = renderDropdownsSkeletons();
+    dropdownsContainer.innerHTML = renderDropdownsSkeletons();
   }
 
-  currentDropdownsData = buildDropdownsData(recipesData);
+  const dropdownsData = buildDropdownsData(recipesData);
+  currentDropdownsData = dropdownsData.dropdowns || {};
   dropdownTypes = Object.keys(currentDropdownsData);
 
-  root.innerHTML =
-    // Render dropdowns content
-    ingredientsDropdown(currentDropdownsData.ingredients || []) +
-    ustensilsDropdown(currentDropdownsData.ustensils || []) +
-    appliancesDropdown(currentDropdownsData.appliances || []);
+  dropdownsContainer.innerHTML =
+    ingredientsDropdown(currentDropdownsData.ingredients) +
+    ustensilsDropdown(currentDropdownsData.ustensils) +
+    appliancesDropdown(currentDropdownsData.appliances);
 
   hideDropdownsSkeletons();
-  setupGlobalListeners(dropdownTypes);
+  setupDropdownListeners(dropdownTypes);
   dropdownTypes.forEach(dropdownType => {
-    // Initialize dropdown lists content
     updateDropdownList(dropdownType);
   });
 };
 
-const setupGlobalListeners = dropdownTypes => {
-  const { root } = getDropdownsElements();
-  if (!root) return;
+const setupDropdownListeners = types => {
+  types.forEach(type => {
+    const { searchInput, searchClear } = getDropdownSearchElements(type);
 
-  dropdownTypes.forEach(dropdownType => {
-    const { searchInput, backdrop, itemsList, button, clearButton } =
-      getDropdownElements(dropdownType);
+    const { backdrop, itemsList, button } = getDropdownElements(type);
 
     if (searchInput) {
-      searchInput.addEventListener("input", () => updateDropdownContent(dropdownType));
+      searchInput.addEventListener("input", () => {
+        updateDropdownList(type);
+        if (searchClear) {
+          searchClear.classList.toggle("hidden", !searchInput.value);
+        }
+      });
     }
 
     if (backdrop) {
       backdrop.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        toggleDropdown(dropdownType, false);
+        toggleDropdown(type, false);
       });
     }
 
@@ -118,12 +111,12 @@ const setupGlobalListeners = dropdownTypes => {
       });
     }
 
-    if (clearButton) {
-      clearButton.addEventListener("click", event => {
+    if (searchClear) {
+      searchClear.addEventListener("click", () => {
         searchInput.value = "";
-        event.preventDefault();
-        event.stopPropagation();
-        updateDropdownContent(dropdownType);
+        searchInput.focus();
+        updateDropdownList(type);
+        searchClear.classList.add("hidden");
       });
     }
 
@@ -131,26 +124,24 @@ const setupGlobalListeners = dropdownTypes => {
       button.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        toggleDropdown(dropdownType);
+        toggleDropdown(type);
       });
     }
   });
-  // Setup global handlers
-  setupDropdownHandlers();
+
+  setupGlobalHandlers();
 };
 
-export const setupDropdownHandlers = () => {
-  if (isDropdownHandlersInitialized) return;
-  isDropdownHandlersInitialized = true;
+const setupGlobalHandlers = () => {
+  if (isGlobalHandlersInitialized) return;
+  isGlobalHandlersInitialized = true;
 
-  // Escape key closes all dropdowns
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
       closeAllDropdowns();
     }
   });
 
-  // Click outside any dropdown closes them
   document.addEventListener("click", event => {
     const clickedElement = event.target;
 
@@ -165,7 +156,6 @@ export const setupDropdownHandlers = () => {
   });
 };
 
-// Helper for Filters Manager too
 const closeAllDropdowns = () => {
   dropdownTypes.forEach(type => toggleDropdown(type, false));
 };
@@ -179,7 +169,6 @@ export const getOpenDropdownType = () => {
   );
 };
 
-// Toggle a specific dropdown to handle open/close state
 export const toggleDropdown = (targetType, desiredOpen = null) => {
   dropdownTypes.forEach(type => {
     const { container, button } = getDropdownElements(type);
@@ -205,7 +194,6 @@ const applyDropdownState = (type, needsToOpen) => {
   menu?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
 };
 
-// Update dropdown content based on search
 export const updateDropdownContent = type => {
   const { searchInput, searchIcon, clearButton } = getDropdownElements(type);
   if (!searchInput) return;
@@ -233,45 +221,50 @@ export const manageItemsClicks = itemButton => {
   );
 };
 
-// Update dropdown list content
 const updateDropdownList = type => {
-  const { searchInput, itemsList } = getDropdownElements(type);
-  const listEls = getDropdownListElements(type);
+  const { list, searchWrapper, searchInput } = getDropdownSearchElements(type);
+  if (!list) return;
 
-  if (!searchInput || !itemsList || !listEls) return;
+  const allItems = currentDropdownsData[type] || [];
 
-  const { itemsElements, emptyStateElement, searchWrapperElement } = listEls;
-  const query = normalizeString(searchInput.value || "");
+  const query = searchInput?.value ?? "";
 
-  // Filter + show/hide items
-  const visibleItems = itemsElements.filter(item => {
-    const labelEl = item.querySelector(".dropdown-item-label, span");
-    const label = labelEl?.textContent || "";
-    const matches = !query || normalizeString(label).includes(query);
-    const listItem = item.closest("li");
+  const filteredItems = filterDropdownItems(allItems, query);
 
-    if (listItem) {
-      listItem.style.display = matches ? "" : "none";
-    }
+  const itemsHtml = filteredItems
+    .map(item => {
+      const label = item?.label ?? item;
+      const value = item?.value ?? item;
 
-    return matches;
-  });
+      return `
+        <li role="option" id="dropdown-item-${type}-${value}">
+          <button
+            type="button"
+            class="dropdown-item item-btn"
+            id="item-btn-${type}-${value}"
+            data-value="${value}"
+            data-type="${type}"
+            aria-pressed="false"
+          >
+            <span class="dropdown-item-label">${label}</span>
+            <i class="ri-check-line dropdown-item-check" aria-hidden="true"></i>
+          </button>
+        </li>
+      `;
+    })
+    .join("");
 
-  // Empty state
-  let emptyElement = emptyStateElement;
-  const shouldShowEmpty = visibleItems.length === 0;
+  list.innerHTML = itemsHtml;
 
-  if (shouldShowEmpty && !emptyElement) {
-    itemsList.insertAdjacentHTML("beforeend", renderEmptyStateItem());
-    emptyElement = itemsList.querySelector(".dropdown-empty-state");
+  const { itemsElements } = getDropdownListElements(type, list) || {};
+  const shouldShowEmpty = itemsElements?.length === 0;
+
+  if (shouldShowEmpty) {
+    const emptyStateHtml = renderEmptyStateItem(type);
+    list.insertAdjacentHTML("beforeend", emptyStateHtml);
   }
 
-  if (emptyElement) {
-    emptyElement.style.display = shouldShowEmpty ? "" : "none";
-  }
-
-  // Show/hide the search bar depending on whether there are any items at all
-  if (searchWrapperElement) {
-    searchWrapperElement.classList.toggle("show", itemsElements.length > 0);
+  if (searchWrapper) {
+    searchWrapper.classList.toggle("show", allItems.length > 0);
   }
 };

@@ -8,8 +8,8 @@ vi.mock("@/utils/deliveryImages.js", async () => {
   return wrapper;
 });
 
-// Mock filtersBy to use wrapper with test aliases
-vi.mock("@/components/filters/filtersBy.js", async () => {
+// Mock recipeFilters to use wrapper with test aliases (old file was filtersBy.js, now recipeFilters.js)
+vi.mock("@/components/filters/recipeFilters.js", async () => {
   const wrapper = await vi.importActual("./utils/mocks/filtersBy.js");
   return wrapper;
 });

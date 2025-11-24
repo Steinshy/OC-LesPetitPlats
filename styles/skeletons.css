@@ -19,7 +19,7 @@
     }
   }
 
-  .skeleton-loading,
+  .skeleton,
   .card-picture .image-loading-placeholder,
   .header-image-placeholder {
     animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
@@ -204,25 +204,25 @@
     width: 40%;
   }
 
-  .main-search-bar.skeleton-loading {
+  .main-search-bar.skeleton {
     border-radius: 12px;
     color: transparent;
     min-height: 55px;
     position: relative;
   }
 
-  .main-search-bar.skeleton-loading .search-bar-container {
+  .main-search-bar.skeleton .search-bar-container {
     animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
     background-image: var(--skeleton-bg), var(--skeleton-shine);
     background-size: var(--skeleton-size), var(--skeleton-size);
   }
 
-  .main-search-bar.skeleton-loading :is(input, button) {
+  .main-search-bar.skeleton :is(input, button) {
     opacity: 0;
     pointer-events: none;
   }
 
-  .filter-box-title.skeleton-loading {
+  .filter-box-title.skeleton {
     border-radius: 4px;
     color: transparent;
     display: inline-block;
@@ -231,7 +231,7 @@
   }
 
   /* Dropdown skeleton styles */
-  .dropdown-container.skeleton-loading .filter-dropdown {
+  .dropdown-container.skeleton .filter-dropdown {
     animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
     background-image: var(--skeleton-bg), var(--skeleton-shine);
     background-size: var(--skeleton-size), var(--skeleton-size);
@@ -239,11 +239,11 @@
     pointer-events: none;
   }
 
-  .dropdown-container.skeleton-loading .filter-dropdown :is(.filter-label, i) {
+  .dropdown-container.skeleton .filter-dropdown :is(.filter-label, i) {
     opacity: 0;
   }
 
-  .dropdown-container.skeleton-loading .filter-dropdown .filter-label {
+  .dropdown-container.skeleton .filter-dropdown .filter-label {
     display: block;
     min-width: 100px;
   }

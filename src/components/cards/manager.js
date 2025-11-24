@@ -48,7 +48,6 @@ export const setupRecipesCards = recipesData => {
         ${renderCardHeader(recipe.name, recipe.time)}
         ${renderCardContents(recipe.description, recipe.ingredients)}
       </div>`;
-    // Build the element, append to fragment, defer image init until in DOM
     const cardElement = template.content.firstElementChild;
     fragment.appendChild(cardElement);
     loadImages.push({ element: cardElement, images: recipe.images });
@@ -58,7 +57,6 @@ export const setupRecipesCards = recipesData => {
   hideCardSkeletons();
   container.appendChild(fragment);
 
-  // Initialize images after elements are connected to the DOM
   for (const { element, images } of loadImages) {
     imagesTypes(element, images);
   }

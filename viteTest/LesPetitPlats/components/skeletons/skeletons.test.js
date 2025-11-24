@@ -10,7 +10,7 @@ import {
 } from "@/components/skeletons.js";
 
 const MAIN_SEARCH_BAR_SELECTOR = ".main-search-bar";
-const SKELETON_LOADING_CLASS = "skeleton-loading";
+const SKELETON_LOADING_CLASS = "skeleton";
 const CARDS_CONTAINER_ID = "cards-container";
 const CARD_SKELETON_SELECTOR = ".card.skeleton";
 const EMPTY_HTML = "";
@@ -269,7 +269,9 @@ describe("skeletons", () => {
       `;
 
       showDropdownsSkeletons();
-      const containers = document.querySelectorAll("#dropdown-ingredients-container, #dropdown-ustensils-container, #dropdown-appliances-container");
+      const containers = document.querySelectorAll(
+        "#dropdown-ingredients-container, #dropdown-ustensils-container, #dropdown-appliances-container",
+      );
       containers.forEach(container => {
         expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
       });
@@ -285,4 +287,3 @@ describe("skeletons", () => {
     logCategorySummary("skeletons", "Skeletons", "All skeletons tests");
   });
 });
-

@@ -1,7 +1,6 @@
 export const baseUrl = import.meta.env.BASE_URL || "/";
 
 export const dataUrl = `${baseUrl}api/data.json`;
-// export const dataUrl = `${baseUrl}api/data-invalid.json`; Testing
 
 export const imageUrl = url => `${baseUrl}recipes/${url}`;
 
@@ -18,10 +17,18 @@ export const normalizeString = value =>
     .trim()
     .toLowerCase();
 
-export const updateCounter = count => {
-  const counter = document.getElementById("results-counter");
-  if (!counter) return;
-  counter.innerHTML = `${count} ${count === 1 ? "résultat" : "résultats"}`;
+export const toFilterItem = raw => {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return null;
+
+  const normalized = normalizeString(trimmed);
+
+  const key = normalized.replace(/s\b/g, "");
+  if (!key) return null;
+
+  const label = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+
+  return { label, value: normalized, key };
 };
 
 export const cleanupDuplicatedItems = (items = []) => {
@@ -29,21 +36,13 @@ export const cleanupDuplicatedItems = (items = []) => {
   const result = [];
 
   for (const raw of items) {
-    const trimmedRaw = String(raw)?.trim();
-    if (!trimmedRaw) continue;
+    const item = toFilterItem(raw);
+    if (!item) continue;
+    if (seen.has(item.key)) continue;
 
-    // Key for cleanup
-    const normalized = normalizeString(trimmedRaw);
-    const key = normalized.replace(/s\b/g, "");
-    if (!key || seen.has(key)) continue;
-
-    seen.add(key);
-
-    // Front-end user-friendly label
-    const label = trimmedRaw.charAt(0).toUpperCase() + trimmedRaw.slice(1);
-    result.push(label);
+    seen.add(item.key);
+    result.push({ label: item.label, value: item.value });
   }
 
-  // Sort in a user-friendly manner
-  return result.sort((a, b) => a.localeCompare(b, "fr", { sensitivity: "base" }));
+  return result.sort((a, b) => a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
 };

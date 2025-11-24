@@ -12,36 +12,42 @@ import {
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";
 const DROPDOWN_APPLIANCES_CONTAINER_ID = "dropdown-appliances-container";
-const DATA_TYPE_INGREDIENTS = "data-type=\"ingredients\"";
-const DATA_TYPE_USTENSILS = "data-type=\"ustensils\"";
-const DATA_TYPE_APPLIANCES = "data-type=\"appliances\"";
+const DATA_TYPE_INGREDIENTS = 'data-type="ingredients"';
+const DATA_TYPE_USTENSILS = 'data-type="ustensils"';
+const DATA_TYPE_APPLIANCES = 'data-type="appliances"';
 
 const ITEMS_SEPARATOR = ",";
 
 vi.mock("@/components/dropdown/render.js", () => ({
-  ingredientsDropdown: vi.fn(items => `
+  ingredientsDropdown: vi.fn(
+    items => `
     <div id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
       <button id="dropdown-ingredients-button"></button>
       <div id="menu-ingredients"></div>
       <div id="dropdown-ingredients-backdrop"></div>
       ${items.join(ITEMS_SEPARATOR)}
-    </div>`),
-  ustensilsDropdown: vi.fn(items => `
+    </div>`,
+  ),
+  ustensilsDropdown: vi.fn(
+    items => `
     <div id="${DROPDOWN_USTENSILS_CONTAINER_ID}" ${DATA_TYPE_USTENSILS}>
       <button id="dropdown-ustensils-button"></button>
       <div id="menu-ustensils"></div>
       <div id="dropdown-ustensils-backdrop"></div>
       ${items.join(ITEMS_SEPARATOR)}
-    </div>`),
-  appliancesDropdown: vi.fn(items => `
+    </div>`,
+  ),
+  appliancesDropdown: vi.fn(
+    items => `
     <div id="${DROPDOWN_APPLIANCES_CONTAINER_ID}" ${DATA_TYPE_APPLIANCES}>
       <button id="dropdown-appliances-button"></button>
       <div id="menu-appliances"></div>
       <div id="dropdown-appliances-backdrop"></div>
       ${items.join(ITEMS_SEPARATOR)}
-    </div>`),
+    </div>`,
+  ),
   renderDropdownsSkeletons: vi.fn(() => "<div class='skeleton'></div>"),
-  renderEmptyStateItem: vi.fn(() => "<li id='dropdown-empty-state'>Empty</li>"),
+  renderEmptyStateItem: vi.fn(type => `<li id='dropdown-empty-state-${type}'>Empty</li>`),
 }));
 
 vi.mock("@/components/skeletons.js", () => ({
@@ -190,7 +196,7 @@ describe("dropdown manager", () => {
 
   describe("getOpenDropdownType", () => {
     beforeEach(() => {
-      document.body.innerHTML = "<div id=\"dropdowns-container\"></div>";
+      document.body.innerHTML = '<div id="dropdowns-container"></div>';
       setupDropdowns(mockRecipes);
     });
 
@@ -219,15 +225,21 @@ describe("dropdown manager", () => {
     it("should return currently open dropdown type", () => {
       setupDropdowns(mockRecipes);
       toggleDropdown("ustensils", true);
-      expect(document.getElementById("dropdown-ustensils-container")?.classList.contains("open")).toBe(true);
+      expect(
+        document.getElementById("dropdown-ustensils-container")?.classList.contains("open"),
+      ).toBe(true);
       expect(getOpenDropdownType()).toBe("ustensils");
 
       toggleDropdown("appliances", true);
-      expect(document.getElementById("dropdown-appliances-container")?.classList.contains("open")).toBe(true);
+      expect(
+        document.getElementById("dropdown-appliances-container")?.classList.contains("open"),
+      ).toBe(true);
       expect(getOpenDropdownType()).toBe("appliances");
 
       toggleDropdown("ingredients", true);
-      expect(document.getElementById("dropdown-ingredients-container")?.classList.contains("open")).toBe(true);
+      expect(
+        document.getElementById("dropdown-ingredients-container")?.classList.contains("open"),
+      ).toBe(true);
       expect(getOpenDropdownType()).toBe("ingredients");
     });
   });
@@ -304,7 +316,7 @@ describe("dropdown manager", () => {
 
       updateDropdownContent("ingredients");
 
-      const emptyState = document.getElementById("dropdown-empty-state");
+      const emptyState = document.getElementById("dropdown-empty-state-ingredients");
       expect(emptyState).toBeTruthy();
     });
 
@@ -331,4 +343,3 @@ describe("dropdown manager", () => {
     logCategorySummary("dropdownManager", "Dropdown Manager", "All dropdown manager tests");
   });
 });
-

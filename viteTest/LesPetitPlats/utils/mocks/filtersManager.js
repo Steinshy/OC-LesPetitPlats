@@ -1,7 +1,7 @@
 // Test wrapper for filters manager - adds missing exports without modifying source
 import { setupRecipesCards } from "@/components/cards/manager.js";
-import * as filtersBy from "@/components/filters/filtersBy.js";
 import { setupFilters } from "@/components/filters/manager.js";
+import * as filtersBy from "@/components/filters/recipeFilters.js";
 
 // Re-export setupFilters from actual manager
 export { setupFilters };
@@ -32,9 +32,21 @@ const syncUI = () => {
   // Apply filters
   filteredRecipes = allRecipes;
   filteredRecipes = filtersBy.SearchInput(filteredRecipes, filtersState.mainSearchText);
-  filteredRecipes = filtersBy.IngredientsInput(filteredRecipes, filtersState.tags.ingredients);
-  filteredRecipes = filtersBy.AppliancesInput(filteredRecipes, filtersState.tags.appliances);
-  filteredRecipes = filtersBy.UstensilsInput(filteredRecipes, filtersState.tags.ustensils);
+  filteredRecipes = filtersBy.filterByField(
+    filteredRecipes,
+    filtersState.tags.ingredients,
+    "ingredients",
+  );
+  filteredRecipes = filtersBy.filterByField(
+    filteredRecipes,
+    filtersState.tags.appliances,
+    "appliances",
+  );
+  filteredRecipes = filtersBy.filterByField(
+    filteredRecipes,
+    filtersState.tags.ustensils,
+    "ustensils",
+  );
 
   // Update cards if setupRecipesCards is available
   if (setupRecipesCards) {
@@ -167,10 +179,19 @@ export const clearAllFilters = () => {
   filtersState.tags.appliances.clear();
   filtersState.tags.ustensils.clear();
 
-  const mainSearchInput = document.getElementById("recipe-search");
-  const clearSearchBtn = document.getElementById("clear-recipe-search");
+  const mainSearchInput = document.getElementById("main-search-input");
+  const clearSearchBtn = document.getElementById("main-clear-search-btn");
+  const searchBtn = document.getElementById("main-search-btn");
+
   if (mainSearchInput) mainSearchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
+  if (searchBtn) searchBtn.classList.remove("hidden");
+
+  document.dispatchEvent(
+    new CustomEvent("filters:searchChanged", {
+      detail: { query: "" },
+    }),
+  );
 
   document.querySelectorAll(".dropdown-item.selected").forEach(item => {
     item.classList.remove("selected");

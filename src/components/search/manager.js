@@ -1,8 +1,8 @@
-import { showSearchSkeleton, hideSearchSkeleton, squeletonsElements } from "../skeletons.js";
+import { showSearchSkeleton, hideSearchSkeleton } from "../skeletons.js";
 import { mainHeader } from "./render.js";
 
 const getSearchSectionElements = () => ({
-  root: document.getElementById("header"),
+  header: document.getElementById("header"),
   headerTitle: document.getElementById("header-title"),
 });
 
@@ -14,12 +14,12 @@ const getSearchElements = () => ({
   searchButton: document.getElementById("main-search-btn"),
 });
 
-export const setupMainHeader = recipesData => {
-  const { root } = getSearchSectionElements();
-  if (!root || !recipesData) return;
+export const setupHeaderTitle = recipesData => {
+  const { header } = getSearchSectionElements();
+  if (!header || !recipesData) return;
 
   const skeletonHeader = document.getElementById("header-title");
-  if (skeletonHeader && skeletonHeader.classList.contains("skeleton-loading")) {
+  if (skeletonHeader && skeletonHeader.classList.contains("skeleton")) {
     skeletonHeader.remove();
   }
 
@@ -30,20 +30,21 @@ export const setupMainHeader = recipesData => {
   const randomIndex = Math.floor(Math.random() * images.length);
   const imageData = images[randomIndex];
 
-  root.insertAdjacentHTML("beforeend", mainHeader(imageData));
+  header.insertAdjacentHTML("beforeend", mainHeader(imageData));
 };
 
-export const setupSearchSection = () => {
-  const { root, container, searchInput, clearButton, searchButton } = getSearchElements();
+export const setupSearchBar = () => {
+  const { header } = getSearchSectionElements();
+  const { container, searchInput, clearButton, searchButton } = getSearchElements();
 
-  if (!root || !container || !searchInput) {
+  if (!header || !container || !searchInput) {
     return;
   }
 
-  root.classList.remove("skeleton-loading");
+  header.classList.remove("skeleton-loading");
 
   const toggleSearchState = isEnabled => {
-    root.classList.toggle("disabled", !isEnabled);
+    header.classList.toggle("disabled", !isEnabled);
     container.classList.toggle("disabled", !isEnabled);
     isEnabled ? hideSearchSkeleton() : showSearchSkeleton();
   };

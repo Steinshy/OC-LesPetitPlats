@@ -1,25 +1,25 @@
 import { setupDropdowns } from "./components/dropdown/manager.js";
 import { setupFilters } from "./components/filters/manager.js";
+import { setupResultsCounter } from "./components/resultsCounter.js";
 import { initScrollToTop } from "./components/scrollToTop.js";
-import { setupMainHeader, setupSearchSection } from "./components/search/manager.js";
+import { setupHeaderTitle, setupSearchBar } from "./components/search/manager.js";
 import { initSkeletons } from "./components/skeletons.js";
 import { showError, hideError } from "./utils/errorHandler.js";
 import { buildRecipesData } from "./utils/recipesBuilder.js";
-import { updateCounter } from "./utils/string.js";
 import "remixicon/fonts/remixicon.css";
 import "../styles/global.css";
 
 const initApp = async () => {
-  hideError(); // Need rework
+  hideError();
   initSkeletons();
 
   const recipesResult = await buildRecipesData();
 
   recipesResult.match(
     recipesData => {
-      updateCounter(recipesData.length);
-      setupMainHeader(recipesData);
-      setupSearchSection();
+      setupResultsCounter(recipesData.length);
+      setupHeaderTitle(recipesData);
+      setupSearchBar();
       setupDropdowns(recipesData);
       setupFilters(recipesData);
     },
@@ -31,8 +31,8 @@ const initApp = async () => {
           : "Une erreur est survenue lors du chargement des recettes.";
       showError(errorMessage);
 
-      setupSearchSection();
-      updateCounter(0);
+      setupSearchBar();
+      setupResultsCounter(0);
     },
   );
 

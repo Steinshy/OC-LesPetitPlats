@@ -12,9 +12,9 @@ import {
 
 const DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR = "dropdown-ingredients-container";
 const DROPDOWN_SEARCH_STRING = "dropdown-search";
-const DATA_TYPE_INGREDIENTS_ATTR = "data-type=\"ingredients\"";
-const DATA_TYPE_USTENSILS_ATTR = "data-type=\"ustensils\"";
-const DATA_TYPE_APPLIANCES_ATTR = "data-type=\"appliances\"";
+const DATA_TYPE_INGREDIENTS_ATTR = 'data-type="ingredients"';
+const DATA_TYPE_USTENSILS_ATTR = 'data-type="ustensils"';
+const DATA_TYPE_APPLIANCES_ATTR = 'data-type="appliances"';
 const LABEL_INGREDIENTS = "Ingrédients";
 const LABEL_USTENSILS = "Ustensiles";
 const LABEL_APPLIANCES = "Appareils";
@@ -155,16 +155,16 @@ describe("dropdown render", () => {
 
   describe("renderEmptyStateItem", () => {
     it("should render empty state item", () => {
-      const html = renderEmptyStateItem();
+      const html = renderEmptyStateItem("ingredients");
 
       expect(html).toContain("dropdown-empty-state");
       expect(html).toContain("Aucun résultat trouvé");
       expect(html).toContain('role="option"');
     });
 
-    it("should include correct ID", () => {
-      const html = renderEmptyStateItem();
-      expect(html).toContain('id="dropdown-empty-state"');
+    it("should include correct ID with dropdown type", () => {
+      const html = renderEmptyStateItem("ingredients");
+      expect(html).toContain('id="dropdown-empty-state-ingredients"');
     });
   });
 
@@ -173,7 +173,7 @@ describe("dropdown render", () => {
       const html = renderDropdownSkeleton("ingredients", LABEL_INGREDIENTS);
 
       expect(html).toContain("dropdown-container");
-      expect(html).toContain("skeleton-loading");
+      expect(html).toContain("skeleton");
       expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
     });
 
@@ -204,7 +204,7 @@ describe("dropdown render", () => {
 
     it("should include skeleton loading class", () => {
       const html = renderDropdownsSkeletons();
-      const skeletonCount = (html.match(/skeleton-loading/g) || []).length;
+      const skeletonCount = (html.match(/skeleton/g) || []).length;
       expect(skeletonCount).toBe(3);
     });
   });
@@ -213,4 +213,3 @@ describe("dropdown render", () => {
     logCategorySummary("dropdownRender", "Dropdown Render", "All dropdown render tests");
   });
 });
-

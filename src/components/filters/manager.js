@@ -1,33 +1,27 @@
 import { setupRecipesCards } from "../cards/manager.js";
 import { setupDropdowns, getOpenDropdownType, toggleDropdown } from "../dropdown/manager.js";
+import { setupResultsCounter } from "../resultsCounter.js";
 import { renderFilters, renderFilterTag } from "./render.js";
-import {
-  SearchInput,
-  IngredientsInput,
-  AppliancesInput,
-  UstensilsInput,
-} from "@/components/filters/filtersBy.js";
-import { updateCounter } from "@/utils/string.js";
+import { SearchInput, filterByField } from "@/components/filters/recipeFilters.js";
+import { normalizeString } from "@/utils/string.js";
+
+let allRecipes = [];
+let filteredRecipes = [];
+
+const filters = {
+  search: "",
+  ingredients: new Set(),
+  appliances: new Set(),
+  ustensils: new Set(),
+};
 
 const ARIA_HIDDEN = "aria-hidden";
 const ARIA_HIDDEN_TRUE = "true";
 const ARIA_HIDDEN_FALSE = "false";
 
-let allRecipes = [];
-let filteredRecipes = [];
-
-const filtersState = {
-  mainSearchText: "",
-  tags: {
-    ingredients: new Set(),
-    ustensils: new Set(),
-    appliances: new Set(),
-  },
-};
-
 const getFiltersElements = () => {
   return {
-    root: document.getElementById("filters"),
+    filters: document.getElementById("filters"),
     container: document.getElementById("filters-container"),
     count: document.getElementById("filters-count"),
     clearButton: document.getElementById("clear-filters-btn"),
@@ -37,17 +31,13 @@ const getFiltersElements = () => {
 };
 
 export const setupFilters = recipesData => {
-  allRecipes = recipesData;
-  filteredRecipes = recipesData;
-  const { root } = getFiltersElements();
-  const filtersAside = root || document.querySelector(".filters");
+  allRecipes = Array.isArray(recipesData) ? recipesData : [];
 
-  if (filtersAside) {
-    // inserts the filters block (header + tags container)
-    filtersAside.innerHTML = renderFilters();
+  const { filters } = getFiltersElements();
+  if (filters) {
+    filters.innerHTML = renderFilters();
   }
 
-  // Now the elements created by renderFilters() exist
   const { clearButton } = getFiltersElements();
 
   document.addEventListener("dropdown:itemToggled", onDropdownItemToggled);
@@ -60,53 +50,38 @@ export const setupFilters = recipesData => {
   syncUI();
 };
 
-const applyAllFilters = allRecipes => {
-  let filteredRecipes = allRecipes;
-  filteredRecipes = SearchInput(filteredRecipes, filtersState.mainSearchText);
-  filteredRecipes = IngredientsInput(filteredRecipes, filtersState.tags.ingredients);
-  filteredRecipes = AppliancesInput(filteredRecipes, filtersState.tags.appliances);
-  filteredRecipes = UstensilsInput(filteredRecipes, filtersState.tags.ustensils);
-  return filteredRecipes;
+const getFilteredRecipes = recipesData => {
+  if (!Array.isArray(recipesData)) return [];
+  let current = recipesData;
+  current = SearchInput(current, filters.search);
+  current = filterByField(current, filters.ingredients, "ingredients");
+  current = filterByField(current, filters.appliances, "appliances");
+  current = filterByField(current, filters.ustensils, "ustensils");
+  return current;
 };
 
 const onSearchChanged = query => {
-  filtersState.mainSearchText = query ?? "";
+  filters.search = query ?? "";
   syncUI();
 };
 
 const syncUI = () => {
-  // 0. remember which dropdown is currently open
   const openDropdownType = getOpenDropdownType?.() || null;
-
-  // 1. apply filters
-  filteredRecipes = applyAllFilters(allRecipes);
-
-  // 2. update cards
+  filteredRecipes = getFilteredRecipes(allRecipes);
   setupRecipesCards(filteredRecipes);
-
-  // 3. rebuild dropdowns from filtered recipes
   setupDropdowns(filteredRecipes);
-
-  // 4. re-apply selected state in dropdowns
   restoreDropdownSelections();
-
-  // 5. reopen the dropdown that was open (if any)
   if (openDropdownType) toggleDropdown(openDropdownType, true);
-
-  // 6. update tag chips and misc UI
   updateFilterTagsUI();
   updateFiltersContainer();
-  updateCounter(filteredRecipes.length);
+  setupResultsCounter(filteredRecipes.length);
 };
 
 const updateFiltersContainer = () => {
   const { container, count, clearButton } = getFiltersElements();
   if (!container || !count || !clearButton) return;
 
-  const total =
-    filtersState.tags.ingredients.size +
-    filtersState.tags.appliances.size +
-    filtersState.tags.ustensils.size;
+  const total = filters.ingredients.size + filters.appliances.size + filters.ustensils.size;
 
   if (total === 0) {
     container.style.display = "none";
@@ -140,26 +115,24 @@ const updateFilterTagsUI = () => {
   if (!listsContainer) return;
 
   const activeFiltersArray = [
-    ...[...filtersState.tags.ingredients].map(value => ({ value, type: "ingredients" })),
-    ...[...filtersState.tags.appliances].map(value => ({ value, type: "appliances" })),
-    ...[...filtersState.tags.ustensils].map(value => ({ value, type: "ustensils" })),
+    ...[...filters.ingredients].map(value => ({ value, type: "ingredients" })),
+    ...[...filters.appliances].map(value => ({ value, type: "appliances" })),
+    ...[...filters.ustensils].map(value => ({ value, type: "ustensils" })),
   ];
 
   listsContainer.innerHTML = activeFiltersArray
-    .map(tag => renderFilterTag(tag.value, tag.type))
+    .map(tag => renderFilterTag(normalizeString(tag.value ?? ""), tag.type))
     .join("");
 
-  // clicking a tag removes that filter
   listsContainer.querySelectorAll(".filter-tag").forEach(button => {
     button.addEventListener("click", () => {
       const type = button.dataset.type;
       const value = button.dataset.value;
-      const set = filtersState.tags[type];
+      const set = filters[type];
       if (!set) return;
 
       set.delete(value);
 
-      // unselect in the dropdown UI too
       const selector = `.dropdown-item[data-type="${type}"][data-value="${CSS.escape(value)}"]`;
       const dropdownItem = document.querySelector(selector);
       if (dropdownItem) {
@@ -174,7 +147,7 @@ const updateFilterTagsUI = () => {
 
 const onDropdownItemToggled = event => {
   const { type, value, selected } = event.detail;
-  const set = filtersState.tags[type];
+  const set = filters[type];
   if (!set) return;
 
   if (selected) {
@@ -187,9 +160,11 @@ const onDropdownItemToggled = event => {
 };
 
 const restoreDropdownSelections = () => {
-  Object.entries(filtersState.tags).forEach(([type, set]) => {
-    set.forEach(value => {
-      const selector = `.dropdown-item[data-type="${type}"][data-value="${CSS.escape(value)}"]`;
+  Object.entries(filters).forEach(([type, value]) => {
+    if (!(value instanceof Set)) return;
+
+    value.forEach(val => {
+      const selector = `.dropdown-item[data-type="${type}"][data-value="${CSS.escape(val)}"]`;
       const itemButton = document.querySelector(selector);
       if (!itemButton) return;
 
@@ -207,26 +182,30 @@ const restoreDropdownSelections = () => {
     });
   });
 };
-
 const clearAllFilters = () => {
-  // 1. Reset internal state
-  filtersState.mainSearchText = "";
-  filtersState.tags.ingredients.clear();
-  filtersState.tags.appliances.clear();
-  filtersState.tags.ustensils.clear();
+  filters.search = "";
+  filters.ingredients.clear();
+  filters.appliances.clear();
+  filters.ustensils.clear();
 
-  // 2. Clear main search input
-  const mainSearchInput = document.getElementById("recipe-search");
-  const clearSearchBtn = document.getElementById("clear-recipe-search");
+  const mainSearchInput = document.getElementById("main-search-input");
+  const clearSearchBtn = document.getElementById("main-clear-search-btn");
+  const searchBtn = document.getElementById("main-search-btn");
+
   if (mainSearchInput) mainSearchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
+  if (searchBtn) searchBtn.classList.remove("hidden");
 
-  // 3. Clear dropdown visual state
+  document.dispatchEvent(
+    new CustomEvent("filters:searchChanged", {
+      detail: { query: "" },
+    }),
+  );
+
   document.querySelectorAll(".dropdown-item.selected").forEach(item => {
     item.classList.remove("selected");
     item.querySelector(".dropdown-item-check")?.remove();
   });
 
-  // 4. Re-sync UI
   syncUI();
 };

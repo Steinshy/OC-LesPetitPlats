@@ -1,6 +1,6 @@
 // Test wrapper for filtersBy - adds missing exports without modifying source
-export * from "@/components/filters/filtersBy.js";
-import * as filtersBy from "@/components/filters/filtersBy.js";
+export * from "@/components/filters/recipeFilters.js";
+import * as filtersBy from "@/components/filters/recipeFilters.js";
 import { normalizeString } from "@/utils/string.js";
 
 // Export aliases for test compatibility
@@ -46,9 +46,12 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
   return filtered;
 };
 
-export const filterByIngredients = filtersBy.IngredientsInput;
-export const filterByAppliances = filtersBy.AppliancesInput;
-export const filterByUstensils = filtersBy.UstensilsInput;
+export const filterByIngredients = (recipes, ingredients) =>
+  filtersBy.filterByField(recipes, ingredients, "ingredients");
+export const filterByAppliances = (recipes, appliances) =>
+  filtersBy.filterByField(recipes, appliances, "appliances");
+export const filterByUstensils = (recipes, ustensils) =>
+  filtersBy.filterByField(recipes, ustensils, "ustensils");
 
 // Combined filter function
 export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
@@ -81,9 +84,9 @@ export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
   }
 
   filteredRecipes = filtersBy.SearchInput(filteredRecipes, searchTerm);
-  filteredRecipes = filtersBy.IngredientsInput(filteredRecipes, ingredients);
-  filteredRecipes = filtersBy.AppliancesInput(filteredRecipes, appliances);
-  filteredRecipes = filtersBy.UstensilsInput(filteredRecipes, ustensils);
+  filteredRecipes = filtersBy.filterByField(filteredRecipes, ingredients, "ingredients");
+  filteredRecipes = filtersBy.filterByField(filteredRecipes, appliances, "appliances");
+  filteredRecipes = filtersBy.filterByField(filteredRecipes, ustensils, "ustensils");
 
   return filteredRecipes;
 };

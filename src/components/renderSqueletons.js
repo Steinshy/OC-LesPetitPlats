@@ -1,6 +1,6 @@
 export const renderMainSearchBarSkeleton = () => {
   return `
-    <div class="main-search-bar skeleton-loading" id="main-search-bar">
+    <div class="main-search-bar skeleton" id="main-search-bar">
       <div class="search-bar-container" id="search-bar-container">
         <label for="main-search-input" class="sr-only">Rechercher une recette, un ingrédient</label>
 
@@ -25,7 +25,7 @@ export const renderMainSearchBarSkeleton = () => {
 
 export const renderMainHeaderSkeleton = () => {
   return `
-    <section id="header-title" class="header-title skeleton-loading">
+    <section id="header-title" class="header-title skeleton">
       <div class="header-image-placeholder"></div>
       <h2>
         Cherchez parmi plus de 1500 recettes <br>
@@ -38,21 +38,21 @@ export const renderMainHeaderSkeleton = () => {
 
 export const renderDropdownsSkeletons = () => {
   return `
-    <div class="dropdown-container skeleton-loading" id="dropdown-ingredients-container" data-type="ingredients">
+    <div class="dropdown-container skeleton" id="dropdown-ingredients-container" data-type="ingredients">
       <button type="button" class="filter-dropdown" id="dropdown-ingredients-button" disabled
         aria-expanded="false" aria-label="Chargement Ingredients">
         <span class="filter-label"></span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
     </div>
-    <div class="dropdown-container skeleton-loading" id="dropdown-ustensils-container" data-type="ustensils">
+    <div class="dropdown-container skeleton" id="dropdown-ustensils-container" data-type="ustensils">
       <button type="button" class="filter-dropdown" id="dropdown-ustensils-button" disabled
         aria-expanded="false" aria-label="Chargement Ustensiles">
         <span class="filter-label"></span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
     </div>
-    <div class="dropdown-container skeleton-loading" id="dropdown-appliances-container" data-type="appliances">
+    <div class="dropdown-container skeleton" id="dropdown-appliances-container" data-type="appliances">
       <button type="button" class="filter-dropdown" id="dropdown-appliances-button" disabled
         aria-expanded="false" aria-label="Chargement Appareils">
         <span class="filter-label"></span>

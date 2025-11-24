@@ -17,11 +17,11 @@ export const squeletonsElements = {
 };
 
 export const showSearchSkeleton = () => {
-  squeletonsElements.mainSearchBar?.classList.add("skeleton-loading");
+  squeletonsElements.mainSearchBar?.classList.add("skeleton");
 };
 
 export const hideSearchSkeleton = () => {
-  squeletonsElements.mainSearchBar?.classList.remove("skeleton-loading");
+  squeletonsElements.mainSearchBar?.classList.remove("skeleton");
 };
 
 export const showDropdownsSkeletons = () => {
@@ -33,7 +33,7 @@ export const showDropdownsSkeletons = () => {
 
   skeletonElements.forEach(element => {
     if (element) {
-      element.classList.add("skeleton-loading");
+      element.classList.add("skeleton");
     }
   });
 };
@@ -47,7 +47,7 @@ export const hideDropdownsSkeletons = () => {
 
   skeletonElements.forEach(element => {
     if (element) {
-      element.classList.remove("skeleton-loading");
+      element.classList.remove("skeleton");
     }
   });
 };

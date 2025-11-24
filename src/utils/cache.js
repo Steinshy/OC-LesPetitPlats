@@ -2,7 +2,7 @@ import { ok } from "neverthrow";
 import { lru } from "tiny-lru";
 
 const MAX_ITEMS = 500;
-const DEFAULT_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const DEFAULT_TTL_MS = 1000 * 60 * 5;
 const NO_EXPIRATION = null;
 
 const appCache = lru(MAX_ITEMS);
@@ -55,7 +55,6 @@ export async function cacheGetOrSet(key, fetcher, ttlMs) {
     return ok(cachedValue);
   }
   const result = await fetcher();
-  // Only cache successful values
   if (result.isOk()) {
     cacheSet(key, result.value, ttlMs);
   }
