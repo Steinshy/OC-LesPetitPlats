@@ -106,7 +106,13 @@ export const filterByAppliances = (recipes, appliances) => {
   const normalizedAppliances = appliances.map(app => normalizeString(app));
   return recipes.filter(recipe => {
     if (!recipe) return false;
-    const normalizedRecipeAppliance = normalizeString(recipe.appliance || "");
+    // Handle null/undefined/empty appliance - recipe should not match if it has no appliance
+    const recipeAppliance = recipe.appliance;
+    if (!recipeAppliance) {
+      return false;
+    }
+    const normalizedRecipeAppliance = normalizeString(recipeAppliance);
+    // Any filter value can match (OR logic)
     return normalizedAppliances.some(
       selectedAppliance => normalizedRecipeAppliance === selectedAppliance,
     );
@@ -118,7 +124,19 @@ export const filterByUstensils = (recipes, ustensils) => {
   }
   // Normalize ustensil filter values for comparison - use AND logic (all must match)
   const normalizedUstensils = ustensils.map(ust => normalizeString(ust));
-  return filterByFieldHelper(recipes, normalizedUstensils, "ustensils");
+  return recipes.filter(recipe => {
+    if (!recipe) return false;
+    // Handle null/undefined/empty ustensils - recipe should not match if it has no ustensils
+    const recipeUstensils = recipe.ustensils || [];
+    if (!Array.isArray(recipeUstensils) || recipeUstensils.length === 0) {
+      return false;
+    }
+    const normalizedRecipeUstensils = recipeUstensils.map(ustensil => normalizeString(ustensil));
+    // All filter values must be present in recipe (AND logic)
+    return normalizedUstensils.every(selectedValue =>
+      normalizedRecipeUstensils.includes(selectedValue),
+    );
+  });
 };
 
 // Combined filter function

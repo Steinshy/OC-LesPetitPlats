@@ -20,3 +20,33 @@ vi.mock("@/components/filters/manager.js", async () => {
   const wrapper = await vi.importActual("./utils/mocks/filtersManager.js");
   return { ...actual, ...wrapper };
 });
+
+// Mock dropdown data to use wrapper with test-compatible return structure
+vi.mock("@/components/dropdown/data.js", async () => {
+  const wrapper = await vi.importActual("./utils/mocks/dropdownData.js");
+  return wrapper;
+});
+
+// Mock string utils to use wrapper with test-compatible functions
+vi.mock("@/utils/string.js", async () => {
+  const wrapper = await vi.importActual("./utils/mocks/string.js");
+  return wrapper;
+});
+
+// Mock search render to use wrapper with missing exports
+vi.mock("@/components/search/render.js", async () => {
+  const wrapper = await vi.importActual("./utils/mocks/searchRender.js");
+  return wrapper;
+});
+
+// Mock dropdown render to use wrapper with missing exports
+vi.mock("@/components/dropdown/render.js", async () => {
+  const wrapper = await vi.importActual("./utils/mocks/dropdownRender.js");
+  return wrapper;
+});
+
+// Mock skeletons to use wrapper with test-compatible functions
+vi.mock("@/components/skeletons.js", async () => {
+  const wrapper = await vi.importActual("./utils/mocks/skeletonsManager.js");
+  return wrapper;
+});

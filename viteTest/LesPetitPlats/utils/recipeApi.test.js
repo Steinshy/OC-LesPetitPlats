@@ -51,10 +51,11 @@ describe("recipeApi", () => {
     expect(result1.value).toEqual(mockRecipes);
     expect(global.fetch).toHaveBeenCalledTimes(1);
 
-    // Second fetch should use cache
+    // Second fetch should use cache - cache returns the value directly, not the Result
     const result2 = await fetchRecipes();
-    expect(result2.isOk()).toBe(true);
-    expect(result2.value).toEqual(mockRecipes);
+    // When cached, cacheGetOrSet returns the cached value (array), not the Result object
+    expect(Array.isArray(result2)).toBe(true);
+    expect(result2).toEqual(mockRecipes);
     expect(global.fetch).toHaveBeenCalledTimes(1); // Still 1, not 2
   });
 

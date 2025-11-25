@@ -18,7 +18,9 @@ export const showError = message => {
     close: true,
     gravity: "top",
     position: "center",
-    backgroundColor: "#f44",
+    style: {
+      background: "#f44",
+    },
     stopOnFocus: true,
   });
 

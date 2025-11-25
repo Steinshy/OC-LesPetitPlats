@@ -1,131 +1,142 @@
-import { afterAll, describe, it, expect, beforeEach } from "vitest";
+import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "./logging/console.js";
-import { showError, hideError } from "@/utils/errorHandler.js";
 
-const ERROR_BANNER_SELECTOR = "#error-banner";
+// Mock Toastify before importing errorHandler
+const mockToasts = [];
+const mockToastify = vi.fn(options => {
+  const toast = {
+    showToast: vi.fn(() => {
+      // Create a mock toast element in DOM for testing
+      const toastElement = document.createElement("div");
+      toastElement.className = "toastify";
+      toastElement.textContent = options.text;
+      toastElement.setAttribute("role", "alert");
+      document.body.appendChild(toastElement);
+    }),
+    hideToast: vi.fn(() => {
+      const toasts = document.querySelectorAll(".toastify");
+      toasts.forEach(element => element.remove());
+    }),
+  };
+  mockToasts.push(toast);
+  return toast;
+});
+
+vi.mock("toastify-js", () => ({
+  default: mockToastify,
+}));
+
+// Import after mock is set up
+import { showError, hideError } from "@/utils/errorHandler.js";
 
 describe("errorHandler", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
+    mockToasts.length = 0;
+    vi.clearAllMocks();
   });
 
   describe("showError", () => {
-    it("should create error banner when it doesn't exist", () => {
-      document.body.innerHTML = '<div id="root"></div>';
-
+    it("should create error toast when called", () => {
       showError("Test error message");
 
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner).toBeTruthy();
-      expect(banner.textContent).toBe("Test error message");
-      expect(banner.getAttribute("role")).toBe("alert");
-      expect(banner.classList.contains("error-banner")).toBe(true);
+      // Check that Toastify was called with correct options
+      expect(mockToastify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: "Test error message",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "center",
+        }),
+      );
+
+      // Check toast was shown
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
+      expect(toast.textContent).toBe("Test error message");
+      expect(toast.getAttribute("role")).toBe("alert");
     });
 
-    it("should update existing error banner", () => {
-      document.body.innerHTML = `
-        <div id="root">
-          <div id="error-banner">Old message</div>
-        </div>
-      `;
-
+    it("should create new toast with updated message", () => {
       showError("New error message");
 
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner.textContent).toBe("New error message");
-      expect(banner.hidden).toBe(false);
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
+      expect(toast.textContent).toBe("New error message");
     });
 
-    it("should make existing banner visible", () => {
-      document.body.innerHTML = `
-        <div id="root">
-          <div id="error-banner" hidden>Hidden message</div>
-        </div>
-      `;
-
+    it("should create toast with new message", () => {
       showError("New message");
 
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner.hidden).toBe(false);
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
+      expect(toast.textContent).toBe("New message");
     });
 
-    it("should handle missing root element gracefully", () => {
-      document.body.innerHTML = "";
-
+    it("should handle errors gracefully", () => {
       expect(() => showError("Error")).not.toThrow();
     });
 
-    it("should insert banner at beginning of root", () => {
-      document.body.innerHTML = `
-        <div id="root">
-          <div>Existing content</div>
-        </div>
-      `;
-
+    it("should create toast when called", () => {
       showError("Error");
 
-      const root = document.querySelector("#root");
-      const banner = root.firstElementChild;
-      expect(banner.id).toBe("error-banner");
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
     });
 
     it("should display error message as provided", () => {
-      document.body.innerHTML = '<div id="root"></div>';
-
       showError("Error message");
 
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner.textContent).toBe("Error message");
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
+      expect(toast.textContent).toBe("Error message");
     });
   });
 
   describe("hideError", () => {
-    it("should hide error banner", () => {
-      document.body.innerHTML = `
-        <div id="error-banner">Error message</div>
-      `;
+    it("should hide error toast", () => {
+      showError("Error message");
+      const toast = document.querySelector(".toastify");
+      expect(toast).toBeTruthy();
 
       hideError();
 
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner.getAttribute("hidden")).toBe("");
+      // Check that hideToast was called on all active toasts
+      mockToasts.forEach(toast => {
+        expect(toast.hideToast).toHaveBeenCalled();
+      });
+
+      const remainingToast = document.querySelector(".toastify");
+      expect(remainingToast).toBeNull();
     });
 
-    it("should handle missing banner gracefully", () => {
-      document.body.innerHTML = "";
-
+    it("should handle missing toast gracefully", () => {
       expect(() => hideError()).not.toThrow();
     });
 
-    it("should set hidden attribute even if already hidden", () => {
-      document.body.innerHTML = `
-        <div id="error-banner" hidden>Error</div>
-      `;
-
+    it("should hide toast even if called multiple times", () => {
+      showError("Error");
       hideError();
-
-      const banner = document.querySelector(ERROR_BANNER_SELECTOR);
-      expect(banner.getAttribute("hidden")).toBe("");
+      expect(() => hideError()).not.toThrow();
     });
   });
 
   describe("error banner lifecycle", () => {
-    it("should create, show, and hide error banner", () => {
-      document.body.innerHTML = '<div id="root"></div>';
-
+    it("should create, show, and hide error toast", () => {
       showError("First error");
-      const banner1 = document.querySelector("#error-banner");
-      expect(banner1).toBeTruthy();
-      expect(banner1.hidden).toBe(false);
+      const toast1 = document.querySelector(".toastify");
+      expect(toast1).toBeTruthy();
+      expect(toast1.textContent).toBe("First error");
 
       hideError();
-      expect(banner1.getAttribute("hidden")).toBe("");
+      const hiddenToast = document.querySelector(".toastify");
+      expect(hiddenToast).toBeNull();
 
       showError("Second error");
-      const banner2 = document.querySelector("#error-banner");
-      expect(banner2).toBe(banner1); // Same element
-      expect(banner2.textContent).toBe("Second error");
-      expect(banner2.hidden).toBe(false);
+      const toast2 = document.querySelector(".toastify");
+      expect(toast2).toBeTruthy();
+      expect(toast2.textContent).toBe("Second error");
     });
   });
 
@@ -133,4 +144,3 @@ describe("errorHandler", () => {
     logCategorySummary("errorHandler", "Error Handler", "All error handler tests");
   });
 });
-

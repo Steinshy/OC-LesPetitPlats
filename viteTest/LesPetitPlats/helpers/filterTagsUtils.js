@@ -1,5 +1,6 @@
 // Test utility for updateFilterTags function that doesn't exist in the project
 import { renderFilterTag } from "@/components/filters/render.js";
+import { normalizeString } from "@/utils/string.js";
 
 export const updateFilterTags = (activeFilters, callbacks = {}) => {
   const { removeFilter, clearAllFilters } = callbacks;
@@ -11,8 +12,10 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
 
   if (!container) return;
 
-  const filtersBox = document.querySelector(".filters-box") || document.querySelector("#filters-container");
-  const filterCount = document.querySelector("#filter-count") || document.querySelector(".filter-count");
+  const filtersBox =
+    document.querySelector(".filters-box") || document.querySelector("#filters-container");
+  const filterCount =
+    document.querySelector("#filter-count") || document.querySelector(".filter-count");
 
   // Build active filters array - handle both Sets and Arrays
   const toArray = value => {
@@ -28,8 +31,10 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
     ...toArray(activeFilters.ustensils).map(value => ({ value, type: "ustensils" })),
   ];
 
-  // Update container
-  container.innerHTML = activeFiltersArray.map(tag => renderFilterTag(tag.value, tag.type)).join("");
+  // Update container - normalize values before passing to renderFilterTag
+  container.innerHTML = activeFiltersArray
+    .map(tag => renderFilterTag(normalizeString(tag.value), tag.type))
+    .join("");
 
   // Update filters box class
   if (filtersBox) {
@@ -54,7 +59,8 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
   });
 
   // Set up clear all button
-  const clearAllBtn = document.querySelector("#clear-filters-btn") || document.querySelector(".clear-filters-btn");
+  const clearAllBtn =
+    document.querySelector("#clear-filters-btn") || document.querySelector(".clear-filters-btn");
   if (clearAllBtn) {
     // Remove existing listeners by cloning
     const newBtn = clearAllBtn.cloneNode(true);
@@ -67,4 +73,3 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
     });
   }
 };
-

@@ -118,7 +118,7 @@ describe("skeletons", () => {
 
       showDropdownsSkeletons();
 
-      const ingredients = document.getElementById("dropdown-ingredients-container");
+      const ingredients = document.getElementById(DROPDOWN_INGREDIENTS_ID);
       expect(ingredients).toBeTruthy();
       expect(ingredients.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
     });
@@ -170,7 +170,7 @@ describe("skeletons", () => {
 
       hideDropdownsSkeletons();
 
-      const ingredients = document.getElementById("dropdown-ingredients-container");
+      const ingredients = document.getElementById(DROPDOWN_INGREDIENTS_ID);
       expect(ingredients.classList.contains(SKELETON_LOADING_CLASS)).toBe(false);
     });
   });

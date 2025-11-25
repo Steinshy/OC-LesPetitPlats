@@ -3,6 +3,7 @@ import { logCategorySummary } from "../../utils/logging/console.js";
 import { initScrollToTop } from "@/components/scrollToTop.js";
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
+const DROPDOWNS_CONTAINER_ID = "dropdowns-container";
 
 describe("scrollToTop", () => {
   beforeEach(() => {
@@ -14,6 +15,10 @@ describe("scrollToTop", () => {
       configurable: true,
       value: 0,
     });
+    // Mock getComputedStyle for mobile detector
+    window.getComputedStyle = vi.fn(() => ({
+      display: "none",
+    }));
     vi.clearAllMocks();
   });
 
@@ -38,27 +43,42 @@ describe("scrollToTop", () => {
     });
 
     it("should show button when scrolled past threshold", () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
       initScrollToTop();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
-      expect(button.classList.contains("show")).toBe(true);
-      expect(button.getAttribute("aria-hidden")).toBe("false");
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      expect(dropdownContainer.classList.contains("show")).toBe(true);
+      expect(dropdownContainer.getAttribute("aria-hidden")).toBe("false");
     });
 
     it("should hide button when not scrolled past threshold", () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
       Object.defineProperty(window, "scrollY", { value: 100, writable: true, configurable: true });
 
       initScrollToTop();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
-      expect(button.classList.contains("show")).toBe(false);
-      expect(button.getAttribute("aria-hidden")).toBe("true");
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      expect(dropdownContainer.classList.contains("show")).toBe(false);
+      expect(dropdownContainer.getAttribute("aria-hidden")).toBe("true");
+    });
+
+    it("should handle missing dropdownContainer gracefully", () => {
+      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+
+      Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
+
+      // Should not throw when dropdownContainer is missing
+      expect(() => initScrollToTop()).not.toThrow();
     });
 
     it("should scroll to top on button click", () => {
@@ -88,36 +108,38 @@ describe("scrollToTop", () => {
     });
 
     it("should update button visibility on scroll", () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
       initScrollToTop();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
-      // Trigger scroll event
+      // Trigger scroll event - implementation calls updateVisibility directly (no requestAnimationFrame)
       window.dispatchEvent(new Event("scroll"));
 
-      // Wait for requestAnimationFrame
-      return new Promise(resolve => {
-        requestAnimationFrame(() => {
-          resolve();
-        });
-      }).then(() => {
-        expect(button.classList.contains("show")).toBe(true);
-      });
+      expect(dropdownContainer.classList.contains("show")).toBe(true);
     });
 
-    it("should use requestAnimationFrame for scroll handling", () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+    it("should call updateVisibility directly on scroll", () => {
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
-      const rafSpy = vi.spyOn(window, "requestAnimationFrame");
       initScrollToTop();
 
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
+
+      // Implementation calls updateVisibility directly (no requestAnimationFrame)
       window.dispatchEvent(new Event("scroll"));
 
-      // Should use requestAnimationFrame
-      expect(rafSpy).toHaveBeenCalled();
+      // Should update immediately
+      expect(dropdownContainer.classList.contains("show")).toBe(true);
     });
 
     it("should set passive scroll listener", () => {
@@ -132,41 +154,44 @@ describe("scrollToTop", () => {
     });
 
     it("should initialize button visibility on mount", () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
       Object.defineProperty(window, "scrollY", { value: 500, writable: true, configurable: true });
 
       initScrollToTop();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
-      // Initial visibility check should run
-      expect(typeof button.classList.contains("show")).toBe("boolean");
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      // Initial visibility check should run - should show when scrollY > 300
+      expect(dropdownContainer.classList.contains("show")).toBe(true);
     });
 
-    it("should handle rapid scroll events with throttling", async () => {
-      document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
+    it("should handle rapid scroll events", () => {
+      document.body.innerHTML = `
+        <button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>
+        <div id="${DROPDOWNS_CONTAINER_ID}"></div>
+      `;
 
       initScrollToTop();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
-      const classListSpy = vi.spyOn(button.classList, "toggle");
+      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      const classListSpy = vi.spyOn(dropdownContainer.classList, "toggle");
 
-      // Rapid scroll events
+      // Rapid scroll events - implementation calls updateVisibility directly for each event
       for (let i = 0; i < 10; i++) {
-        Object.defineProperty(window, "scrollY", { value: i * 100, writable: true, configurable: true });
+        Object.defineProperty(window, "scrollY", {
+          value: i * 100,
+          writable: true,
+          configurable: true,
+        });
         window.dispatchEvent(new Event("scroll"));
       }
 
-      // Wait for requestAnimationFrame to execute
-      await new Promise(resolve => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            // Should throttle with requestAnimationFrame
-            expect(classListSpy).toHaveBeenCalled();
-            resolve();
-          });
-        });
-      });
+      // Each scroll event triggers updateVisibility directly (no throttling)
+      // Toggle should be called for each event
+      expect(classListSpy).toHaveBeenCalled();
     });
   });
 
@@ -174,4 +199,3 @@ describe("scrollToTop", () => {
     logCategorySummary("scrollToTop", "Scroll To Top", "All scroll to top tests");
   });
 });
-
