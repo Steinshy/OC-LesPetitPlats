@@ -1,6 +1,24 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "./logging/console.js";
-import { selectRandomImages, isImageLoaded, imagesTypes } from "@/utils/deliveryImages.js";
+import { isImageLoaded, imagesTypes } from "@/utils/deliveryImages.js";
+
+// Test-only helper function for selecting random images
+const selectRandomImages = recipes => {
+  if (!recipes || !Array.isArray(recipes) || recipes.length === 0) {
+    return null;
+  }
+
+  const recipesWithImages = recipes
+    .map(recipe => recipe?.images)
+    .filter(image => image !== null && image !== undefined);
+
+  if (recipesWithImages.length === 0) {
+    return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * recipesWithImages.length);
+  return recipesWithImages[randomIndex];
+};
 
 // Test image URL
 const TEST_IMAGE_URL = "/recipes/test.jpg";

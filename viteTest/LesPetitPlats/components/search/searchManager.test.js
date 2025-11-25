@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "../../utils/logging/console.js";
-import { setupMainHeader, setupSearchSection } from "@/components/search/manager.js";
+import { setupHeaderTitle, setupSearchBar } from "@/components/search/manager.js";
 
 vi.mock("@/components/skeletons.js", () => ({
   showSearchSkeleton: vi.fn(),
@@ -17,7 +17,7 @@ describe("search manager", () => {
     vi.clearAllMocks();
   });
 
-  describe("setupMainHeader", () => {
+  describe("setupHeaderTitle", () => {
     it("should setup main header with recipe data", () => {
       document.body.innerHTML = '<div id="header"></div>';
 
@@ -38,35 +38,35 @@ describe("search manager", () => {
         },
       ];
 
-      setupMainHeader(recipesData);
+      setupHeaderTitle(recipesData);
 
       const header = document.getElementById("header");
-      expect(header.innerHTML).toContain("main-header");
+      expect(header.innerHTML).toContain("header-title");
       expect(header.innerHTML).toContain("Cherchez parmi plus de 1500 recettes");
     });
 
     it("should handle null recipes data", () => {
       document.body.innerHTML = '<div id="header"></div>';
 
-      expect(() => setupMainHeader(null)).not.toThrow();
+      expect(() => setupHeaderTitle(null)).not.toThrow();
     });
 
     it("should handle missing header element", () => {
       document.body.innerHTML = "";
 
-      expect(() => setupMainHeader([{ images: {} }])).not.toThrow();
+      expect(() => setupHeaderTitle([{ images: {} }])).not.toThrow();
     });
 
     it("should handle recipes without images", () => {
       document.body.innerHTML = '<div id="header"></div>';
 
       const recipesData = [{ name: "Recipe 1" }, { name: "Recipe 2" }];
-      setupMainHeader(recipesData);
+      setupHeaderTitle(recipesData);
 
       const header = document.getElementById("header");
       // When no images, images array is empty, so randomIndex will be 0, imageData will be undefined
       // mainHeader will still render but with empty image URLs
-      expect(header.innerHTML).toContain("main-header");
+      expect(header.innerHTML).toContain("header-title");
     });
 
     it("should select random image from recipes", () => {
@@ -78,7 +78,7 @@ describe("search manager", () => {
         { images: { jpgUrl: "/recipes/3.jpg" } },
       ];
 
-      setupMainHeader(recipesData);
+      setupHeaderTitle(recipesData);
 
       const header = document.getElementById("header");
       const hasImage = header.innerHTML.includes("/recipes/1.jpg") ||
@@ -89,7 +89,7 @@ describe("search manager", () => {
     });
   });
 
-  describe("setupSearchSection", () => {
+  describe("setupSearchBar", () => {
     beforeEach(() => {
       document.body.innerHTML = `
         <div class="main-search-bar" id="main-search-bar">
@@ -103,7 +103,7 @@ describe("search manager", () => {
     });
 
     it("should setup search section event handlers", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById("main-search-input");
       const eventSpy = vi.fn();
@@ -118,7 +118,7 @@ describe("search manager", () => {
     });
 
     it("should toggle clear button visibility on input", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
       const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);
@@ -132,7 +132,7 @@ describe("search manager", () => {
     });
 
     it("should clear search on clear button click", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
       const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);
@@ -147,7 +147,7 @@ describe("search manager", () => {
     });
 
     it("should focus search input on search button click", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById("main-search-input");
       const searchButton = document.getElementById("main-search-btn");
@@ -159,7 +159,7 @@ describe("search manager", () => {
     });
 
     it("should dispatch searchChanged event on search button click", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById("main-search-input");
       const searchButton = document.getElementById("main-search-btn");
@@ -176,18 +176,18 @@ describe("search manager", () => {
     it("should handle missing search elements gracefully", () => {
       document.body.innerHTML = "";
 
-      expect(() => setupSearchSection()).not.toThrow();
+      expect(() => setupSearchBar()).not.toThrow();
     });
 
     it("should enable search section", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const root = document.getElementById("main-search-bar");
       expect(root.classList.contains("disabled")).toBe(false);
     });
 
     it("should handle empty input", () => {
-      setupSearchSection();
+      setupSearchBar();
 
       const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
       const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);

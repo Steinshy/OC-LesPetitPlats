@@ -183,36 +183,6 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  reference-tests:
-    name: Reference Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs:
-      - lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run reference tests
-        env:
-          CI: true
-        run: |
-          # Run reference test file explicitly to verify it's still valid
-          # Reference tests are excluded from main test runs but should still be valid
-          # Uses a separate config file that includes reference tests
-          # Tests are located in viteTest/reference/
-          npx vitest run --config vitest.reference.config.js
-        continue-on-error: true
-
   mutation-test:
     name: Mutation Testing
     runs-on: ubuntu-latest

@@ -4,10 +4,10 @@ import {
   setupDropdowns,
   toggleDropdown,
   getOpenDropdownType,
-  buildDropdownsData,
   updateDropdownContent,
   manageItemsClicks,
 } from "@/components/dropdown/manager.js";
+import { buildDropdownsData } from "@/components/dropdown/data.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";

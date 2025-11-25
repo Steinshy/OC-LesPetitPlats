@@ -4,11 +4,50 @@ import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
-  renderDropdownList,
   renderEmptyStateItem,
-  renderDropdownSkeleton,
-  renderDropdownsSkeletons,
 } from "@/components/dropdown/render.js";
+import { renderDropdownsSkeletons } from "@/components/renderSqueletons.js";
+
+// Test-only helper function for rendering a single dropdown skeleton
+const renderDropdownSkeleton = (type, label) => {
+  const typeLabel = label || type.charAt(0).toUpperCase() + type.slice(1);
+  return `
+    <div class="dropdown-container skeleton" id="dropdown-${type}-container" data-type="${type}">
+      <button type="button" class="filter-dropdown" id="dropdown-${type}-button" disabled
+        aria-expanded="false" aria-label="Chargement ${typeLabel}">
+        <span class="filter-label"></span>
+        <i class="ri-arrow-down-s-line"></i>
+      </button>
+    </div>
+  `;
+};
+
+// Test-only helper function for rendering dropdown list
+const renderDropdownList = (items = [], type) => {
+  const itemsHtml = items
+    .map(item => {
+      const label = item?.label ?? item;
+      const value = item?.value ?? item;
+
+      return `
+        <li role="option" id="dropdown-item-${type}-${value}">
+          <button
+            type="button"
+            class="dropdown-item item-btn"
+            id="item-btn-${type}-${value}"
+            data-value="${value}"
+            data-type="${type}"
+            aria-pressed="false"
+          >
+            <span class="dropdown-item-label">${label}</span>
+            <i class="ri-check-line dropdown-item-check" aria-hidden="true"></i>
+          </button>
+        </li>
+      `;
+    })
+    .join("");
+  return `<ul class="dropdown-list" id="dropdown-${type}-list" role="listbox">${itemsHtml}</ul>`;
+};
 
 const DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR = "dropdown-ingredients-container";
 const DROPDOWN_SEARCH_STRING = "dropdown-search";

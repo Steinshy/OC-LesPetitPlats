@@ -17,7 +17,6 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     include: ["viteTest/**/*.test.js"],
-    exclude: ["viteTest/reference/**"],
     pool: "threads",
     poolOptions: {
       threads: {
@@ -54,7 +53,6 @@ export default defineConfig({
         "**/*.config.js",
         "stryker.conf.js",
         "viteTest/**/*.test.js",
-        "viteTest/reference/**",
         "**/*.test.js",
         "**/*.spec.js",
         "scripts/**",

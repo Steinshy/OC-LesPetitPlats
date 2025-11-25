@@ -13,15 +13,19 @@ export const squeletonsElements = {
   dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
   dropdownAppliances: document.getElementById("dropdown-appliances-container"),
   cardsContainer: document.getElementById("cards-container"),
-  cards: document.querySelectorAll(".card.skeleton"),
+  get cardSkeletons() {
+    return document.querySelectorAll(".card.skeleton");
+  },
 };
 
 export const showSearchSkeleton = () => {
-  squeletonsElements.mainSearchBar?.classList.add("skeleton");
+  const searchBar = document.querySelector(".main-search-bar");
+  searchBar?.classList.add("skeleton");
 };
 
 export const hideSearchSkeleton = () => {
-  squeletonsElements.mainSearchBar?.classList.remove("skeleton");
+  const searchBar = document.querySelector(".main-search-bar");
+  searchBar?.classList.remove("skeleton");
 };
 
 export const showDropdownsSkeletons = () => {
@@ -52,17 +56,18 @@ export const hideDropdownsSkeletons = () => {
   });
 };
 
-export const buildCardSkeletons = length => {
+export const buildCardSkeletons = (length, container) => {
   if (!length) return;
 
-  squeletonsElements.cardsContainer.innerHTML = renderCardSkeletons(length);
+  const targetContainer = container || squeletonsElements.cardsContainer;
+  if (!targetContainer) return;
+
+  targetContainer.innerHTML = renderCardSkeletons(length);
 };
 
 export const hideCardSkeletons = () => {
-  squeletonsElements.cards?.forEach(skeleton => {
-    if (skeleton) {
-      skeleton.classList.remove("skeleton");
-    }
+  squeletonsElements.cardSkeletons.forEach(skeleton => {
+    skeleton.classList.remove("skeleton");
   });
 };
 
