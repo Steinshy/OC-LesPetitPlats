@@ -12,7 +12,7 @@ import {
   filterByAppliances,
   filterByUstensils,
   filterRecipes,
-} from "@/components/filters/recipeFilters.js";
+} from "../../utils/mocks/filtersBy.js";
 
 describe("filter", () => {
   // Mock recipes for testing

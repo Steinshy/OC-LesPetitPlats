@@ -6,7 +6,7 @@ import {
   appliancesDropdown,
   renderEmptyStateItem,
 } from "@/components/dropdown/render.js";
-import { renderDropdownsSkeletons } from "@/components/renderSqueletons.js";
+import { dropdownsSkeleton } from "@/components/renderSqueletons.js";
 
 // Test-only helper function for rendering a single dropdown skeleton
 const renderDropdownSkeleton = (type, label) => {
@@ -234,7 +234,7 @@ describe("dropdown render", () => {
 
   describe("renderDropdownsSkeletons", () => {
     it("should render all three dropdown skeletons", () => {
-      const html = renderDropdownsSkeletons();
+      const html = dropdownsSkeleton();
 
       expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
       expect(html).toContain("dropdown-ustensils-container");
@@ -242,7 +242,7 @@ describe("dropdown render", () => {
     });
 
     it("should include skeleton loading class", () => {
-      const html = renderDropdownsSkeletons();
+      const html = dropdownsSkeleton();
       const skeletonCount = (html.match(/skeleton/g) || []).length;
       expect(skeletonCount).toBe(3);
     });

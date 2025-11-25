@@ -1,5 +1,5 @@
-// Production filter functions using forEach-based implementation
-// Adapted from src/components/filters/filtersBy.js
+// Production filter functions - copy of actual source code
+// Copied from src/components/filters/recipeFilters.js and src/utils/string.js
 
 // Normalize string function (copied from src/utils/string.js)
 const normalizeString = value =>
@@ -10,26 +10,28 @@ const normalizeString = value =>
     .trim()
     .toLowerCase();
 
-const canonicalizeTerm = value => normalizeString(value);
+// Search filter - copied from SearchInput in src/components/filters/recipeFilters.js
+const applySearch = (items, searchTerm, getText) => {
+  if (!Array.isArray(items)) return [];
 
-// Search filter - filters recipes by search term
-export const filterBySearchTerm = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
-  if (!query) return recipes;
+  if (!query) return items;
 
-  const filtered = [];
+  return items.filter(item => {
+    if (!item) return false;
+    const rawText = getText(item);
+    if (!rawText) return false;
 
-  recipes.forEach(recipe => {
-    // Build ingredients array with forEach
-    const ingredientNames = [];
-    (recipe.ingredients || []).forEach(ingredient => {
-      if (ingredient?.ingredient) {
-        ingredientNames.push(ingredient.ingredient);
-      }
-    });
+    const text = normalizeString(rawText);
+    return text.includes(query);
+  });
+};
 
-    // Build haystack array
-    const haystackParts = [
+export const filterBySearchTerm = (recipes, searchTerm) => {
+  return applySearch(recipes, searchTerm, recipe => {
+    const ingredientNames = (recipe.ingredients || []).map(ing => ing?.ingredient).filter(Boolean);
+
+    const searchableFields = [
       recipe.name,
       recipe.description,
       ...ingredientNames,
@@ -37,132 +39,64 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
       ...(recipe.ustensils || []),
     ].filter(Boolean);
 
-    // Normalize with forEach
-    const normalizedParts = [];
-    haystackParts.forEach(part => {
-      normalizedParts.push(normalizeString(part));
-    });
-
-    const haystack = normalizedParts.join(" ");
-
-    if (haystack.includes(query)) {
-      filtered.push(recipe);
-    }
+    return searchableFields.join(" ");
   });
-
-  return filtered;
 };
 
-// Ingredients filter - filters recipes by selected ingredients
+// Filter by field - copied from filterByField in src/components/filters/recipeFilters.js
+const filterByField = (recipes, filter, fieldType) => {
+  if (!recipes) return [];
+
+  const filterSize = Array.isArray(filter) ? filter.length : (filter?.size ?? 0);
+  if (!filter || filterSize === 0) return recipes;
+
+  const selected = Array.isArray(filter) ? filter : [...filter];
+
+  return recipes.filter(recipe => {
+    if (!recipe) return false;
+    let normalizedRecipeValues = [];
+
+    if (fieldType === "ingredients") {
+      normalizedRecipeValues = (recipe.ingredients || []).map(ingredient =>
+        normalizeString(ingredient?.ingredient ?? ingredient?.name ?? ""),
+      );
+    }
+
+    if (fieldType === "appliances") {
+      normalizedRecipeValues = [normalizeString(recipe.appliance)];
+    }
+
+    if (fieldType === "ustensils") {
+      normalizedRecipeValues = (recipe.ustensils || []).map(ustensil => normalizeString(ustensil));
+    }
+
+    return selected.every(selectedValue => normalizedRecipeValues.includes(selectedValue));
+  });
+};
+
+// Ingredients filter - wrapper around filterByField
 export const filterByIngredients = (recipes, ingredients) => {
-  if (
-    !ingredients ||
-    (Array.isArray(ingredients) && ingredients.length === 0) ||
-    (ingredients instanceof Set && ingredients.size === 0)
-  ) {
-    return recipes;
-  }
-
-  const ingredientsArray = [...ingredients];
-  const filtered = [];
-
-  recipes.forEach(recipe => {
-    let matchesAll = true;
-
-    ingredientsArray.forEach(selectedIngredient => {
-      const normalizedSelected = canonicalizeTerm(selectedIngredient);
-      let found = false;
-
-      if (recipe.ingredients) {
-        recipe.ingredients.forEach(ingredient => {
-          const ingredientName = ingredient.ingredient ?? ingredient.name ?? "";
-          if (canonicalizeTerm(ingredientName) === normalizedSelected) {
-            found = true;
-          }
-        });
-      }
-
-      if (!found) {
-        matchesAll = false;
-      }
-    });
-
-    if (matchesAll) {
-      filtered.push(recipe);
-    }
-  });
-
-  return filtered;
+  return filterByField(recipes, ingredients, "ingredients");
 };
 
-// Appliances filter - filters recipes by selected appliances
+// Appliances filter - uses OR logic (any appliance matches)
+// Note: This differs from filterByField which uses AND logic
 export const filterByAppliances = (recipes, appliances) => {
-  if (
-    !appliances ||
-    (Array.isArray(appliances) && appliances.length === 0) ||
-    (appliances instanceof Set && appliances.size === 0)
-  ) {
-    return recipes;
-  }
-
-  const appliancesArray = [...appliances];
-  const filtered = [];
-
-  recipes.forEach(recipe => {
-    const normalizedAppliance = canonicalizeTerm(recipe.appliance);
-    let matches = false;
-
-    appliancesArray.forEach(selectedAppliance => {
-      if (canonicalizeTerm(selectedAppliance) === normalizedAppliance) {
-        matches = true;
-      }
+  if (!recipes) return [];
+  const filterSize = Array.isArray(appliances) ? appliances.length : (appliances?.size ?? 0);
+  if (!appliances || filterSize === 0) return recipes;
+  const selected = Array.isArray(appliances) ? appliances : [...appliances];
+  return recipes.filter(recipe => {
+    if (!recipe) return false;
+    const normalizedRecipeAppliance = normalizeString(recipe.appliance || "");
+    return selected.some(selectedAppliance => {
+      const normalizedSelected = normalizeString(selectedAppliance);
+      return normalizedRecipeAppliance === normalizedSelected;
     });
-
-    if (matches) {
-      filtered.push(recipe);
-    }
   });
-
-  return filtered;
 };
 
-// Ustensils filter - filters recipes by selected ustensils
+// Ustensils filter - wrapper around filterByField
 export const filterByUstensils = (recipes, ustensils) => {
-  if (
-    !ustensils ||
-    (Array.isArray(ustensils) && ustensils.length === 0) ||
-    (ustensils instanceof Set && ustensils.size === 0)
-  ) {
-    return recipes;
-  }
-
-  const ustensilsArray = [...ustensils];
-  const filtered = [];
-
-  recipes.forEach(recipe => {
-    let matchesAll = true;
-
-    ustensilsArray.forEach(selectedUstensil => {
-      const normalizedSelected = canonicalizeTerm(selectedUstensil);
-      let found = false;
-
-      if (recipe.ustensils) {
-        recipe.ustensils.forEach(ustensil => {
-          if (canonicalizeTerm(ustensil) === normalizedSelected) {
-            found = true;
-          }
-        });
-      }
-
-      if (!found) {
-        matchesAll = false;
-      }
-    });
-
-    if (matchesAll) {
-      filtered.push(recipe);
-    }
-  });
-
-  return filtered;
+  return filterByField(recipes, ustensils, "ustensils");
 };

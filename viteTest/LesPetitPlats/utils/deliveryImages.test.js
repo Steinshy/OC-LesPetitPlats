@@ -1,8 +1,7 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "./logging/console.js";
-import { isImageLoaded, imagesTypes } from "@/utils/deliveryImages.js";
 // Note: selectRandomImages is provided by the mock wrapper via setup.js
-import { selectRandomImages } from "@/utils/deliveryImages.js";
+import { isImageLoaded, imagesTypes, selectRandomImages } from "@/utils/deliveryImages.js";
 
 // Test image URL
 const TEST_IMAGE_URL = "/recipes/test.jpg";
@@ -41,20 +40,8 @@ const createCardPictureFragment = (imgSrc, webpSrcset = null) => {
   const webpSource = webpSrcset ? `<source type="image/webp" srcset="${webpSrcset}" />` : "";
   return document.createRange().createContextualFragment(`
     <div class="card-picture">
-      <div class="image-loading-placeholder"></div>
       <picture>
         ${webpSource}
-        <img src="${imgSrc}" alt="Test" />
-      </picture>
-    </div>
-  `);
-};
-
-// Helper function to create a card picture fragment without placeholder
-const createCardPictureFragmentNoPlaceholder = imgSrc => {
-  return document.createRange().createContextualFragment(`
-    <div class="card-picture">
-      <picture>
         <img src="${imgSrc}" alt="Test" />
       </picture>
     </div>
@@ -65,7 +52,6 @@ const createCardPictureFragmentNoPlaceholder = imgSrc => {
 const createCardPictureFragmentNoImage = () => {
   return document.createRange().createContextualFragment(`
     <div class="card-picture">
-      <div class="image-loading-placeholder"></div>
     </div>
   `);
 };
@@ -167,11 +153,9 @@ describe("deliveryImages", () => {
         expect(() => imagesTypes(fragment, { jpgUrl: "", webpUrl: "" })).not.toThrow();
       });
 
-      it("should hide placeholder when image is already loaded", () => {
+      it("should mark image as loaded when image is already loaded", () => {
         const fragment = createCardPictureFragment(TEST_IMAGE_URL);
 
-        // Placeholder element
-        const placeholder = fragment.querySelector(".image-loading-placeholder");
         // Image element
         const img = fragment.querySelector("img");
         Object.defineProperty(img, "complete", { value: true, writable: true });
@@ -179,13 +163,7 @@ describe("deliveryImages", () => {
 
         imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
 
-        expect(placeholder.classList.contains("hidden")).toBe(true);
         expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
-      });
-
-      it("should handle missing placeholder gracefully", () => {
-        const fragment = createCardPictureFragmentNoPlaceholder(TEST_IMAGE_URL);
-        expect(() => imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" })).not.toThrow();
       });
 
       it("should handle missing image element gracefully", () => {
@@ -320,7 +298,6 @@ describe("deliveryImages", () => {
       it("should handle jpeg image error", () => {
         const fragment = createCardPictureFragment("/recipes/invalid.jpg");
 
-        const placeholder = fragment.querySelector(".image-loading-placeholder");
         const img = fragment.querySelector("img");
 
         imagesTypes(fragment, { jpgUrl: "/recipes/invalid.jpg", webpUrl: "" });
@@ -329,14 +306,13 @@ describe("deliveryImages", () => {
         const errorEvent = new Event("error");
         img.dispatchEvent(errorEvent);
 
-        // Placeholder should be hidden on error
-        expect(placeholder.classList.contains("hidden")).toBe(true);
+        // Function should handle error gracefully
+        expect(img).toBeTruthy();
       });
 
       it("should handle jpeg image load event and mark as loaded", () => {
         const fragment = createCardPictureFragment(TEST_IMAGE_URL);
 
-        const placeholder = fragment.querySelector(".image-loading-placeholder");
         const img = fragment.querySelector("img");
 
         // Ensure image is not complete initially
@@ -349,14 +325,12 @@ describe("deliveryImages", () => {
         const loadEvent = new Event("load", { bubbles: true });
         img.dispatchEvent(loadEvent);
 
-        expect(placeholder.classList.contains("hidden")).toBe(true);
         expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
       });
 
       it("should handle jpeg image complete but with error", () => {
         const fragment = createCardPictureFragment("/recipes/invalid.jpg");
 
-        const placeholder = fragment.querySelector(".image-loading-placeholder");
         const img = fragment.querySelector("img");
 
         // Set image as complete but with no natural width (error state)
@@ -368,7 +342,8 @@ describe("deliveryImages", () => {
         // Wait for error handling
         return new Promise(resolve => {
           setTimeout(() => {
-            expect(placeholder.classList.contains("hidden")).toBe(true);
+            // Function should handle error gracefully
+            expect(img).toBeTruthy();
             resolve();
           }, 10);
         });

@@ -23,7 +23,7 @@ const TEST_WEBP_URL = "/recipes/test.webp";
 describe("cards render", () => {
   beforeEach(() => {
     document.body.innerHTML = `
-      <section class="cards-container" id="cards-container" aria-label="Liste des recettes"></section>
+      <section class="cards-container" id="recipes" aria-label="Liste des recettes"></section>
       <div class="no-results hidden" id="no-results"></div>
     `;
   });
@@ -57,14 +57,12 @@ describe("cards render", () => {
       expect(html).toContain(TEST_JPG_URL);
       expect(html).toContain(TEST_WEBP_URL);
       expect(html).toContain("Test Recipe");
-      expect(html).toContain("image-loading-placeholder");
     });
 
     it("should handle null image data", () => {
       const html = renderCardPicture(null);
 
       expect(html).toContain("card-picture");
-      expect(html).toContain("image-loading-placeholder");
     });
 
     it("should handle image data with only jpgUrl", () => {
@@ -87,7 +85,7 @@ describe("cards render", () => {
 
       const html = renderCardPicture(imageData);
       expect(html).toContain("<source");
-      expect(html).toContain("type=\"image/webp\"");
+      expect(html).toContain('type="image/webp"');
     });
   });
 
@@ -173,7 +171,7 @@ describe("cards render", () => {
 
       setupRecipesCards(recipes);
 
-      const container = document.getElementById("cards-container");
+      const container = document.getElementById("recipes");
       const card = container.querySelector(".card");
       expect(card).toBeTruthy();
       expect(card.id).toBe("1");
@@ -201,7 +199,7 @@ describe("cards render", () => {
 
       setupRecipesCards(recipes);
 
-      const container = document.getElementById("cards-container");
+      const container = document.getElementById("recipes");
       const cards = container.querySelectorAll(".card");
       expect(cards.length).toBe(2);
     });

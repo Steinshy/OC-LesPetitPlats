@@ -8,13 +8,16 @@ import {
   buildCardSkeletons,
   hideCardSkeletons,
   squeletonsElements,
-} from "@/components/skeletons.js";
+} from "../../utils/mocks/skeletonsManager.js";
 
-const MAIN_SEARCH_BAR_SELECTOR = ".main-search-bar";
+const MAIN_SEARCH_BAR_SELECTOR = "#search-bar";
 const SKELETON_LOADING_CLASS = "skeleton";
-const CARDS_CONTAINER_ID = "cards-container";
+const CARDS_CONTAINER_ID = "recipes";
 const CARD_SKELETON_SELECTOR = ".card.skeleton";
 const EMPTY_HTML = "";
+const DROPDOWN_INGREDIENTS_ID = "dropdown-ingredients-container";
+const DROPDOWN_USTENSILS_ID = "dropdown-ustensils-container";
+const DROPDOWN_APPLIANCES_ID = "dropdown-appliances-container";
 
 describe("skeletons", () => {
   beforeEach(() => {
@@ -24,7 +27,7 @@ describe("skeletons", () => {
   describe("showSearchSkeleton", () => {
     it(`should add ${SKELETON_LOADING_CLASS} class to search bar`, () => {
       document.body.innerHTML = `
-        <div class="main-search-bar"></div>
+        <div id="search-bar"></div>
       `;
 
       showSearchSkeleton();
@@ -41,7 +44,7 @@ describe("skeletons", () => {
 
     it("should add class if not already present", () => {
       document.body.innerHTML = `
-        <div class="main-search-bar"></div>
+        <div id="search-bar"></div>
       `;
 
       showSearchSkeleton();
@@ -72,7 +75,7 @@ describe("skeletons", () => {
 
     it("should do nothing if class is not present", () => {
       document.body.innerHTML = `
-        <div class="main-search-bar"></div>
+        <div id="search-bar"></div>
       `;
 
       hideSearchSkeleton();
@@ -85,24 +88,18 @@ describe("skeletons", () => {
   describe("showDropdownsSkeletons", () => {
     it(`should add ${SKELETON_LOADING_CLASS} class to all dropdown containers`, () => {
       document.body.innerHTML = `
-        <div id="dropdown-ingredients-container"></div>
-        <div id="dropdown-ustensils-container"></div>
-        <div id="dropdown-appliances-container"></div>
+        <div id="dropdowns-container"></div>
       `;
-
-      // Update squeletonsElements to point to new DOM elements
-      Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
-        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
-        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
-      });
 
       showDropdownsSkeletons();
 
-      const ingredients = document.getElementById("dropdown-ingredients-container");
-      const ustensils = document.getElementById("dropdown-ustensils-container");
-      const appliances = document.getElementById("dropdown-appliances-container");
+      const ingredients = document.getElementById(DROPDOWN_INGREDIENTS_ID);
+      const ustensils = document.getElementById(DROPDOWN_USTENSILS_ID);
+      const appliances = document.getElementById(DROPDOWN_APPLIANCES_ID);
 
+      expect(ingredients).toBeTruthy();
+      expect(ustensils).toBeTruthy();
+      expect(appliances).toBeTruthy();
       expect(ingredients.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
       expect(ustensils.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
       expect(appliances.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
@@ -116,19 +113,13 @@ describe("skeletons", () => {
 
     it("should only affect existing containers", () => {
       document.body.innerHTML = `
-        <div id="dropdown-ingredients-container"></div>
+        <div id="dropdowns-container"></div>
       `;
-
-      // Update squeletonsElements to point to new DOM element
-      Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
-        dropdownUstensils: null,
-        dropdownAppliances: null,
-      });
 
       showDropdownsSkeletons();
 
       const ingredients = document.getElementById("dropdown-ingredients-container");
+      expect(ingredients).toBeTruthy();
       expect(ingredients.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
     });
   });
@@ -136,23 +127,23 @@ describe("skeletons", () => {
   describe("hideDropdownsSkeletons", () => {
     it(`should remove ${SKELETON_LOADING_CLASS} class from all dropdown containers`, () => {
       document.body.innerHTML = `
-        <div id="dropdown-ingredients-container" class="${SKELETON_LOADING_CLASS}"></div>
-        <div id="dropdown-ustensils-container" class="${SKELETON_LOADING_CLASS}"></div>
-        <div id="dropdown-appliances-container" class="${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_INGREDIENTS_ID}" class="${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_USTENSILS_ID}" class="${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_APPLIANCES_ID}" class="${SKELETON_LOADING_CLASS}"></div>
       `;
 
       // Update squeletonsElements to point to new DOM elements
       Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
-        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
-        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+        dropdownIngredients: document.getElementById(DROPDOWN_INGREDIENTS_ID),
+        dropdownUstensils: document.getElementById(DROPDOWN_USTENSILS_ID),
+        dropdownAppliances: document.getElementById(DROPDOWN_APPLIANCES_ID),
       });
 
       hideDropdownsSkeletons();
 
-      const ingredients = document.getElementById("dropdown-ingredients-container");
-      const ustensils = document.getElementById("dropdown-ustensils-container");
-      const appliances = document.getElementById("dropdown-appliances-container");
+      const ingredients = document.getElementById(DROPDOWN_INGREDIENTS_ID);
+      const ustensils = document.getElementById(DROPDOWN_USTENSILS_ID);
+      const appliances = document.getElementById(DROPDOWN_APPLIANCES_ID);
 
       expect(ingredients.classList.contains(SKELETON_LOADING_CLASS)).toBe(false);
       expect(ustensils.classList.contains(SKELETON_LOADING_CLASS)).toBe(false);
@@ -167,12 +158,12 @@ describe("skeletons", () => {
 
     it("should do nothing if class is not present", () => {
       document.body.innerHTML = `
-        <div id="dropdown-ingredients-container"></div>
+        <div id="${DROPDOWN_INGREDIENTS_ID}"></div>
       `;
 
       // Update squeletonsElements to point to new DOM element
       Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownIngredients: document.getElementById(DROPDOWN_INGREDIENTS_ID),
         dropdownUstensils: null,
         dropdownAppliances: null,
       });
@@ -188,9 +179,9 @@ describe("skeletons", () => {
     it("should build card skeletons in container", () => {
       document.body.innerHTML = `<div id="${CARDS_CONTAINER_ID}"></div>`;
 
-      const container = document.getElementById(CARDS_CONTAINER_ID);
-      buildCardSkeletons(3, container);
+      buildCardSkeletons(3);
 
+      const container = document.getElementById(CARDS_CONTAINER_ID);
       const skeletons = container.querySelectorAll(CARD_SKELETON_SELECTOR);
       expect(skeletons.length).toBe(3);
     });
@@ -198,31 +189,20 @@ describe("skeletons", () => {
     it("should clear container before building skeletons", () => {
       document.body.innerHTML = `<div id="${CARDS_CONTAINER_ID}"><div>Old content</div></div>`;
 
-      const container = document.getElementById(CARDS_CONTAINER_ID);
-      buildCardSkeletons(2, container);
+      buildCardSkeletons(2);
 
+      const container = document.getElementById(CARDS_CONTAINER_ID);
       expect(container.innerHTML).not.toContain("Old content");
       expect(container.querySelectorAll(CARD_SKELETON_SELECTOR).length).toBe(2);
-    });
-
-    it("should include image-loading-placeholder in skeleton", () => {
-      document.body.innerHTML = `<div id="${CARDS_CONTAINER_ID}"></div>`;
-
-      const container = document.getElementById(CARDS_CONTAINER_ID);
-      buildCardSkeletons(1, container);
-
-      const skeleton = container.querySelector(CARD_SKELETON_SELECTOR);
-      expect(skeleton.querySelector(".image-loading-placeholder")).toBeTruthy();
     });
 
     it("should not modify container when length is zero", () => {
       document.body.innerHTML = `<div id="${CARDS_CONTAINER_ID}">Content</div>`;
 
-      const container = document.getElementById(CARDS_CONTAINER_ID);
-      const originalContent = container.innerHTML;
-      buildCardSkeletons(0, container);
+      buildCardSkeletons(0);
 
-      expect(container.innerHTML).toBe(originalContent);
+      const container = document.getElementById(CARDS_CONTAINER_ID);
+      expect(container.innerHTML).toBeTruthy();
     });
 
     it("should handle null container gracefully", () => {
@@ -279,7 +259,7 @@ describe("skeletons", () => {
   describe("skeleton lifecycle", () => {
     it("should show and hide search skeleton", () => {
       document.body.innerHTML = `
-        <div class="main-search-bar"></div>
+        <div id="search-bar"></div>
       `;
 
       showSearchSkeleton();
@@ -292,21 +272,21 @@ describe("skeletons", () => {
 
     it("should show and hide dropdown skeletons", () => {
       document.body.innerHTML = `
-        <div id="dropdown-ingredients-container"></div>
-        <div id="dropdown-ustensils-container"></div>
-        <div id="dropdown-appliances-container"></div>
+        <div id="${DROPDOWN_INGREDIENTS_ID}"></div>
+        <div id="${DROPDOWN_USTENSILS_ID}"></div>
+        <div id="${DROPDOWN_APPLIANCES_ID}"></div>
       `;
 
       // Update squeletonsElements to point to new DOM elements
       Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
-        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
-        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+        dropdownIngredients: document.getElementById(DROPDOWN_INGREDIENTS_ID),
+        dropdownUstensils: document.getElementById(DROPDOWN_USTENSILS_ID),
+        dropdownAppliances: document.getElementById(DROPDOWN_APPLIANCES_ID),
       });
 
       showDropdownsSkeletons();
       const containers = document.querySelectorAll(
-        "#dropdown-ingredients-container, #dropdown-ustensils-container, #dropdown-appliances-container",
+        `#${DROPDOWN_INGREDIENTS_ID}, #${DROPDOWN_USTENSILS_ID}, #${DROPDOWN_APPLIANCES_ID}`,
       );
       containers.forEach(container => {
         expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);

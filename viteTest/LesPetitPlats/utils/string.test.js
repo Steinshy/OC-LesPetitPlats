@@ -1,15 +1,6 @@
-import { afterAll, describe, it, expect, beforeEach } from "vitest";
-import { logCategorySummary } from "./logging/console.js";
-import {
-  normalizeString,
-  cleanupDuplicatedItems,
-  updateCounter,
-  jpgUrl,
-  webpUrl,
-  imageUrl,
-  baseUrl,
-  dataUrl,
-} from "@/utils/string.js";
+import { describe, it, expect, beforeEach } from "vitest";
+import { dataUrl } from "@/utils/recipeApi.js";
+import { normalizeString, cleanupDuplicatedItems, updateCounter, baseUrl } from "@/utils/string.js";
 
 describe("string", () => {
   describe("normalizeString", () => {
@@ -152,79 +143,18 @@ describe("string", () => {
     });
   });
 
-  describe("imageUrl", () => {
-    it("should construct image URL with base URL", () => {
-      const result = imageUrl("test.jpg");
-      expect(result).toContain("recipes/test.jpg");
-    });
-
-    it("should handle paths with base URL", () => {
-      const result = imageUrl("test.jpg");
-      expect(result).toMatch(/\/recipes\/test\.jpg$/);
-    });
-  });
-
-  describe("jpgUrl", () => {
-    it("should construct JPG URL from image name", () => {
-      const result = jpgUrl("test.jpg");
-      expect(result).toContain("recipes/test.jpg");
-    });
-
-    it("should remove file extension before adding .jpg", () => {
-      const result = jpgUrl("test.png");
-      expect(result).toContain("recipes/test.jpg");
-      expect(result).not.toContain("test.png.jpg");
-    });
-
-    it("should handle filename without extension", () => {
-      const result = jpgUrl("test");
-      expect(result).toContain("recipes/test.jpg");
-    });
-
-    it("should handle null and undefined", () => {
-      expect(jpgUrl(null)).toContain("recipes/null.jpg");
-      expect(jpgUrl(undefined)).toContain("recipes/undefined.jpg");
-    });
-  });
-
-  describe("webpUrl", () => {
-    it("should construct WebP URL from image name", () => {
-      const result = webpUrl("test.jpg");
-      expect(result).toContain("recipes/test.webp");
-    });
-
-    it("should remove file extension before adding .webp", () => {
-      const result = webpUrl("test.png");
-      expect(result).toContain("recipes/test.webp");
-      expect(result).not.toContain("test.png.webp");
-    });
-
-    it("should handle filename without extension", () => {
-      const result = webpUrl("test");
-      expect(result).toContain("recipes/test.webp");
-    });
-
-    it("should handle null and undefined", () => {
-      expect(webpUrl(null)).toContain("recipes/null.webp");
-      expect(webpUrl(undefined)).toContain("recipes/undefined.webp");
-    });
-  });
-
   describe("baseUrl and dataUrl", () => {
     it("should export baseUrl", () => {
       expect(baseUrl).toBeDefined();
       expect(typeof baseUrl).toBe("string");
+      expect(baseUrl).toBe("/");
     });
 
     it("should export dataUrl", () => {
       expect(dataUrl).toBeDefined();
       expect(typeof dataUrl).toBe("string");
       expect(dataUrl).toContain("api/data.json");
+      expect(dataUrl).toBe("/api/data.json");
     });
   });
-
-  afterAll(() => {
-    logCategorySummary("string", "String Utils", "All string utility tests");
-  });
 });
-
