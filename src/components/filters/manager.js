@@ -4,9 +4,11 @@ import { setupResultsCounter } from "../resultsCounter.js";
 import { renderFilters, renderFilterTag } from "./render.js";
 import { SearchInput, filterByField } from "@/components/filters/recipeFilters.js";
 import { normalizeString } from "@/utils/string.js";
+import { parseURLState, updateURLState, clearURLState } from "@/utils/urlState.js";
 
 let allRecipes = [];
 let filteredRecipes = [];
+let isInitialLoad = true;
 
 const filters = {
   search: "",
@@ -33,9 +35,24 @@ const getFiltersElements = () => {
 export const setupFilters = recipesData => {
   allRecipes = Array.isArray(recipesData) ? recipesData : [];
 
-  const { filters } = getFiltersElements();
-  if (filters) {
-    filters.innerHTML = renderFilters();
+  const urlState = parseURLState();
+  filters.search = urlState.search;
+  filters.ingredients = urlState.ingredients;
+  filters.appliances = urlState.appliances;
+  filters.ustensils = urlState.ustensils;
+
+  const mainSearchInput = document.getElementById("main-search-input");
+  if (mainSearchInput && filters.search) {
+    mainSearchInput.value = filters.search;
+    const clearSearchBtn = document.getElementById("main-clear-search-btn");
+    const searchBtn = document.getElementById("main-search-btn");
+    if (clearSearchBtn) clearSearchBtn.classList.remove("hidden");
+    if (searchBtn) searchBtn.classList.add("hidden");
+  }
+
+  const { filters: filtersElement } = getFiltersElements();
+  if (filtersElement) {
+    filtersElement.innerHTML = renderFilters();
   }
 
   const { clearButton } = getFiltersElements();
@@ -43,11 +60,30 @@ export const setupFilters = recipesData => {
   document.addEventListener("dropdown:itemToggled", onDropdownItemToggled);
   document.addEventListener("filters:searchChanged", e => onSearchChanged(e.detail.query));
 
+  window.addEventListener("popstate", () => {
+    const urlState = parseURLState();
+    filters.search = urlState.search;
+    filters.ingredients = urlState.ingredients;
+    filters.appliances = urlState.appliances;
+    filters.ustensils = urlState.ustensils;
+
+    if (mainSearchInput) {
+      mainSearchInput.value = filters.search;
+      const clearSearchBtn = document.getElementById("main-clear-search-btn");
+      const searchBtn = document.getElementById("main-search-btn");
+      if (clearSearchBtn) clearSearchBtn.classList.toggle("hidden", !filters.search);
+      if (searchBtn) searchBtn.classList.toggle("hidden", !!filters.search);
+    }
+
+    syncUI();
+  });
+
   if (clearButton) {
     clearButton.addEventListener("click", clearAllFilters);
   }
 
   syncUI();
+  isInitialLoad = false;
 };
 
 const getFilteredRecipes = recipesData => {
@@ -75,6 +111,10 @@ const syncUI = () => {
   updateFilterTagsUI();
   updateFiltersContainer();
   setupResultsCounter(filteredRecipes.length);
+  
+  if (!isInitialLoad) {
+    updateURLState(filters);
+  }
 };
 
 const updateFiltersContainer = () => {
@@ -207,5 +247,6 @@ const clearAllFilters = () => {
     item.querySelector(".dropdown-item-check")?.remove();
   });
 
+  clearURLState();
   syncUI();
 };

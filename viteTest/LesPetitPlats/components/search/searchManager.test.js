@@ -92,11 +92,13 @@ describe("search manager", () => {
   describe("setupSearchBar", () => {
     beforeEach(() => {
       document.body.innerHTML = `
-        <div class="main-search-bar" id="main-search-bar">
-          <div class="search-bar-container" id="search-bar-container">
-            <input type="text" id="main-search-input" />
-            <button id="main-clear-search-btn" class="hidden"></button>
-            <button id="main-search-btn" class="search-btn"></button>
+        <div id="header">
+          <div class="main-search-bar" id="main-search-bar">
+            <div class="search-bar-container" id="search-bar-container">
+              <input type="text" id="main-search-input" />
+              <button id="main-clear-search-btn" class="hidden"></button>
+              <button id="main-search-btn" class="search-btn"></button>
+            </div>
           </div>
         </div>
       `;
@@ -139,6 +141,7 @@ describe("search manager", () => {
       const searchButton = document.getElementById(MAIN_SEARCH_BTN_ID);
 
       searchInput.value = "test";
+      searchInput.dispatchEvent(new Event("input")); // Trigger input to show clear button
       clearButton.click();
 
       expect(searchInput.value).toBe("");

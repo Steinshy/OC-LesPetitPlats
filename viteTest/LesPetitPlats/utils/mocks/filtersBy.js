@@ -46,10 +46,22 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
   return filtered;
 };
 
-export const filterByIngredients = (recipes, ingredients) =>
-  filtersBy.filterByField(recipes, ingredients, "ingredients");
-export const filterByAppliances = (recipes, appliances) =>
-  filtersBy.filterByField(recipes, appliances, "appliances");
+export const filterByIngredients = (recipes, ingredients) => {
+  if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
+    return filtersBy.filterByField(recipes, ingredients, "ingredients");
+  }
+  // Normalize ingredient filter values for comparison
+  const normalizedIngredients = ingredients.map(ing => normalizeString(ing));
+  return filtersBy.filterByField(recipes, normalizedIngredients, "ingredients");
+};
+export const filterByAppliances = (recipes, appliances) => {
+  if (!appliances || !Array.isArray(appliances) || appliances.length === 0) {
+    return filtersBy.filterByField(recipes, appliances, "appliances");
+  }
+  // Normalize appliance filter values for comparison
+  const normalizedAppliances = appliances.map(app => normalizeString(app));
+  return filtersBy.filterByField(recipes, normalizedAppliances, "appliances");
+};
 export const filterByUstensils = (recipes, ustensils) =>
   filtersBy.filterByField(recipes, ustensils, "ustensils");
 

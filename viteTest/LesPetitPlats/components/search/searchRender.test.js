@@ -12,7 +12,6 @@ describe("search render", () => {
 
       const html = mainHeader(imageData);
 
-      expect(html).toContain("main-header");
       expect(html).toContain("header-title");
       expect(html).toContain("Cherchez parmi plus de 1500 recettes");
       expect(html).toContain("/recipes/test.webp");
@@ -30,7 +29,7 @@ describe("search render", () => {
 
     it("should handle null image data", () => {
       const html = mainHeader(null);
-      expect(html).toContain("main-header");
+      expect(html).toContain("header-title");
       expect(html).toContain("style=\"background-image: url()\"");
     });
 

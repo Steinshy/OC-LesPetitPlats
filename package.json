@@ -22,6 +22,7 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "analyze": "vite build --mode analyze",
     "optimize:images": "node scripts/optimizeImages.js",
+    "generate:icons": "node scripts/generateIcons.js",
     "clean": "rm -rf dist node_modules/.vite coverage Benchmark .stryker-tmp",
     "benchmark": "NODE_OPTIONS='--max-old-space-size=4096' node viteTest/Benchmarks/utils/reporting/generateReport.js",
     "lighthouse:dev": "npm run dev & sleep 3 && node scripts/lighthouse.js http://localhost:5173/OC-LesPetitPlats/ && pkill -f 'vite' || true",

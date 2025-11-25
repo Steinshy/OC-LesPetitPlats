@@ -7,6 +7,7 @@ import {
   hideDropdownsSkeletons,
   buildCardSkeletons,
   hideCardSkeletons,
+  squeletonsElements,
 } from "@/components/skeletons.js";
 
 const MAIN_SEARCH_BAR_SELECTOR = ".main-search-bar";
@@ -89,6 +90,13 @@ describe("skeletons", () => {
         <div id="dropdown-appliances-container"></div>
       `;
 
+      // Update squeletonsElements to point to new DOM elements
+      Object.assign(squeletonsElements, {
+        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
+        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+      });
+
       showDropdownsSkeletons();
 
       const ingredients = document.getElementById("dropdown-ingredients-container");
@@ -111,6 +119,13 @@ describe("skeletons", () => {
         <div id="dropdown-ingredients-container"></div>
       `;
 
+      // Update squeletonsElements to point to new DOM element
+      Object.assign(squeletonsElements, {
+        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownUstensils: null,
+        dropdownAppliances: null,
+      });
+
       showDropdownsSkeletons();
 
       const ingredients = document.getElementById("dropdown-ingredients-container");
@@ -125,6 +140,13 @@ describe("skeletons", () => {
         <div id="dropdown-ustensils-container" class="${SKELETON_LOADING_CLASS}"></div>
         <div id="dropdown-appliances-container" class="${SKELETON_LOADING_CLASS}"></div>
       `;
+
+      // Update squeletonsElements to point to new DOM elements
+      Object.assign(squeletonsElements, {
+        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
+        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+      });
 
       hideDropdownsSkeletons();
 
@@ -147,6 +169,13 @@ describe("skeletons", () => {
       document.body.innerHTML = `
         <div id="dropdown-ingredients-container"></div>
       `;
+
+      // Update squeletonsElements to point to new DOM element
+      Object.assign(squeletonsElements, {
+        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownUstensils: null,
+        dropdownAppliances: null,
+      });
 
       hideDropdownsSkeletons();
 
@@ -267,6 +296,13 @@ describe("skeletons", () => {
         <div id="dropdown-ustensils-container"></div>
         <div id="dropdown-appliances-container"></div>
       `;
+
+      // Update squeletonsElements to point to new DOM elements
+      Object.assign(squeletonsElements, {
+        dropdownIngredients: document.getElementById("dropdown-ingredients-container"),
+        dropdownUstensils: document.getElementById("dropdown-ustensils-container"),
+        dropdownAppliances: document.getElementById("dropdown-appliances-container"),
+      });
 
       showDropdownsSkeletons();
       const containers = document.querySelectorAll(
