@@ -1,14 +1,5 @@
 export const baseUrl = import.meta.env.BASE_URL || "/";
 
-export const dataUrl = `${baseUrl}api/data.json`;
-
-export const imageUrl = url => `${baseUrl}recipes/${url}`;
-
-const removeExtension = filename => filename?.replace(/\.[^./]+$/, "") || filename;
-
-export const jpgUrl = url => `${imageUrl(removeExtension(url))}.jpg`;
-export const webpUrl = url => `${imageUrl(removeExtension(url))}.webp`;
-
 export const normalizeString = value =>
   String(value || "")
     .replace(/\s*\([^)]*\)/g, "")

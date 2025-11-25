@@ -1,52 +1,21 @@
-import { showSearchSkeleton, hideSearchSkeleton } from "../skeletons.js";
-import { mainHeader } from "./render.js";
-
-const getSearchSectionElements = () => ({
-  header: document.getElementById("header"),
-  headerTitle: document.getElementById("header-title"),
-});
+import { searchSkeleton } from "../skeletonsManager.js";
 
 const getSearchElements = () => ({
-  root: document.getElementById("main-search-bar"),
-  container: document.getElementById("search-bar-container"),
-  searchInput: document.getElementById("main-search-input"),
-  clearButton: document.getElementById("main-clear-search-btn"),
-  searchButton: document.getElementById("main-search-btn"),
+  searchBar: document.getElementById("search-bar"),
+  searchInput: document.getElementById("search-input"),
+  clearButton: document.getElementById("search-clear-button"),
+  submitSearch: document.getElementById("search-submit-btn"),
 });
-
-export const setupHeaderTitle = recipesData => {
-  const { header } = getSearchSectionElements();
-  if (!header || !recipesData) return;
-
-  const skeletonHeader = document.getElementById("header-title");
-  if (skeletonHeader && skeletonHeader.classList.contains("skeleton")) {
-    skeletonHeader.remove();
-  }
-
-  const images = recipesData.map(recipe => recipe?.images).filter(Boolean);
-
-  if (!images) return;
-
-  const randomIndex = Math.floor(Math.random() * images.length);
-  const imageData = images[randomIndex];
-
-  header.insertAdjacentHTML("beforeend", mainHeader(imageData));
-};
-
 export const setupSearchBar = () => {
-  const { header } = getSearchSectionElements();
-  const { container, searchInput, clearButton, searchButton } = getSearchElements();
+  const { searchBar, searchInput, clearButton, submitSearch } = getSearchElements();
 
-  if (!header || !container || !searchInput) {
-    return;
-  }
+  if (!searchBar || !searchInput) return;
 
-  header.classList.remove("skeleton-loading");
+  searchSkeleton().hide();
 
   const toggleSearchState = isEnabled => {
-    header.classList.toggle("disabled", !isEnabled);
-    container.classList.toggle("disabled", !isEnabled);
-    isEnabled ? hideSearchSkeleton() : showSearchSkeleton();
+    searchBar.classList.toggle("disabled", !isEnabled);
+    isEnabled ? searchSkeleton().hide() : searchSkeleton().show();
   };
 
   const runSearch = () => {
@@ -60,21 +29,21 @@ export const setupSearchBar = () => {
     );
 
     clearButton?.classList.toggle("hidden", !hasText);
-    searchButton?.classList.toggle("hidden", hasText);
+    submitSearch?.classList.toggle("hidden", hasText);
   };
 
   searchInput.addEventListener("input", runSearch);
   clearButton?.addEventListener("click", event => {
     searchInput.value = "";
     clearButton?.classList.add("hidden");
-    searchButton?.classList.remove("hidden");
+    submitSearch?.classList.remove("hidden");
     event.preventDefault();
     event.stopPropagation();
     searchInput.focus();
     runSearch();
   });
 
-  searchButton?.addEventListener("click", event => {
+  submitSearch?.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
     searchInput.focus();

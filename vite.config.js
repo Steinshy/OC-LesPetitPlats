@@ -1,7 +1,9 @@
 import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
+import analyzer from "rollup-plugin-analyzer";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
+import viteCompression from "vite-plugin-compression";
 import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -9,20 +11,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 const require = createRequire(import.meta.url);
 const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
 const PORT = 5173;
-const ONE_YEAR = 60 * 60 * 24 * 365;
-const ONE_MONTH = 60 * 60 * 24 * 30;
 const CSS_TARGET = ["chrome61", "safari11"];
 const COMMONJS_INCLUDE = [/node_modules/];
 const { version: APP_VERSION } = require("./package.json");
-
-const createCacheConfig = (name, maxEntries, maxAge) => ({
-  handler: "CacheFirst",
-  options: {
-    cacheName: `${name}-cache`,
-    expiration: { maxEntries, maxAgeSeconds: maxAge },
-    cacheableResponse: { statuses: [0, 200] },
-  },
-});
 
 export default defineConfig(({ mode }) => {
   const isAnalyze = mode === "analyze";
@@ -31,7 +22,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     define: { __VITE_VERSION__: JSON.stringify(APP_VERSION) },
-    base: BASE_PATH,
+    base: isDev ? "/" : BASE_PATH,
     root: ".",
     esbuild: {
       drop: isProduction ? ["console"] : [],
@@ -87,25 +78,13 @@ export default defineConfig(({ mode }) => {
         workbox: {
           navigateFallback: `${BASE_PATH}index.html`,
           navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              ...createCacheConfig("google-fonts", 10, ONE_YEAR),
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              ...createCacheConfig("gstatic-fonts", 10, ONE_YEAR),
-            },
-            {
-              urlPattern: /^https:\/\/cdnjs\.cloudflare\.com\/.*/i,
-              ...createCacheConfig("cdnjs", 20, ONE_MONTH),
-            },
-          ],
         },
         devOptions: {
           enabled: false,
           type: "module",
-          navigateFallbackAllowlist: [new RegExp(`^${BASE_PATH.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&")}?$`)],
+          navigateFallbackAllowlist: [
+            new RegExp(`^${BASE_PATH.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&")}?$`),
+          ],
         },
       }),
       tailwindcss(),
@@ -116,16 +95,60 @@ export default defineConfig(({ mode }) => {
           timeout: 7_000,
           cache: true,
         }),
+      !isDev &&
+        viteCompression({
+          algorithm: "gzip",
+          ext: ".gz",
+          exclude: [
+            /\.(br)$/,
+            /\.(gz)$/,
+            /\.(webp)$/,
+            /\.(jpg)$/,
+            /\.(jpeg)$/,
+            /\.(png)$/,
+            /\.(woff2)$/,
+          ],
+          include: [/\.(js)$/, /\.(css)$/, /\.(html)$/, /\.(json)$/, /\.(svg)$/],
+          threshold: 0,
+          deleteOriginFile: false,
+        }),
+      !isDev &&
+        viteCompression({
+          algorithm: "brotliCompress",
+          ext: ".br",
+          exclude: [
+            /\.(br)$/,
+            /\.(gz)$/,
+            /\.(webp)$/,
+            /\.(jpg)$/,
+            /\.(jpeg)$/,
+            /\.(png)$/,
+            /\.(woff2)$/,
+          ],
+          include: [/\.(js)$/, /\.(css)$/, /\.(html)$/, /\.(json)$/, /\.(svg)$/],
+          threshold: 0,
+          deleteOriginFile: false,
+        }),
       tsconfigPaths(),
       isAnalyze &&
         visualizer({
-          open: true,
           filename: "dist/stats.html",
+          open: true,
           gzipSize: true,
           brotliSize: true,
+          template: "sunburst", // Options: 'treemap', 'sunburst', 'network'
         }),
     ].filter(Boolean),
-    server: { port: PORT, strictPort: true },
+    resolve: {
+      dedupe: [],
+    },
+    server: {
+      port: PORT,
+      strictPort: true,
+      hmr: {
+        protocol: "ws",
+      },
+    },
     preview: { port: PORT, strictPort: true },
     build: {
       outDir: "dist",
@@ -138,7 +161,7 @@ export default defineConfig(({ mode }) => {
       cssMinify: "lightningcss",
       cssTarget: CSS_TARGET,
       reportCompressedSize: true,
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500, // Lower from 1000 to catch more issues
       assetsInlineLimit: 4096,
       modulePreload: {
         resolveDependencies: false,
@@ -152,11 +175,45 @@ export default defineConfig(({ mode }) => {
         transformMixedEsModules: true,
       },
       rollupOptions: {
+        plugins: [
+          isAnalyze &&
+            analyzer({
+              summaryOnly: false,
+              limit: 20, // Show top 20 largest modules
+              writeTo: analysis => {
+                console.log("\n📊 Bundle Analysis & Recommendations:\n");
+                console.log(analysis);
+              },
+            }),
+          {
+            name: "exclude-remixicon-svg",
+            generateBundle(options, bundle) {
+              // Remove remixicon SVG files from the bundle
+              Object.keys(bundle).forEach(fileName => {
+                if (fileName.includes("remixicon") && fileName.endsWith(".svg")) {
+                  delete bundle[fileName];
+                }
+              });
+            },
+          },
+          {
+            name: "exclude-legacy-fonts",
+            generateBundle(options, bundle) {
+              // Remove legacy font formats (woff, ttf, eot) - only keep woff2
+              Object.keys(bundle).forEach(fileName => {
+                if (/\.(woff|ttf|eot)$/i.test(fileName) && !fileName.endsWith(".woff2")) {
+                  delete bundle[fileName];
+                }
+              });
+            },
+          },
+        ].filter(Boolean),
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
             if (id.includes("tailwindcss")) return "vendor-tailwind";
             if (id.includes("tiny-lru")) return "vendor-cache";
+            if (id.includes("remixicon")) return "vendor-icons"; // Separate icon font
             return "vendor";
           },
           chunkFileNames: "assets/js/[name]-[hash].js",
@@ -166,11 +223,12 @@ export default defineConfig(({ mode }) => {
             if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
               return "assets/images/[name]-[hash][extname]";
             }
-            if (/woff2?|eot|ttf|otf/i.test(ext)) {
+            if (/woff2$/i.test(ext)) {
               return "assets/fonts/[name]-[hash][extname]";
             }
             return "assets/[ext]/[name]-[hash][extname]";
           },
+          compact: true,
         },
       },
     },

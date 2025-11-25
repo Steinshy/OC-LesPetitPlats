@@ -1,4 +1,4 @@
-import { buildCardSkeletons, hideCardSkeletons } from "../skeletons.js";
+import { cardSkeletons } from "../skeletonsManager.js";
 import {
   renderNoResults,
   renderCardPicture,
@@ -9,9 +9,54 @@ import { imagesTypes } from "@/utils/deliveryImages.js";
 
 const getCardsElements = () => {
   return {
-    container: document.getElementById("cards-container"),
+    container: document.getElementById("recipes"),
     noResults: document.getElementById("no-results"),
   };
+};
+
+const updateCardContainer = (container, items, createElement) => {
+  if (!container || !Array.isArray(items)) return [];
+
+  // Remove skeleton cards that don't have IDs
+  container.querySelectorAll(".card.skeleton:not([id])").forEach(skeleton => {
+    skeleton.remove();
+  });
+
+  const existing = new Map();
+  container.querySelectorAll("[id]").forEach(element => {
+    if (element.id) existing.set(element.id, element);
+  });
+
+  const needed = new Set(items.map(item => String(item.id)));
+  existing.forEach((element, id) => {
+    if (!needed.has(id)) {
+      element.remove();
+      existing.delete(id);
+    }
+  });
+
+  const newCards = [];
+  items.forEach((item, index) => {
+    const id = String(item.id);
+    let card = existing.get(id);
+    if (!card) {
+      card = createElement(item);
+      newCards.push(card);
+      existing.set(id, card);
+    }
+
+    const currentIndex = [...container.children].indexOf(card);
+    if (currentIndex === -1) {
+      container.appendChild(card);
+    } else if (currentIndex !== index) {
+      const referenceNode = container.children[index] || null;
+      if (referenceNode !== card) {
+        container.insertBefore(card, referenceNode);
+      }
+    }
+  });
+
+  return newCards;
 };
 
 export const setupRecipesCards = recipesData => {
@@ -19,7 +64,7 @@ export const setupRecipesCards = recipesData => {
   if (!container) return;
 
   if (!recipesData || !Array.isArray(recipesData) || recipesData.length === 0) {
-    hideCardSkeletons();
+    cardSkeletons().hide();
     if (noResults) {
       noResults.innerHTML = renderNoResults();
       noResults.classList.remove("hidden");
@@ -33,31 +78,28 @@ export const setupRecipesCards = recipesData => {
     return;
   }
 
-  buildCardSkeletons(recipesData.length, container);
+  cardSkeletons().build(recipesData.length);
   if (noResults) {
     noResults.classList.add("hidden");
   }
 
-  const fragment = document.createDocumentFragment();
-  const loadImages = [];
-  recipesData.forEach(recipe => {
+  const newCards = updateCardContainer(container, recipesData, recipe => {
     const template = document.createElement("template");
     template.innerHTML = `
       <div class="card" id="${recipe.id}">
-        ${renderCardPicture(recipe.images)}
-        ${renderCardHeader(recipe.name, recipe.time)}
+        ${renderCardPicture(recipe.images, recipe.time)}
+        ${renderCardHeader(recipe.name)}
         ${renderCardContents(recipe.description, recipe.ingredients)}
       </div>`;
-    const cardElement = template.content.firstElementChild;
-    fragment.appendChild(cardElement);
-    loadImages.push({ element: cardElement, images: recipe.images });
+    return template.content.firstElementChild;
   });
 
-  container.innerHTML = "";
-  hideCardSkeletons();
-  container.appendChild(fragment);
+  cardSkeletons().hide();
 
-  for (const { element, images } of loadImages) {
-    imagesTypes(element, images);
-  }
+  newCards.forEach(card => {
+    const recipe = recipesData.find(r => String(r.id) === card.id);
+    if (recipe?.images) {
+      imagesTypes(card, recipe.images);
+    }
+  });
 };

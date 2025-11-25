@@ -6,26 +6,18 @@ import {
   renderEmptyStateItem,
 } from "./render.js";
 import { filterDropdownItems } from "@/components/filters/recipeFilters.js";
-import { renderDropdownsSkeletons } from "@/components/renderSqueletons.js";
-import { showDropdownsSkeletons, hideDropdownsSkeletons } from "@/components/skeletons.js";
+import { dropdownsContainerSkeleton } from "@/components/skeletonsManager.js";
 
 export let currentDropdownsData = {};
 let dropdownTypes = [];
 let isGlobalHandlersInitialized = false;
 const ARIA_HIDDEN = "aria-hidden";
 
-const getDropdownsElements = () => {
-  return {
-    dropdownsContainer: document.getElementById("dropdowns-container"),
-  };
-};
-
-const getDropdownElements = dropdownType => {
+export const getDropdownElements = dropdownType => {
   return {
     button: document.getElementById(`dropdown-${dropdownType}-button`),
     searchInput: document.getElementById(`search-${dropdownType}`),
-    searchIcon: document.getElementById(`search-icon-${dropdownType}`),
-    clearButton: document.getElementById(`clear-search-${dropdownType}`),
+    clearButton: document.getElementById(`dropdown-${dropdownType}-search-clear-button`),
     menu: document.getElementById(`menu-${dropdownType}`),
     container: document.getElementById(`dropdown-${dropdownType}-container`),
     backdrop: document.getElementById(`dropdown-${dropdownType}-backdrop`),
@@ -38,7 +30,7 @@ const getDropdownSearchElements = type => {
     list: document.getElementById(`dropdown-${type}-list`),
     searchWrapper: document.getElementById(`dropdown-${type}-search`),
     searchInput: document.getElementById(`search-${type}`),
-    searchClear: document.getElementById(`clear-search-${type}`),
+    searchClear: document.getElementById(`dropdown-${type}-search-clear-button`),
   };
 };
 
@@ -51,26 +43,20 @@ const getDropdownListElements = (type, list) => {
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
+  const dropdownContainer = document.getElementById("dropdowns-container");
 
-  const { dropdownsContainer } = getDropdownsElements();
-  if (!dropdownsContainer) return;
-
-  if (dropdownsContainer.querySelector(".dropdown-container")) {
-    showDropdownsSkeletons();
-  } else {
-    dropdownsContainer.innerHTML = renderDropdownsSkeletons();
-  }
+  if (!dropdownContainer) return;
 
   const dropdownsData = buildDropdownsData(recipesData);
   currentDropdownsData = dropdownsData.dropdowns || {};
   dropdownTypes = Object.keys(currentDropdownsData);
 
-  dropdownsContainer.innerHTML =
+  dropdownContainer.innerHTML =
     ingredientsDropdown(currentDropdownsData.ingredients) +
     ustensilsDropdown(currentDropdownsData.ustensils) +
     appliancesDropdown(currentDropdownsData.appliances);
 
-  hideDropdownsSkeletons();
+  dropdownsContainerSkeleton().hide();
   setupDropdownListeners(dropdownTypes);
   dropdownTypes.forEach(dropdownType => {
     updateDropdownList(dropdownType);
@@ -85,10 +71,7 @@ const setupDropdownListeners = types => {
 
     if (searchInput) {
       searchInput.addEventListener("input", () => {
-        updateDropdownList(type);
-        if (searchClear) {
-          searchClear.classList.toggle("hidden", !searchInput.value);
-        }
+        updateDropdownContent(type);
       });
     }
 
@@ -115,8 +98,7 @@ const setupDropdownListeners = types => {
       searchClear.addEventListener("click", () => {
         searchInput.value = "";
         searchInput.focus();
-        updateDropdownList(type);
-        searchClear.classList.add("hidden");
+        updateDropdownContent(type);
       });
     }
 
@@ -133,7 +115,7 @@ const setupDropdownListeners = types => {
 };
 
 const setupGlobalHandlers = () => {
-  if (isGlobalHandlersInitialized) return;
+  if (isGlobalHandlersInitialized);
   isGlobalHandlersInitialized = true;
 
   document.addEventListener("keydown", event => {
@@ -181,6 +163,39 @@ export const toggleDropdown = (targetType, desiredOpen = null) => {
 
     applyDropdownState(type, needsToOpen);
   });
+
+  const hasOpenDropdown = getOpenDropdownType() !== null;
+  if (!hasOpenDropdown) {
+    unlockBodyScroll();
+    if (isMobile()) {
+      const button = document.getElementById("scroll-to-top");
+      if (button && window.scrollY > 300) {
+        button.classList.add("show");
+        button.setAttribute("aria-hidden", "false");
+      }
+    }
+  }
+};
+
+const isMobile = () => window.matchMedia("(width <= 767px)").matches;
+let scrollPosition = 0;
+
+const lockBodyScroll = () => {
+  if (!isMobile()) return;
+  scrollPosition = window.scrollY || document.documentElement.scrollTop;
+  document.body.style.overflow = "hidden";
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollPosition}px`;
+  document.body.style.width = "100%";
+};
+
+const unlockBodyScroll = () => {
+  if (!isMobile()) return;
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.width = "";
+  window.scrollTo(0, scrollPosition);
 };
 
 const applyDropdownState = (type, needsToOpen) => {
@@ -192,14 +207,24 @@ const applyDropdownState = (type, needsToOpen) => {
 
   backdrop?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
   menu?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
+
+  if (needsToOpen) {
+    lockBodyScroll();
+    if (isMobile()) {
+      const scrollToTopButton = document.getElementById("scroll-to-top");
+      if (scrollToTopButton) {
+        scrollToTopButton.classList.remove("show");
+        scrollToTopButton.setAttribute("aria-hidden", "true");
+      }
+    }
+  }
 };
 
 export const updateDropdownContent = type => {
-  const { searchInput, searchIcon, clearButton } = getDropdownElements(type);
+  const { searchInput, clearButton } = getDropdownElements(type);
   if (!searchInput) return;
 
   const hasQuery = !!searchInput.value.trim();
-  searchIcon?.classList.toggle("hidden", hasQuery);
   clearButton?.classList.toggle("hidden", !hasQuery);
   updateDropdownList(type);
 };

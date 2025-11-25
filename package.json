@@ -7,7 +7,7 @@
   "author": "OpenClassrooms",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "pkill -f 'vite' || true; vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -22,7 +22,6 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\"",
     "analyze": "vite build --mode analyze",
     "optimize:images": "node scripts/optimizeImages.js",
-    "generate:icons": "node scripts/generateIcons.js",
     "clean": "rm -rf dist node_modules/.vite coverage Benchmark .stryker-tmp",
     "benchmark": "NODE_OPTIONS='--max-old-space-size=4096' node viteTest/Benchmarks/utils/reporting/generateReport.js",
     "lighthouse:dev": "npm run dev & sleep 3 && node scripts/lighthouse.js http://localhost:5173/OC-LesPetitPlats/ && pkill -f 'vite' || true",
@@ -31,9 +30,11 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
     "neverthrow": "^8.2.0",
+    "query-string": "^9.3.1",
     "remixicon": "^4.7.0",
     "tailwindcss": "^4.1.16",
-    "tiny-lru": "^11.4.5"
+    "tiny-lru": "^11.4.5",
+    "toastify-js": "^1.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
@@ -81,6 +82,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "puppeteer": "^24.29.1",
+    "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.33.5",
     "simple-statistics": "^7.8.8",
@@ -89,6 +91,7 @@
     "stylelint-order": "^7.0.0",
     "tinybench": "^5.1.0",
     "vite": "^7.1.7",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-linter": "^3.1.0",

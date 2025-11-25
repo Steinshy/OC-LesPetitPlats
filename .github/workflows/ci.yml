@@ -138,8 +138,6 @@ jobs:
         if: always() && steps.check-reports.outputs.exists == 'true'
         with:
           name: benchmark-results-json
-          # Note: Results JSON is stored in temp directory during execution
-          # HTML report contains all benchmark data
           path: Benchmark/benchmark-results.json
           retention-days: 30
           if-no-files-found: ignore

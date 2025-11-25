@@ -14,7 +14,7 @@ async function generateIcons() {
 
     for (const size of SIZES) {
       const outputPath = resolve(OUTPUT_DIR, `icon-${size}.png`);
-      
+
       await sharp(INPUT_SVG)
         .resize(size, size, {
           fit: "contain",

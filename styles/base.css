@@ -1,6 +1,6 @@
 @layer theme {
   :root {
-    --color-bg: #fff;
+    --color-bg: #ededed;
     --color-text: #1b1b1b;
     --color-text-light: #666;
     --color-text-muted: #666;
@@ -45,6 +45,7 @@
     --z-sticky: 100;
     --z-dropdown: 1000;
     --z-dropdown-mobile: 1010;
+    --header-bg-image: none;
 
     background-color: var(--color-bg);
     color: var(--color-text);
@@ -84,9 +85,9 @@
     }
 
     * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms;
+      animation-iteration-count: 1;
+      transition-duration: 0.01ms;
     }
   }
 
@@ -96,5 +97,15 @@
     height: auto;
     max-width: 100%;
     object-fit: cover;
+  }
+
+  .mobile-detector {
+    display: none;
+  }
+
+  @media (width <= 767px) {
+    .mobile-detector {
+      display: block;
+    }
   }
 }

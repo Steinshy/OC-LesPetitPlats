@@ -1,35 +1,48 @@
-const getScrollToTopButton = () => document.getElementById("scroll-to-top");
+const getScrollToTopElements = () => {
+  return {
+    button: document.getElementById("scroll-to-top"),
+  };
+};
 
-const handleScrollVisibility = () => {
-  const button = getScrollToTopButton();
-  if (!button) return;
-  const shouldShow = window.scrollY > 300;
-  button.classList.toggle("show", shouldShow);
-  button.setAttribute("aria-hidden", !shouldShow);
+const isMobile = () => {
+  const detector = document.querySelector(".mobile-detector");
+  return detector ? window.getComputedStyle(detector).display !== "none" : false;
 };
 
 const scrollToTop = () => {
+  const { button } = getScrollToTopElements();
   window.scrollTo({ top: 0, behavior: "smooth" });
-  getScrollToTopButton()?.blur();
+  button?.blur();
+};
+
+const updateVisibility = () => {
+  const dropdownContainer = document.getElementById("dropdowns-container");
+  const mobile = isMobile();
+
+  const shouldShow =
+    window.scrollY > 300 && !(mobile && dropdownContainer?.classList.contains("open"));
+  if (!dropdownContainer) return;
+
+  dropdownContainer.classList.toggle("show", shouldShow);
+  dropdownContainer.setAttribute("aria-hidden", String(!shouldShow));
+};
+
+const setupListeners = () => {
+  const { button } = getScrollToTopElements();
+  if (!button) return;
+
+  button.addEventListener("click", scrollToTop);
+  setupGlobalHandlers();
+};
+
+const setupGlobalHandlers = () => {
+  window.addEventListener("scroll", updateVisibility, { passive: true });
 };
 
 export const initScrollToTop = () => {
-  const button = getScrollToTopButton();
+  const { button } = getScrollToTopElements();
   if (!button) return;
 
-  let ticking = false;
-  const handleScroll = () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        handleScrollVisibility();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  };
-
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  button.addEventListener("click", scrollToTop);
-
-  handleScrollVisibility();
+  updateVisibility();
+  setupListeners();
 };

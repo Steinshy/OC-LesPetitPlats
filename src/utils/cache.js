@@ -1,65 +1,50 @@
-import { ok } from "neverthrow";
 import { lru } from "tiny-lru";
 
 const MAX_ITEMS = 500;
 const DEFAULT_TTL_MS = 1000 * 60 * 5;
-const NO_EXPIRATION = null;
 
 const appCache = lru(MAX_ITEMS);
 
-const computeExpiry = ttlMs => {
-  if (typeof ttlMs === "number" && Number.isFinite(ttlMs)) {
-    return ttlMs > 0 ? Date.now() + ttlMs : NO_EXPIRATION;
-  }
-  return Date.now() + DEFAULT_TTL_MS;
+const buildRecord = (value, ttlMs) => {
+  const ttl = typeof ttlMs === "number" && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS;
+  return { value, expiresAt: Date.now() + ttl };
 };
-
-const buildRecord = (value, ttlMs) => ({
-  value,
-  expiresAt: computeExpiry(ttlMs),
-});
 
 const getRecord = key => {
   const record = appCache.get(key);
   if (!record) return undefined;
-  if (record.expiresAt !== NO_EXPIRATION && record.expiresAt <= Date.now()) {
+  if (record.expiresAt <= Date.now()) {
     appCache.delete(key);
     return undefined;
   }
   return record;
 };
 
-export function cacheGet(key) {
-  const record = getRecord(key);
-  return record ? record.value : undefined;
-}
+export const cacheGet = key => getRecord(key)?.value;
 
-export function cacheSet(key, value, ttlMs) {
+export const cacheSet = (key, value, ttlMs) => {
   appCache.set(key, buildRecord(value, ttlMs));
-}
+};
 
-export function cacheHas(key) {
-  return getRecord(key) !== undefined;
-}
+export const cacheHas = key => getRecord(key) !== undefined;
 
-export function cacheDel(key) {
-  appCache.delete(key);
-}
+export const cacheDel = key => appCache.delete(key);
 
-export async function cacheGetOrSet(key, fetcher, ttlMs) {
-  const cachedValue = cacheGet(key);
-  if (cachedValue !== undefined) {
-    if (cachedValue && typeof cachedValue === "object" && "isOk" in cachedValue) {
-      return cachedValue;
-    }
-    return ok(cachedValue);
+export const cacheGetOrSet = async (key, fetcher, ttlMs) => {
+  const cached = cacheGet(key);
+  if (cached !== undefined) {
+    return cached;
   }
   const result = await fetcher();
-  if (result.isOk()) {
-    cacheSet(key, result.value, ttlMs);
+  if (result && typeof result === "object" && "isOk" in result) {
+    if (result.isOk()) {
+      cacheSet(key, result.value, ttlMs);
+    }
+  } else {
+    cacheSet(key, result, ttlMs);
   }
   return result;
-}
+};
 
 export const cacheManager = {
   get: cacheGet,

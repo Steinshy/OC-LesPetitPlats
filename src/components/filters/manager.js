@@ -3,8 +3,8 @@ import { setupDropdowns, getOpenDropdownType, toggleDropdown } from "../dropdown
 import { setupResultsCounter } from "../resultsCounter.js";
 import { renderFilters, renderFilterTag } from "./render.js";
 import { SearchInput, filterByField } from "@/components/filters/recipeFilters.js";
+import { parseURLState, updateURLState, clearURLState } from "@/utils/queryParams.js";
 import { normalizeString } from "@/utils/string.js";
-import { parseURLState, updateURLState, clearURLState } from "@/utils/urlState.js";
 
 let allRecipes = [];
 let filteredRecipes = [];
@@ -41,11 +41,11 @@ export const setupFilters = recipesData => {
   filters.appliances = urlState.appliances;
   filters.ustensils = urlState.ustensils;
 
-  const mainSearchInput = document.getElementById("main-search-input");
-  if (mainSearchInput && filters.search) {
-    mainSearchInput.value = filters.search;
-    const clearSearchBtn = document.getElementById("main-clear-search-btn");
-    const searchBtn = document.getElementById("main-search-btn");
+  const searchInput = document.getElementById("search-input");
+  if (searchInput && filters.search) {
+    searchInput.value = filters.search;
+    const clearSearchBtn = document.getElementById("search-clear-button");
+    const searchBtn = document.getElementById("search-submit-btn");
     if (clearSearchBtn) clearSearchBtn.classList.remove("hidden");
     if (searchBtn) searchBtn.classList.add("hidden");
   }
@@ -67,10 +67,11 @@ export const setupFilters = recipesData => {
     filters.appliances = urlState.appliances;
     filters.ustensils = urlState.ustensils;
 
-    if (mainSearchInput) {
-      mainSearchInput.value = filters.search;
-      const clearSearchBtn = document.getElementById("main-clear-search-btn");
-      const searchBtn = document.getElementById("main-search-btn");
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+      searchInput.value = filters.search;
+      const clearSearchBtn = document.getElementById("search-clear-button");
+      const searchBtn = document.getElementById("search-submit-btn");
       if (clearSearchBtn) clearSearchBtn.classList.toggle("hidden", !filters.search);
       if (searchBtn) searchBtn.classList.toggle("hidden", !!filters.search);
     }
@@ -111,7 +112,6 @@ const syncUI = () => {
   updateFilterTagsUI();
   updateFiltersContainer();
   setupResultsCounter(filteredRecipes.length);
-  
   if (!isInitialLoad) {
     updateURLState(filters);
   }
@@ -228,11 +228,11 @@ const clearAllFilters = () => {
   filters.appliances.clear();
   filters.ustensils.clear();
 
-  const mainSearchInput = document.getElementById("main-search-input");
-  const clearSearchBtn = document.getElementById("main-clear-search-btn");
-  const searchBtn = document.getElementById("main-search-btn");
+  const searchInput = document.getElementById("search-input");
+  const clearSearchBtn = document.getElementById("search-clear-button");
+  const searchBtn = document.getElementById("search-submit-btn");
 
-  if (mainSearchInput) mainSearchInput.value = "";
+  if (searchInput) searchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
   if (searchBtn) searchBtn.classList.remove("hidden");
 

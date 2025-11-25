@@ -33,34 +33,22 @@
     <meta name="twitter:description" content="Trouvez la recette parfaite pour votre repas">
     <meta name="twitter:image" content="/favicons/og-card.png">
 
-    <!-- Preconnect & Preload -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preload" href="/styles/global.css" as="style">
+    <!-- Resource Hints for Critical Assets -->
+    <link rel="preload" href="/favicons/logo.svg" as="image" type="image/svg+xml" fetchpriority="high">
+    <link rel="preload" href="/src/App.js" as="script" crossorigin>
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="/styles/global.css">
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'">
-    <!-- Icons: Remix Icon (loaded via JS import in `src/App.js`) -->
+    <!-- Prefetch for likely next resources -->
+    <link rel="prefetch" href="/api/data.json" as="fetch" crossorigin>
   </head>
 
   <body>
+    <span class="mobile-detector" aria-hidden="true"></span>
     <div id="root" class="app">
       <header class="header" id="header">
         <!-- Navigation Bar -->
         <nav class="header-nav" aria-label="Navigation principale">
           <div class="header-brand">
-            <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="logo" fetchpriority="high" width="40" height="40">
-            <i class="ri-restaurant-2-fill project-icon" aria-hidden="true"></i>
-            <h1>Les Petits Plats</h1>
+            <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="logo" fetchpriority="high">
           </div>
 
           <ul class="nav-menu">
@@ -68,6 +56,32 @@
             <li><a href="#about-us" class="nav-link" aria-label="En savoir plus">À propos</a></li>
           </ul>
         </nav>
+
+        <section id="header-title" class="header-title">
+          <h2>
+            Cherchez parmi plus de 1500 recettes <br>
+            du quotidien, simples et délicieuses
+          </h2>
+          <div class="search-bar" id="search-bar">
+            <div class="search-bar-container" id="search-bar-container">
+              <label for="search-input" class="sr-only">Rechercher une recette, un ingrédient</label>
+
+              <input 
+                type="text" 
+                id="search-input"
+                name="search-input"
+                placeholder="Rechercher une recette, un ingrédient...">
+
+              <button type="button" id="search-clear-button" class="search-clear-btn hidden" aria-label="Effacer la recherche">
+                <i class="ri-close-line" aria-hidden="true"></i>
+              </button>
+
+              <button type="button" id="search-submit-btn" aria-label="Lancer la recherche" class="search-btn">
+                <i class="ri-search-line" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </section>
       </header>
       <!-- Main Content Section -->
       <main class="main">
@@ -86,16 +100,15 @@
           <!-- Filters section -->
         </aside>
         <!-- Recipe Cards Grid -->
-        <section class="cards-container" id="cards-container" aria-label="Liste des recettes">
+        <section class="cards-container" id="recipes" aria-label="Liste des recettes">
 
         </section>
       </main>
 
       <!-- Footer Section -->
-      <footer class="footer">
+      <footer class="footer" id="about-us">
         <section class="footer-brand">
-          <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" width="40" height="40">
-          <h3>Les Petits Plats</h3>
+          <img src="/favicons/logoFooter.svg" alt="Les Petits Plats - Logo" class="logo" loading="lazy" decoding="async">
           <p>Découvrez des recettes délicieuses et faciles à réaliser pour toutes les occasions.</p>
           <ul class="footer-social">
             <li>
@@ -191,6 +204,6 @@
     </div>
 
     <!-- Main JavaScript Module -->
-    <script type="module" src="/src/App.js"></script>
+    <script type="module" src="/src/App.js" defer></script>
   </body>
 </html>
