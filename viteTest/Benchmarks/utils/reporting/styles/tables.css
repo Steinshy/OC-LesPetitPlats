@@ -1,0 +1,227 @@
+/**
+ * Table Styles - Professional Data Presentation
+ */
+
+.table-wrapper {
+  border-radius: var(--radius-lg);
+  margin: var(--spacing-xl) 0;
+  overflow: auto visible;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  margin: 0;
+  width: 100%;
+}
+
+table th {
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: var(--spacing-md) var(--spacing-lg);
+  position: sticky;
+  text-align: left;
+  top: 0;
+  white-space: nowrap;
+}
+
+table th:first-child {
+  border-radius: var(--radius-md) 0 0 0;
+}
+
+table th:last-child {
+  border-radius: 0 var(--radius-md) 0 0;
+}
+
+table td {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+table tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 var(--radius-md);
+}
+
+table tbody tr:last-child td:last-child {
+  border-radius: 0 0 var(--radius-md) 0;
+}
+
+table tbody tr:hover td {
+  background-color: var(--bg-tertiary);
+}
+
+table .winner {
+  background-color: rgb(16 185 129 / 10%) !important;
+  color: var(--secondary-dark);
+  font-weight: 600;
+}
+
+/* Summary Table */
+.summary-table th,
+.summary-table td {
+  text-align: center;
+}
+
+.summary-table th:first-child,
+.summary-table td:first-child {
+  text-align: left;
+}
+
+/* Implementation Table */
+.implementation-table {
+  font-size: 0.95rem;
+}
+
+.implementation-table th {
+  text-align: center;
+}
+
+.implementation-table td {
+  text-align: center;
+}
+
+.implementation-table td:first-child,
+.implementation-table td:nth-child(2) {
+  text-align: left;
+}
+
+.fastest-row {
+  background-color: rgb(16 185 129 / 10%) !important;
+}
+
+.fastest-row td {
+  color: var(--secondary-dark);
+  font-weight: 600;
+}
+
+.badge {
+  background-color: var(--secondary-color);
+  border-radius: 9999px;
+  color: #fff;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: var(--spacing-sm);
+  padding: 0.125rem var(--spacing-sm);
+}
+
+.badge-second {
+  background-color: var(--primary-color);
+}
+
+/* Detailed Results Tables */
+.detailed-results {
+  margin-top: var(--spacing-2xl);
+}
+
+.category-group {
+  background-color: var(--bg-secondary);
+  border-left: 4px solid var(--primary-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-xl);
+}
+
+.category-group h4 {
+  color: var(--text-primary);
+  font-size: 1.375rem;
+  margin-bottom: var(--spacing-lg);
+  margin-top: 0;
+}
+
+.test-count {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.category-stats {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+
+.stat-item {
+  flex: 1;
+  font-size: 0.95rem;
+  min-width: 200px;
+}
+
+.winner-name {
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.win-count {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Collapsible Test Details */
+.test-details {
+  margin-top: var(--spacing-lg);
+}
+
+.test-details summary {
+  background-color: var(--primary-color);
+  border-radius: var(--radius-md);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: var(--spacing-md) var(--spacing-lg);
+  transition: background-color var(--transition-base);
+  user-select: none;
+}
+
+.test-details summary:hover {
+  background-color: var(--primary-dark);
+}
+
+.test-details[open] summary {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.test-details .table-wrapper {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-top: none;
+  margin-top: 0;
+  padding: var(--spacing-md);
+}
+
+.compact-table {
+  font-size: 0.875rem;
+}
+
+.compact-table th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.compact-table td {
+  font-size: 0.85rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.compact-table tr.summary-row {
+  background-color: var(--bg-tertiary);
+  border-top: 2px solid var(--primary-color);
+  font-weight: 600;
+}
+
+.compact-table tr.summary-row td {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+

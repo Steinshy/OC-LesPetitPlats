@@ -16,7 +16,6 @@ coverage
 .prettier-cache
 
 # Editor directories
-.vscode
 .idea
 
 # OS files
@@ -25,10 +24,6 @@ Thumbs.db
 
 # Project-specific
 .oc
-
-# API data
-api/data.js
-public/api/data.js
 
 # Lighthouse reports
 lighthouse-report*.html

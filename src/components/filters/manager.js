@@ -1,180 +1,197 @@
 import { setupRecipesCards } from "../cards/manager.js";
-import { setupDropdowns, getOpenDropdownType, toggleDropdown } from "../dropdown/manager.js";
+import { setupDropdowns } from "../dropdown/manager.js";
+import { setupResultsCounter } from "../resultsCounter.js";
+import { searchElements } from "../search/elements.js";
+import { filtersState, filtersConstants, filtersElements } from "./elements.js";
 import { renderFilters, renderFilterTag } from "./render.js";
-import {
-  SearchInput,
-  IngredientsInput,
-  AppliancesInput,
-  UstensilsInput,
-} from "@/components/filters/filtersBy.js";
-import { updateCounter } from "@/utils/string.js";
-
-const ARIA_HIDDEN = "aria-hidden";
-const ARIA_HIDDEN_TRUE = "true";
-const ARIA_HIDDEN_FALSE = "false";
-
-let allRecipes = [];
-let filteredRecipes = [];
-
-const filtersState = {
-  mainSearchText: "",
-  tags: {
-    ingredients: new Set(),
-    ustensils: new Set(),
-    appliances: new Set(),
-  },
-};
-
-const getFiltersElements = () => {
-  return {
-    root: document.getElementById("filters"),
-    container: document.getElementById("filters-container"),
-    count: document.getElementById("filters-count"),
-    clearButton: document.getElementById("clear-filters-btn"),
-    listsContainer: document.getElementById("filters-tags"),
-    tag: document.querySelectorAll("#filter-tag-btn"),
-  };
-};
+import { SearchInput, filterByField } from "@/components/filters/recipeFilters.js";
+import { parseURLState, updateURLState, clearURLState } from "@/utils/queryParams.js";
+import { normalizeString } from "@/utils/string.js";
 
 export const setupFilters = recipesData => {
-  allRecipes = recipesData;
-  filteredRecipes = recipesData;
-  const { root } = getFiltersElements();
-  const filtersAside = root || document.querySelector(".filters");
+  if (!recipesData) return;
 
-  if (filtersAside) {
-    // inserts the filters block (header + tags container)
-    filtersAside.innerHTML = renderFilters();
+  // Store all recipes once
+  filtersState.allRecipes = Array.isArray(recipesData) ? recipesData : [];
+
+  const { searchInput, clearButton, submitSearch } = searchElements;
+  const { mainContainer } = filtersElements;
+
+  // Initial search input value from filters state (e.g., from URL)
+  if (searchInput && filtersState.filters.search) {
+    searchInput.value = filtersState.filters.search ?? "";
+    clearButton?.classList.toggle("hidden", !filtersState.filters.search);
+    submitSearch?.classList.toggle("hidden", !!filtersState.filters.search);
   }
 
-  // Now the elements created by renderFilters() exist
-  const { clearButton } = getFiltersElements();
+  mainContainer.innerHTML = renderFilters();
 
+  // Now that filters markup exists, get the clear-all button
+  const { clearAll } = filtersElements;
+  clearAll?.addEventListener("click", clearAllFilters);
+
+  // Dropdown item toggle -> update filters
   document.addEventListener("dropdown:itemToggled", onDropdownItemToggled);
-  document.addEventListener("filters:searchChanged", e => onSearchChanged(e.detail.query));
 
-  if (clearButton) {
-    clearButton.addEventListener("click", clearAllFilters);
-  }
+  // Search change event (from main search bar)
+  document.addEventListener("filters:searchChanged", event =>
+    onSearchChanged(filtersState.filters, event.detail.query),
+  );
 
-  syncUI();
+  // Handle browser back/forward
+  window.addEventListener("popstate", () => {
+    const urlFilters = parseURLState();
+
+    filtersState.filters.search = urlFilters.search ?? "";
+
+    filtersState.filters.ingredients = new Set(urlFilters.ingredients || []);
+    filtersState.filters.appliances = new Set(urlFilters.appliances || []);
+    filtersState.filters.ustensils = new Set(urlFilters.ustensils || []);
+
+    if (searchInput) {
+      searchInput.value = filtersState.filters.search ?? "";
+      clearButton?.classList.toggle("hidden", !filtersState.filters.search);
+      submitSearch?.classList.toggle("hidden", !!filtersState.filters.search);
+    }
+
+    syncUI(filtersState.filters);
+  });
+
+  // First sync
+  syncUI(filtersState.filters);
+  filtersState.isInitialLoad = false;
 };
 
-const applyAllFilters = allRecipes => {
-  let filteredRecipes = allRecipes;
-  filteredRecipes = SearchInput(filteredRecipes, filtersState.mainSearchText);
-  filteredRecipes = IngredientsInput(filteredRecipes, filtersState.tags.ingredients);
-  filteredRecipes = AppliancesInput(filteredRecipes, filtersState.tags.appliances);
-  filteredRecipes = UstensilsInput(filteredRecipes, filtersState.tags.ustensils);
-  return filteredRecipes;
+// --------------------------------------------------
+// filtering logic
+// --------------------------------------------------
+
+const getFilteredRecipes = (recipes, filters) => {
+  if (!Array.isArray(recipes)) return [];
+
+  let current = recipes;
+
+  current = SearchInput(current, filters.search ?? "");
+  current = filterByField(current, filters.ingredients, "ingredients");
+  current = filterByField(current, filters.appliances, "appliances");
+  current = filterByField(current, filters.ustensils, "ustensils");
+
+  return current;
 };
 
-const onSearchChanged = query => {
-  filtersState.mainSearchText = query ?? "";
-  syncUI();
+const onSearchChanged = (filters, query) => {
+  filtersState.filters.search = query ?? "";
+  syncUI(filtersState.filters);
 };
 
-const syncUI = () => {
-  // 0. remember which dropdown is currently open
-  const openDropdownType = getOpenDropdownType?.() || null;
+const syncUI = filters => {
+  // 1) Compute filtered recipes from ALL recipes + current filters
+  filtersState.filteredRecipes = getFilteredRecipes(filtersState.allRecipes, filters);
 
-  // 1. apply filters
-  filteredRecipes = applyAllFilters(allRecipes);
+  // 2) Update cards + dropdowns
+  setupRecipesCards(filtersState.filteredRecipes);
+  setupDropdowns(filtersState.filteredRecipes);
 
-  // 2. update cards
-  setupRecipesCards(filteredRecipes);
-
-  // 3. rebuild dropdowns from filtered recipes
-  setupDropdowns(filteredRecipes);
-
-  // 4. re-apply selected state in dropdowns
+  // 3) Restore dropdown selections from filters state
   restoreDropdownSelections();
 
-  // 5. reopen the dropdown that was open (if any)
-  if (openDropdownType) toggleDropdown(openDropdownType, true);
-
-  // 6. update tag chips and misc UI
+  // 4) Update filter tags under the search bar
   updateFilterTagsUI();
-  updateFiltersContainer();
-  updateCounter(filteredRecipes.length);
-};
 
-const updateFiltersContainer = () => {
-  const { container, count, clearButton } = getFiltersElements();
-  if (!container || !count || !clearButton) return;
+  // 5) Update "active filters" container + clear-all button
+  updateFiltersContainer(filters);
 
-  const total =
-    filtersState.tags.ingredients.size +
-    filtersState.tags.appliances.size +
-    filtersState.tags.ustensils.size;
+  // 6) Update results counter
+  setupResultsCounter(filtersState.filteredRecipes.length);
 
-  if (total === 0) {
-    container.style.display = "none";
-    if (clearButton) {
-      clearButton.classList.remove("visible");
-      clearButton.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
-      clearButton.setAttribute("aria-label", "Aucun filtre sélectionné");
-    }
-    if (count) {
-      count.textContent = "(0)";
-      count.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
-      count.setAttribute("aria-label", "Aucun filtre sélectionné");
-    }
-  } else {
-    container.style.display = "";
-    if (clearButton) {
-      clearButton.classList.add("visible");
-      clearButton.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_FALSE);
-      clearButton.setAttribute("aria-label", "Retirer tous les filtres");
-    }
-    if (count) {
-      count.textContent = `(${total})`;
-      count.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_FALSE);
-      count.setAttribute("aria-label", "Nombre de filtres sélectionnés");
-    }
+  // 7) Keep URL in sync (avoid doing this on first load)
+  if (!filtersState.isInitialLoad) {
+    updateURLState(filters);
   }
 };
 
+// --------------------------------------------------
+// ui state: filters container
+// --------------------------------------------------
+
+const updateFiltersContainer = filters => {
+  const { filtersContainer, filterCount, clearAll } = filtersElements;
+  if (!filtersContainer || !filterCount || !clearAll) return;
+
+  const total = filters.ingredients.size + filters.appliances.size + filters.ustensils.size;
+
+  if (total === 0) {
+    filtersContainer.style.display = "none";
+    clearAll.classList.remove("visible");
+    clearAll.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
+    clearAll.setAttribute("aria-label", "Aucun filtre sélectionné");
+    filterCount.textContent = "";
+    filterCount.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
+  } else {
+    filtersContainer.style.display = "";
+    clearAll.classList.add("visible");
+    clearAll.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenFalse);
+    clearAll.setAttribute("aria-label", "Retirer tous les filtres");
+
+    filterCount.textContent = `(${total})`;
+    filterCount.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenFalse);
+    filterCount.setAttribute("aria-label", "Nombre de filtres sélectionnés");
+  }
+};
+
+// --------------------------------------------------
+// ui state: filter tags
+// --------------------------------------------------
+
 const updateFilterTagsUI = () => {
-  const { listsContainer } = getFiltersElements();
+  const { listsContainer } = filtersElements;
   if (!listsContainer) return;
 
   const activeFiltersArray = [
-    ...[...filtersState.tags.ingredients].map(value => ({ value, type: "ingredients" })),
-    ...[...filtersState.tags.appliances].map(value => ({ value, type: "appliances" })),
-    ...[...filtersState.tags.ustensils].map(value => ({ value, type: "ustensils" })),
+    ...[...filtersState.filters.ingredients].map(value => ({ value, type: "ingredients" })),
+    ...[...filtersState.filters.appliances].map(value => ({ value, type: "appliances" })),
+    ...[...filtersState.filters.ustensils].map(value => ({ value, type: "ustensils" })),
   ];
 
   listsContainer.innerHTML = activeFiltersArray
-    .map(tag => renderFilterTag(tag.value, tag.type))
+    .map(tag => renderFilterTag(normalizeString(tag.value ?? ""), tag.type))
     .join("");
 
-  // clicking a tag removes that filter
+  // Tag click: remove value from filters and sync
   listsContainer.querySelectorAll(".filter-tag").forEach(button => {
     button.addEventListener("click", () => {
       const type = button.dataset.type;
       const value = button.dataset.value;
-      const set = filtersState.tags[type];
+      const set = filtersState.filters[type];
       if (!set) return;
 
       set.delete(value);
 
-      // unselect in the dropdown UI too
-      const selector = `.dropdown-item[data-type="${type}"][data-value="${CSS.escape(value)}"]`;
+      const selector = `.dropdown-item.item-btn[data-type="${type}"][data-value="${normalizeString(
+        value,
+      )}"]`;
       const dropdownItem = document.querySelector(selector);
       if (dropdownItem) {
         dropdownItem.classList.remove("selected");
-        dropdownItem.querySelector(".dropdown-item-check")?.remove();
+        dropdownItem.setAttribute("aria-pressed", "false");
+        const checkIcon = dropdownItem.querySelector(".dropdown-item-check");
+        if (checkIcon) {
+          checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
+        }
       }
 
-      syncUI();
+      syncUI(filtersState.filters);
     });
   });
 };
 
+// --------------------------------------------------
+// dropdown item toggle
+// --------------------------------------------------
+
 const onDropdownItemToggled = event => {
   const { type, value, selected } = event.detail;
-  const set = filtersState.tags[type];
+  const set = filtersState.filters[type];
   if (!set) return;
 
   if (selected) {
@@ -183,50 +200,78 @@ const onDropdownItemToggled = event => {
     set.delete(value);
   }
 
-  syncUI();
+  syncUI(filtersState.filters);
 };
 
+// --------------------------------------------------
+// restore dropdown selections (from filters state)
+// --------------------------------------------------
+
 const restoreDropdownSelections = () => {
-  Object.entries(filtersState.tags).forEach(([type, set]) => {
-    set.forEach(value => {
-      const selector = `.dropdown-item[data-type="${type}"][data-value="${CSS.escape(value)}"]`;
+  Object.entries(filtersState.filters).forEach(([type, value]) => {
+    if (!(value instanceof Set)) return;
+
+    value.forEach(val => {
+      const selector = `.dropdown-item.item-btn[data-type="${type}"][data-value="${normalizeString(
+        val ?? "",
+      )}"]`;
       const itemButton = document.querySelector(selector);
       if (!itemButton) return;
 
       if (!itemButton.classList.contains("selected")) {
         itemButton.classList.add("selected");
+        itemButton.setAttribute("aria-pressed", "true");
       }
 
-      const checkIcon = itemButton.querySelector(".dropdown-item-check");
+      let checkIcon = itemButton.querySelector(".dropdown-item-check");
       if (!checkIcon) {
-      const icon = document.createElement("i");
-      icon.className = "fa-solid fa-check dropdown-item-check";
-      icon.setAttribute(ARIA_HIDDEN, ARIA_HIDDEN_TRUE);
-      itemButton.appendChild(icon);
+        checkIcon = document.createElement("i");
+        checkIcon.className = "ri-checkbox-line dropdown-item-check";
+        checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
+        itemButton.appendChild(checkIcon);
+      } else {
+        checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenFalse);
       }
     });
   });
 };
 
+// --------------------------------------------------
+// clear all filters
+// --------------------------------------------------
+
 const clearAllFilters = () => {
-  // 1. Reset internal state
-  filtersState.mainSearchText = "";
-  filtersState.tags.ingredients.clear();
-  filtersState.tags.appliances.clear();
-  filtersState.tags.ustensils.clear();
+  // reset filter state
+  filtersState.filters.search = "";
+  filtersState.filters.ingredients.clear();
+  filtersState.filters.appliances.clear();
+  filtersState.filters.ustensils.clear();
 
-  // 2. Clear main search input
-  const mainSearchInput = document.getElementById("recipe-search");
-  const clearSearchBtn = document.getElementById("clear-recipe-search");
-  if (mainSearchInput) mainSearchInput.value = "";
-  if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
+  // reset main search ui
+  if (searchElements.searchInput && searchElements.clearButton && searchElements.submitSearch) {
+    searchElements.searchInput.value = "";
+    searchElements.clearButton.classList.add("hidden");
+    searchElements.submitSearch.classList.remove("hidden");
+  }
 
-  // 3. Clear dropdown visual state
-  document.querySelectorAll(".dropdown-item.selected").forEach(item => {
-    item.classList.remove("selected");
-    item.querySelector(".dropdown-item-check")?.remove();
+  // Clear selection in dropdown items
+  document.querySelectorAll(".dropdown-item.item-btn.selected").forEach(itemButton => {
+    itemButton.classList.remove("selected");
+    itemButton.setAttribute("aria-pressed", "false");
+    const checkIcon = itemButton.querySelector(".dropdown-item-check");
+    if (checkIcon) {
+      checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
+    }
   });
 
-  // 4. Re-sync UI
-  syncUI();
+  // Notify search reset
+  document.dispatchEvent(
+    new CustomEvent("filters:searchChanged", {
+      detail: { query: "" },
+    }),
+  );
+
+  // Reset URL + resync UI
+  clearURLState();
+  syncUI(filtersState.filters);
 };

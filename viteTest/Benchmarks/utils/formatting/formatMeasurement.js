@@ -1,4 +1,5 @@
 // Formatting utilities for measurement data
+import numeral from "numeral";
 
 // Time formatting constants
 const NS_THRESHOLD = 0.001;
@@ -11,21 +12,20 @@ const S_DIVISOR = 1000;
 
 // Memory formatting constants
 const MEMORY_THRESHOLD = 0.001;
-const MEMORY_PRECISION = 3;
 
 export function formatTime(timeMs) {
   if (timeMs < NS_THRESHOLD) {
     const ns = timeMs * NS_MULTIPLIER;
     const precision = ns < NS_PRECISION_THRESHOLD ? 4 : 2;
-    return `${ns.toFixed(precision)} ns`;
+    return `${numeral(ns).format(`0.${"0".repeat(precision)}`)} ns`;
   }
   if (timeMs < US_THRESHOLD) {
-    return `${(timeMs * US_MULTIPLIER).toFixed(2)} µs`;
+    return `${numeral(timeMs * US_MULTIPLIER).format("0.00")} µs`;
   }
   if (timeMs < MS_THRESHOLD) {
-    return `${timeMs.toFixed(2)} ms`;
+    return `${numeral(timeMs).format("0.00")} ms`;
   }
-  return `${(timeMs / S_DIVISOR).toFixed(2)} s`;
+  return `${numeral(timeMs / S_DIVISOR).format("0.00")} s`;
 }
 
 export function formatMemory(memoryMB) {
@@ -33,5 +33,5 @@ export function formatMemory(memoryMB) {
     return "~0 MB";
   }
   const sign = memoryMB >= 0 ? "+" : "";
-  return `${sign}${memoryMB.toFixed(MEMORY_PRECISION)} MB`;
+  return `${sign}${numeral(memoryMB).format("0.000")} MB`;
 }

@@ -1,36 +1,20 @@
-export { addBenchmarkResult } from "./dataCollector.js";
+export { addBenchmarkResult } from "./collector.js";
+import { mean } from "simple-statistics";
 
-// Flattens category results into a single array
-export function flattenCategoryResults(categoryResults) {
-  return Object.entries(categoryResults).flatMap(([category, tests]) =>
-    Object.entries(tests).flatMap(([testName, implementations]) =>
-      Object.entries(implementations).map(([implName, stats]) => ({
-        category,
-        testName,
-        implementation: implName,
-        ...stats,
-      })),
-    ),
-  );
-}
-
-// Calculate average execution time for an implementation
+// Calculate average execution time for an implementation using simple-statistics
 export function getAverageExecutionTime(flattenedResults, implementation) {
   const implResults = flattenedResults.filter(result => result.implementation === implementation);
   if (implResults.length === 0) return 0;
-  const sum = implResults.reduce(
-    (acc, result) => acc + (result.mean || result.executionTime || 0),
-    0,
-  );
-  return sum / implResults.length;
+  const values = implResults.map(result => result.mean || result.executionTime || 0);
+  return mean(values);
 }
 
-// Calculate average RME for an implementation
+// Calculate average RME for an implementation using simple-statistics
 export function getAverageRME(flattenedResults, implementation) {
   const implResults = flattenedResults.filter(result => result.implementation === implementation);
   if (implResults.length === 0) return 0;
-  const sum = implResults.reduce((acc, result) => acc + (result.rme || 0), 0);
-  return sum / implResults.length;
+  const values = implResults.map(result => result.rme || 0);
+  return mean(values);
 }
 
 // Get unique implementations from flattened results
@@ -72,6 +56,8 @@ export function organizeByCategory(flattened) {
       mean: result.mean || result.executionTime || 0,
       executionTime: result.executionTime || result.mean || 0,
       rme: result.rme || 0,
+      queryCount: result.queryCount,
+      filterCount: result.filterCount,
       ...result,
     };
   });

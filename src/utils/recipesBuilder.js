@@ -1,17 +1,17 @@
 import { fetchRecipes } from "./recipeApi.js";
-import { jpgUrl, webpUrl } from "./string.js";
+import { baseUrl } from "./string.js";
 
 const buildImages = recipe => {
+  const base = recipe?.image?.replace(/\.[^./]+$/, "") || recipe?.image;
   return {
     alt: recipe?.name || "",
-    jpgUrl: jpgUrl(recipe?.image) || null,
-    webpUrl: webpUrl(recipe?.image) || null,
+    jpgUrl: base ? `${baseUrl}recipes/${base}.jpg` : null,
+    webpUrl: base ? `${baseUrl}recipes/${base}.webp` : null,
   };
 };
-export const buildRecipesData = async () => {
-  const apiRecipesData = await fetchRecipes();
 
-  const builtRecipesData = apiRecipesData.map(recipe => {
+const transformRecipes = apiRecipesData =>
+  apiRecipesData.map(recipe => {
     const images = buildImages(recipe);
 
     return {
@@ -27,5 +27,7 @@ export const buildRecipesData = async () => {
     };
   });
 
-  return builtRecipesData;
+export const buildRecipesData = async () => {
+  const recipesResult = await fetchRecipes();
+  return recipesResult.map(transformRecipes);
 };

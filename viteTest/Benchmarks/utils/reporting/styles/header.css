@@ -1,0 +1,40 @@
+/**
+ * Header Styles - Professional and Clean
+ */
+
+header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  color: #fff;
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--spacing-sm);
+  text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}
+
+.report-date {
+  align-items: center;
+  color: rgb(255 255 255 / 90%);
+  display: flex;
+  font-size: 0.95rem;
+  font-weight: 400;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.report-date .icon-inline {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+

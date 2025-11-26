@@ -17,7 +17,6 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     include: ["viteTest/**/*.test.js"],
-    exclude: ["viteTest/reference/**"],
     pool: "threads",
     poolOptions: {
       threads: {
@@ -33,7 +32,7 @@ export default defineConfig({
     teardownTimeout: 1000,
     testTimeout: 30000, // 30 seconds (increased for benchmark tests)
     // Setup file runs for all tests but uses atomic flag to only clear benchmark results once
-    setupFiles: ["viteTest/Benchmarks/setup.js"],
+    setupFiles: ["viteTest/Benchmarks/setup.js", "viteTest/LesPetitPlats/setup.js"],
     reporters: [
       [
         "default",
@@ -54,7 +53,6 @@ export default defineConfig({
         "**/*.config.js",
         "stryker.conf.js",
         "viteTest/**/*.test.js",
-        "viteTest/reference/**",
         "**/*.test.js",
         "**/*.spec.js",
         "scripts/**",

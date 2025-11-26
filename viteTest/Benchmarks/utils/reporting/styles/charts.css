@@ -1,0 +1,26 @@
+/**
+ * Chart Styles - Clean Presentation
+ */
+
+.chart-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.chart {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: var(--spacing-lg) 0;
+  overflow: hidden;
+  padding: var(--spacing-lg);
+}
+
+.chart img {
+  border-radius: var(--radius-md);
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+}
+

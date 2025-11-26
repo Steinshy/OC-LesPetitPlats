@@ -33,40 +33,22 @@
     <meta name="twitter:description" content="Trouvez la recette parfaite pour votre repas">
     <meta name="twitter:image" content="/favicons/og-card.png">
 
-    <!-- Preconnect & Preload -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preload" href="/styles/global.css" as="style">
+    <!-- Resource Hints for Critical Assets -->
+    <link rel="preload" href="/favicons/logo.svg" as="image" type="image/svg+xml" fetchpriority="high">
+    <link rel="preload" href="/src/App.js" as="script" crossorigin>
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="/styles/global.css">
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400&family=Roboto:wght@100&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-      media="print"
-      onload="this.media='all'">
+    <!-- Prefetch for likely next resources -->
+    <link rel="prefetch" href="/api/data.json" as="fetch" crossorigin>
   </head>
 
   <body>
+    <span class="mobile-detector" aria-hidden="true"></span>
     <div id="root" class="app">
       <header class="header" id="header">
         <!-- Navigation Bar -->
         <nav class="header-nav" aria-label="Navigation principale">
           <div class="header-brand">
-            <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="logo" fetchpriority="high" width="40" height="40">
-            <h1>Les Petits Plats</h1>
+            <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" class="logo" width="207" height="26" fetchpriority="high">
           </div>
 
           <ul class="nav-menu">
@@ -74,6 +56,32 @@
             <li><a href="#about-us" class="nav-link" aria-label="En savoir plus">À propos</a></li>
           </ul>
         </nav>
+
+        <section id="header-title" class="header-title">
+          <h2>
+            Cherchez parmi plus de 1500 recettes <br>
+            du quotidien, simples et délicieuses
+          </h2>
+          <div class="search-bar" id="search-bar">
+            <div class="search-bar-container" id="search-bar-container">
+              <label for="search-input" class="sr-only">Rechercher une recette, un ingrédient</label>
+
+              <input 
+                type="text" 
+                id="search-input"
+                name="search-input"
+                placeholder="Rechercher une recette, un ingrédient...">
+
+              <button type="button" id="search-clear-button" class="search-clear-btn hidden" aria-label="Effacer la recherche">
+                <i class="ri-close-line" aria-hidden="true"></i>
+              </button>
+
+              <button type="button" id="search-submit-btn" aria-label="Lancer la recherche" class="search-btn">
+                <i class="ri-search-line" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </section>
       </header>
       <!-- Main Content Section -->
       <main class="main">
@@ -88,43 +96,42 @@
         </section>
 
         <!-- Selected Filters Display -->
-        <aside class="filters">
+        <aside class="filters" id="filters">
           <!-- Filters section -->
         </aside>
         <!-- Recipe Cards Grid -->
-        <section class="cards-container" id="cards-container" aria-label="Liste des recettes">
+        <section class="cards-container" id="recipes" aria-label="Liste des recettes">
 
         </section>
       </main>
 
       <!-- Footer Section -->
-      <footer class="footer">
+      <footer class="footer" id="about-us">
         <section class="footer-brand">
-          <img src="/favicons/logo.svg" alt="Les Petits Plats - Logo" width="40" height="40">
-          <h3>Les Petits Plats</h3>
+          <img src="/favicons/logoFooter.svg" alt="Les Petits Plats - Logo" class="logo" width="207" height="26" loading="lazy" decoding="async">
           <p>Découvrez des recettes délicieuses et faciles à réaliser pour toutes les occasions.</p>
           <ul class="footer-social">
             <li>
               <a href="#" aria-label="Suivez-nous sur Facebook">
-                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                <i class="ri-facebook-fill" aria-hidden="true"></i>
                 <span class="sr-only">Facebook</span>
               </a>
             </li>
             <li>
               <a href="#" aria-label="Suivez-nous sur Instagram">
-                <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                <i class="ri-instagram-fill" aria-hidden="true"></i>
                 <span class="sr-only">Instagram</span>
               </a>
             </li>
             <li>
               <a href="#" aria-label="Suivez-nous sur Pinterest">
-                <i class="fa-brands fa-pinterest" aria-hidden="true"></i>
+                <i class="ri-pinterest-fill" aria-hidden="true"></i>
                 <span class="sr-only">Pinterest</span>
               </a>
             </li>
             <li>
               <a href="#" aria-label="Suivez-nous sur YouTube">
-                <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+                <i class="ri-youtube-fill" aria-hidden="true"></i>
                 <span class="sr-only">YouTube</span>
               </a>
             </li>
@@ -136,25 +143,25 @@
           <ul class="footer-nav-list">
             <li>
               <a href="#">
-                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                <i class="ri-shield-check-line" aria-hidden="true"></i>
                 <span>Politique de confidentialité</span>
               </a>
             </li>
             <li>
               <a href="#">
-                <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+                <i class="ri-file-paper-line" aria-hidden="true"></i>
                 <span>Conditions d'utilisation</span>
               </a>
             </li>
             <li>
               <a href="#">
-                <i class="fa-solid fa-scale-balanced" aria-hidden="true"></i>
+                <i class="ri-scales-line" aria-hidden="true"></i>
                 <span>Mentions légales</span>
               </a>
             </li>
             <li>
               <a href="#about-us">
-                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                <i class="ri-information-line" aria-hidden="true"></i>
                 <span>À propos</span>
               </a>
             </li>
@@ -166,18 +173,18 @@
           <ul class="footer-contact-list">
             <li>
               <a href="mailto:contact@lespetitsplats.fr">
-                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <i class="ri-mail-line" aria-hidden="true"></i>
                 <span>contact@lespetitsplats.fr</span>
               </a>
             </li>
             <li>
               <a href="tel:+33123456789">
-                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                <i class="ri-phone-line" aria-hidden="true"></i>
                 <span>+33&nbsp;1&nbsp;23&nbsp;45&nbsp;67&nbsp;89</span>
               </a>
             </li>
             <li>
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <i class="ri-map-pin-line" aria-hidden="true"></i>
               <span>123 Rue de la Cuisine<br>75000 Paris</span>
             </li>
           </ul>
@@ -187,16 +194,16 @@
       </footer>
 
       <!-- Scroll to Top Button -->
-      <button
+        <button
         id="scroll-to-top"
         type="button"
         class="scroll-to-top"
         aria-label="Retour en haut de la page">
-        <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+        <i class="ri-arrow-up-line" aria-hidden="true"></i>
       </button>
     </div>
 
     <!-- Main JavaScript Module -->
-    <script type="module" src="/src/App.js"></script>
+    <script type="module" src="/src/App.js" defer></script>
   </body>
 </html>

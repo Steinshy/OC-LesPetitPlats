@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // Disable Workbox console logs
 self.__WB_DISABLE_DEV_LOGS = true;
 
@@ -8,6 +7,7 @@ import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { StaleWhileRevalidate } from "workbox-strategies";
 
 // Precache assets (manifest will be injected by VitePWA)
 precacheAndRoute(self.__WB_MANIFEST);
@@ -26,6 +26,19 @@ registerRoute(
       new ExpirationPlugin({
         maxEntries: 50,
         maxAgeSeconds: 60 * 60 * 24 * 30,
+      }),
+    ],
+  }),
+);
+
+registerRoute(
+  ({ url }) => url.pathname.includes("/api/data.json"),
+  new StaleWhileRevalidate({
+    cacheName: "api-cache",
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 1,
+        maxAgeSeconds: 60 * 60 * 24, // 24 hours
       }),
     ],
   }),

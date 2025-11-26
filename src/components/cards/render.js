@@ -1,7 +1,8 @@
 export const renderNoResults = () => {
+  const baseUrl = import.meta.env.BASE_URL;
   return `
     <div class="no-results-icon">
-      <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+      <img src="${baseUrl}favicons/logoIcon.svg" alt="Les Petits Plats" width="52" height="47" />
     </div>
     <h2>Aucune recette trouvée</h2>
     <p>
@@ -10,24 +11,27 @@ export const renderNoResults = () => {
   `;
 };
 
-export const renderCardPicture = (imageData = null) => {
+export const renderCardPicture = (imageData = null, time = null, index = 0) => {
   const { webpUrl, jpgUrl, alt } = imageData || {};
+  const isAboveFold = index < 6;
+  const loading = isAboveFold ? "eager" : "lazy";
+  const fetchPriority = isAboveFold ? 'fetchpriority="high"' : "";
+
   return `
     <div class="card-picture">
-      <div class="image-loading-placeholder"></div>
       <picture>
-        ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" />` : ""}
-        <img src="${jpgUrl}" alt="${alt}" loading="eager" width="380" height="250" decoding="async" fetchpriority="high" />
+        ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" ${fetchPriority} />` : ""}
+        <img src="${jpgUrl}" alt="${alt}" loading="${loading}" width="380" height="250" decoding="async" ${fetchPriority} />
       </picture>
+      ${time ? `<span class="card-time">${time}min</span>` : ""}
     </div>
   `;
 };
 
-export const renderCardHeader = (name, time) => {
+export const renderCardHeader = name => {
   return `
     <div class="card-header">
       <h2>${name}</h2>
-      <span class="card-time">${time}min</span>
     </div>
   `;
 };

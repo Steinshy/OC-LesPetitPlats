@@ -1,11 +1,8 @@
-/**
- * Setup file for benchmark tests - clears previous results before running new tests
- */
-
+// Setup file for benchmark tests - clears previous results before running new tests
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { clearResults } from "./utils/data/dataCollector.js";
+import { clearResults } from "./utils/data/collector.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

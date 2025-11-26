@@ -1,110 +1,84 @@
-import { showDropdownsSkeletons, hideDropdownsSkeletons } from "../skeletons.js";
+// src/components/dropdown/manager.js
+
+import { lockBodyScroll, unlockBodyScroll } from "../bodyScroll.js";
+import { updateVisibility } from "../scrollToTop.js";
+import { buildDropdownsData } from "./data.js";
+
+import {
+  getDropdownElements,
+  getDropdownSearchElements,
+  getDropdownListElements,
+  getDropdownsContainer,
+} from "./elements.js";
+
 import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
-  renderDropdownsSkeletons,
   renderEmptyStateItem,
+  renderDropdownItem,
 } from "./render.js";
-import { cleanupDuplicatedItems, normalizeString } from "@/utils/string.js";
 
+import { filterDropdownItems } from "@/components/filters/recipeFilters.js";
+import { dropdownsContainerSkeleton } from "@/components/skeletonsManager.js";
+
+// dropdownManager.test.js, has a bug, check later
 export let currentDropdownsData = {};
 let dropdownTypes = [];
-let isDropdownHandlersInitialized = false;
 const ARIA_HIDDEN = "aria-hidden";
 
-const getDropdownsElements = () => ({
-  root: document.getElementById("dropdowns-container"),
-});
-
-// Get dropdown (single-type) elements
-const getDropdownElements = dropdownType => ({
-  button: document.getElementById(`dropdown-${dropdownType}-button`),
-  searchInput: document.getElementById(`search-${dropdownType}`),
-  searchIcon: document.getElementById(`search-icon-${dropdownType}`),
-  clearButton: document.getElementById(`clear-search-${dropdownType}`),
-  menu: document.getElementById(`menu-${dropdownType}`),
-  container: document.getElementById(`dropdown-${dropdownType}-container`),
-  backdrop: document.getElementById(`dropdown-${dropdownType}-backdrop`),
-  itemsList: document.getElementById(`dropdown-${dropdownType}-list`),
-});
-
-const getDropdownListElements = dropdownType => {
-  const { itemsList } = getDropdownElements(dropdownType);
-  if (!itemsList) return null;
-  const itemsElements = [...itemsList.querySelectorAll(".dropdown-item")];
-  const emptyStateElement = document.getElementById("dropdown-empty-state");
-  const searchWrapperElement = document.getElementById(`dropdown-${dropdownType}-search`);
-  return { itemsElements, emptyStateElement, searchWrapperElement };
-};
-
-// Collect all ingredients from all recipes for dropdowns data
-export const buildDropdownsData = recipesData => {
-  let dropdownsData = {};
-
-  const allIngredients = recipesData
-    .flatMap(recipe => recipe?.ingredients?.map(ingredient => ingredient?.ingredient) || [])
-    .filter(Boolean);
-
-  const allUstensils = recipesData.flatMap(recipe => recipe?.ustensils || []).filter(Boolean);
-  const allAppliances = recipesData.map(recipe => recipe?.appliance).filter(Boolean);
-
-  dropdownsData = {
-    ingredients: cleanupDuplicatedItems(allIngredients),
-    ustensils: cleanupDuplicatedItems(allUstensils),
-    appliances: cleanupDuplicatedItems(allAppliances),
-  };
-
-  return dropdownsData;
-};
+// --------------------------------------------------
+// SETUP MAIN DROPDOWNS
+// --------------------------------------------------
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
 
-  const { root } = getDropdownsElements();
-  if (!root) return;
+  const { container } = getDropdownsContainer();
+  if (!container) return;
 
-  root.querySelector(".dropdown-container")
-    ? showDropdownsSkeletons()
-    : (root.innerHTML = renderDropdownsSkeletons());
+  const dropdownsData = buildDropdownsData(recipesData);
+  currentDropdownsData = dropdownsData.dropdowns || {};
+  dropdownTypes = Object.keys(currentDropdownsData) || [];
 
-  currentDropdownsData = buildDropdownsData(recipesData);
-  dropdownTypes = Object.keys(currentDropdownsData);
+  container.innerHTML = ingredientsDropdown() + ustensilsDropdown() + appliancesDropdown();
 
-  root.innerHTML =
-    // Render dropdowns content
-    ingredientsDropdown(currentDropdownsData.ingredients || []) +
-    ustensilsDropdown(currentDropdownsData.ustensils || []) +
-    appliancesDropdown(currentDropdownsData.appliances || []);
+  dropdownsContainerSkeleton().hide();
 
-  hideDropdownsSkeletons();
-  setupGlobalListeners(dropdownTypes);
-  dropdownTypes.forEach(dropdownType => {
-    // Initialize dropdown lists content
-    updateDropdownList(dropdownType);
+  setupDropdownListeners(dropdownTypes);
+
+  dropdownTypes.forEach(type => {
+    updateDropdownList(type);
   });
 };
 
-const setupGlobalListeners = dropdownTypes => {
-  const { root } = getDropdownsElements();
-  if (!root) return;
+// --------------------------------------------------
+// LISTENERS
+// --------------------------------------------------
 
-  dropdownTypes.forEach(dropdownType => {
-    const { searchInput, backdrop, itemsList, button, clearButton } =
-      getDropdownElements(dropdownType);
+const setupDropdownListeners = dropdownTypes => {
+  dropdownTypes.forEach(currentType => {
+    const { searchInput, searchClear } = getDropdownSearchElements(currentType);
+    const { backdrop, button } = getDropdownElements(currentType);
+    const { itemsList } = getDropdownListElements(currentType);
 
+    // Search input
     if (searchInput) {
-      searchInput.addEventListener("input", () => updateDropdownContent(dropdownType));
+      searchInput.addEventListener("input", () => {
+        updateDropdownContent(currentType);
+      });
     }
 
+    // Backdrop
     if (backdrop) {
       backdrop.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        toggleDropdown(dropdownType, false);
+        closeDropdown(currentType);
       });
     }
 
+    // Click on item
     if (itemsList) {
       itemsList.addEventListener("click", event => {
         const clickedButton = event.target.closest(".item-btn");
@@ -112,164 +86,177 @@ const setupGlobalListeners = dropdownTypes => {
 
         event.preventDefault();
         event.stopPropagation();
-        manageItemsClicks(clickedButton);
+
+        const isSelected = clickedButton.classList.toggle("selected");
+        clickedButton.setAttribute("aria-pressed", String(isSelected));
+
+        document.dispatchEvent(
+          new CustomEvent("dropdown:itemToggled", {
+            detail: {
+              type: clickedButton.dataset.type,
+              value: clickedButton.dataset.value,
+              selected: isSelected,
+            },
+          }),
+        );
       });
     }
 
-    if (clearButton) {
-      clearButton.addEventListener("click", event => {
+    // Clear search
+    if (searchClear) {
+      searchClear.addEventListener("click", () => {
+        if (!searchInput) return;
         searchInput.value = "";
-        event.preventDefault();
-        event.stopPropagation();
-        updateDropdownContent(dropdownType);
+        searchInput.focus();
+        updateDropdownContent(currentType);
       });
     }
 
+    // Dropdown button open/close
     if (button) {
       button.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        toggleDropdown(dropdownType);
+        toggleDropdown(currentType);
       });
     }
   });
-  // Setup global handlers
-  setupDropdownHandlers();
 };
 
-export const setupDropdownHandlers = () => {
-  if (isDropdownHandlersInitialized) return;
-  isDropdownHandlersInitialized = true;
+// --------------------------------------------------
+// DROPDOWN STATE CONTROL
+// --------------------------------------------------
 
-  // Escape key closes all dropdowns
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-      closeAllDropdowns();
-    }
-  });
-
-  // Click outside any dropdown closes them
-  document.addEventListener("click", event => {
-    const clickedElement = event.target;
-
-    const isClickInsideDropdown = dropdownTypes.some(type => {
-      const { container } = getDropdownElements(type);
-      return container && container.contains(clickedElement);
-    });
-
-    if (!isClickInsideDropdown) {
-      closeAllDropdowns();
-    }
-  });
-};
-
-// Helper for Filters Manager too
 const closeAllDropdowns = () => {
-  dropdownTypes.forEach(type => toggleDropdown(type, false));
-};
+  if (!dropdownTypes?.length) return;
 
-export const getOpenDropdownType = () => {
-  return (
-    dropdownTypes.find(type => {
-      const { container } = getDropdownElements(type);
-      return container && container.classList.contains("open");
-    }) || null
-  );
-};
-
-// Toggle a specific dropdown to handle open/close state
-export const toggleDropdown = (targetType, desiredOpen = null) => {
   dropdownTypes.forEach(type => {
-    const { container, button } = getDropdownElements(type);
+    const { container, button, backdrop, menu } = getDropdownElements(type);
     if (!container || !button) return;
 
-    const isTargetedType = type === targetType;
-    const isCurrentlyOpen = getOpenDropdownType() === type;
-    const shouldOpen = desiredOpen === null ? !isCurrentlyOpen : desiredOpen;
-    const needsToOpen = isTargetedType ? shouldOpen : false;
+    container.classList.remove("open");
+    button.classList.remove("active");
+    button.setAttribute("aria-expanded", "false");
 
-    applyDropdownState(type, needsToOpen);
+    backdrop?.setAttribute(ARIA_HIDDEN, "true");
+    menu?.setAttribute(ARIA_HIDDEN, "true");
   });
+
+  unlockBodyScroll();
+  updateVisibility();
 };
 
-const applyDropdownState = (type, needsToOpen) => {
+const openDropdown = type => {
   const { container, button, backdrop, menu } = getDropdownElements(type);
+  if (!container || !button) return;
 
-  container.classList.toggle("open", needsToOpen);
-  button.classList.toggle("active", needsToOpen);
-  button.setAttribute("aria-expanded", String(needsToOpen));
+  container.classList.add("open");
+  button.classList.add("active");
+  button.setAttribute("aria-expanded", "true");
 
-  backdrop?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
-  menu?.setAttribute(ARIA_HIDDEN, String(!needsToOpen));
+  backdrop?.setAttribute(ARIA_HIDDEN, "false");
+  menu?.setAttribute(ARIA_HIDDEN, "false");
+
+  lockBodyScroll();
+
+  const scrollToTopButton = document.getElementById("scroll-to-top");
+  if (scrollToTopButton) {
+    scrollToTopButton.classList.remove("show");
+    scrollToTopButton.setAttribute("aria-hidden", "true");
+  }
 };
 
-// Update dropdown content based on search
+const closeDropdown = type => {
+  const { container } = getDropdownElements(type);
+  if (!container?.classList.contains("open")) return;
+
+  closeAllDropdowns();
+};
+
+const toggleDropdown = type => {
+  const { container } = getDropdownElements(type);
+  const willOpen = !container?.classList.contains("open");
+
+  if (willOpen) {
+    closeAllDropdowns();
+    openDropdown(type);
+  } else {
+    closeAllDropdowns();
+  }
+};
+
+// --------------------------------------------------
+// GLOBAL ESC / CLICK OUTSIDE
+// --------------------------------------------------
+
+const handleEscapeKey = event => {
+  if (event.key === "Escape") closeAllDropdowns();
+};
+
+const handleDocumentClick = event => {
+  const clickedElement = event.target;
+
+  const isInside = dropdownTypes.some(type => {
+    const { container } = getDropdownElements(type);
+    return container && container.contains(clickedElement);
+  });
+
+  if (!isInside) {
+    closeAllDropdowns();
+  }
+};
+
+document.addEventListener("keydown", handleEscapeKey);
+document.addEventListener("click", handleDocumentClick);
+
+// --------------------------------------------------
+// LIST RENDERING
+// --------------------------------------------------
+
 export const updateDropdownContent = type => {
-  const { searchInput, searchIcon, clearButton } = getDropdownElements(type);
+  const { searchInput, searchClear } = getDropdownSearchElements(type);
   if (!searchInput) return;
 
   const hasQuery = !!searchInput.value.trim();
-  searchIcon?.classList.toggle("hidden", hasQuery);
-  clearButton?.classList.toggle("hidden", !hasQuery);
+  searchClear?.classList.toggle("hidden", !hasQuery);
+
   updateDropdownList(type);
 };
 
-export const manageItemsClicks = itemButton => {
-  if (!itemButton) return;
-
-  const isSelected = itemButton.classList.toggle("selected");
-  itemButton.setAttribute("aria-pressed", String(isSelected));
-
-  document.dispatchEvent(
-    new CustomEvent("dropdown:itemToggled", {
-      detail: {
-        type: itemButton.dataset.type,
-        value: itemButton.dataset.value,
-        selected: isSelected,
-      },
-    }),
-  );
-};
-
-// Update dropdown list content
 const updateDropdownList = type => {
-  const { searchInput, itemsList } = getDropdownElements(type);
-  const listEls = getDropdownListElements(type);
+  const { menu, itemsList } = getDropdownListElements(type);
+  const { searchInput, searchWrapper } = getDropdownSearchElements(type) || {};
 
-  if (!searchInput || !itemsList || !listEls) return;
+  if (!menu || !itemsList) return;
 
-  const { itemsElements, emptyStateElement, searchWrapperElement } = listEls;
-  const query = normalizeString(searchInput.value || "");
+  const allItems = currentDropdownsData[type] || [];
+  const query = searchInput?.value?.trim() ?? "";
 
-  // Filter + show/hide items
-  const visibleItems = itemsElements.filter(item => {
-    const labelEl = item.querySelector(".dropdown-item-label, span");
-    const label = labelEl?.textContent || "";
-    const matches = !query || normalizeString(label).includes(query);
-    const listItem = item.closest("li");
+  const filtered = filterDropdownItems(allItems, query);
 
-    if (listItem) {
-      listItem.style.display = matches ? "" : "none";
-    }
+  if (filtered.length > 0) {
+    const html = filtered
+      .map(item => {
+        const label = item?.label ?? item;
+        const value = item?.value ?? item;
 
-    return matches;
-  });
+        return renderDropdownItem(
+          type,
+          { label, value },
+          `dropdown-item-${type}-${value}`,
+          `item-btn-${type}-${value}`,
+        );
+      })
+      .join("");
 
-  // Empty state
-  let emptyElement = emptyStateElement;
-  const shouldShowEmpty = visibleItems.length === 0;
-
-  if (shouldShowEmpty && !emptyElement) {
-    itemsList.insertAdjacentHTML("beforeend", renderEmptyStateItem());
-    emptyElement = itemsList.querySelector(".dropdown-empty-state");
+    itemsList.innerHTML = html;
+  } else {
+    itemsList.innerHTML = renderEmptyStateItem(type);
   }
 
-  if (emptyElement) {
-    emptyElement.style.display = shouldShowEmpty ? "" : "none";
-  }
+  menu.setAttribute(ARIA_HIDDEN, "false");
 
-  // Show/hide the search bar depending on whether there are any items at all
-  if (searchWrapperElement) {
-    searchWrapperElement.classList.toggle("show", itemsElements.length > 0);
+  if (searchWrapper) {
+    searchWrapper.classList.toggle("show", allItems.length > 0);
   }
 };

@@ -1,22 +1,36 @@
 import { setupDropdowns } from "./components/dropdown/manager.js";
 import { setupFilters } from "./components/filters/manager.js";
+import { setupHeader } from "./components/renderHeaderImg.js";
+import { setupResultsCounter } from "./components/resultsCounter.js";
 import { initScrollToTop } from "./components/scrollToTop.js";
-import { setupMainHeader, setupSearchSection } from "./components/search/manager.js";
+import { setupSearchBar } from "./components/search/manager.js";
+
+import { initSkeletons } from "./components/skeletonsManager.js";
+import { setupAppError } from "./utils/errorHandler.js";
 import { buildRecipesData } from "./utils/recipesBuilder.js";
-import { updateCounter } from "./utils/string.js";
+import "remixicon/fonts/remixicon.css";
 import "../styles/global.css";
 
 const initApp = async () => {
-  try {
-    const recipesData = await buildRecipesData();
-    updateCounter(recipesData.length);
-    setupMainHeader(recipesData);
-    setupSearchSection();
-    setupDropdowns(recipesData);
-    setupFilters(recipesData);
-  } catch (error) {
-    console.error("Error loading recipes:", error);
-  }
+  initSkeletons();
+
+  const recipesResult = await buildRecipesData();
+
+  recipesResult.match(
+    recipesData => {
+      setupResultsCounter(recipesData.length);
+      setupHeader(recipesData);
+      setupSearchBar();
+      setupDropdowns(recipesData);
+      setupFilters(recipesData);
+    },
+    error => {
+      setupAppError(error, "default");
+      setupSearchBar();
+      setupResultsCounter(0);
+    },
+  );
+
   initScrollToTop();
 };
 

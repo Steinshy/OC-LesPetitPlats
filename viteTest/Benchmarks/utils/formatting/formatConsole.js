@@ -1,10 +1,8 @@
 // Formatting utilities for console output
-import { logRecommendations } from "../logging/console.js";
+import { PRODUCTION_LABEL, MAPS_LABEL } from "../constants.js";
 import { formatTime } from "./formatMeasurement.js";
 
 // Constants
-const FUNCTIONAL_LABEL = "Functional Programming (using filter/every/some/includes)";
-const NATIVE_LABEL = "Native Loops (using for loops)";
 const SEPARATOR_WIDTH = 60;
 const SEPARATOR = "=".repeat(SEPARATOR_WIDTH);
 
@@ -21,58 +19,36 @@ function formatStatsLine(label, avgTime) {
   return `  ${label}: ${formatTime(avgTime)}\n`;
 }
 
-export function formatReportHeader() {
-  const header = formatSeparator();
-  const title = "COMPREHENSIVE BENCHMARK SUMMARY REPORT\n";
-  const separator = formatSeparator(true);
-  const timestamp = `Generated: ${new Date().toISOString()}\n\n`;
-  return header + title + separator + timestamp;
-}
 
-export function formatTestCaseResult(testCaseName, functionalStats, nativeStats, comparison) {
+export function formatTestCaseResult(testCaseName, productionStats, mapsStats, comparison) {
   const testResult = `\n${testCaseName}:\n`;
-  const functionalLine = formatStatsLine(FUNCTIONAL_LABEL, functionalStats.avg);
-  const nativeLine = formatStatsLine(NATIVE_LABEL, nativeStats.avg);
+  const productionLine = formatStatsLine(PRODUCTION_LABEL, productionStats.avg);
+  const mapsLine = formatStatsLine(MAPS_LABEL, mapsStats.avg);
   const winnerLine = `  Winner: ${comparison.faster} (${comparison.improvement.toFixed(2)}% faster)\n`;
-  const functionalDetails = formatStatsDetails(FUNCTIONAL_LABEL, functionalStats);
-  const nativeDetails = formatStatsDetails(NATIVE_LABEL, nativeStats);
+  const productionDetails = formatStatsDetails(PRODUCTION_LABEL, productionStats);
+  const mapsDetails = formatStatsDetails(MAPS_LABEL, mapsStats);
 
-  const summary = testResult + functionalLine + nativeLine + winnerLine;
+  const summary = testResult + productionLine + mapsLine + winnerLine;
   const consoleOutput = summary;
-  const reportContent = summary + functionalDetails + nativeDetails;
+  const reportContent = summary + productionDetails + mapsDetails;
 
   return { consoleOutput, reportContent };
 }
 
 export function formatSummarySection(results) {
   const winnerNames = results.map(r => r.winner);
-  const functionalWins = winnerNames.filter(winner =>
-    winner.includes("Functional Programming"),
-  ).length;
-  const nativeWins = winnerNames.filter(winner => winner.includes("Native Loops")).length;
-  const overallWinner = functionalWins > nativeWins ? FUNCTIONAL_LABEL : NATIVE_LABEL;
+  const productionWins = winnerNames.filter(winner => winner.includes("Production")).length;
+  const mapsWins = winnerNames.filter(winner => winner.includes("Maps")).length;
+  const overallWinner = productionWins > mapsWins ? PRODUCTION_LABEL : MAPS_LABEL;
 
   const summarySection = formatSeparator(true);
   const overallWinnerLine = `OVERALL WINNER: ${overallWinner}\n`;
-  const functionalWinsLine = `${FUNCTIONAL_LABEL} wins: ${functionalWins}/${results.length}\n`;
-  const nativeWinsLine = `${NATIVE_LABEL} wins: ${nativeWins}/${results.length}\n`;
+  const productionWinsLine = `${PRODUCTION_LABEL} wins: ${productionWins}/${results.length}\n`;
+  const mapsWinsLine = `${MAPS_LABEL} wins: ${mapsWins}/${results.length}\n`;
   const separator = formatSeparator();
 
-  const output = `${summarySection}${overallWinnerLine}${functionalWinsLine}${nativeWinsLine}${separator}`;
+  const output = `${summarySection}${overallWinnerLine}${productionWinsLine}${mapsWinsLine}${separator}`;
 
-  return { output, overallWinner, functionalWins, nativeWins };
+  return { output, overallWinner, productionWins, mapsWins };
 }
 
-export function formatRecommendations(overallWinner) {
-  const isNativeWinner = overallWinner.includes("Native Loops");
-  const winner = isNativeWinner
-    ? "Native loop implementation (using for loops) is faster overall"
-    : "Functional programming implementation (using filter/every/some/includes) is faster overall";
-  const message = isNativeWinner
-    ? "Consider using native loops for better performance"
-    : "Consider using functional methods for better readability";
-
-  const recommendations = `\nRECOMMENDATIONS:\n✓ ${winner}\n  ${message}\n`;
-  logRecommendations(winner, message);
-  return recommendations;
-}
