@@ -58,7 +58,7 @@ describe("skeletons", () => {
   describe("hideSearchSkeleton", () => {
     it(`should remove ${SKELETON_LOADING_CLASS} class from search bar`, () => {
       document.body.innerHTML = `
-        <div class="main-search-bar ${SKELETON_LOADING_CLASS}"></div>
+        <div id="search-bar" class="${SKELETON_LOADING_CLASS}"></div>
       `;
 
       hideSearchSkeleton();
@@ -127,17 +127,10 @@ describe("skeletons", () => {
   describe("hideDropdownsSkeletons", () => {
     it(`should remove ${SKELETON_LOADING_CLASS} class from all dropdown containers`, () => {
       document.body.innerHTML = `
-        <div id="${DROPDOWN_INGREDIENTS_ID}" class="${SKELETON_LOADING_CLASS}"></div>
-        <div id="${DROPDOWN_USTENSILS_ID}" class="${SKELETON_LOADING_CLASS}"></div>
-        <div id="${DROPDOWN_APPLIANCES_ID}" class="${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_INGREDIENTS_ID}" class="dropdown-container ${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_USTENSILS_ID}" class="dropdown-container ${SKELETON_LOADING_CLASS}"></div>
+        <div id="${DROPDOWN_APPLIANCES_ID}" class="dropdown-container ${SKELETON_LOADING_CLASS}"></div>
       `;
-
-      // Update squeletonsElements to point to new DOM elements
-      Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById(DROPDOWN_INGREDIENTS_ID),
-        dropdownUstensils: document.getElementById(DROPDOWN_USTENSILS_ID),
-        dropdownAppliances: document.getElementById(DROPDOWN_APPLIANCES_ID),
-      });
 
       hideDropdownsSkeletons();
 
@@ -272,22 +265,11 @@ describe("skeletons", () => {
 
     it("should show and hide dropdown skeletons", () => {
       document.body.innerHTML = `
-        <div id="${DROPDOWN_INGREDIENTS_ID}"></div>
-        <div id="${DROPDOWN_USTENSILS_ID}"></div>
-        <div id="${DROPDOWN_APPLIANCES_ID}"></div>
+        <div id="dropdowns-container"></div>
       `;
 
-      // Update squeletonsElements to point to new DOM elements
-      Object.assign(squeletonsElements, {
-        dropdownIngredients: document.getElementById(DROPDOWN_INGREDIENTS_ID),
-        dropdownUstensils: document.getElementById(DROPDOWN_USTENSILS_ID),
-        dropdownAppliances: document.getElementById(DROPDOWN_APPLIANCES_ID),
-      });
-
       showDropdownsSkeletons();
-      const containers = document.querySelectorAll(
-        `#${DROPDOWN_INGREDIENTS_ID}, #${DROPDOWN_USTENSILS_ID}, #${DROPDOWN_APPLIANCES_ID}`,
-      );
+      const containers = document.querySelectorAll(".dropdown-container");
       containers.forEach(container => {
         expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
       });

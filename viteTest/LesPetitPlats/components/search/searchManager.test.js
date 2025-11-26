@@ -1,15 +1,36 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "../../utils/logging/console.js";
-import { setupHeaderTitle, setupSearchBar } from "@/components/search/manager.js";
 
-vi.mock("@/components/skeletons.js", () => ({
-  showSearchSkeleton: vi.fn(),
-  hideSearchSkeleton: vi.fn(),
+vi.mock("@/components/skeletonsManager.js", () => ({
+  searchSkeleton: vi.fn(() => ({
+    show: vi.fn(),
+    hide: vi.fn(),
+  })),
 }));
 
-const MAIN_SEARCH_INPUT_ID = "main-search-input";
-const MAIN_CLEAR_SEARCH_BTN_ID = "main-clear-search-btn";
-const MAIN_SEARCH_BTN_ID = "main-search-btn";
+vi.mock("@/components/search/elements.js", () => ({
+  searchElements: {
+    get searchBar() {
+      return document.getElementById("search-bar");
+    },
+    get searchInput() {
+      return document.getElementById("search-input");
+    },
+    get clearButton() {
+      return document.getElementById("search-clear-button");
+    },
+    get submitSearch() {
+      return document.getElementById("search-submit-btn");
+    },
+  },
+}));
+
+import { setupSearchBar } from "@/components/search/manager.js";
+
+const SEARCH_INPUT_ID = "search-input";
+const SEARCH_CLEAR_BTN_ID = "search-clear-button";
+const SEARCH_SUBMIT_BTN_ID = "search-submit-btn";
+const SEARCH_BAR_ID = "search-bar";
 
 describe("search manager", () => {
   beforeEach(() => {
@@ -17,100 +38,26 @@ describe("search manager", () => {
     vi.clearAllMocks();
   });
 
-  describe("setupHeaderTitle", () => {
-    it("should setup main header with recipe data", () => {
-      document.body.innerHTML = '<div id="header"></div>';
-
-      const recipesData = [
-        {
-          images: {
-            jpgUrl: "/recipes/test1.jpg",
-            webpUrl: "/recipes/test1.webp",
-            alt: "Test 1",
-          },
-        },
-        {
-          images: {
-            jpgUrl: "/recipes/test2.jpg",
-            webpUrl: "/recipes/test2.webp",
-            alt: "Test 2",
-          },
-        },
-      ];
-
-      setupHeaderTitle(recipesData);
-
-      const header = document.getElementById("header");
-      expect(header.innerHTML).toContain("header-title");
-      expect(header.innerHTML).toContain("Cherchez parmi plus de 1500 recettes");
-    });
-
-    it("should handle null recipes data", () => {
-      document.body.innerHTML = '<div id="header"></div>';
-
-      expect(() => setupHeaderTitle(null)).not.toThrow();
-    });
-
-    it("should handle missing header element", () => {
-      document.body.innerHTML = "";
-
-      expect(() => setupHeaderTitle([{ images: {} }])).not.toThrow();
-    });
-
-    it("should handle recipes without images", () => {
-      document.body.innerHTML = '<div id="header"></div>';
-
-      const recipesData = [{ name: "Recipe 1" }, { name: "Recipe 2" }];
-      setupHeaderTitle(recipesData);
-
-      const header = document.getElementById("header");
-      // When no images, images array is empty, so randomIndex will be 0, imageData will be undefined
-      // mainHeader will still render but with empty image URLs
-      expect(header.innerHTML).toContain("header-title");
-    });
-
-    it("should select random image from recipes", () => {
-      document.body.innerHTML = '<div id="header"></div>';
-
-      const recipesData = [
-        { images: { jpgUrl: "/recipes/1.jpg" } },
-        { images: { jpgUrl: "/recipes/2.jpg" } },
-        { images: { jpgUrl: "/recipes/3.jpg" } },
-      ];
-
-      setupHeaderTitle(recipesData);
-
-      const header = document.getElementById("header");
-      const hasImage = header.innerHTML.includes("/recipes/1.jpg") ||
-        header.innerHTML.includes("/recipes/2.jpg") ||
-        header.innerHTML.includes("/recipes/3.jpg");
-
-      expect(hasImage).toBe(true);
-    });
-  });
-
   describe("setupSearchBar", () => {
     beforeEach(() => {
       document.body.innerHTML = `
-        <div id="header">
-          <div class="main-search-bar" id="main-search-bar">
-            <div class="search-bar-container" id="search-bar-container">
-              <input type="text" id="main-search-input" />
-              <button id="main-clear-search-btn" class="hidden"></button>
-              <button id="main-search-btn" class="search-btn"></button>
-            </div>
+        <div id="search-bar" class="main-search-bar">
+          <div class="search-bar-container">
+            <input type="text" id="search-input" />
+            <button id="search-clear-button" class="hidden"></button>
+            <button id="search-submit-btn" class="search-btn"></button>
           </div>
         </div>
       `;
     });
 
     it("should setup search section event handlers", () => {
-      setupSearchBar();
-
-      const searchInput = document.getElementById("main-search-input");
       const eventSpy = vi.fn();
       document.addEventListener("filters:searchChanged", eventSpy);
 
+      setupSearchBar();
+
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       searchInput.value = "test";
       searchInput.dispatchEvent(new Event("input"));
 
@@ -122,9 +69,9 @@ describe("search manager", () => {
     it("should toggle clear button visibility on input", () => {
       setupSearchBar();
 
-      const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
-      const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);
-      const searchButton = document.getElementById(MAIN_SEARCH_BTN_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
+      const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "test";
       searchInput.dispatchEvent(new Event("input"));
@@ -136,9 +83,9 @@ describe("search manager", () => {
     it("should clear search on clear button click", () => {
       setupSearchBar();
 
-      const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
-      const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);
-      const searchButton = document.getElementById(MAIN_SEARCH_BTN_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
+      const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "test";
       searchInput.dispatchEvent(new Event("input")); // Trigger input to show clear button
@@ -152,8 +99,8 @@ describe("search manager", () => {
     it("should focus search input on search button click", () => {
       setupSearchBar();
 
-      const searchInput = document.getElementById("main-search-input");
-      const searchButton = document.getElementById("main-search-btn");
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       const focusSpy = vi.spyOn(searchInput, "focus");
       searchButton.click();
@@ -162,13 +109,13 @@ describe("search manager", () => {
     });
 
     it("should dispatch searchChanged event on search button click", () => {
+      const eventSpy = vi.fn();
+      document.addEventListener("filters:searchChanged", eventSpy);
+
       setupSearchBar();
 
-      const searchInput = document.getElementById("main-search-input");
-      const searchButton = document.getElementById("main-search-btn");
-      const eventSpy = vi.fn();
-
-      document.addEventListener("filters:searchChanged", eventSpy);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "query";
       searchButton.click();
@@ -185,16 +132,16 @@ describe("search manager", () => {
     it("should enable search section", () => {
       setupSearchBar();
 
-      const root = document.getElementById("main-search-bar");
+      const root = document.getElementById(SEARCH_BAR_ID);
       expect(root.classList.contains("disabled")).toBe(false);
     });
 
     it("should handle empty input", () => {
       setupSearchBar();
 
-      const searchInput = document.getElementById(MAIN_SEARCH_INPUT_ID);
-      const clearButton = document.getElementById(MAIN_CLEAR_SEARCH_BTN_ID);
-      const searchButton = document.getElementById(MAIN_SEARCH_BTN_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
+      const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "";
       searchInput.dispatchEvent(new Event("input"));

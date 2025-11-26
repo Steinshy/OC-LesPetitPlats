@@ -1,53 +1,19 @@
-import { afterAll, describe, it, expect } from "vitest";
+import { afterAll, describe, it, expect, vi } from "vitest";
 import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
   renderEmptyStateItem,
+  renderDropdownItem,
 } from "@/components/dropdown/render.js";
-import { dropdownsSkeleton } from "@/components/renderSqueletons.js";
 
-// Test-only helper function for rendering a single dropdown skeleton
-const renderDropdownSkeleton = (type, label) => {
-  const typeLabel = label || type.charAt(0).toUpperCase() + type.slice(1);
-  return `
-    <div class="dropdown-container skeleton" id="dropdown-${type}-container" data-type="${type}">
-      <button type="button" class="filter-dropdown" id="dropdown-${type}-button" disabled
-        aria-expanded="false" aria-label="Chargement ${typeLabel}">
-        <span class="filter-label"></span>
-        <i class="ri-arrow-down-s-line"></i>
-      </button>
-    </div>
-  `;
-};
-
-// Test-only helper function for rendering dropdown list
-const renderDropdownList = (items = [], type) => {
-  const itemsHtml = items
-    .map(item => {
-      const label = item?.label ?? item;
-      const value = item?.value ?? item;
-
-      return `
-        <li role="option" id="dropdown-item-${type}-${value}">
-          <button
-            type="button"
-            class="dropdown-item item-btn"
-            id="item-btn-${type}-${value}"
-            data-value="${value}"
-            data-type="${type}"
-            aria-pressed="false"
-          >
-            <span class="dropdown-item-label">${label}</span>
-            <i class="ri-check-line dropdown-item-check" aria-hidden="true"></i>
-          </button>
-        </li>
-      `;
-    })
-    .join("");
-  return `<ul class="dropdown-list" id="dropdown-${type}-list" role="listbox">${itemsHtml}</ul>`;
-};
+vi.mock("@/components/search/render.js", () => ({
+  renderDropdownSearch: vi.fn(
+    type =>
+      `<div class="dropdown-search" id="dropdown-${type}-search"><input id="search-${type}" /></div>`,
+  ),
+}));
 
 const DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR = "dropdown-ingredients-container";
 const DROPDOWN_SEARCH_STRING = "dropdown-search";
@@ -60,19 +26,13 @@ const LABEL_APPLIANCES = "Appareils";
 
 describe("dropdown render", () => {
   describe("ingredientsDropdown", () => {
-    it("should render ingredients dropdown with items", () => {
-      const items = ["Tomato", "Onion", "Potato"];
-      const html = ingredientsDropdown(items);
+    it("should render ingredients dropdown", () => {
+      const html = ingredientsDropdown();
 
       expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
       expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
       expect(html).toContain(LABEL_INGREDIENTS);
       expect(html).toContain(DROPDOWN_SEARCH_STRING);
-    });
-
-    it("should handle empty items array", () => {
-      const html = ingredientsDropdown([]);
-      expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
     });
 
     it("should include button with correct attributes", () => {
@@ -96,99 +56,127 @@ describe("dropdown render", () => {
   });
 
   describe("ustensilsDropdown", () => {
-    it("should render ustensils dropdown with items", () => {
-      const items = ["Spoon", "Fork", "Knife"];
-      const html = ustensilsDropdown(items);
+    it("should render ustensils dropdown", () => {
+      const html = ustensilsDropdown();
 
       expect(html).toContain("dropdown-ustensils-container");
       expect(html).toContain(DATA_TYPE_USTENSILS_ATTR);
       expect(html).toContain(LABEL_USTENSILS);
     });
-
-    it("should handle empty items array", () => {
-      const html = ustensilsDropdown([]);
-      expect(html).toContain("dropdown-ustensils-container");
-    });
   });
 
   describe("appliancesDropdown", () => {
-    it("should render appliances dropdown with items", () => {
-      const items = ["Oven", "Stove"];
-      const html = appliancesDropdown(items);
+    it("should render appliances dropdown", () => {
+      const html = appliancesDropdown();
 
       expect(html).toContain("dropdown-appliances-container");
       expect(html).toContain(DATA_TYPE_APPLIANCES_ATTR);
       expect(html).toContain(LABEL_APPLIANCES);
     });
-
-    it("should handle empty items array", () => {
-      const html = appliancesDropdown([]);
-      expect(html).toContain("dropdown-appliances-container");
-    });
   });
 
-  describe("renderDropdownList", () => {
-    it("should render dropdown list with items", () => {
-      const items = ["Tomato", "Onion"];
-      const html = renderDropdownList(items, "ingredients");
+  describe("renderDropdownItem", () => {
+    const DROPDOWN_TYPE_INGREDIENTS = "ingredients";
+    const ITEM_ID_PREFIX = "dropdown-item-ingredients-Tomato";
+    const BUTTON_ID_PREFIX = "item-btn-ingredients-Tomato";
 
-      expect(html).toContain('id="dropdown-ingredients-list"');
-      expect(html).toContain("Tomato");
-      expect(html).toContain("Onion");
+    it("should render dropdown item with correct structure", () => {
+      const item = { label: "Tomato", value: "Tomato" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        ITEM_ID_PREFIX,
+        BUTTON_ID_PREFIX,
+      );
+
+      expect(html).toContain('role="option"');
+      expect(html).toContain(`id="${ITEM_ID_PREFIX}"`);
+      expect(html).toContain(`id="${BUTTON_ID_PREFIX}"`);
+      expect(html).toContain('data-value="Tomato"');
+      expect(html).toContain(`data-type="${DROPDOWN_TYPE_INGREDIENTS}"`);
     });
 
     it("should include correct data attributes on items", () => {
-      const items = ["Tomato"];
-      const html = renderDropdownList(items, "ingredients");
+      const item = { label: "Onion", value: "Onion" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        "dropdown-item-ingredients-Onion",
+        "item-btn-ingredients-Onion",
+      );
 
-      expect(html).toContain('data-value="Tomato"');
-      expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
+      expect(html).toContain('data-value="Onion"');
+      expect(html).toContain(`data-type="${DROPDOWN_TYPE_INGREDIENTS}"`);
     });
 
     it("should include item labels", () => {
-      const items = ["Tomato", "Onion"];
-      const html = renderDropdownList(items, "ingredients");
+      const item = { label: "Potato", value: "Potato" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        "dropdown-item-ingredients-Potato",
+        "item-btn-ingredients-Potato",
+      );
 
       expect(html).toContain("dropdown-item-label");
-      expect(html).toContain("Tomato");
-      expect(html).toContain("Onion");
+      expect(html).toContain("Potato");
     });
 
     it("should include check icon in items", () => {
-      const items = ["Tomato"];
-      const html = renderDropdownList(items, "ingredients");
+      const item = { label: "Tomato", value: "Tomato" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        ITEM_ID_PREFIX,
+        BUTTON_ID_PREFIX,
+      );
 
       expect(html).toContain("dropdown-item-check");
       expect(html).toContain("ri-check-line");
     });
 
     it("should set aria-pressed to false by default", () => {
-      const items = ["Tomato"];
-      const html = renderDropdownList(items, "ingredients");
+      const item = { label: "Tomato", value: "Tomato" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        ITEM_ID_PREFIX,
+        BUTTON_ID_PREFIX,
+      );
 
       expect(html).toContain('aria-pressed="false"');
     });
 
-    it("should handle empty items array", () => {
-      const html = renderDropdownList([], "ingredients");
-      expect(html).toContain('id="dropdown-ingredients-list"');
-      expect(html).not.toContain("dropdown-item");
-    });
-
     it("should include role attributes", () => {
-      const items = ["Tomato"];
-      const html = renderDropdownList(items, "ingredients");
+      const item = { label: "Tomato", value: "Tomato" };
+      const html = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item,
+        ITEM_ID_PREFIX,
+        BUTTON_ID_PREFIX,
+      );
 
-      expect(html).toContain('role="listbox"');
       expect(html).toContain('role="option"');
     });
 
     it("should generate unique IDs for items", () => {
-      const items = ["Tomato", "Onion"];
-      const html = renderDropdownList(items, "ingredients");
+      const item1 = { label: "Tomato", value: "Tomato" };
+      const item2 = { label: "Onion", value: "Onion" };
+      const html1 = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item1,
+        ITEM_ID_PREFIX,
+        BUTTON_ID_PREFIX,
+      );
+      const html2 = renderDropdownItem(
+        DROPDOWN_TYPE_INGREDIENTS,
+        item2,
+        "dropdown-item-ingredients-Onion",
+        "item-btn-ingredients-Onion",
+      );
 
-      expect(html).toContain('id="dropdown-item-ingredients-Tomato"');
-      expect(html).toContain('id="dropdown-item-ingredients-Onion"');
+      expect(html1).toContain('id="dropdown-item-ingredients-Tomato"');
+      expect(html2).toContain('id="dropdown-item-ingredients-Onion"');
     });
   });
 
@@ -203,48 +191,7 @@ describe("dropdown render", () => {
 
     it("should include correct ID with dropdown type", () => {
       const html = renderEmptyStateItem("ingredients");
-      expect(html).toContain('id="dropdown-empty-state-ingredients"');
-    });
-  });
-
-  describe("renderDropdownSkeleton", () => {
-    it("should render dropdown skeleton", () => {
-      const html = renderDropdownSkeleton("ingredients", LABEL_INGREDIENTS);
-
-      expect(html).toContain("dropdown-container");
-      expect(html).toContain("skeleton");
-      expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
-    });
-
-    it("should include disabled button", () => {
-      const html = renderDropdownSkeleton("ingredients", LABEL_INGREDIENTS);
-      expect(html).toContain("disabled");
-    });
-
-    it("should include aria-label for loading", () => {
-      const html = renderDropdownSkeleton("ingredients", LABEL_INGREDIENTS);
-      expect(html).toContain(`Chargement ${LABEL_INGREDIENTS}`);
-    });
-
-    it("should include correct ID", () => {
-      const html = renderDropdownSkeleton("ingredients", LABEL_INGREDIENTS);
-      expect(html).toContain('id="dropdown-ingredients-container"');
-    });
-  });
-
-  describe("renderDropdownsSkeletons", () => {
-    it("should render all three dropdown skeletons", () => {
-      const html = dropdownsSkeleton();
-
-      expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
-      expect(html).toContain("dropdown-ustensils-container");
-      expect(html).toContain("dropdown-appliances-container");
-    });
-
-    it("should include skeleton loading class", () => {
-      const html = dropdownsSkeleton();
-      const skeletonCount = (html.match(/skeleton/g) || []).length;
-      expect(skeletonCount).toBe(3);
+      expect(html).toContain('id="dropdown-ingredients-empty-state"');
     });
   });
 

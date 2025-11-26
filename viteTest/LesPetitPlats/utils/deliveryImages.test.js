@@ -7,8 +7,12 @@ import { isImageLoaded, imagesTypes, selectRandomImages } from "@/utils/delivery
 const TEST_IMAGE_URL = "/recipes/test.jpg";
 // Test WebP URL
 const TEST_WEBP_URL = "/recipes/test.webp";
+// Invalid image URL for error testing
+const INVALID_IMAGE_URL = "/recipes/invalid.jpg";
 // WebP source selector constant
 const WEBP_SOURCE_SELECTOR = "source[type='image/webp']";
+// Error message for missing image element
+const IMAGE_ELEMENT_NOT_FOUND_ERROR = "Image element not found in fragment";
 
 // Mock recipes with images
 const mockRecipesWithImages = [
@@ -155,10 +159,14 @@ describe("deliveryImages", () => {
 
       it("should mark image as loaded when image is already loaded", () => {
         const fragment = createCardPictureFragment(TEST_IMAGE_URL);
-        document.body.appendChild(fragment);
 
         // Image element
         const img = fragment.querySelector("img");
+        if (!img) {
+          throw new Error(IMAGE_ELEMENT_NOT_FOUND_ERROR);
+        }
+
+        // Set properties on the image to simulate already loaded state
         Object.defineProperty(img, "complete", { value: true, writable: true, configurable: true });
         Object.defineProperty(img, "naturalWidth", {
           value: 100,
@@ -166,12 +174,11 @@ describe("deliveryImages", () => {
           configurable: true,
         });
 
+        // imagesTypes doesn't require the fragment to be in the DOM
         imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
 
         // Wait for synchronous operations to complete
         expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
-
-        document.body.removeChild(fragment);
       });
 
       it("should handle missing image element gracefully", () => {
@@ -212,9 +219,13 @@ describe("deliveryImages", () => {
       it("should handle webp image load success and mark as loaded", async () => {
         const webpUrl = TEST_WEBP_URL;
         const fragment = createCardPictureFragment(TEST_IMAGE_URL, webpUrl);
-        document.body.appendChild(fragment);
 
+        // Get image reference before appending (element reference remains valid after append)
         const img = fragment.querySelector("img");
+        if (!img) {
+          throw new Error(IMAGE_ELEMENT_NOT_FOUND_ERROR);
+        }
+
         // Set image as not complete to trigger load event listener
         Object.defineProperty(img, "complete", {
           value: false,
@@ -227,22 +238,30 @@ describe("deliveryImages", () => {
           configurable: true,
         });
 
-        imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl });
+        // Clone fragment for imagesTypes (since original will be emptied on append)
+        const fragmentClone = fragment.cloneNode(true);
+        document.body.appendChild(fragment);
 
-        // Simulate successful load
+        imagesTypes(fragmentClone, { jpgUrl: TEST_IMAGE_URL, webpUrl });
+
+        // Simulate successful load on the actual DOM element
         const loadEvent = new Event("load", { bubbles: true });
         img.dispatchEvent(loadEvent);
 
         // Wait a bit for the event handler to process
         await new Promise(resolve => setTimeout(resolve, 10));
 
-        // Verify webp source still exists (not removed on success)
-        const webpSource = fragment.querySelector(WEBP_SOURCE_SELECTOR);
+        // Verify webp source still exists (not removed on success) - query from body
+        const webpSource = document.body.querySelector(WEBP_SOURCE_SELECTOR);
         expect(webpSource).toBeTruthy();
         // Note: imagesTypes only handles jpgUrl, not webpUrl, so isImageLoaded checks jpgUrl
         expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
 
-        document.body.removeChild(fragment);
+        // Clean up - remove the appended element
+        const appendedElement = document.body.querySelector(".card-picture");
+        if (appendedElement && appendedElement.parentNode) {
+          appendedElement.parentNode.removeChild(appendedElement);
+        }
       });
 
       it("should handle webp image load error and remove source", () => {
@@ -309,10 +328,14 @@ describe("deliveryImages", () => {
 
     describe("jpeg handling", () => {
       it("should handle jpeg image error", () => {
-        const fragment = createCardPictureFragment("/recipes/invalid.jpg");
-        document.body.appendChild(fragment);
+        const fragment = createCardPictureFragment(INVALID_IMAGE_URL);
 
+        // Get image reference before appending (element reference remains valid after append)
         const img = fragment.querySelector("img");
+        if (!img) {
+          throw new Error(IMAGE_ELEMENT_NOT_FOUND_ERROR);
+        }
+
         Object.defineProperty(img, "complete", {
           value: false,
           writable: true,
@@ -324,7 +347,11 @@ describe("deliveryImages", () => {
           configurable: true,
         });
 
-        imagesTypes(fragment, { jpgUrl: "/recipes/invalid.jpg", webpUrl: "" });
+        // Clone fragment for imagesTypes (since original will be emptied on append)
+        const fragmentClone = fragment.cloneNode(true);
+        document.body.appendChild(fragment);
+
+        imagesTypes(fragmentClone, { jpgUrl: INVALID_IMAGE_URL, webpUrl: "" });
 
         // Manually trigger error event - function should handle gracefully
         const errorEvent = new Event("error", { bubbles: true });
@@ -333,14 +360,21 @@ describe("deliveryImages", () => {
         // Function should handle error gracefully (no exception thrown)
         expect(img).toBeTruthy();
 
-        document.body.removeChild(fragment);
+        // Clean up - remove the appended element
+        const appendedElement = document.body.querySelector(".card-picture");
+        if (appendedElement && appendedElement.parentNode) {
+          appendedElement.parentNode.removeChild(appendedElement);
+        }
       });
 
       it("should handle jpeg image load event and mark as loaded", async () => {
         const fragment = createCardPictureFragment(TEST_IMAGE_URL);
-        document.body.appendChild(fragment);
 
+        // Get image reference before appending (element reference remains valid after append)
         const img = fragment.querySelector("img");
+        if (!img) {
+          throw new Error(IMAGE_ELEMENT_NOT_FOUND_ERROR);
+        }
 
         // Ensure image is not complete initially
         Object.defineProperty(img, "complete", {
@@ -354,7 +388,11 @@ describe("deliveryImages", () => {
           configurable: true,
         });
 
-        imagesTypes(fragment, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
+        // Clone fragment for imagesTypes (since original will be emptied on append)
+        const fragmentClone = fragment.cloneNode(true);
+        document.body.appendChild(fragment);
+
+        imagesTypes(fragmentClone, { jpgUrl: TEST_IMAGE_URL, webpUrl: "" });
 
         // Simulate image load
         const loadEvent = new Event("load", { bubbles: true });
@@ -365,14 +403,21 @@ describe("deliveryImages", () => {
 
         expect(isImageLoaded(TEST_IMAGE_URL)).toBe(true);
 
-        document.body.removeChild(fragment);
+        // Clean up - remove the appended element
+        const appendedElement = document.body.querySelector(".card-picture");
+        if (appendedElement && appendedElement.parentNode) {
+          appendedElement.parentNode.removeChild(appendedElement);
+        }
       });
 
       it("should handle jpeg image complete but with error", async () => {
-        const fragment = createCardPictureFragment("/recipes/invalid.jpg");
-        document.body.appendChild(fragment);
+        const fragment = createCardPictureFragment(INVALID_IMAGE_URL);
 
+        // Get image reference before appending (element reference remains valid after append)
         const img = fragment.querySelector("img");
+        if (!img) {
+          throw new Error(IMAGE_ELEMENT_NOT_FOUND_ERROR);
+        }
 
         // Set image as complete but with no natural width (error state)
         Object.defineProperty(img, "complete", { value: true, writable: true, configurable: true });
@@ -382,7 +427,11 @@ describe("deliveryImages", () => {
           configurable: true,
         });
 
-        imagesTypes(fragment, { jpgUrl: "/recipes/invalid.jpg", webpUrl: "" });
+        // Clone fragment for imagesTypes (since original will be emptied on append)
+        const fragmentClone = fragment.cloneNode(true);
+        document.body.appendChild(fragment);
+
+        imagesTypes(fragmentClone, { jpgUrl: INVALID_IMAGE_URL, webpUrl: "" });
 
         // Wait for setTimeout in handleImageLoading to complete
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -391,7 +440,11 @@ describe("deliveryImages", () => {
         // When complete but naturalWidth is 0, it sets up a setTimeout that marks it as loaded anyway
         expect(img).toBeTruthy();
 
-        document.body.removeChild(fragment);
+        // Clean up - remove the appended element
+        const appendedElement = document.body.querySelector(".card-picture");
+        if (appendedElement && appendedElement.parentNode) {
+          appendedElement.parentNode.removeChild(appendedElement);
+        }
       });
     });
   });

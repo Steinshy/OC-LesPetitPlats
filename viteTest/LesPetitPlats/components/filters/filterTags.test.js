@@ -111,9 +111,9 @@ describe("filterTags", () => {
     const applianceTag = [...tags].find(tag => tag.dataset.type === "appliances");
 
     expect(ingredientTag).toBeDefined();
-    expect(ingredientTag.dataset.value).toBe("Tomato");
+    expect(ingredientTag.dataset.value).toBe("tomato");
     expect(applianceTag).toBeDefined();
-    expect(applianceTag.dataset.value).toBe("Oven");
+    expect(applianceTag.dataset.value).toBe("oven");
   });
 
     it("should render tags with correct aria-label", () => {
@@ -147,7 +147,7 @@ describe("filterTags", () => {
     const tag = document.querySelector(FILTER_TAG_SELECTOR);
     tag.click();
 
-    expect(removeFilter).toHaveBeenCalledWith("ingredients", "Tomato");
+    expect(removeFilter).toHaveBeenCalledWith("ingredients", "tomato");
   });
 
   it("should prevent default on tag click", () => {

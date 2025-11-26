@@ -12,9 +12,11 @@ vi.mock("@/utils/deliveryImages.js", () => ({
   imagesTypes: vi.fn(),
 }));
 
-vi.mock("@/components/skeletons.js", () => ({
-  buildCardSkeletons: vi.fn(),
-  hideCardSkeletons: vi.fn(),
+vi.mock("@/components/skeletonsManager.js", () => ({
+  cardSkeletons: vi.fn(() => ({
+    build: vi.fn(),
+    hide: vi.fn(),
+  })),
 }));
 
 const TEST_JPG_URL = "/recipes/test.jpg";
@@ -37,9 +39,10 @@ describe("cards render", () => {
       expect(html).toContain("Essayez de modifier");
     });
 
-    it("should include utensils icon", () => {
+    it("should include logo icon", () => {
       const html = renderNoResults();
-      expect(html).toContain("ri-knife-line");
+      expect(html).toContain("logoIcon.svg");
+      expect(html).toContain("Les Petits Plats");
     });
   });
 
@@ -90,17 +93,16 @@ describe("cards render", () => {
   });
 
   describe("renderCardHeader", () => {
-    it("should render card header with name and time", () => {
-      const html = renderCardHeader("Tarte aux pommes", 45);
+    it("should render card header with name", () => {
+      const html = renderCardHeader("Tarte aux pommes");
 
       expect(html).toContain("card-header");
       expect(html).toContain("Tarte aux pommes");
-      expect(html).toContain("45min");
     });
 
-    it("should handle zero time", () => {
-      const html = renderCardHeader("Recipe", 0);
-      expect(html).toContain("0min");
+    it("should handle empty name", () => {
+      const html = renderCardHeader("");
+      expect(html).toContain("card-header");
     });
   });
 

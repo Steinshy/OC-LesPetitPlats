@@ -175,6 +175,18 @@ export default defineConfig(({ mode }) => {
         transformMixedEsModules: true,
       },
       rollupOptions: {
+        treeshake: {
+          moduleSideEffects: id => {
+            // Allow tree-shaking for npm packages that support it
+            const treeShakeablePackages = ["tiny-lru", "neverthrow", "query-string", "toastify-js"];
+            if (treeShakeablePackages.some(pkg => id.includes(pkg))) {
+              return false;
+            }
+            return null;
+          },
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
+        },
         plugins: [
           isAnalyze &&
             analyzer({
@@ -213,6 +225,9 @@ export default defineConfig(({ mode }) => {
             if (!id.includes("node_modules")) return;
             if (id.includes("tailwindcss")) return "vendor-tailwind";
             if (id.includes("tiny-lru")) return "vendor-cache";
+            if (id.includes("neverthrow")) return "vendor-utils";
+            if (id.includes("query-string")) return "vendor-utils";
+            if (id.includes("toastify-js")) return "vendor-ui";
             if (id.includes("remixicon")) return "vendor-icons"; // Separate icon font
             return "vendor";
           },
@@ -233,7 +248,10 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ["tiny-lru"],
+      include: ["tiny-lru", "neverthrow", "query-string", "toastify-js"],
+      esbuildOptions: {
+        treeShaking: true,
+      },
     },
   };
 });

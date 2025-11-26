@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // Disable Workbox console logs
 self.__WB_DISABLE_DEV_LOGS = true;
 

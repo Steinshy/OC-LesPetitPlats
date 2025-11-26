@@ -11,13 +11,17 @@ export const renderNoResults = () => {
   `;
 };
 
-export const renderCardPicture = (imageData = null, time = null) => {
+export const renderCardPicture = (imageData = null, time = null, index = 0) => {
   const { webpUrl, jpgUrl, alt } = imageData || {};
+  const isAboveFold = index < 6;
+  const loading = isAboveFold ? "eager" : "lazy";
+  const fetchPriority = isAboveFold ? 'fetchpriority="high"' : "";
+
   return `
     <div class="card-picture">
       <picture>
-        ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" />` : ""}
-        <img src="${jpgUrl}" alt="${alt}" loading="lazy" width="380" height="250" decoding="async" />
+        ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp" ${fetchPriority} />` : ""}
+        <img src="${jpgUrl}" alt="${alt}" loading="${loading}" width="380" height="250" decoding="async" ${fetchPriority} />
       </picture>
       ${time ? `<span class="card-time">${time}min</span>` : ""}
     </div>

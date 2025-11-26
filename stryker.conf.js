@@ -16,7 +16,6 @@ export default {
     "src/**/*.js",
     "!**/viteTest/**",
     "!**/*.config.js",
-    // Exclude DOM manipulation and entry point files (not unit tested)
     "!src/App.js",
     "!src/errorHandler.js",
     "!src/components/scrollToTop.js",

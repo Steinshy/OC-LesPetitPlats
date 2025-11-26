@@ -40,7 +40,7 @@ const updateCardContainer = (container, items, createElement) => {
     const id = String(item.id);
     let card = existing.get(id);
     if (!card) {
-      card = createElement(item);
+      card = createElement(item, index);
       newCards.push(card);
       existing.set(id, card);
     }
@@ -83,11 +83,11 @@ export const setupRecipesCards = recipesData => {
     noResults.classList.add("hidden");
   }
 
-  const newCards = updateCardContainer(container, recipesData, recipe => {
+  const newCards = updateCardContainer(container, recipesData, (recipe, index) => {
     const template = document.createElement("template");
     template.innerHTML = `
       <div class="card" id="${recipe.id}">
-        ${renderCardPicture(recipe.images, recipe.time)}
+        ${renderCardPicture(recipe.images, recipe.time, index)}
         ${renderCardHeader(recipe.name)}
         ${renderCardContents(recipe.description, recipe.ingredients)}
       </div>`;

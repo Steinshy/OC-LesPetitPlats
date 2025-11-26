@@ -52,9 +52,9 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
-      expect(dropdownContainer.classList.contains("show")).toBe(true);
-      expect(dropdownContainer.getAttribute("aria-hidden")).toBe("false");
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      expect(button.classList.contains("show")).toBe(true);
+      expect(button.getAttribute("aria-hidden")).toBe("false");
     });
 
     it("should hide button when not scrolled past threshold", () => {
@@ -67,9 +67,9 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
-      expect(dropdownContainer.classList.contains("show")).toBe(false);
-      expect(dropdownContainer.getAttribute("aria-hidden")).toBe("true");
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      expect(button.classList.contains("show")).toBe(false);
+      expect(button.getAttribute("aria-hidden")).toBe("true");
     });
 
     it("should handle missing dropdownContainer gracefully", () => {
@@ -115,13 +115,13 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
       // Trigger scroll event - implementation calls updateVisibility directly (no requestAnimationFrame)
       window.dispatchEvent(new Event("scroll"));
 
-      expect(dropdownContainer.classList.contains("show")).toBe(true);
+      expect(button.classList.contains("show")).toBe(true);
     });
 
     it("should call updateVisibility directly on scroll", () => {
@@ -139,7 +139,8 @@ describe("scrollToTop", () => {
       window.dispatchEvent(new Event("scroll"));
 
       // Should update immediately
-      expect(dropdownContainer.classList.contains("show")).toBe(true);
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      expect(button.classList.contains("show")).toBe(true);
     });
 
     it("should set passive scroll listener", () => {
@@ -163,9 +164,9 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       // Initial visibility check should run - should show when scrollY > 300
-      expect(dropdownContainer.classList.contains("show")).toBe(true);
+      expect(button.classList.contains("show")).toBe(true);
     });
 
     it("should handle rapid scroll events", () => {
@@ -176,8 +177,8 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
-      const classListSpy = vi.spyOn(dropdownContainer.classList, "toggle");
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      const classListSpy = vi.spyOn(button.classList, "toggle");
 
       // Rapid scroll events - implementation calls updateVisibility directly for each event
       for (let i = 0; i < 10; i++) {
