@@ -1,13 +1,8 @@
 import { searchSkeleton } from "../skeletonsManager.js";
+import { searchElements } from "./elements.js";
 
-const getSearchElements = () => ({
-  searchBar: document.getElementById("search-bar"),
-  searchInput: document.getElementById("search-input"),
-  clearButton: document.getElementById("search-clear-button"),
-  submitSearch: document.getElementById("search-submit-btn"),
-});
 export const setupSearchBar = () => {
-  const { searchBar, searchInput, clearButton, submitSearch } = getSearchElements();
+  const { searchBar, searchInput, clearButton, submitSearch } = searchElements;
 
   if (!searchBar || !searchInput) return;
 

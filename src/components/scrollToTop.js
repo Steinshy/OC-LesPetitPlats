@@ -15,16 +15,24 @@ const scrollToTop = () => {
   button?.blur();
 };
 
-const updateVisibility = () => {
+export const updateVisibility = () => {
+  const { button } = getScrollToTopElements();
+  if (!button) return;
+
   const dropdownContainer = document.getElementById("dropdowns-container");
   const mobile = isMobile();
 
-  const shouldShow =
-    window.scrollY > 300 && !(mobile && dropdownContainer?.classList.contains("open"));
-  if (!dropdownContainer) return;
+  // Check if any dropdown is open
+  const hasOpenDropdown = dropdownContainer
+    ? [...dropdownContainer.querySelectorAll(".dropdown-container")].some(container =>
+        container.classList.contains("open"),
+      )
+    : false;
 
-  dropdownContainer.classList.toggle("show", shouldShow);
-  dropdownContainer.setAttribute("aria-hidden", String(!shouldShow));
+  const shouldShow = window.scrollY > 300 && !(mobile && hasOpenDropdown);
+
+  button.classList.toggle("show", shouldShow);
+  button.setAttribute("aria-hidden", String(!shouldShow));
 };
 
 const setupListeners = () => {
@@ -32,10 +40,6 @@ const setupListeners = () => {
   if (!button) return;
 
   button.addEventListener("click", scrollToTop);
-  setupGlobalHandlers();
-};
-
-const setupGlobalHandlers = () => {
   window.addEventListener("scroll", updateVisibility, { passive: true });
 };
 
