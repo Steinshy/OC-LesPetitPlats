@@ -132,7 +132,7 @@ describe("scrollToTop", () => {
 
       initScrollToTop();
 
-      const dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
+      const _dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
       // Implementation calls updateVisibility directly (no requestAnimationFrame)

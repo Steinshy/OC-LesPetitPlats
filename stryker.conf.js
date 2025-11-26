@@ -17,9 +17,8 @@ export default {
     "!**/viteTest/**",
     "!**/*.config.js",
     "!src/App.js",
-    "!src/errorHandler.js",
+    "!src/utils/errorHandler.js",
     "!src/components/scrollToTop.js",
-    "!src/components/skeletons.js",
     "!src/components/dropdown/render.js",
   ],
   thresholds: {

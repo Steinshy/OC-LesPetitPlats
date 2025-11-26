@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { logCategorySummary } from "../../utils/logging/console.js";
 import { buildDropdownsData } from "@/components/dropdown/data.js";
@@ -13,14 +14,20 @@ const DROPDOWN_APPLIANCES_CONTAINER_ID = "dropdown-appliances-container";
 const DATA_TYPE_INGREDIENTS = 'data-type="ingredients"';
 const DATA_TYPE_USTENSILS = 'data-type="ustensils"';
 const DATA_TYPE_APPLIANCES = 'data-type="appliances"';
+const ARIA_FALSE = "false";
+const ARIA_TRUE = "true";
+const ARIA_EXPANDED_FALSE = ARIA_FALSE;
+const ARIA_EXPANDED_TRUE = ARIA_TRUE;
+const ARIA_PRESSED_FALSE = ARIA_FALSE;
+const ARIA_HIDDEN_FALSE = ARIA_FALSE;
 
 vi.mock("@/components/dropdown/render.js", () => ({
   ingredientsDropdown: vi.fn(
     () => `
     <div class="dropdown-container" id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
-      <button id="dropdown-ingredients-button" aria-expanded="false" aria-controls="menu-ingredients"></button>
-      <div id="dropdown-ingredients-backdrop" aria-hidden="true"></div>
-      <div id="menu-ingredients" aria-hidden="true" role="menu">
+      <button id="dropdown-ingredients-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-ingredients"></button>
+      <div id="dropdown-ingredients-backdrop" aria-hidden="${ARIA_TRUE}"></div>
+      <div id="menu-ingredients" aria-hidden="${ARIA_TRUE}" role="menu">
         <div id="dropdown-ingredients-search">
           <input id="search-ingredients" />
           <button id="dropdown-ingredients-search-clear-button" class="hidden"></button>
@@ -32,9 +39,9 @@ vi.mock("@/components/dropdown/render.js", () => ({
   ustensilsDropdown: vi.fn(
     () => `
     <div class="dropdown-container" id="${DROPDOWN_USTENSILS_CONTAINER_ID}" ${DATA_TYPE_USTENSILS}>
-      <button id="dropdown-ustensils-button" aria-expanded="false" aria-controls="menu-ustensils"></button>
-      <div id="dropdown-ustensils-backdrop" aria-hidden="true"></div>
-      <div id="menu-ustensils" aria-hidden="true" role="menu">
+      <button id="dropdown-ustensils-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-ustensils"></button>
+      <div id="dropdown-ustensils-backdrop" aria-hidden="${ARIA_TRUE}"></div>
+      <div id="menu-ustensils" aria-hidden="${ARIA_TRUE}" role="menu">
         <div id="dropdown-ustensils-search">
           <input id="search-ustensils" />
           <button id="dropdown-ustensils-search-clear-button" class="hidden"></button>
@@ -46,9 +53,9 @@ vi.mock("@/components/dropdown/render.js", () => ({
   appliancesDropdown: vi.fn(
     () => `
     <div class="dropdown-container" id="${DROPDOWN_APPLIANCES_CONTAINER_ID}" ${DATA_TYPE_APPLIANCES}>
-      <button id="dropdown-appliances-button" aria-expanded="false" aria-controls="menu-appliances"></button>
-      <div id="dropdown-appliances-backdrop" aria-hidden="true"></div>
-      <div id="menu-appliances" aria-hidden="true" role="menu">
+      <button id="dropdown-appliances-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-appliances"></button>
+      <div id="dropdown-appliances-backdrop" aria-hidden="${ARIA_TRUE}"></div>
+      <div id="menu-appliances" aria-hidden="${ARIA_TRUE}" role="menu">
         <div id="dropdown-appliances-search">
           <input id="search-appliances" />
           <button id="dropdown-appliances-search-clear-button" class="hidden"></button>
@@ -62,7 +69,7 @@ vi.mock("@/components/dropdown/render.js", () => ({
   ),
   renderDropdownItem: vi.fn(
     (type, item, itemId, itemBtnId) =>
-      `<li role="option" id="${itemId}"><button class="dropdown-item item-btn" id="${itemBtnId}" data-value="${item.value}" data-type="${type}" aria-pressed="false">${item.label}</button></li>`,
+      `<li role="option" id="${itemId}"><button class="dropdown-item item-btn" id="${itemBtnId}" data-value="${item.value}" data-type="${type}" aria-pressed="${ARIA_PRESSED_FALSE}">${item.label}</button></li>`,
   ),
 }));
 
@@ -210,10 +217,6 @@ describe("dropdown manager", () => {
   });
 
   describe("dropdown interactions", () => {
-    const ARIA_EXPANDED_TRUE = "true";
-    const ARIA_EXPANDED_FALSE = "false";
-    const ARIA_HIDDEN_FALSE = "false";
-
     beforeEach(() => {
       document.body.innerHTML = '<div id="dropdowns-container"></div>';
       // Use mock recipes to ensure buildDropdownsData returns the correct structure
@@ -291,7 +294,7 @@ describe("dropdown manager", () => {
       if (ingredientsContainer.classList.contains("open")) {
         ingredientsContainer.classList.remove("open");
         ingredientsButton.classList.remove("active");
-        ingredientsButton.setAttribute("aria-expanded", "false");
+        ingredientsButton.setAttribute("aria-expanded", ARIA_EXPANDED_FALSE);
       }
       if (!ustensilsContainer.classList.contains("open")) {
         ustensilsContainer.classList.add("open");
@@ -310,7 +313,7 @@ describe("dropdown manager", () => {
       // Add a test item to the list
       itemsList.innerHTML = `
         <li role="option">
-          <button class="dropdown-item item-btn" data-type="ingredients" data-value="Tomato" aria-pressed="false">
+          <button class="dropdown-item item-btn" data-type="ingredients" data-value="Tomato" aria-pressed="${ARIA_PRESSED_FALSE}">
             Tomato
           </button>
         </li>
