@@ -22,7 +22,6 @@ import {
 import { filterDropdownItems } from "@/components/filters/recipeFilters.js";
 import { dropdownsContainerSkeleton } from "@/components/skeletonsManager.js";
 
-// dropdownManager.test.js, has a bug, check later
 export let currentDropdownsData = {};
 let dropdownTypes = [];
 const ARIA_HIDDEN = "aria-hidden";
