@@ -10,6 +10,8 @@ describe("bodyScroll", () => {
     document.body.style.cssText = "";
     window.scrollY = 0;
     document.documentElement.scrollTop = 0;
+    // Mock window.scrollTo for test environment
+    window.scrollTo = vi.fn();
     vi.clearAllMocks();
   });
 
@@ -193,4 +195,3 @@ describe("bodyScroll", () => {
     logCategorySummary("bodyScroll", "Body Scroll", "All body scroll tests");
   });
 });
-
