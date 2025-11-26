@@ -1,5 +1,4 @@
 export const renderNoResults = () => {
-  const baseUrl = import.meta.env.BASE_URL;
   return `
     <div class="no-results-icon">
       <i class="ri-error-warning-line" aria-hidden="true"></i>

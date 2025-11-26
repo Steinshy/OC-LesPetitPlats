@@ -163,9 +163,6 @@ export default defineConfig(({ mode }) => {
       reportCompressedSize: true,
       chunkSizeWarningLimit: 500,
       assetsInlineLimit: 4096,
-      modulePreload: {
-        resolveDependencies: true,
-      },
       dynamicImportVarsOptions: {
         warnOnError: true,
         exclude: [/node_modules/],

@@ -734,8 +734,8 @@
   justify-content: flex-start;
   max-height: 200px;
   overflow: hidden;
-  position: relative;
   padding-bottom: 44px;
+  position: relative;
 }
 
 .lists-container::after {
@@ -1182,11 +1182,11 @@
 }
 
 .footer-social a[aria-label*="YouTube"] {
-  color: #FF0000;
+  color: #F00;
 }
 
 .footer-social a:hover {
-  border-color: currentColor;
+  border-color: currentcolor;
   box-shadow: var(--shadow-default);
   transform: translateY(-3px);
 }
@@ -1207,7 +1207,7 @@
 }
 
 .footer-social a[aria-label*="YouTube"]:hover {
-  background-color: #FF0000;
+  background-color: #F00;
   color: #fff;
 }
 
@@ -2144,13 +2144,14 @@
     transform: translateX(-50%);
     width: 40px;
   }
+
   .dropdown-search.show {
     display: flex;
   }
 
   .dropdown-search input {
-    height: 44px;
     font-size: var(--font-size-sm);
+    height: 44px;
     padding: 0 40px 0 var(--spacing-md);
   }
 
@@ -2246,9 +2247,9 @@
   }
 
   .filters-title {
+    font-size: var(--font-size-sm);
     display: flex;
     justify-content: space-between;
-    font-size: var(--font-size-sm);
     margin: 0;
     width: 100%;
   }
@@ -2352,12 +2353,12 @@
 
   .footer-nav {
     align-items: center;
+    border-bottom: 1px solid var(--color-border);
     border-left: none;
+    padding-bottom: var(--spacing-lg);
     padding-left: 0;
     padding-top: var(--spacing-xl);
-    padding-bottom: var(--spacing-lg);
     text-align: center;
-    border-bottom: 1px solid var(--color-border);
   }
 
   .footer-nav h4 {
@@ -2582,8 +2583,8 @@
 
   .dropdown-search {
     display: none;
-    padding: var(--spacing-md);
     max-width: 100%;
+    padding: var(--spacing-md);
   }
 
   .dropdown-search.show {
@@ -2591,20 +2592,20 @@
   }
 
   .dropdown-search input {
-    height: 44px;
     font-size: var(--font-size-sm);
+    height: 44px;
   }
 
   .dropdown-search .search-btn {
+    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     height: 25px;
     width: 25px;
-    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
   }
 
   .dropdown-search .search-clear-btn {
+    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     height: 25px;
     width: 25px;
-    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
   }
 
   .dropdown-item {
