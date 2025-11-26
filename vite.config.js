@@ -161,10 +161,10 @@ export default defineConfig(({ mode }) => {
       cssMinify: "lightningcss",
       cssTarget: CSS_TARGET,
       reportCompressedSize: true,
-      chunkSizeWarningLimit: 500, // Lower from 1000 to catch more issues
+      chunkSizeWarningLimit: 500,
       assetsInlineLimit: 4096,
       modulePreload: {
-        resolveDependencies: false,
+        resolveDependencies: true,
       },
       dynamicImportVarsOptions: {
         warnOnError: true,

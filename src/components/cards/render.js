@@ -2,7 +2,7 @@ export const renderNoResults = () => {
   const baseUrl = import.meta.env.BASE_URL;
   return `
     <div class="no-results-icon">
-      <img src="${baseUrl}favicons/logoIcon.svg" alt="Les Petits Plats" width="52" height="47" />
+      <i class="ri-error-warning-line" aria-hidden="true"></i>
     </div>
     <h2>Aucune recette trouvée</h2>
     <p>

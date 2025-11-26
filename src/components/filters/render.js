@@ -11,14 +11,10 @@ export const renderFilters = () => {
           </button>
         </div>
 
-        <input type="checkbox" id="toggle-filters" class="toggle-filters">
         <div class="lists-container" id="filters-tags">
           <!-- Filter tags -->
         </div>
       </div>
-      <label for="toggle-filters" class="toggle-filters-label">
-        <span class="see-more-less">Voir plus</span>
-      </label>
   `;
 };
 
