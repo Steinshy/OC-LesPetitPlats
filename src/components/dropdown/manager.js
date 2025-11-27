@@ -1,15 +1,14 @@
 // src/components/dropdown/manager.js
 
-import { lockBodyScroll, unlockBodyScroll } from "../bodyScroll.js";
-import { updateVisibility } from "../scrollToTop.js";
-import { buildDropdownsData } from "./data.js";
+import { lockBodyScroll, unlockBodyScroll } from "@components/bodyScroll.js";
+import { buildDropdownsData } from "@components/dropdown/data.js";
 
 import {
   getDropdownElements,
   getDropdownSearchElements,
   getDropdownListElements,
   getDropdownsContainer,
-} from "./elements.js";
+} from "@components/dropdown/elements.js";
 
 import {
   ingredientsDropdown,
@@ -17,10 +16,11 @@ import {
   appliancesDropdown,
   renderEmptyStateItem,
   renderDropdownItem,
-} from "./render.js";
+} from "@components/dropdown/render.js";
 
-import { filterDropdownItems } from "@/components/filters/recipeFilters.js";
-import { dropdownsContainerSkeleton } from "@/components/skeletonsManager.js";
+import { filterDropdownItems } from "@components/filters/recipeFilters.js";
+import { updateVisibility } from "@components/scrollToTop.js";
+import { dropdownsContainerSkeleton } from "@components/skeletonsManager.js";
 
 export let currentDropdownsData = {};
 let dropdownTypes = [];

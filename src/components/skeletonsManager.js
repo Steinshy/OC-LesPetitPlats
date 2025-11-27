@@ -1,5 +1,9 @@
-import { ingredientsDropdown, ustensilsDropdown, appliancesDropdown } from "./dropdown/render.js";
-import { cardSkeleton } from "./renderSqueletons.js";
+import {
+  ingredientsDropdown,
+  ustensilsDropdown,
+  appliancesDropdown,
+} from "@components/dropdown/render.js";
+import { cardSkeleton } from "@components/renderSqueletons.js";
 
 export const squeletonsElements = {
   header: document.getElementById("header"),

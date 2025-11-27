@@ -1,6 +1,6 @@
 import { ok, err } from "neverthrow";
-import { cacheGetOrSet } from "./cache.js";
-import { baseUrl } from "./string.js";
+import { cacheGetOrSet } from "@utils/cache.js";
+import { baseUrl } from "@utils/string.js";
 
 export const dataUrl = `${baseUrl}api/data.json`;
 

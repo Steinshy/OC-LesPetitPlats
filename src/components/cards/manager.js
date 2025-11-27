@@ -1,11 +1,11 @@
-import { cardSkeletons } from "../skeletonsManager.js";
 import {
   renderNoResults,
   renderCardPicture,
   renderCardHeader,
   renderCardContents,
-} from "./render.js";
-import { imagesTypes } from "@/utils/deliveryImages.js";
+} from "@components/cards/render.js";
+import { cardSkeletons } from "@components/skeletonsManager.js";
+import { imagesTypes } from "@utils/deliveryImages.js";
 
 const getCardsElements = () => {
   return {

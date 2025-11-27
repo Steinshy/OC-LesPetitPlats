@@ -1,5 +1,5 @@
-import { searchSkeleton } from "../skeletonsManager.js";
-import { searchElements } from "./elements.js";
+import { searchElements } from "@components/search/elements.js";
+import { searchSkeleton } from "@components/skeletonsManager.js";
 
 export const setupSearchBar = () => {
   const { searchBar, searchInput, clearButton, submitSearch } = searchElements;

@@ -38,6 +38,14 @@ export default [
         ...globals.node,
       },
     },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+      },
+    },
     rules: {
       "no-unused-vars": [
         "warn",
@@ -83,7 +91,6 @@ export default [
             "^\\./",
             "^\\.\\./",
             "^node:",
-            "^@/",
             "^@tailwindcss/",
             "^tailwindcss",
             "^vitest",
@@ -93,6 +100,10 @@ export default [
             "^chartjs-node-canvas",
             "^chart\\.js",
             "^@testing-library/",
+            "\\.css$",
+            "\\.scss$",
+            "\\.sass$",
+            "\\.less$",
             "^fs$",
             "^path$",
             "^url$",

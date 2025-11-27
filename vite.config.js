@@ -11,9 +11,43 @@ import tsconfigPaths from "vite-tsconfig-paths";
 const require = createRequire(import.meta.url);
 const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
 const PORT = 5173;
-const CSS_TARGET = ["chrome61", "safari11"];
+const CSS_TARGET = ["chrome61", "safari11", "firefox115"];
 const COMMONJS_INCLUDE = [/node_modules/];
 const { version: APP_VERSION } = require("./package.json");
+
+// App metadata
+const APP_NAME = "Les Petits Plats";
+const APP_SHORT_NAME = "Les Petits Plats";
+const APP_DESCRIPTION = "Découvrez des recettes délicieuses et faciles à réaliser";
+const APP_LANG = "fr";
+const APP_THEME_COLOR = "#FFD15B";
+const APP_BG_COLOR = "#ffffff";
+
+// Build configuration
+const OUT_DIR = "dist";
+const CHUNK_SIZE_WARNING_LIMIT = 500;
+const ASSETS_INLINE_LIMIT = 4096;
+const MAX_FILE_SIZE_TO_CACHE = 5_242_880;
+
+// File patterns
+const IMAGE_EXTENSIONS = /png|jpe?g|svg|gif|tiff|bmp|ico/i;
+const FONT_EXTENSIONS = /woff2$/i;
+const LEGACY_FONT_EXTENSIONS = /\.(woff|ttf|eot)$/i;
+
+// Vendor packages for code splitting
+const TREE_SHAKEABLE_PACKAGES = ["tiny-lru", "neverthrow", "query-string", "toastify-js"];
+const VENDOR_CHUNKS = {
+  tailwind: "tailwindcss",
+  cache: "tiny-lru",
+  utils: ["neverthrow", "query-string"],
+  ui: "toastify-js",
+  icons: "remixicon",
+};
+
+// Plugin configuration
+const WEBFONT_TIMEOUT = 7_000;
+const WEBFONT_MAX_RETRIES = 3;
+const ANALYZER_LIMIT = 20;
 
 export default defineConfig(({ mode }) => {
   const isAnalyze = mode === "analyze";
@@ -33,16 +67,16 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["favicons/*.svg", "favicons/*.png"],
         manifest: {
-          name: "Les Petits Plats",
-          short_name: "Les Petits Plats",
-          description: "Découvrez des recettes délicieuses et faciles à réaliser",
+          name: APP_NAME,
+          short_name: APP_SHORT_NAME,
+          description: APP_DESCRIPTION,
           start_url: BASE_PATH,
           scope: BASE_PATH,
           display: "standalone",
-          background_color: "#ffffff",
-          theme_color: "#FFD15B",
+          background_color: APP_BG_COLOR,
+          theme_color: APP_THEME_COLOR,
           orientation: "portrait-primary",
-          lang: "fr",
+          lang: APP_LANG,
           icons: [
             {
               src: `${BASE_PATH}favicons/logo.svg`,
@@ -69,11 +103,8 @@ export default defineConfig(({ mode }) => {
         filename: "sw.js",
         injectManifest: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
-          globIgnores: [
-            "**/recipes/*.jpg",
-            "**/api/data-benchmark.json", // Exclude large benchmark data file (14.6 MB) from PWA cache
-          ],
-          maximumFileSizeToCacheInBytes: 5242880,
+          globIgnores: ["**/recipes/*.jpg", "**/api/data-benchmark.json"],
+          maximumFileSizeToCacheInBytes: MAX_FILE_SIZE_TO_CACHE,
         },
         workbox: {
           navigateFallback: `${BASE_PATH}index.html`,
@@ -91,8 +122,8 @@ export default defineConfig(({ mode }) => {
       !isDev &&
         webfontDownload({
           injectAsBase64: false,
-          maxRetries: 3,
-          timeout: 7_000,
+          maxRetries: WEBFONT_MAX_RETRIES,
+          timeout: WEBFONT_TIMEOUT,
           cache: true,
         }),
       !isDev &&
@@ -151,7 +182,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: { port: PORT, strictPort: true },
     build: {
-      outDir: "dist",
+      outDir: OUT_DIR,
       emptyOutDir: true,
       target: "esnext",
       minify: "esbuild",
@@ -161,8 +192,8 @@ export default defineConfig(({ mode }) => {
       cssMinify: "lightningcss",
       cssTarget: CSS_TARGET,
       reportCompressedSize: true,
-      chunkSizeWarningLimit: 500,
-      assetsInlineLimit: 4096,
+      chunkSizeWarningLimit: CHUNK_SIZE_WARNING_LIMIT,
+      assetsInlineLimit: ASSETS_INLINE_LIMIT,
       dynamicImportVarsOptions: {
         warnOnError: true,
         exclude: [/node_modules/],
@@ -175,8 +206,7 @@ export default defineConfig(({ mode }) => {
         treeshake: {
           moduleSideEffects: id => {
             // Allow tree-shaking for npm packages that support it
-            const treeShakeablePackages = ["tiny-lru", "neverthrow", "query-string", "toastify-js"];
-            if (treeShakeablePackages.some(pkg => id.includes(pkg))) {
+            if (TREE_SHAKEABLE_PACKAGES.some(pkg => id.includes(pkg))) {
               return false;
             }
             return null;
@@ -188,7 +218,7 @@ export default defineConfig(({ mode }) => {
           isAnalyze &&
             analyzer({
               summaryOnly: false,
-              limit: 20, // Show top 20 largest modules
+              limit: ANALYZER_LIMIT,
               writeTo: analysis => {
                 console.log("\n📊 Bundle Analysis & Recommendations:\n");
                 console.log(analysis);
@@ -210,7 +240,7 @@ export default defineConfig(({ mode }) => {
             generateBundle(options, bundle) {
               // Remove legacy font formats (woff, ttf, eot) - only keep woff2
               Object.keys(bundle).forEach(fileName => {
-                if (/\.(woff|ttf|eot)$/i.test(fileName) && !fileName.endsWith(".woff2")) {
+                if (LEGACY_FONT_EXTENSIONS.test(fileName) && !fileName.endsWith(".woff2")) {
                   delete bundle[fileName];
                 }
               });
@@ -220,22 +250,21 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            if (id.includes("tailwindcss")) return "vendor-tailwind";
-            if (id.includes("tiny-lru")) return "vendor-cache";
-            if (id.includes("neverthrow")) return "vendor-utils";
-            if (id.includes("query-string")) return "vendor-utils";
-            if (id.includes("toastify-js")) return "vendor-ui";
-            if (id.includes("remixicon")) return "vendor-icons"; // Separate icon font
+            if (id.includes(VENDOR_CHUNKS.tailwind)) return "vendor-tailwind";
+            if (id.includes(VENDOR_CHUNKS.cache)) return "vendor-cache";
+            if (VENDOR_CHUNKS.utils.some(pkg => id.includes(pkg))) return "vendor-utils";
+            if (id.includes(VENDOR_CHUNKS.ui)) return "vendor-ui";
+            if (id.includes(VENDOR_CHUNKS.icons)) return "vendor-icons";
             return "vendor";
           },
           chunkFileNames: "assets/js/[name]-[hash].js",
           entryFileNames: "assets/js/[name]-[hash].js",
           assetFileNames: assetInfo => {
             const ext = assetInfo.name.split(".").pop();
-            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            if (IMAGE_EXTENSIONS.test(ext)) {
               return "assets/images/[name]-[hash][extname]";
             }
-            if (/woff2$/i.test(ext)) {
+            if (FONT_EXTENSIONS.test(ext)) {
               return "assets/fonts/[name]-[hash][extname]";
             }
             return "assets/[ext]/[name]-[hash][extname]";
@@ -245,7 +274,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ["tiny-lru", "neverthrow", "query-string", "toastify-js"],
+      include: TREE_SHAKEABLE_PACKAGES,
       esbuildOptions: {
         treeShaking: true,
       },

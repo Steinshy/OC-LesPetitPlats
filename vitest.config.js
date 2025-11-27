@@ -22,15 +22,15 @@ export default defineConfig({
       threads: {
         singleThread: false,
         isolate: true,
-        useAtomics: true, // Enable shared memory for better performance
+        useAtomics: true,
         minThreads: 1,
-        maxThreads: CPU_COUNT, // Use all available CPU cores
+        maxThreads: CPU_COUNT,
       },
     },
-    maxWorkers: CPU_COUNT, // Use all available CPU cores
+    maxWorkers: CPU_COUNT,
     minWorkers: 1,
     teardownTimeout: 1000,
-    testTimeout: 30000, // 30 seconds (increased for benchmark tests)
+    testTimeout: 30000,
     // Setup file runs for all tests but uses atomic flag to only clear benchmark results once
     setupFiles: ["viteTest/Benchmarks/setup.js", "viteTest/LesPetitPlats/setup.js"],
     reporters: [

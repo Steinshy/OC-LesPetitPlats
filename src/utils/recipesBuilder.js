@@ -1,5 +1,5 @@
-import { fetchRecipes } from "./recipeApi.js";
-import { baseUrl } from "./string.js";
+import { fetchRecipes } from "@utils/recipeApi.js";
+import { baseUrl } from "@utils/string.js";
 
 const buildImages = recipe => {
   const base = recipe?.image?.replace(/\.[^./]+$/, "") || recipe?.image;

@@ -10,5 +10,4 @@ Disallow: /coverage/
 Disallow: /.vite/
 
 # Sitemap
-Sitemap: https://www.lespetitplats.com/sitemap.xml
 Sitemap: https://steinshy.github.io/OC-LesPetitPlats/sitemap.xml

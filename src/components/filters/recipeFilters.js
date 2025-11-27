@@ -1,4 +1,4 @@
-import { normalizeString } from "@/utils/string.js";
+import { normalizeString } from "@utils/string.js";
 
 const applySearch = (items, searchTerm, getText) => {
   if (!Array.isArray(items)) return [];

@@ -1,12 +1,12 @@
-import { setupRecipesCards } from "../cards/manager.js";
-import { setupDropdowns } from "../dropdown/manager.js";
-import { setupResultsCounter } from "../resultsCounter.js";
-import { searchElements } from "../search/elements.js";
-import { filtersState, filtersConstants, filtersElements } from "./elements.js";
-import { renderFilters, renderFilterTag } from "./render.js";
-import { SearchInput, filterByField } from "@/components/filters/recipeFilters.js";
-import { parseURLState, updateURLState, clearURLState } from "@/utils/queryParams.js";
-import { normalizeString } from "@/utils/string.js";
+import { setupRecipesCards } from "@components/cards/manager.js";
+import { setupDropdowns } from "@components/dropdown/manager.js";
+import { filtersState, filtersConstants, filtersElements } from "@components/filters/elements.js";
+import { SearchInput, filterByField } from "@components/filters/recipeFilters.js";
+import { renderFilters, renderFilterTag } from "@components/filters/render.js";
+import { setupResultsCounter } from "@components/resultsCounter.js";
+import { searchElements } from "@components/search/elements.js";
+import { parseURLState, updateURLState, clearURLState } from "@utils/queryParams.js";
+import { normalizeString } from "@utils/string.js";
 
 export const setupFilters = recipesData => {
   if (!recipesData) return;

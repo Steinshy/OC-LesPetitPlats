@@ -1,5 +1,4 @@
-import { cleanupDuplicatedItems } from "@/utils/string.js";
-
+import { cleanupDuplicatedItems } from "@utils/string.js";
 export const buildDropdownsData = recipesData => {
   if (!recipesData) return {};
   const allIngredients = recipesData

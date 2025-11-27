@@ -1,4 +1,4 @@
-import { headerSkeleton } from "./skeletonsManager.js";
+import { headerSkeleton } from "@components/skeletonsManager.js";
 export const setupHeader = recipesData => {
   const headerElement = document.getElementById("header");
   if (!headerElement || !recipesData) return;

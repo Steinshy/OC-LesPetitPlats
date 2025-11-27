@@ -1,4 +1,4 @@
-import { renderDropdownSearch } from "../search/render";
+import { renderDropdownSearch } from "@components/search/render.js";
 
 export const ingredientsDropdown = () => {
   return `

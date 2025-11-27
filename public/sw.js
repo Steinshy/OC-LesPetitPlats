@@ -4,10 +4,9 @@ self.__WB_DISABLE_DEV_LOGS = true;
 // Import workbox modules
 import { precacheAndRoute } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
-import { CacheFirst } from "workbox-strategies";
+import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
-import { StaleWhileRevalidate } from "workbox-strategies";
 
 // Precache assets (manifest will be injected by VitePWA)
 precacheAndRoute(self.__WB_MANIFEST);
