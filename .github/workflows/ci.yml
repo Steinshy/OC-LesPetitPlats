@@ -50,8 +50,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs:
-      - lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
-      - lint
+      - build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -146,7 +144,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
-      - lint
+      - build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -185,7 +183,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs:
-      - lint
+      - build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

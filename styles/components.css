@@ -2247,8 +2247,8 @@
   }
 
   .filters-title {
-    font-size: var(--font-size-sm);
     display: flex;
+    font-size: var(--font-size-sm);
     justify-content: space-between;
     margin: 0;
     width: 100%;
@@ -2597,14 +2597,14 @@
   }
 
   .dropdown-search .search-btn {
-    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     height: 25px;
+    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     width: 25px;
   }
 
   .dropdown-search .search-clear-btn {
-    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     height: 25px;
+    right: calc(var(--spacing-lg) + env(safe-area-inset-right, 0px));
     width: 25px;
   }
 

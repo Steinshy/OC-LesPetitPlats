@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { logCategorySummary } from "../../utils/logging/console.js";
 import { initScrollToTop } from "@/components/scrollToTop.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
 const DROPDOWNS_CONTAINER_ID = "dropdowns-container";

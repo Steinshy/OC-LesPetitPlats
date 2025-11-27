@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { logCategorySummary } from "./logging/console.js";
 // Note: selectRandomImages is provided by the mock wrapper via setup.js
 import { isImageLoaded, imagesTypes, selectRandomImages } from "@/utils/deliveryImages.js";
+import { logCategorySummary } from "./logging/console.js";
 
 // Test image URL
 const TEST_IMAGE_URL = "/recipes/test.jpg";

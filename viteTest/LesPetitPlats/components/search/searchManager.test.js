@@ -1,5 +1,4 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { logCategorySummary } from "../../utils/logging/console.js";
 
 vi.mock("@/components/skeletonsManager.js", () => ({
   searchSkeleton: vi.fn(() => ({
@@ -26,6 +25,7 @@ vi.mock("@/components/search/elements.js", () => ({
 }));
 
 import { setupSearchBar } from "@/components/search/manager.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const SEARCH_INPUT_ID = "search-input";
 const SEARCH_CLEAR_BTN_ID = "search-clear-button";

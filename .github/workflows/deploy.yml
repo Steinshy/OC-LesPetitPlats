@@ -64,8 +64,8 @@ jobs:
     name: Lighthouse Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: deploy
-    if: success()
+    needs:
+      - deploy
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

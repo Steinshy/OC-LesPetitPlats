@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { logCategorySummary } from "../../utils/logging/console.js";
 import { lockBodyScroll, unlockBodyScroll } from "@/components/bodyScroll.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 const MOBILE_DETECTOR_HTML = '<div class="mobile-detector"></div>';
 

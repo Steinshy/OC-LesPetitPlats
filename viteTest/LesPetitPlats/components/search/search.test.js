@@ -1,11 +1,4 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import {
-  mockRecipesForSearch,
-  RESULTS_COUNTER_SELECTOR,
-  SEARCH_INPUT_SELECTOR,
-  SEARCH_BUTTON_SELECTOR,
-} from "../../utils/data/testData.js";
-import { logCategorySummary } from "../../utils/logging/console.js";
 import { setupRecipesCards } from "@/components/cards/manager.js";
 import {
   updateCount,
@@ -16,6 +9,13 @@ import {
   clearAllFilters,
   renderSearch,
 } from "@/components/filters/manager.js";
+import {
+  mockRecipesForSearch,
+  RESULTS_COUNTER_SELECTOR,
+  SEARCH_INPUT_SELECTOR,
+  SEARCH_BUTTON_SELECTOR,
+} from "../../utils/data/testData.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 vi.mock("@/components/cards/manager.js", () => ({
   setupRecipesCards: vi.fn(),

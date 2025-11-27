@@ -1,5 +1,4 @@
 import { afterAll, describe, it, expect, vi } from "vitest";
-import { logCategorySummary } from "../../utils/logging/console.js";
 import {
   ingredientsDropdown,
   ustensilsDropdown,
@@ -7,6 +6,7 @@ import {
   renderEmptyStateItem,
   renderDropdownItem,
 } from "@/components/dropdown/render.js";
+import { logCategorySummary } from "../../utils/logging/console.js";
 
 vi.mock("@/components/search/render.js", () => ({
   renderDropdownSearch: vi.fn(

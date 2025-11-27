@@ -1,5 +1,4 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { logCategorySummary } from "./logging/console.js";
 
 // Store mock toasts in a way accessible to both mock and tests
 const mockToasts = [];
@@ -38,6 +37,7 @@ vi.mock("toastify-js", () => {
 
 // Import after mock is set up
 import { showError, hideError } from "@/utils/errorHandler.js";
+import { logCategorySummary } from "./logging/console.js";
 
 // Make mockToasts accessible globally for the mock
 globalThis.mockToasts = mockToasts;
