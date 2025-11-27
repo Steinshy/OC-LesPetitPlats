@@ -1,18 +1,13 @@
-import { cpus } from "os";
-import { resolve } from "path";
+import { cpus } from "node:os";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
+import { generateReportPath } from "./scripts/reportUtils.js";
 
 // Get CPU count for optimal worker/thread configuration
 const CPU_COUNT = cpus().length;
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
-  resolve: {
-    alias: {
-      "@": resolve(__dirname, "./src"),
-    },
-  },
   test: {
     environment: "jsdom",
     globals: true,
@@ -32,7 +27,7 @@ export default defineConfig({
     teardownTimeout: 1000,
     testTimeout: 30000,
     // Setup file runs for all tests but uses atomic flag to only clear benchmark results once
-    setupFiles: ["viteTest/Benchmarks/setup.js", "viteTest/LesPetitPlats/setup.js"],
+    setupFiles: ["viteTest/Benchmarks/config/setup.js", "viteTest/Unit/setup.js"],
     reporters: [
       [
         "default",
@@ -44,6 +39,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
+      reportsDirectory: "coverage",
       include: ["src/**/*.js"],
       exclude: [
         "node_modules/",

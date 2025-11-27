@@ -7,6 +7,7 @@ import viteCompression from "vite-plugin-compression";
 import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { generateReportPath } from "./scripts/reportUtils.js";
 
 const require = createRequire(import.meta.url);
 const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
@@ -103,7 +104,7 @@ export default defineConfig(({ mode }) => {
         filename: "sw.js",
         injectManifest: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
-          globIgnores: ["**/recipes/*.jpg", "**/api/data-benchmark.json"],
+          globIgnores: ["**/recipes/*.jpg"],
           maximumFileSizeToCacheInBytes: MAX_FILE_SIZE_TO_CACHE,
         },
         workbox: {
@@ -163,7 +164,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths(),
       isAnalyze &&
         visualizer({
-          filename: "dist/stats.html",
+          filename: generateReportPath("analyze", "html", process.cwd()),
           open: true,
           gzipSize: true,
           brotliSize: true,

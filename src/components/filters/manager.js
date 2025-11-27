@@ -174,6 +174,10 @@ const updateFilterTagsUI = () => {
       if (dropdownItem) {
         dropdownItem.classList.remove("selected");
         dropdownItem.setAttribute("aria-pressed", "false");
+        const listItem = dropdownItem.closest("li[role='option']");
+        if (listItem) {
+          listItem.setAttribute("aria-selected", "false");
+        }
         const checkIcon = dropdownItem.querySelector(".dropdown-item-check");
         if (checkIcon) {
           checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);
@@ -221,6 +225,10 @@ const restoreDropdownSelections = () => {
       if (!itemButton.classList.contains("selected")) {
         itemButton.classList.add("selected");
         itemButton.setAttribute("aria-pressed", "true");
+        const listItem = itemButton.closest("li[role='option']");
+        if (listItem) {
+          listItem.setAttribute("aria-selected", "true");
+        }
       }
 
       let checkIcon = itemButton.querySelector(".dropdown-item-check");
@@ -258,6 +266,10 @@ const clearAllFilters = () => {
   document.querySelectorAll(".dropdown-item.item-btn.selected").forEach(itemButton => {
     itemButton.classList.remove("selected");
     itemButton.setAttribute("aria-pressed", "false");
+    const listItem = itemButton.closest("li[role='option']");
+    if (listItem) {
+      listItem.setAttribute("aria-selected", "false");
+    }
     const checkIcon = itemButton.querySelector(".dropdown-item-check");
     if (checkIcon) {
       checkIcon.setAttribute(filtersConstants.ariaHidden, filtersConstants.ariaHiddenTrue);

@@ -100,6 +100,9 @@ export default [
             "^chartjs-node-canvas",
             "^chart\\.js",
             "^@testing-library/",
+            "^@scripts/",
+            "^@benchmarks/",
+            "^@tests/",
             "\\.css$",
             "\\.scss$",
             "\\.sass$",
@@ -200,6 +203,7 @@ export default [
       ".oc/",
       ".DS_Store",
       "Benchmark/",
+      "Report/",
     ],
   },
 ];

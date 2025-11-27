@@ -66,3 +66,6 @@ lighthouse-report-formatted.json
 # Benchmark reports (generated)
 Benchmark/
 !.benchmark-cleared
+
+# Report directory (contains all generated reports)
+Report/

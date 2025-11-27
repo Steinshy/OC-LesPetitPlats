@@ -114,8 +114,9 @@ jobs:
         if: always()
         run: |
           # Check for generated benchmark reports
-          # Reports are generated in Benchmark/ directory by viteTest/Benchmarks/utils/reporting/generateReport.js
-          if [ -f "Benchmark/benchmark-report-all.html" ]; then
+          # Reports are generated in Report/ directory by viteTest/Benchmarks/reporting/core/orchestrator.js
+          # Report names: benchmark-all-YYYY-MM-DD.html, benchmark-partial-YYYY-MM-DD.html, or benchmark-{testname}-YYYY-MM-DD.html
+          if ls Report/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -126,21 +127,12 @@ jobs:
         if: always() && steps.check-reports.outputs.exists == 'true'
         with:
           name: benchmark-reports-html
-          path: Benchmark/benchmark-report-*.html
+          path: Report/benchmark-*.html
           retention-days: 30
           if-no-files-found: ignore
 
-      - name: Upload benchmark results JSON
-        uses: actions/upload-artifact@v4
-        if: always() && steps.check-reports.outputs.exists == 'true'
-        with:
-          name: benchmark-results-json
-          path: Benchmark/benchmark-results.json
-          retention-days: 30
-          if-no-files-found: ignore
-
-  lespetitplats-tests:
-    name: LesPetitPlats Tests
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs:
@@ -158,25 +150,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run LesPetitPlats tests
+      - name: Run Unit tests with coverage
         id: run-tests
         env:
           CI: true
         run: |
-          # Run LesPetitPlats unit tests
+          # Run Unit tests with coverage
           # - CI=true: Ensures non-interactive mode
-          # Tests are located in viteTest/LesPetitPlats/
-          npm test -- viteTest/LesPetitPlats/ --run
+          # Tests are located in viteTest/Unit/
+          npm run test:coverage -- viteTest/Unit/ --run
         continue-on-error: true
 
       - name: Upload test coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lespetitplats-coverage
+          name: unit-tests-coverage
           path: coverage/
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          flags: unit-tests
+          name: unit-tests-coverage
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   mutation-test:
     name: Mutation Testing

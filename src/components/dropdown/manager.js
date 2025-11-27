@@ -88,6 +88,10 @@ const setupDropdownListeners = dropdownTypes => {
 
         const isSelected = clickedButton.classList.toggle("selected");
         clickedButton.setAttribute("aria-pressed", String(isSelected));
+        const listItem = clickedButton.closest("li[role='option']");
+        if (listItem) {
+          listItem.setAttribute("aria-selected", String(isSelected));
+        }
 
         document.dispatchEvent(
           new CustomEvent("dropdown:itemToggled", {

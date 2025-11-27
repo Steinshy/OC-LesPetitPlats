@@ -1,37 +1,30 @@
 #!/usr/bin/env node
 
-import { resolve } from "node:path";
+import { join } from "node:path";
 import sharp from "sharp";
 
-const INPUT_SVG = resolve("./public/favicons/logo.svg");
-const OUTPUT_DIR = resolve("./public/favicons");
-
+const PROJECT_ROOT = process.cwd();
+const INPUT_SVG = join(PROJECT_ROOT, "public/favicons/logo.svg");
+const OUTPUT_DIR = join(PROJECT_ROOT, "public/favicons");
 const SIZES = [192, 512];
 
-async function generateIcons() {
+const generateIcon = async (size, inputSvg, outputDir) => {
+  const outputPath = join(outputDir, `icon-${size}.png`);
+  await sharp(inputSvg)
+    .resize(size, size, { fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 1 } })
+    .png()
+    .toFile(outputPath);
+  console.log(`✓ Generated icon-${size}.png (${size}x${size})`);
+};
+
+(async () => {
   try {
     console.log("Generating PNG icons from SVG...");
-
-    for (const size of SIZES) {
-      const outputPath = resolve(OUTPUT_DIR, `icon-${size}.png`);
-
-      await sharp(INPUT_SVG)
-        .resize(size, size, {
-          fit: "contain",
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-        })
-        .png()
-        .toFile(outputPath);
-
-      console.log(`✓ Generated icon-${size}.png (${size}x${size})`);
-    }
-
+    await Promise.all(SIZES.map(size => generateIcon(size, INPUT_SVG, OUTPUT_DIR)));
     console.log("✓ All icons generated successfully!");
   } catch (error) {
     console.error("✗ Error generating icons:", error.message);
     process.exit(1);
   }
-}
-
-generateIcons();
+})();
 

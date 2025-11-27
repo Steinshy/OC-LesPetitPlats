@@ -20,8 +20,9 @@ export const renderFilters = () => {
 
 export const renderFilterTag = (value, type) => {
   const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  const uniqueId = `filter-tag-${type}-${value.replace(/\s+/g, "-").toLowerCase()}`;
   return `
-  <button type="button" class="filter-tag selected" id="filter-tag-btn" data-value="${value}" data-type="${type}"
+  <button type="button" class="filter-tag selected" id="${uniqueId}" data-value="${value}" data-type="${type}"
     aria-label="Retirer le filtre ${value}">
     <span>${capitalizedValue}</span>
     <i class="fa-solid fa-xmark"></i>

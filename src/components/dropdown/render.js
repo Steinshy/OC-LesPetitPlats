@@ -23,10 +23,11 @@ export const ingredientsDropdown = () => {
         class="dropdown-menu"
         id="menu-ingredients"
         aria-hidden="true"
-        role="menu"
+        role="listbox"
+        aria-labelledby="dropdown-ingredients-button"
       >
         ${renderDropdownSearch("ingredients")}
-        <ul class="dropdown-list" id="dropdown-ingredients-list" role="listbox"></ul>
+        <ul class="dropdown-list" id="dropdown-ingredients-list"></ul>
       </div>
     </div>
   `;
@@ -55,10 +56,11 @@ export const ustensilsDropdown = () => {
         class="dropdown-menu"
         id="menu-ustensils"
         aria-hidden="true"
-        role="menu"
+        role="listbox"
+        aria-labelledby="dropdown-ustensils-button"
       >
         ${renderDropdownSearch("ustensils")}
-        <ul class="dropdown-list" id="dropdown-ustensils-list" role="listbox"></ul>
+        <ul class="dropdown-list" id="dropdown-ustensils-list"></ul>
       </div>
     </div>
   `;
@@ -87,10 +89,11 @@ export const appliancesDropdown = () => {
         class="dropdown-menu"
         id="menu-appliances"
         aria-hidden="true"
-        role="menu"
+        role="listbox"
+        aria-labelledby="dropdown-appliances-button"
       >
         ${renderDropdownSearch("appliances")}
-        <ul class="dropdown-list" id="dropdown-appliances-list" role="listbox"></ul>
+        <ul class="dropdown-list" id="dropdown-appliances-list"></ul>
       </div>
     </div>
   `;
@@ -98,7 +101,7 @@ export const appliancesDropdown = () => {
 
 export const renderEmptyStateItem = type => {
   return `
-    <li class="dropdown-empty-state" id="dropdown-${type}-empty-state" role="option">
+    <li class="dropdown-empty-state" id="dropdown-${type}-empty-state" role="option" aria-selected="false" aria-disabled="true">
       <span class="dropdown-empty-message" id="dropdown-${type}-empty-message">
         Aucun résultat trouvé
       </span>
@@ -108,7 +111,7 @@ export const renderEmptyStateItem = type => {
 
 export const renderDropdownItem = (type, item, itemId, itemBtnId) => {
   return `
-    <li role="option" id="${itemId}">
+    <li role="option" id="${itemId}" aria-selected="false">
       <button
         type="button"
         class="dropdown-item item-btn"
@@ -116,6 +119,7 @@ export const renderDropdownItem = (type, item, itemId, itemBtnId) => {
         data-value="${item.value}"
         data-type="${type}"
         aria-pressed="false"
+        aria-label="${item.label}"
       >
         <span class="dropdown-item-label">${item.label}</span>
         <i class="ri-check-line dropdown-item-check" aria-hidden="true"></i>
