@@ -37,3 +37,8 @@ export const cleanupDuplicatedItems = (items = []) => {
 
   return result.sort((a, b) => a.label.localeCompare(b.label, "fr", { sensitivity: "base" }));
 };
+
+export const isMobile = () => {
+  const detector = document.querySelector(".mobile-detector");
+  return detector ? window.getComputedStyle(detector).display !== "none" : false;
+};

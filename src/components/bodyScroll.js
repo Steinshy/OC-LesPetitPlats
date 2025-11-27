@@ -1,10 +1,6 @@
+import { isMobile } from "@utils/string.js";
+
 let scrollPosition = 0;
-
-const isMobile = () => {
-  const detector = document.querySelector(".mobile-detector");
-  return detector ? window.getComputedStyle(detector).display !== "none" : false;
-};
-
 export const lockBodyScroll = () => {
   if (!isMobile()) return;
 
@@ -16,11 +12,13 @@ export const lockBodyScroll = () => {
 };
 
 export const unlockBodyScroll = () => {
-  if (!isMobile()) return;
-
   document.body.style.overflow = "";
   document.body.style.position = "";
   document.body.style.top = "";
   document.body.style.width = "";
-  window.scrollTo(0, scrollPosition);
+
+  // Restore scroll position on mobile
+  if (isMobile() && scrollPosition > 0) {
+    window.scrollTo(0, scrollPosition);
+  }
 };

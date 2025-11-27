@@ -21,7 +21,7 @@ import {
 import { filterDropdownItems } from "@components/filters/recipeFilters.js";
 import { updateVisibility } from "@components/scrollToTop.js";
 import { dropdownsContainerSkeleton } from "@components/skeletonsManager.js";
-
+import { isMobile } from "@utils/string.js";
 export let currentDropdownsData = {};
 let dropdownTypes = [];
 const ARIA_HIDDEN = "aria-hidden";
@@ -98,6 +98,10 @@ const setupDropdownListeners = dropdownTypes => {
             },
           }),
         );
+
+        if (isMobile()) {
+          closeDropdown(currentType);
+        }
       });
     }
 
@@ -127,20 +131,21 @@ const setupDropdownListeners = dropdownTypes => {
 // --------------------------------------------------
 
 const closeAllDropdowns = () => {
-  if (!dropdownTypes?.length) return;
+  if (dropdownTypes?.length) {
+    dropdownTypes.forEach(type => {
+      const { container, button, backdrop, menu } = getDropdownElements(type);
+      if (!container || !button) return;
 
-  dropdownTypes.forEach(type => {
-    const { container, button, backdrop, menu } = getDropdownElements(type);
-    if (!container || !button) return;
+      container.classList.remove("open");
+      button.classList.remove("active");
+      button.setAttribute("aria-expanded", "false");
 
-    container.classList.remove("open");
-    button.classList.remove("active");
-    button.setAttribute("aria-expanded", "false");
+      backdrop?.setAttribute(ARIA_HIDDEN, "true");
+      menu?.setAttribute(ARIA_HIDDEN, "true");
+    });
+  }
 
-    backdrop?.setAttribute(ARIA_HIDDEN, "true");
-    menu?.setAttribute(ARIA_HIDDEN, "true");
-  });
-
+  // Always unlock scroll when closing dropdowns, even if dropdownTypes is empty
   unlockBodyScroll();
   updateVisibility();
 };
