@@ -23,16 +23,54 @@ vi.mock("@/components/filters/manager.js", async () => {
 
 // Mock dropdown data to use wrapper with test-compatible return structure
 vi.mock("@/components/dropdown/data.js", async () => {
-  const wrappers = await vi.importActual("@tests-mocks/wrappers.js");
-  // Return all exports from wrappers (includes original exports via export *)
-  return wrappers;
+  // Import original BEFORE importing wrapper to avoid circular dependency
+  const original = await vi.importActual("@/components/dropdown/data.js");
+
+  // Create wrapper function that uses the original
+  const buildDropdownsDataWrapper = recipesData => {
+    const result = original.buildDropdownsData(recipesData);
+    // Tests expect { ingredients, ustensils, appliances } directly
+    // but function returns { dropdowns: { ingredients, ustensils, appliances } }
+    if (!result || !result.dropdowns) {
+      return {
+        ingredients: [],
+        ustensils: [],
+        appliances: [],
+      };
+    }
+    return {
+      ingredients: result.dropdowns.ingredients || [],
+      ustensils: result.dropdowns.ustensils || [],
+      appliances: result.dropdowns.appliances || [],
+    };
+  };
+
+  // Return original exports with wrapped buildDropdownsData
+  return {
+    ...original,
+    buildDropdownsData: buildDropdownsDataWrapper,
+  };
 });
 
 // Mock string utils to use wrapper with test-compatible functions
 vi.mock("@/utils/string.js", async () => {
+  // Import original BEFORE importing wrapper to avoid circular dependency
+  const original = await vi.importActual("@/utils/string.js");
   const wrappers = await vi.importActual("@tests-mocks/wrappers.js");
-  // Return all exports from wrappers (includes original exports via export *)
-  return wrappers;
+
+  // Create wrapper function that uses the original
+  const cleanupDuplicatedItemsWrapper = (items = []) => {
+    const result = original.cleanupDuplicatedItems(items);
+    // Tests expect array of strings, but function returns array of { label, value } objects
+    return result.map(item => item.label || item.value || item);
+  };
+
+  // Return all original exports with wrapped cleanupDuplicatedItems and updateCounter from wrappers
+  return {
+    ...original,
+    cleanupDuplicatedItems: cleanupDuplicatedItemsWrapper,
+    updateCounter: wrappers.updateCounter,
+  };
 });
 
 // Mock search render to use wrapper with missing exports

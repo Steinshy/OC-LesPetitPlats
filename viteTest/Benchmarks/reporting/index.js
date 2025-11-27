@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { createSpinner } from "@benchmarks-utils/logging.js";
 import { promptForAllTests } from "./cli/prompts.js";
-import { finalizeReport } from "./core/finalizer.js";
 import { cleanupTempFiles } from "./core/cleanup.js";
+import { finalizeReport } from "./core/finalizer.js";
 import { displayHeader, initializeBenchmark, collectBenchmarkResults, generateAndSaveReport, getTestsToRun } from "./core/orchestrator.js";
 import { runBenchmarkTests } from "./core/runner.js";
 

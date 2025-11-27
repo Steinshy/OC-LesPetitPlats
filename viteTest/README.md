@@ -33,13 +33,14 @@ Les deux systèmes utilisent **Vitest** comme framework de test, avec des config
 
 ## 💻 Utilisation
 
-### Benchmarks
+### Benchmarks - Utilisation
 
 #### Installation
 
 Les dépendances sont incluses dans le projet principal. Aucune installation supplémentaire requise.
 
 **Prérequis :**
+
 - **Node.js** : Version 18.0.0 ou supérieure
 - **npm** : Généralement inclus avec Node.js (version 9.0.0+)
 
@@ -62,6 +63,7 @@ npm run benchmark
 ```
 
 **Options disponibles :**
+
 - Le script vous demandera si vous souhaitez exécuter tous les tests :
   - **"yes"** → Exécute tous les tests et génère un rapport **"full"**
   - **"no"** → Permet de sélectionner des tests spécifiques et génère un rapport **"partial"**
@@ -78,14 +80,15 @@ Les rapports HTML générés contiennent :
 - **Méthodologie** : Détails sur les paramètres de test (itérations, warmup, etc.)
 
 **Métriques clés :**
+
 - **Temps moyen (ms)** : Temps d'exécution moyen de l'algorithme
 - **RME (%)** : Erreur relative de mesure (plus bas = plus fiable)
 - **Wins** : Nombre de tests où l'implémentation est la plus rapide
 - **Win %** : Pourcentage de victoires par rapport au total des tests
 
-### Unit Tests
+### Unit Tests - Utilisation
 
-#### Exécution
+#### Exécution des tests unitaires
 
 ```bash
 # Exécuter tous les tests unitaires
@@ -112,6 +115,7 @@ npm run test:coverage
 ```
 
 **Seuils de couverture :**
+
 - Lignes : 70%
 - Fonctions : 70%
 - Branches : 65%
@@ -178,6 +182,7 @@ npm test -- --reporter=verbose   # Mode verbose
 ### Dépendances principales
 
 **Benchmarks :**
+
 - `tinybench` : Bibliothèque de benchmarking
 - `chart.js` et `chartjs-node-canvas` : Génération de graphiques
 - `chalk` : Coloration du terminal
@@ -185,6 +190,7 @@ npm test -- --reporter=verbose   # Mode verbose
 - `vitest` : Framework de test
 
 **Unit Tests :**
+
 - `vitest` : Framework de test
 - `@vitest/coverage-v8` : Couverture de code
 - `jsdom` : Environnement DOM simulé
@@ -282,7 +288,7 @@ Unit/
 
 Les alias de chemins suivants sont disponibles pour simplifier les imports :
 
-### Benchmarks
+### Benchmarks - Path Aliases
 
 ```javascript
 @benchmarks/*              → viteTest/Benchmarks/*
@@ -293,7 +299,7 @@ Les alias de chemins suivants sont disponibles pour simplifier les imports :
 @benchmarks-reporting/*    → viteTest/Benchmarks/reporting/*
 ```
 
-### Unit Tests
+### Unit Tests - Path Aliases
 
 ```javascript
 @tests/*                   → viteTest/Unit/*

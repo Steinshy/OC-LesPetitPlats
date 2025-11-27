@@ -1,7 +1,7 @@
 // Test utilities for components that don't exist in the project
 // Consolidated from: dropdownUtils.js and filterTagsUtils.js
-import { normalizeString } from "@/utils/string.js";
 import { renderFilterTag } from "@/components/filters/render.js";
+import { normalizeString } from "@/utils/string.js";
 
 // Dropdown utilities
 export const DROPDOWN_TYPES = [

@@ -1,7 +1,6 @@
 import { cpus } from "node:os";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
-import { generateReportPath } from "./scripts/reportUtils.js";
 
 // Get CPU count for optimal worker/thread configuration
 const CPU_COUNT = cpus().length;

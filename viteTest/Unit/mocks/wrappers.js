@@ -2,8 +2,11 @@
 // Consolidated from: dropdownRender.js, searchElements.js, string.js, dropdownData.js
 
 // Test wrapper for dropdown render - adds missing exports for tests
-export * from "@/components/dropdown/render.js";
+// Import skeleton function
 import { dropdownsSkeleton } from "@/components/renderSqueletons.js";
+
+// Re-export all original dropdown render functions
+export * from "@/components/dropdown/render.js";
 
 // Re-export for test compatibility
 export const renderDropdownsSkeletons = dropdownsSkeleton;
@@ -25,16 +28,8 @@ export const searchElements = {
   },
 };
 
-// Test wrapper for string utils - adapts functions for test compatibility
-export * from "@/utils/string.js";
-import { cleanupDuplicatedItems as originalCleanupDuplicatedItems } from "@/utils/string.js";
-
-// Wrapper that returns strings instead of objects for test compatibility
-export const cleanupDuplicatedItems = (items = []) => {
-  const result = originalCleanupDuplicatedItems(items);
-  // Tests expect array of strings, but function returns array of { label, value } objects
-  return result.map(item => item.label || item.value || item);
-};
+// Note: String utils wrapper is now handled directly in setup.js to avoid circular dependencies
+// This file no longer exports string utils wrappers
 
 // updateCounter function for tests
 export const updateCounter = count => {
@@ -45,26 +40,6 @@ export const updateCounter = count => {
   counter.innerHTML = `${count} ${singular ? "résultat" : "résultats"}`;
 };
 
-// Test wrapper for dropdown data - adapts return structure for tests
-export * from "@/components/dropdown/data.js";
-import { buildDropdownsData as originalBuildDropdownsData } from "@/components/dropdown/data.js";
-
-// Wrapper that returns the structure tests expect
-export const buildDropdownsData = recipesData => {
-  const result = originalBuildDropdownsData(recipesData);
-  // Tests expect { ingredients, ustensils, appliances } directly
-  // but function returns { dropdowns: { ingredients, ustensils, appliances } }
-  if (!result || !result.dropdowns) {
-    return {
-      ingredients: [],
-      ustensils: [],
-      appliances: [],
-    };
-  }
-  return {
-    ingredients: result.dropdowns.ingredients || [],
-    ustensils: result.dropdowns.ustensils || [],
-    appliances: result.dropdowns.appliances || [],
-  };
-};
+// Note: Dropdown data wrapper is now handled directly in setup.js to avoid circular dependencies
+// This file no longer exports dropdown data wrappers
 

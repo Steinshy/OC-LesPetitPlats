@@ -1,9 +1,9 @@
 import { writeFileSync } from "node:fs";
-import { generateReportPath } from "../../../../scripts/reportUtils.js";
 import chalk from "chalk";
 import { getAllResults, getFlattenedResults, getSummary, clearResults, setTimestamp } from "@benchmarks-data/collector.js";
 import { generateHtmlReport } from "@benchmarks-reporting/generateHtml.js";
 import { createSpinner } from "@benchmarks-utils/logging.js";
+import { generateReportPath } from "../../../../scripts/reportUtils.js";
 import { generateCharts } from "./charts.js";
 import { cleanupBenchmarkFiles } from "./cleanup.js";
 import { handleRunningVitest } from "./runner.js";

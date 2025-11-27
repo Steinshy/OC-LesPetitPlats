@@ -9,12 +9,12 @@ import { formatFriendlyDate } from "@benchmarks-reporting-helpers/formatting.js"
 import { loadCss } from "@benchmarks-reporting-helpers/loadCss.js";
 
 // Import section generators
-import { generateBenchmarkDataStats, generateTestCoverage } from "@benchmarks-reporting-sections/stats.js";
-import { generateDetailedTestResultsHTML } from "@benchmarks-reporting-sections/testResults.js";
 import { generateImplementationBreakdown } from "@benchmarks-reporting-sections/implementation.js";
 import { generateInsightsAndRecommendations } from "@benchmarks-reporting-sections/insights.js";
 import { generateKeyFindings } from "@benchmarks-reporting-sections/keyFindings.js";
 import { generateMethodologyNotes } from "@benchmarks-reporting-sections/methodology.js";
+import { generateBenchmarkDataStats, generateTestCoverage } from "@benchmarks-reporting-sections/stats.js";
+import { generateDetailedTestResultsHTML } from "@benchmarks-reporting-sections/testResults.js";
 
 // Icon helper functions (merged from helpers/icons.js)
 function getLucideIconSVG(iconName, size = 24, color = "currentColor", className = "") {
