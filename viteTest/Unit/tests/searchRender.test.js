@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect } from "vitest";
 import { renderDropdownSearch } from "@/components/search/render.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 describe("search render", () => {
 

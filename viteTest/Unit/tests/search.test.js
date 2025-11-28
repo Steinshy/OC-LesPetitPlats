@@ -14,8 +14,8 @@ import {
   RESULTS_COUNTER_SELECTOR,
   SEARCH_INPUT_SELECTOR,
   SEARCH_BUTTON_SELECTOR,
-} from "@tests-data/testData.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+} from "../data/testData.js";
+import { logCategorySummary } from "../logging/console.js";
 
 vi.mock("@/components/cards/manager.js", () => ({
   setupRecipesCards: vi.fn(),

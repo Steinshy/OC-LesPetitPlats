@@ -7,6 +7,6 @@
 
 /* Local layers */
 @import "./base.css";
+@import "./skeletons.css";
 @import "./components.css";
 @import "./utilities.css";
-@import "./skeletons.css";

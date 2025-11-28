@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupSearchBar } from "@/components/search/manager.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 vi.mock("@tests-mocks/skeletonsManager.js", () => ({
   searchSkeleton: vi.fn(() => ({

@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { initScrollToTop } from "@/components/scrollToTop.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { setupScrollToTop } from "@components/scrollToTop.js";
+import { logCategorySummary } from "../logging/console.js";
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
 const DROPDOWNS_CONTAINER_ID = "dropdowns-container";
@@ -26,11 +26,11 @@ describe("scrollToTop", () => {
     document.body.innerHTML = "";
   });
 
-  describe("initScrollToTop", () => {
+  describe("setupScrollToTop", () => {
     it("should initialize scroll to top button", () => {
       document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       expect(button).toBeTruthy();
@@ -39,7 +39,7 @@ describe("scrollToTop", () => {
     it("should handle missing button gracefully", () => {
       document.body.innerHTML = "";
 
-      expect(() => initScrollToTop()).not.toThrow();
+      expect(() => setupScrollToTop()).not.toThrow();
     });
 
     it("should show button when scrolled past threshold", () => {
@@ -50,7 +50,7 @@ describe("scrollToTop", () => {
 
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       expect(button.classList.contains("show")).toBe(true);
@@ -65,7 +65,7 @@ describe("scrollToTop", () => {
 
       Object.defineProperty(window, "scrollY", { value: 100, writable: true, configurable: true });
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       expect(button.classList.contains("show")).toBe(false);
@@ -78,13 +78,13 @@ describe("scrollToTop", () => {
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
 
       // Should not throw when dropdownContainer is missing
-      expect(() => initScrollToTop()).not.toThrow();
+      expect(() => setupScrollToTop()).not.toThrow();
     });
 
     it("should scroll to top on button click", () => {
       document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       button.click();
@@ -98,7 +98,7 @@ describe("scrollToTop", () => {
     it("should blur button after clicking", () => {
       document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       const blurSpy = vi.spyOn(button, "blur");
@@ -113,7 +113,7 @@ describe("scrollToTop", () => {
         <div id="${DROPDOWNS_CONTAINER_ID}"></div>
       `;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
@@ -130,7 +130,7 @@ describe("scrollToTop", () => {
         <div id="${DROPDOWNS_CONTAINER_ID}"></div>
       `;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const _dropdownContainer = document.getElementById(DROPDOWNS_CONTAINER_ID);
       Object.defineProperty(window, "scrollY", { value: 400, writable: true, configurable: true });
@@ -147,7 +147,7 @@ describe("scrollToTop", () => {
       document.body.innerHTML = `<button id="${SCROLL_TO_TOP_BUTTON_ID}"></button>`;
 
       const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-      initScrollToTop();
+      setupScrollToTop();
 
       const scrollCall = addEventListenerSpy.mock.calls.find(call => call[0] === "scroll");
       expect(scrollCall).toBeDefined();
@@ -162,7 +162,7 @@ describe("scrollToTop", () => {
 
       Object.defineProperty(window, "scrollY", { value: 500, writable: true, configurable: true });
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       // Initial visibility check should run - should show when scrollY > 300
@@ -175,7 +175,7 @@ describe("scrollToTop", () => {
         <div id="${DROPDOWNS_CONTAINER_ID}"></div>
       `;
 
-      initScrollToTop();
+      setupScrollToTop();
 
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       const classListSpy = vi.spyOn(button.classList, "toggle");

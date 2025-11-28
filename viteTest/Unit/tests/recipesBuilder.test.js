@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
 import { cacheManager } from "@/utils/cache.js";
 import { buildRecipesData } from "@/utils/recipesBuilder.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 describe("recipesBuilder", () => {
   beforeEach(() => {

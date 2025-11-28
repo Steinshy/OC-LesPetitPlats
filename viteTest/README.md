@@ -310,14 +310,6 @@ Les alias de chemins suivants sont disponibles pour simplifier les imports :
 @tests-mocks/*             → viteTest/Unit/mocks/*
 ```
 
-**Exemple d'utilisation :**
-
-```javascript
-import { mockRecipes } from "@tests-data/testData.js";
-import { logCategorySummary } from "@tests-logging/console.js";
-import { generateReport } from "@benchmarks-reporting/index.js";
-```
-
 ## 📝 Contribution
 
 ### Ajouter un nouveau test unitaire

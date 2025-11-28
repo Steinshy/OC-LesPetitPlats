@@ -43,9 +43,10 @@
   }
 
   .card.skeleton .card-picture {
+    aspect-ratio: 3 / 2;
     display: block;
-    height: 250px;
-    min-height: 250px;
+    height: auto;
+    min-height: 200px;
     overflow: hidden;
     position: relative;
     width: 100%;

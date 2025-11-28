@@ -25,7 +25,7 @@ export const renderFilterTag = (value, type) => {
   <button type="button" class="filter-tag selected" id="${uniqueId}" data-value="${value}" data-type="${type}"
     aria-label="Retirer le filtre ${value}">
     <span>${capitalizedValue}</span>
-    <i class="fa-solid fa-xmark"></i>
+    <i class="ri-close-line" aria-hidden="true"></i>
   </button>
 `;
 };

@@ -6,7 +6,7 @@ import {
   renderEmptyStateItem,
   renderDropdownItem,
 } from "@/components/dropdown/render.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 vi.mock("@/components/search/render.js", () => ({
   renderDropdownSearch: vi.fn(

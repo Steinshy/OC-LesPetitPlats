@@ -3,9 +3,9 @@ import {
   FILTER_TAG_SELECTOR,
   FILTERS_BOX_SELECTOR,
   INGREDIENTS_LIST_SELECTOR,
-} from "@tests-data/testData.js";
-import { updateFilterTags } from "@tests-helpers/utils.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+} from "../data/testData.js";
+import { updateFilterTags } from "../helpers/utils.js";
+import { logCategorySummary } from "../logging/console.js";
 
 // Mock removeFilter and clearAllFilters for the tests
 const removeFilter = vi.fn();

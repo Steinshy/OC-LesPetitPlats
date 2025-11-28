@@ -18,10 +18,10 @@ export const mainHeader = imageData => {
 
   return `
     <section id="header-title" class="header-title" ${backgroundStyle}>
-      <h2>
+      <h1>
         Cherchez parmi plus de 1500 recettes <br>
         du quotidien, simples et délicieuses
-      </h2>
+      </h1>
       ${mainSearchBar()}
     </section>
   `;

@@ -4,15 +4,15 @@ import {
   RECIPE_1,
   RECIPE_2,
   RECIPE_ONE,
-} from "@tests-data/testData.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+} from "../data/testData.js";
+import { logCategorySummary } from "../logging/console.js";
 import {
   filterBySearchTerm,
   filterByIngredients,
   filterByAppliances,
   filterByUstensils,
   filterRecipes,
-} from "@tests-mocks/filtersBy.js";
+} from "../mocks/filtersBy.js";
 
 describe("filter", () => {
   // Mock recipes for testing

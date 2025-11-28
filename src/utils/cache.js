@@ -3,7 +3,7 @@ import { lru } from "tiny-lru";
 const MAX_ITEMS = 500;
 const DEFAULT_TTL_MS = 1000 * 60 * 5;
 
-const appCache = lru(MAX_ITEMS);
+export const appCache = lru(MAX_ITEMS);
 
 const buildRecord = (value, ttlMs) => {
   const ttl = typeof ttlMs === "number" && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS;
@@ -53,5 +53,3 @@ export const cacheManager = {
   clear: () => appCache.clear(),
   delete: cacheDel,
 };
-
-export { appCache };

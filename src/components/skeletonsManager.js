@@ -28,6 +28,7 @@ export const searchSkeleton = () => ({
       });
     }
   },
+
   hide: () => {
     const searchBar = squeletonsElements.searchBar;
     if (searchBar) {
@@ -46,6 +47,7 @@ export const headerSkeleton = () => ({
       squeletonsElements.header.classList.add("skeleton");
     }
   },
+
   hide: () => {
     if (squeletonsElements.header) {
       squeletonsElements.header.classList.remove("skeleton");
@@ -65,6 +67,7 @@ export const dropdownsContainerSkeleton = () => ({
       container.querySelector("button")?.setAttribute("disabled", "");
     });
   },
+
   hide: () => {
     squeletonsElements.dropdownsElements.forEach(container =>
       container.classList.remove("skeleton"),
@@ -77,6 +80,7 @@ export const cardSkeletons = () => ({
     if (!count) return;
     squeletonsElements.cardsContainer.innerHTML = cardSkeleton(count);
   },
+
   hide: () => {
     squeletonsElements.cardSkeletons.forEach(skeleton => {
       skeleton.classList.remove("skeleton");
@@ -84,7 +88,7 @@ export const cardSkeletons = () => ({
   },
 });
 
-export const initSkeletons = () => {
+export const setupSkeletons = () => {
   headerSkeleton().show();
   searchSkeleton().show();
   dropdownsContainerSkeleton().show();

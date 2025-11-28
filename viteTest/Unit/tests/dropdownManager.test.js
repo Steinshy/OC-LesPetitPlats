@@ -6,7 +6,7 @@ import {
   updateDropdownContent,
   currentDropdownsData,
 } from "@/components/dropdown/manager.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";

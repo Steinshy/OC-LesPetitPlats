@@ -6,7 +6,7 @@ import {
   renderCardHeader,
   renderCardContents,
 } from "@/components/cards/render.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
 
 vi.mock("@/utils/deliveryImages.js", () => ({
   imagesTypes: vi.fn(),

@@ -11,7 +11,7 @@ import {
   createProgressBar,
   updateProgress,
   stopProgress,
-} from "@tests-logging/modernConsole.js";
+} from "./modernConsole.js";
 
 // Test logging functions
 export function logSection(title, emoji = "🧪") {

@@ -38,8 +38,8 @@ vi.mock("toastify-js", () => {
 vi.mock("toastify-js/src/toastify.css", () => ({}));
 
 // Import after mock is set up
-import { showError, hideError } from "@/utils/errorHandler.js";
-import { logCategorySummary } from "@tests-logging/console.js";
+import { logCategorySummary } from "../logging/console.js";
+import { showError, hideError } from "../utils/errorHandler.js";
 
 // Make mockToasts accessible globally for the mock
 globalThis.mockToasts = mockToasts;
