@@ -1,6 +1,8 @@
 const getScrollToTopElements = () => {
   return {
     button: document.getElementById("scroll-to-top"),
+    dropdowns: document.querySelector(".dropdowns"),
+    placeholder: document.querySelector(".dropdowns-placeholder"),
   };
 };
 
@@ -43,7 +45,7 @@ const setupListeners = () => {
   window.addEventListener("scroll", updateVisibility, { passive: true });
 };
 
-export const initScrollToTop = () => {
+export const setupScrollToTop = () => {
   const { button } = getScrollToTopElements();
   if (!button) return;
 
