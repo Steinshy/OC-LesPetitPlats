@@ -1,3 +1,5 @@
+// src/components/dropdown/render.js
+
 import { renderDropdownSearch } from "@components/search/render.js";
 
 export const ingredientsDropdown = () => {
@@ -11,6 +13,7 @@ export const ingredientsDropdown = () => {
         aria-controls="menu-ingredients"
         aria-label="Ouvrir le menu ingredients"
       >
+        <span class="dropdown-count" id="dropdown-ingredients-count" aria-label="Nombre d'éléments"></span>
         <span class="filter-label">Ingrédients</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
@@ -44,6 +47,7 @@ export const ustensilsDropdown = () => {
         aria-controls="menu-ustensils"
         aria-label="Ouvrir le menu ustensils"
       >
+        <span class="dropdown-count" id="dropdown-ustensils-count" aria-label="Nombre d'éléments"></span>
         <span class="filter-label">Ustensiles</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
@@ -77,6 +81,7 @@ export const appliancesDropdown = () => {
         aria-controls="menu-appliances"
         aria-label="Ouvrir le menu appliances"
       >
+        <span class="dropdown-count" id="dropdown-appliances-count" aria-label="Nombre d'éléments"></span>
         <span class="filter-label">Appareils</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
@@ -102,6 +107,7 @@ export const appliancesDropdown = () => {
 export const renderEmptyStateItem = type => {
   return `
     <li class="dropdown-empty-state" id="dropdown-${type}-empty-state" role="option" aria-selected="false" aria-disabled="true">
+      <i class="ri-error-warning-line" aria-hidden="true"></i>
       <span class="dropdown-empty-message" id="dropdown-${type}-empty-message">
         Aucun résultat trouvé
       </span>

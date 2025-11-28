@@ -1,3 +1,5 @@
+// src/components/filters/render.js
+
 export const renderFilters = () => {
   return `
       <div class="filters-container" id="filters-container">

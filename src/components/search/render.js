@@ -1,3 +1,5 @@
+// src/components/search/render.js
+
 export const renderDropdownSearch = type => {
   const searchInputId = `search-${type}`;
   const labelId = `label-${type}`;

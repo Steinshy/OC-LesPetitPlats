@@ -1,17 +1,23 @@
+// src/utils/deliveryImages.js
+
 import { lru } from "tiny-lru";
 
+// Track loaded images
 const loadedImages = lru(500, 0);
 
 export const isImageLoaded = url => !!(url && loadedImages.has(url));
 
+// Handle image load tracking
 const handleImageLoading = (img, imageUrl) => {
   if (!img) return;
 
+  // Already loaded
   if (isImageLoaded(imageUrl)) {
     if (imageUrl) loadedImages.set(imageUrl, true);
     return;
   }
 
+  // Browser already loaded
   if (img.complete && img.naturalWidth > 0) {
     if (imageUrl) loadedImages.set(imageUrl, true);
     return;
@@ -30,6 +36,7 @@ const handleImageLoading = (img, imageUrl) => {
   }
 };
 
+// Setup image tracking for card
 export const imagesTypes = (fragment, { webpUrl, jpgUrl }) => {
   if (!jpgUrl && !webpUrl) return;
   const img = fragment.querySelector(".card-picture img");

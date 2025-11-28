@@ -1,3 +1,5 @@
+// src/components/bodyScroll.js
+
 import { isMobile } from "@utils/string.js";
 
 let scrollPosition = 0;
@@ -17,7 +19,7 @@ export const unlockBodyScroll = () => {
   document.body.style.top = "";
   document.body.style.width = "";
 
-  // Restore scroll position on mobile
+  // Restore mobile scroll
   if (isMobile() && scrollPosition > 0) {
     window.scrollTo(0, scrollPosition);
   }

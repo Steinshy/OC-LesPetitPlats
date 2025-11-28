@@ -1,9 +1,15 @@
+// src/components/skeletonsManager.js
+
 import {
   ingredientsDropdown,
   ustensilsDropdown,
   appliancesDropdown,
 } from "@components/dropdown/render.js";
 import { cardSkeleton } from "@components/renderSqueletons.js";
+
+// ---------------
+// dom elements
+// ---------------
 
 export const squeletonsElements = {
   header: document.getElementById("header"),
@@ -16,6 +22,10 @@ export const squeletonsElements = {
     return document.querySelectorAll(".dropdown-container");
   },
 };
+
+// ---------------
+// search skeleton
+// ---------------
 
 export const searchSkeleton = () => ({
   show: () => {
@@ -41,6 +51,10 @@ export const searchSkeleton = () => ({
   },
 });
 
+// ---------------
+// header skeleton
+// ---------------
+
 export const headerSkeleton = () => ({
   show: () => {
     if (squeletonsElements.header) {
@@ -54,6 +68,10 @@ export const headerSkeleton = () => ({
     }
   },
 });
+
+// ---------------
+// dropdowns skeleton
+// ---------------
 
 export const dropdownsContainerSkeleton = () => ({
   show: () => {
@@ -75,6 +93,10 @@ export const dropdownsContainerSkeleton = () => ({
   },
 });
 
+// ---------------
+// card skeletons
+// ---------------
+
 export const cardSkeletons = () => ({
   build: count => {
     if (!count) return;
@@ -87,6 +109,10 @@ export const cardSkeletons = () => ({
     });
   },
 });
+
+// ---------------
+// init all skeletons
+// ---------------
 
 export const setupSkeletons = () => {
   headerSkeleton().show();

@@ -26,9 +26,9 @@ export let currentDropdownsData = {};
 let dropdownTypes = [];
 const ARIA_HIDDEN = "aria-hidden";
 
-// --------------------------------------------------
-// SETUP MAIN DROPDOWNS
-// --------------------------------------------------
+// ---------------
+// setup dropdowns
+// ---------------
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
@@ -51,9 +51,9 @@ export const setupDropdowns = recipesData => {
   });
 };
 
-// --------------------------------------------------
-// LISTENERS
-// --------------------------------------------------
+// ---------------
+// listeners
+// ---------------
 
 const setupDropdownListeners = dropdownTypes => {
   dropdownTypes.forEach(currentType => {
@@ -61,14 +61,14 @@ const setupDropdownListeners = dropdownTypes => {
     const { backdrop, button } = getDropdownElements(currentType);
     const { itemsList } = getDropdownListElements(currentType);
 
-    // Search input
+    // Search
     if (searchInput) {
       searchInput.addEventListener("input", () => {
         updateDropdownContent(currentType);
       });
     }
 
-    // Backdrop
+    // Backdrop click
     if (backdrop) {
       backdrop.addEventListener("click", event => {
         event.preventDefault();
@@ -77,7 +77,7 @@ const setupDropdownListeners = dropdownTypes => {
       });
     }
 
-    // Click on item
+    // Item click
     if (itemsList) {
       itemsList.addEventListener("click", event => {
         const clickedButton = event.target.closest(".item-btn");
@@ -109,7 +109,7 @@ const setupDropdownListeners = dropdownTypes => {
       });
     }
 
-    // Clear search
+    // Clear
     if (searchClear) {
       searchClear.addEventListener("click", () => {
         if (!searchInput) return;
@@ -119,7 +119,7 @@ const setupDropdownListeners = dropdownTypes => {
       });
     }
 
-    // Dropdown button open/close
+    // Toggle button
     if (button) {
       button.addEventListener("click", event => {
         event.preventDefault();
@@ -130,9 +130,9 @@ const setupDropdownListeners = dropdownTypes => {
   });
 };
 
-// --------------------------------------------------
-// DROPDOWN STATE CONTROL
-// --------------------------------------------------
+// ---------------
+// state control
+// ---------------
 
 const closeAllDropdowns = () => {
   if (dropdownTypes?.length) {
@@ -149,7 +149,7 @@ const closeAllDropdowns = () => {
     });
   }
 
-  // Always unlock scroll when closing dropdowns, even if dropdownTypes is empty
+  // Always unlock scroll
   unlockBodyScroll();
   updateVisibility();
 };
@@ -193,9 +193,9 @@ const toggleDropdown = type => {
   }
 };
 
-// --------------------------------------------------
-// GLOBAL ESC / CLICK OUTSIDE
-// --------------------------------------------------
+// ---------------
+// escape / outside
+// ---------------
 
 const handleEscapeKey = event => {
   if (event.key === "Escape") closeAllDropdowns();
@@ -217,9 +217,9 @@ const handleDocumentClick = event => {
 document.addEventListener("keydown", handleEscapeKey);
 document.addEventListener("click", handleDocumentClick);
 
-// --------------------------------------------------
-// LIST RENDERING
-// --------------------------------------------------
+// ---------------
+// list rendering
+// ---------------
 
 export const updateDropdownContent = type => {
   const { searchInput, searchClear } = getDropdownSearchElements(type);
@@ -231,6 +231,14 @@ export const updateDropdownContent = type => {
   updateDropdownList(type);
 };
 
+const updateDropdownCount = (type, count) => {
+  const countElement = document.getElementById(`dropdown-${type}-count`);
+  if (countElement) {
+    countElement.textContent = count > 0 ? count : "";
+    countElement.classList.toggle("visible", count > 0);
+  }
+};
+
 const updateDropdownList = type => {
   const { menu, itemsList } = getDropdownListElements(type);
   const { searchInput, searchWrapper } = getDropdownSearchElements(type) || {};
@@ -239,6 +247,9 @@ const updateDropdownList = type => {
 
   const allItems = currentDropdownsData[type] || [];
   const query = searchInput?.value?.trim() ?? "";
+
+  // Update count
+  updateDropdownCount(type, allItems.length);
 
   const filtered = filterDropdownItems(allItems, query);
 

@@ -1,3 +1,5 @@
+// src/App.js
+
 import { setupDropdowns } from "@components/dropdown/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
 import { setupHeader } from "@components/renderHeaderImg.js";
@@ -11,8 +13,10 @@ import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
 
 const initApp = async () => {
+  // Show loading state
   setupSkeletons();
 
+  // Fetch + transform recipes
   const recipesResult = await buildRecipesData();
 
   recipesResult.match(

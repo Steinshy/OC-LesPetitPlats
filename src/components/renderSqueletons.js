@@ -1,3 +1,5 @@
+// src/components/renderSqueletons.js
+
 export const searchBarSkeleton = () => {
   return `
     <div class="search-bar skeleton" id="search-bar">

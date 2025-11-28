@@ -1,4 +1,4 @@
-/* URL State Management: Manages application state with URL query parameters to ensure each page/view has a unique URL */
+// src/utils/queryParams.js
 
 import queryString from "query-string";
 

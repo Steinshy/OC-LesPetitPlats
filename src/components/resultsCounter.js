@@ -1,3 +1,5 @@
+// src/components/resultsCounter.js
+
 const getResultsCounterElements = () => {
   const counter = document.getElementById("results-counter");
   const container = counter?.parentElement;

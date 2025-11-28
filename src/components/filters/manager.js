@@ -1,3 +1,5 @@
+// src/components/filters/manager.js
+
 import { setupRecipesCards } from "@components/cards/manager.js";
 import { setupDropdowns } from "@components/dropdown/manager.js";
 import { filtersState, filtersConstants, filtersElements } from "@components/filters/elements.js";
@@ -62,9 +64,9 @@ export const setupFilters = recipesData => {
   filtersState.isInitialLoad = false;
 };
 
-// --------------------------------------------------
+// ---------------
 // filtering logic
-// --------------------------------------------------
+// ---------------
 
 const getFilteredRecipes = (recipes, filters) => {
   if (!Array.isArray(recipes)) return [];
@@ -85,34 +87,34 @@ const onSearchChanged = (filters, query) => {
 };
 
 const syncUI = filters => {
-  // 1) Compute filtered recipes from ALL recipes + current filters
+  // Compute filtered recipes
   filtersState.filteredRecipes = getFilteredRecipes(filtersState.allRecipes, filters);
 
-  // 2) Update cards + dropdowns
+  // Update cards + dropdowns
   setupRecipesCards(filtersState.filteredRecipes);
   setupDropdowns(filtersState.filteredRecipes);
 
-  // 3) Restore dropdown selections from filters state
+  // Restore selections
   restoreDropdownSelections();
 
-  // 4) Update filter tags under the search bar
+  // Update filter tags
   updateFilterTagsUI();
 
-  // 5) Update "active filters" container + clear-all button
+  // Update filters container
   updateFiltersContainer(filters);
 
-  // 6) Update results counter
+  // Update results count
   setupResultsCounter(filtersState.filteredRecipes.length);
 
-  // 7) Keep URL in sync (avoid doing this on first load)
+  // Sync URL
   if (!filtersState.isInitialLoad) {
     updateURLState(filters);
   }
 };
 
-// --------------------------------------------------
-// ui state: filters container
-// --------------------------------------------------
+// ---------------
+// filters container
+// ---------------
 
 const updateFiltersContainer = filters => {
   const { filtersContainer, filterCount, clearAll } = filtersElements;
@@ -139,9 +141,9 @@ const updateFiltersContainer = filters => {
   }
 };
 
-// --------------------------------------------------
-// ui state: filter tags
-// --------------------------------------------------
+// ---------------
+// filter tags
+// ---------------
 
 const updateFilterTagsUI = () => {
   const { listsContainer } = filtersElements;
@@ -157,7 +159,7 @@ const updateFilterTagsUI = () => {
     .map(tag => renderFilterTag(normalizeString(tag.value ?? ""), tag.type))
     .join("");
 
-  // Tag click: remove value from filters and sync
+  // Tag click handler
   listsContainer.querySelectorAll(".filter-tag").forEach(button => {
     button.addEventListener("click", () => {
       const type = button.dataset.type;
@@ -189,9 +191,9 @@ const updateFilterTagsUI = () => {
   });
 };
 
-// --------------------------------------------------
-// dropdown item toggle
-// --------------------------------------------------
+// ---------------
+// item toggle
+// ---------------
 
 const onDropdownItemToggled = event => {
   const { type, value, selected } = event.detail;
@@ -207,9 +209,9 @@ const onDropdownItemToggled = event => {
   syncUI(filtersState.filters);
 };
 
-// --------------------------------------------------
-// restore dropdown selections (from filters state)
-// --------------------------------------------------
+// ---------------
+// restore selections
+// ---------------
 
 const restoreDropdownSelections = () => {
   Object.entries(filtersState.filters).forEach(([type, value]) => {
@@ -244,25 +246,25 @@ const restoreDropdownSelections = () => {
   });
 };
 
-// --------------------------------------------------
-// clear all filters
-// --------------------------------------------------
+// ---------------
+// clear all
+// ---------------
 
 const clearAllFilters = () => {
-  // reset filter state
+  // Reset state
   filtersState.filters.search = "";
   filtersState.filters.ingredients.clear();
   filtersState.filters.appliances.clear();
   filtersState.filters.ustensils.clear();
 
-  // reset main search ui
+  // Reset search UI
   if (searchElements.searchInput && searchElements.clearButton && searchElements.submitSearch) {
     searchElements.searchInput.value = "";
     searchElements.clearButton.classList.add("hidden");
     searchElements.submitSearch.classList.remove("hidden");
   }
 
-  // Clear selection in dropdown items
+  // Clear dropdown selections
   document.querySelectorAll(".dropdown-item.item-btn.selected").forEach(itemButton => {
     itemButton.classList.remove("selected");
     itemButton.setAttribute("aria-pressed", "false");
@@ -276,14 +278,14 @@ const clearAllFilters = () => {
     }
   });
 
-  // Notify search reset
+  // Dispatch reset event
   document.dispatchEvent(
     new CustomEvent("filters:searchChanged", {
       detail: { query: "" },
     }),
   );
 
-  // Reset URL + resync UI
+  // Reset URL + sync
   clearURLState();
   syncUI(filtersState.filters);
 };

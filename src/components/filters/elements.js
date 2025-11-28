@@ -1,3 +1,5 @@
+// src/components/filters/elements.js
+
 export const filtersState = {
   allRecipes: [],
   filteredRecipes: [],
@@ -33,7 +35,7 @@ export const filtersElements = {
     return document.getElementById("filters-tags");
   },
   get filterTags() {
-    // Better than using a repeated id, just grab by class
+    // Get by class (avoid id)
     return document.querySelectorAll(".filter-tag");
   },
 };

@@ -1,3 +1,5 @@
+// src/utils/errorHandler.js
+
 let activeToasts = [];
 let toastifyLoaded = false;
 let Toastify = null;
@@ -19,7 +21,7 @@ const loadToastify = async () => {
     return Toastify;
   }
 
-  // Load Toastify and CSS in parallel
+  // Load Toastify + CSS
   const [toastifyModule] = await Promise.all([
     import("toastify-js"),
     import("toastify-js/src/toastify.css"),

@@ -1,3 +1,5 @@
+// src/components/search/elements.js
+
 export const searchElements = {
   searchBar: document.getElementById("search-bar"),
   searchInput: document.getElementById("search-input"),

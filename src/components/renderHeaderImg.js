@@ -1,4 +1,8 @@
+// src/components/renderHeaderImg.js
+
 import { headerSkeleton } from "@components/skeletonsManager.js";
+
+// Set random recipe image as header background
 export const setupHeader = recipesData => {
   const headerElement = document.getElementById("header");
   if (!headerElement || !recipesData) return;

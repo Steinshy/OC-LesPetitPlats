@@ -1,5 +1,11 @@
+// src/components/search/manager.js
+
 import { searchElements } from "@components/search/elements.js";
 import { searchSkeleton } from "@components/skeletonsManager.js";
+
+// ---------------
+// setup
+// ---------------
 
 export const setupSearchBar = () => {
   const { searchBar, searchInput, clearButton, submitSearch } = searchElements;
@@ -8,11 +14,13 @@ export const setupSearchBar = () => {
 
   searchSkeleton().hide();
 
+  // Toggle loading state
   const toggleSearchState = isEnabled => {
     searchBar.classList.toggle("disabled", !isEnabled);
     isEnabled ? searchSkeleton().hide() : searchSkeleton().show();
   };
 
+  // Dispatch search event
   const runSearch = () => {
     const query = searchInput.value || "";
     const hasText = query.trim().length > 0;

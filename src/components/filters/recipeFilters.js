@@ -1,4 +1,10 @@
+// src/components/filters/recipeFilters.js
+
 import { normalizeString } from "@utils/string.js";
+
+// ---------------
+// search helpers
+// ---------------
 
 const applySearch = (items, searchTerm, getText) => {
   if (!Array.isArray(items)) return [];
@@ -16,12 +22,14 @@ const applySearch = (items, searchTerm, getText) => {
   });
 };
 
+// Filter dropdown items by label/value
 export const filterDropdownItems = (items, searchTerm) => {
   return applySearch(items, searchTerm, item => {
     return item?.label ?? item?.value ?? "";
   });
 };
 
+// Search across name, description, ingredients
 export const SearchInput = (recipes, searchTerm) => {
   return applySearch(recipes, searchTerm, recipe => {
     const ingredientNames = (recipe.ingredients || []).map(ing => ing?.ingredient).filter(Boolean);
@@ -38,6 +46,11 @@ export const SearchInput = (recipes, searchTerm) => {
   });
 };
 
+// ---------------
+// field filter
+// ---------------
+
+// Filter by ingredients, appliances, or ustensils
 export const filterByField = (recipes, filter, fieldType) => {
   if (!recipes) return [];
 

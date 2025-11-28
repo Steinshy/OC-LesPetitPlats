@@ -1,4 +1,8 @@
+// src/components/dropdown/data.js
+
 import { cleanupDuplicatedItems } from "@utils/string.js";
+
+// Extract unique filter values from recipes
 export const buildDropdownsData = recipesData => {
   if (!recipesData) return {};
   const allIngredients = recipesData
