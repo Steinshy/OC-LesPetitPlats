@@ -1,7 +1,7 @@
 // Production filter functions - copy of actual source code
-// Copied from src/components/filters/recipeFilters.js and src/utils/string.js
+// From src/utils/filterEngine.js and src/utils/normalize.js
 
-// Normalize string function (copied from src/utils/string.js)
+// Normalize string function - from src/utils/normalize.js
 const normalizeString = value =>
   String(value || "")
     .replace(/\s*\([^)]*\)/g, "")
@@ -10,67 +10,88 @@ const normalizeString = value =>
     .trim()
     .toLowerCase();
 
-// Search filter - copied from SearchInput in src/components/filters/recipeFilters.js
-const applySearch = (items, searchTerm, getText) => {
-  if (!Array.isArray(items)) return [];
+// Field configuration - from src/utils/filterEngine.js
+const FIELD_CONFIG = {
+  ingredients: {
+    extract: recipe => (recipe.ingredients || []).map(ingredient => ingredient?.ingredient),
+    isArray: true,
+  },
+  appliances: {
+    extract: recipe => recipe.appliance,
+    isArray: false,
+  },
+  utensils: {
+    extract: recipe => recipe.utensils || [],
+    isArray: true,
+  },
+};
+
+const SEARCHABLE_FIELDS = ["name", "description", "appliance"];
+
+// Normalize and flatten recipe values for a given field - from src/utils/filterEngine.js
+const getRecipeFieldValues = (recipe, fieldType) => {
+  const config = FIELD_CONFIG[fieldType];
+  if (!config) return [];
+
+  const rawValue = config.extract(recipe);
+  if (!rawValue) return [];
+
+  const values = config.isArray ? rawValue : [rawValue];
+  return values.filter(Boolean).map(normalizeString);
+};
+
+// Build searchable text from a recipe - from src/utils/filterEngine.js
+const buildSearchableText = recipe => {
+  const parts = [];
+
+  // Add direct fields
+  for (const field of SEARCHABLE_FIELDS) {
+    if (recipe[field]) parts.push(recipe[field]);
+  }
+
+  // Add array fields from config
+  for (const config of Object.values(FIELD_CONFIG)) {
+    if (config.isArray) {
+      const values = config.extract(recipe);
+      if (Array.isArray(values)) {
+        parts.push(...values.filter(Boolean));
+      }
+    }
+  }
+
+  return parts.join(" ");
+};
+
+// Filter recipes by search term - from src/utils/filterEngine.js (filterBySearch)
+// Wrapped as filterBySearchTerm for benchmark compatibility
+export const filterBySearchTerm = (recipes, searchTerm) => {
+  if (!Array.isArray(recipes)) return [];
 
   const query = normalizeString(searchTerm);
-  if (!query) return items;
+  if (!query) return recipes;
 
-  return items.filter(item => {
-    if (!item) return false;
-    const rawText = getText(item);
-    if (!rawText) return false;
-
-    const text = normalizeString(rawText);
+  return recipes.filter(recipe => {
+    if (!recipe) return false;
+    const text = normalizeString(buildSearchableText(recipe));
     return text.includes(query);
   });
 };
 
-export const filterBySearchTerm = (recipes, searchTerm) => {
-  return applySearch(recipes, searchTerm, recipe => {
-    const ingredientNames = (recipe.ingredients || []).map(ing => ing?.ingredient).filter(Boolean);
+// Filter recipes by a specific field - from src/utils/filterEngine.js
+const filterByField = (recipes, selectedValues, fieldType) => {
+  if (!Array.isArray(recipes)) return [];
+  if (!FIELD_CONFIG[fieldType]) return recipes;
 
-    const searchableFields = [
-      recipe.name,
-      recipe.description,
-      ...ingredientNames,
-      recipe.appliance,
-      ...(recipe.ustensils || []),
-    ].filter(Boolean);
-
-    return searchableFields.join(" ");
-  });
-};
-
-// Filter by field - copied from filterByField in src/components/filters/recipeFilters.js
-const filterByField = (recipes, filter, fieldType) => {
-  if (!recipes) return [];
-
-  const filterSize = Array.isArray(filter) ? filter.length : (filter?.size ?? 0);
-  if (!filter || filterSize === 0) return recipes;
-
-  const selected = Array.isArray(filter) ? filter : [...filter];
+  // Handle both Set and Array
+  const selected = selectedValues instanceof Set ? [...selectedValues] : selectedValues;
+  if (!selected || selected.length === 0) return recipes;
 
   return recipes.filter(recipe => {
     if (!recipe) return false;
-    let normalizedRecipeValues = [];
-
-    if (fieldType === "ingredients") {
-      normalizedRecipeValues = (recipe.ingredients || []).map(ingredient =>
-        normalizeString(ingredient?.ingredient ?? ingredient?.name ?? ""),
-      );
-    }
-
-    if (fieldType === "appliances") {
-      normalizedRecipeValues = [normalizeString(recipe.appliance)];
-    }
-
-    if (fieldType === "ustensils") {
-      normalizedRecipeValues = (recipe.ustensils || []).map(ustensil => normalizeString(ustensil));
-    }
-
-    return selected.every(selectedValue => normalizedRecipeValues.includes(selectedValue));
+    const recipeValues = getRecipeFieldValues(recipe, fieldType);
+    // Normalize selected values
+    const normalizedSelected = selected.map(normalizeString);
+    return normalizedSelected.every(value => recipeValues.includes(value));
   });
 };
 
@@ -81,22 +102,26 @@ export const filterByIngredients = (recipes, ingredients) => {
 
 // Appliances filter - uses OR logic (any appliance matches)
 // Note: This differs from filterByField which uses AND logic
+// Since a recipe only has one appliance, we need OR logic when multiple appliances are selected
 export const filterByAppliances = (recipes, appliances) => {
-  if (!recipes) return [];
-  const filterSize = Array.isArray(appliances) ? appliances.length : (appliances?.size ?? 0);
-  if (!appliances || filterSize === 0) return recipes;
-  const selected = Array.isArray(appliances) ? appliances : [...appliances];
+  if (!Array.isArray(recipes)) return [];
+
+  // Handle both Set and Array
+  const selected = appliances instanceof Set ? [...appliances] : appliances;
+  if (!selected || selected.length === 0) return recipes;
+
+  // Normalize selected appliances
+  const normalizedSelected = selected.map(normalizeString);
+
   return recipes.filter(recipe => {
     if (!recipe) return false;
-    const normalizedRecipeAppliance = normalizeString(recipe.appliance || "");
-    return selected.some(selectedAppliance => {
-      const normalizedSelected = normalizeString(selectedAppliance);
-      return normalizedRecipeAppliance === normalizedSelected;
-    });
+    const recipeAppliance = normalizeString(recipe.appliance || "");
+    // Use OR logic: recipe matches if its appliance matches ANY selected appliance
+    return normalizedSelected.some(selectedAppliance => selectedAppliance === recipeAppliance);
   });
 };
 
-// Ustensils filter - wrapper around filterByField
-export const filterByUstensils = (recipes, ustensils) => {
-  return filterByField(recipes, ustensils, "ustensils");
+// Utensils filter - wrapper around filterByField
+export const filterByutensils = (recipes, utensils) => {
+  return filterByField(recipes, utensils, "utensils");
 };

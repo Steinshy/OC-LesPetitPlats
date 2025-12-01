@@ -1,15 +1,24 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 import {
   FILTER_TAG_SELECTOR,
-  FILTERS_BOX_SELECTOR,
-  INGREDIENTS_LIST_SELECTOR,
+  FILTERS_SELECTOR,
+  FILTERS_TAGS_SELECTOR,
 } from "../data/testData.js";
 import { updateFilterTags } from "../helpers/utils.js";
-import { logCategorySummary } from "../logging/console.js";
 
 // Mock removeFilter and clearAllFilters for the tests
 const removeFilter = vi.fn();
 const clearAllFilters = vi.fn();
+
+// Mock dropdownTypes to ensure buildActiveFilters works
+vi.mock("@/components/dropdowns/manager.js", async () => {
+  const actual = await vi.importActual("@/components/dropdowns/manager.js");
+  return {
+    ...actual,
+    dropdownTypes: ["ingredients", "appliances", "utensils"],
+  };
+});
 
 // Helper to call updateFilterTags with mocked callbacks
 const updateFilterTagsWithMocks = activeFilters => {
@@ -20,61 +29,52 @@ describe("filterTags", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     document.body.innerHTML = `
-      <aside class="filters-box">
-        <section class="filter-box">
-          <div class="ingredients-list-wrapper">
-            <div class="ingredients-list"></div>
-          </div>
-        </section>
+      <aside class="filters" id="filters">
+        <div id="filters-container" class="filters-container">
+          <ul class="lists-container" id="filters-tags"></ul>
+        </div>
       </aside>
     `;
   });
 
   it("should render filter tags for active filters", () => {
-    // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato", "Onion"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(["Spoon"]),
+      utensils: new Set(["Spoon"]),
     };
 
     updateFilterTagsWithMocks(activeFilters);
 
-    // Container element
-    const container = document.querySelector(INGREDIENTS_LIST_SELECTOR);
-    // Filter tags
+    const container = document.querySelector(FILTERS_TAGS_SELECTOR);
     const tags = container.querySelectorAll(FILTER_TAG_SELECTOR);
     expect(tags).toHaveLength(4);
   });
 
   it("should add has-filters class when filters are active", () => {
-    // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
 
-    // Filters box element
-    const filtersBox = document.querySelector(FILTERS_BOX_SELECTOR);
-    expect(filtersBox.classList.contains("has-filters")).toBe(true);
+    const filtersSection = document.querySelector(FILTERS_SELECTOR);
+    expect(filtersSection.classList.contains("has-filters")).toBe(true);
   });
 
   it("should remove has-filters class when no filters", () => {
-    // Empty filters
     const activeFilters = {
       ingredients: new Set(),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
 
-    // Filters box element
-    const filtersBox = document.querySelector(FILTERS_BOX_SELECTOR);
-    expect(filtersBox.classList.contains("has-filters")).toBe(false);
+    const filtersSection = document.querySelector(FILTERS_SELECTOR);
+    expect(filtersSection.classList.contains("has-filters")).toBe(false);
   });
 
   it("should clear container when no filters", () => {
@@ -82,7 +82,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -98,7 +98,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -111,34 +111,33 @@ describe("filterTags", () => {
     const applianceTag = [...tags].find(tag => tag.dataset.type === "appliances");
 
     expect(ingredientTag).toBeDefined();
-    expect(ingredientTag.dataset.value).toBe("tomato");
+    // buildActiveFilters uses the original value from Set, not normalized
+    expect(ingredientTag.dataset.value).toBe("Tomato");
     expect(applianceTag).toBeDefined();
-    expect(applianceTag.dataset.value).toBe("oven");
+    expect(applianceTag.dataset.value).toBe("Oven");
   });
 
-    it("should render tags with correct aria-label", () => {
-      // Active filters
-      const activeFilters = {
-        ingredients: new Set(["Tomato"]),
-        appliances: new Set(),
-        ustensils: new Set(),
-      };
+  it("should render tags with correct aria-label", () => {
+    const activeFilters = {
+      ingredients: new Set(["Tomato"]),
+      appliances: new Set(),
+      utensils: new Set(),
+    };
 
-      updateFilterTagsWithMocks(activeFilters);
+    updateFilterTagsWithMocks(activeFilters);
 
-      // Filter tag
-      const tag = document.querySelector(FILTER_TAG_SELECTOR);
-      // renderFilterTag uses normalizeString which lowercases, so "tomato" not "Tomato"
-      expect(tag.getAttribute("aria-label")).toContain("tomato");
-      expect(tag.getAttribute("aria-label")).toContain("Retirer le filtre");
-    });
+    const tag = document.querySelector(FILTER_TAG_SELECTOR);
+    // renderFilterTag uses capitalized label for aria-label
+    expect(tag.getAttribute("aria-label")).toContain("Tomato");
+    expect(tag.getAttribute("aria-label")).toContain("Retirer le filtre");
+  });
 
   it("should call removeFilter when tag is clicked", () => {
     // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -147,7 +146,8 @@ describe("filterTags", () => {
     const tag = document.querySelector(FILTER_TAG_SELECTOR);
     tag.click();
 
-    expect(removeFilter).toHaveBeenCalledWith("ingredients", "tomato");
+    // removeFilter is called with the original value from dataset, which is the Set value
+    expect(removeFilter).toHaveBeenCalledWith("ingredients", "Tomato");
   });
 
   it("should prevent default on tag click", () => {
@@ -155,7 +155,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -179,22 +179,21 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
   });
 
-  it("should handle missing filters-box gracefully", () => {
+  it("should handle missing filters section gracefully", () => {
     document.body.innerHTML = `
-      <div class="ingredients-list"></div>
+      <ul class="lists-container" id="filters-tags"></ul>
     `;
 
-    // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
@@ -205,7 +204,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(["Spoon", "Fork"]),
+      utensils: new Set(["Spoon", "Fork"]),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -218,7 +217,7 @@ describe("filterTags", () => {
     const types = [...tags].map(tag => tag.dataset.type);
     expect(types).toContain("ingredients");
     expect(types).toContain("appliances");
-    expect(types).toContain("ustensils");
+    expect(types).toContain("utensils");
   });
 
   it("should handle invalid filter type with fallback", () => {
@@ -226,7 +225,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
       unknownType: new Set(["TestValue"]),
     };
 
@@ -237,22 +236,19 @@ describe("filterTags", () => {
     expect(tags.length).toBe(0);
   });
 
-  it("should handle missing filter-count element gracefully", () => {
+  it("should handle missing filters-count element gracefully", () => {
     document.body.innerHTML = `
-      <aside class="filters-box">
-        <section class="filter-box">
-          <div class="ingredients-list-wrapper">
-            <div class="ingredients-list"></div>
-          </div>
-        </section>
+      <aside class="filters" id="filters">
+        <div id="filters-container" class="filters-container">
+          <ul class="lists-container" id="filters-tags"></ul>
+        </div>
       </aside>
     `;
 
-    // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
@@ -260,44 +256,28 @@ describe("filterTags", () => {
 
   it("should call clearAllFilters when clear all button is clicked", () => {
     document.body.innerHTML = `
-      <aside class="filters-box">
-        <section class="filter-box">
-          <div class="filter-box-header">
-            <h3 class="filter-box-title">
+      <aside class="filters" id="filters">
+        <div id="filters-container" class="filters-container">
+          <div class="filters-header">
+            <h3 class="filters-title">
               Filtres sélectionnés
-              <span class="filter-count" id="filter-count">(0)</span>
+              <span class="filters-count" id="filters-count"></span>
             </h3>
-            <button type="button" id="clear-all-filters" class="clear-all-btn">Tout effacer</button>
+            <button type="button" id="clear-filters-btn" class="clear-filters-btn">Tout effacer</button>
           </div>
-          <div class="ingredients-list-wrapper">
-            <div class="ingredients-list"></div>
-          </div>
-        </section>
+          <ul class="lists-container" id="filters-tags"></ul>
+        </div>
       </aside>
     `;
 
-    // Add clear button to HTML
-    document.body.innerHTML = `
-      <aside class="filters-box">
-        <section class="filter-box">
-          <div class="ingredients-list-wrapper">
-            <div class="ingredients-list"></div>
-          </div>
-        </section>
-        <button id="clear-filters-btn" class="clear-filters-btn"></button>
-      </aside>
-    `;
-
-    // Active filters
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
 
-    // Clear all button
     const clearAllButton = document.getElementById("clear-filters-btn");
     expect(clearAllButton).toBeDefined();
     clearAllButton.click();

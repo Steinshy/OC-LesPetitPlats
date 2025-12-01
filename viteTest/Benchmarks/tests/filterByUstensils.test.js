@@ -6,22 +6,23 @@ import {
   TEST_CONFIG,
 } from "@benchmarks-config/testHelpers.js";
 import { uniqueValues } from "@benchmarks-data/loader.js";
-import { filterByUstensils as filterByUstensilsMaps } from "@benchmarks-implementations/filtersMap.js";
-import { filterByUstensils as filterByUstensilsProduction } from "@benchmarks-implementations/production.js";
+import { filterByutensils as filterByutensilsProduction } from "@benchmarks-implementations/production.js";
 import { logCategorySummary } from "@benchmarks-utils/logging.js";
+import { filterByutensils as filterByutensilsMaps } from "~/viteTest/Benchmarks/implementations/forEach.js";
+import { logWarning } from "../utils/console.js";
 
-describe("Filter Recipes by Ustensils Benchmarks", () => {
+describe("Filter Recipes by utensils Benchmarks", () => {
   const { iterations, bigDataIterations } = TEST_CONFIG;
-  const availableUstensils = uniqueValues.ustensils;
-  const category = "Ustensils";
-  const categoryKey = "ustensils";
-  const itemName = "ustensils";
+  const availableutensils = uniqueValues.utensils;
+  const category = "utensils";
+  const categoryKey = "utensils";
+  const itemName = "utensils";
 
   const testCases = createFilterTestCases({
     it,
-    productionFn: filterByUstensilsProduction,
-    mapsFn: filterByUstensilsMaps,
-    availableItems: availableUstensils,
+    productionFn: filterByutensilsProduction,
+    mapsFn: filterByutensilsMaps,
+    availableItems: availableutensils,
     itemName,
     category,
     categoryKey,
@@ -32,29 +33,33 @@ describe("Filter Recipes by Ustensils Benchmarks", () => {
 
   testCases.forEach(({ test }) => test());
 
-  it("should measure memory usage for ustensils filter", () => {
+  it("should measure memory usage for utensils filter", () => {
     runMemoryBenchmark({
-      productionFn: filterByUstensilsProduction,
-      mapsFn: filterByUstensilsMaps,
-      filterValue: availableUstensils.slice(0, 1),
+      productionFn: filterByutensilsProduction,
+      mapsFn: filterByutensilsMaps,
+      filterValue: availableutensils.slice(0, 1),
       iterations: 50,
       expectInstance: expect,
     });
   });
 
-  const allUstensilsTest = createAllItemsTest({
-    productionFn: filterByUstensilsProduction,
-    mapsFn: filterByUstensilsMaps,
-    allItems: availableUstensils,
+  const allutensilsTest = createAllItemsTest({
+    productionFn: filterByutensilsProduction,
+    mapsFn: filterByutensilsMaps,
+    allItems: availableutensils,
     category,
     categoryKey,
     allTestIterations: 30,
     expectInstance: expect,
   });
 
+  if (process.env.RUN_ALL_TESTS !== "true") {
+    logWarning("'All utensils' test skipped (set RUN_ALL_TESTS=true to run)", "⊘");
+  }
+
   (process.env.RUN_ALL_TESTS === "true" ? it : it.skip)(
-    "should benchmark filter by all ustensils",
-    allUstensilsTest,
+    "should benchmark filter by all utensils",
+    allutensilsTest,
     TEST_CONFIG.timeouts.all,
   );
 

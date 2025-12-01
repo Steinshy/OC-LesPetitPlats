@@ -1,6 +1,8 @@
+// src/utils/recipesBuilder.js
+import { baseUrl } from "@utils/config.js";
 import { fetchRecipes } from "@utils/recipeApi.js";
-import { baseUrl } from "@utils/string.js";
 
+// Build image URLs from recipe data
 const buildImages = recipe => {
   const base = recipe?.image?.replace(/\.[^./]+$/, "") || recipe?.image;
   return {
@@ -10,6 +12,7 @@ const buildImages = recipe => {
   };
 };
 
+// Transform API response to app model
 const transformRecipes = apiRecipesData =>
   apiRecipesData.map(recipe => {
     const images = buildImages(recipe);
@@ -21,12 +24,13 @@ const transformRecipes = apiRecipesData =>
       servings: recipe?.servings || 0,
       time: recipe?.time || 0,
       ingredients: recipe?.ingredients || [],
-      ustensils: recipe?.ustensils || [],
+      utensils: recipe?.ustensils || [],
       appliance: recipe?.appliance || "",
       images,
     };
   });
 
+// Fetch and transform recipes
 export const buildRecipesData = async () => {
   const recipesResult = await fetchRecipes();
   return recipesResult.map(transformRecipes);

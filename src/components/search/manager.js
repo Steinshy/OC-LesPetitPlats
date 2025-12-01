@@ -1,20 +1,25 @@
+// src/components/search/manager.js
+
 import { searchElements } from "@components/search/elements.js";
-import { searchSkeleton } from "@components/skeletonsManager.js";
+import { searchSkeleton } from "@components/skeletons/manager.js";
+
+// ---------------
+// setup
+// ---------------
 
 export const setupSearchBar = () => {
-  const { searchBar, searchInput, clearButton, submitSearch } = searchElements;
+  const { search, container, input, clear, submit } = searchElements();
 
-  if (!searchBar || !searchInput) return;
-
-  searchSkeleton().hide();
-
+  if (!search || !input) return;
+  // Toggle loading state
   const toggleSearchState = isEnabled => {
-    searchBar.classList.toggle("disabled", !isEnabled);
+    search.classList.toggle("disabled", !isEnabled);
     isEnabled ? searchSkeleton().hide() : searchSkeleton().show();
   };
 
+  // Dispatch search event
   const runSearch = () => {
-    const query = searchInput.value || "";
+    const query = input.value || "";
     const hasText = query.trim().length > 0;
 
     document.dispatchEvent(
@@ -23,25 +28,27 @@ export const setupSearchBar = () => {
       }),
     );
 
-    clearButton?.classList.toggle("hidden", !hasText);
-    submitSearch?.classList.toggle("hidden", hasText);
+    clear?.classList.toggle("hidden", !hasText);
+    submit?.classList.toggle("hidden", hasText);
+    container?.classList.toggle("has-clear-btn", hasText);
   };
 
-  searchInput.addEventListener("input", runSearch);
-  clearButton?.addEventListener("click", event => {
-    searchInput.value = "";
-    clearButton?.classList.add("hidden");
-    submitSearch?.classList.remove("hidden");
+  input.addEventListener("input", runSearch);
+  clear?.addEventListener("click", event => {
+    input.value = "";
+    clear?.classList.add("hidden");
+    submit?.classList.remove("hidden");
+    container?.classList.remove("has-clear-btn");
     event.preventDefault();
     event.stopPropagation();
-    searchInput.focus();
+    input.focus();
     runSearch();
   });
 
-  submitSearch?.addEventListener("click", event => {
+  submit?.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
-    searchInput.focus();
+    input.focus();
     runSearch();
   });
 

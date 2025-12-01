@@ -137,13 +137,15 @@ LesPetitPlats/
 │
 ├── src/                         # Code source
 │   ├── App.js                   # Point d'entrée de l'application
+│   ├── coordinator.js           # Coordinateur d'événements et synchronisation UI
 │   │
 │   ├── components/              # Composants UI
 │   │   ├── cards/              # Cartes de recettes
 │   │   │   ├── manager.js      # Gestion des cartes
-│   │   │   └── render.js       # Rendu des cartes
+│   │   │   ├── render.js       # Rendu des cartes
+│   │   │   └── elements.js     # Éléments DOM
 │   │   │
-│   │   ├── dropdown/           # Menus déroulants
+│   │   ├── dropdowns/          # Menus déroulants
 │   │   │   ├── manager.js      # Gestion des menus
 │   │   │   ├── render.js       # Rendu des menus
 │   │   │   ├── data.js         # Gestion des données
@@ -152,29 +154,34 @@ LesPetitPlats/
 │   │   ├── filters/            # Filtres de recherche
 │   │   │   ├── manager.js      # Gestion des filtres
 │   │   │   ├── render.js       # Rendu des filtres
-│   │   │   ├── recipeFilters.js # Logique de filtrage
+│   │   │   ├── data.js         # Données des filtres
+│   │   │   ├── state.js        # État des filtres
 │   │   │   └── elements.js     # Éléments DOM
 │   │   │
 │   │   ├── search/             # Recherche
 │   │   │   ├── manager.js      # Gestion de la recherche
-│   │   │   ├── render.js       # Rendu de la recherche
 │   │   │   └── elements.js     # Éléments DOM
 │   │   │
-│   │   ├── bodyScroll.js       # Gestion du scroll
-│   │   ├── renderHeaderImg.js  # Image d'en-tête
-│   │   ├── renderSqueletons.js # Squelettes de chargement
+│   │   ├── skeletons/          # Squelettes de chargement
+│   │   │   ├── manager.js      # Gestion des squelettes
+│   │   │   └── renderer.js     # Rendu des squelettes
+│   │   │
+│   │   ├── header.js           # En-tête de l'application
 │   │   ├── resultsCounter.js   # Compteur de résultats
-│   │   ├── scrollToTop.js      # Bouton scroll to top
-│   │   └── skeletonsManager.js # Gestion des squelettes
+│   │   ├── scrollLock.js       # Verrouillage du scroll
+│   │   └── scrollToTop.js      # Bouton scroll to top
 │   │
 │   └── utils/                   # Utilitaires
 │       ├── cache.js            # Système de cache
-│       ├── deliveryImages.js   # Gestion des images
-│       ├── errorHandler.js     # Gestion d'erreurs
-│       ├── queryParams.js      # Paramètres d'URL
+│       ├── config.js           # Configuration de l'application
+│       ├── device.js           # Détection d'appareils
+│       ├── filterEngine.js     # Moteur de filtrage
+│       ├── imageTracker.js     # Suivi et gestion des images
+│       ├── normalize.js        # Normalisation de chaînes
 │       ├── recipeApi.js        # API des recettes
 │       ├── recipesBuilder.js   # Construction des données
-│       └── string.js           # Utilitaires de chaînes
+│       ├── toast.js            # Notifications toast
+│       └── urlState.js         # Gestion de l'état URL
 │
 ├── styles/                      # Styles CSS
 │   ├── base.css                # Styles de base
@@ -209,5 +216,3 @@ Le projet inclut des benchmarks de performance pour mesurer les algorithmes de r
 Projet réalisé dans le cadre du parcours Développeur Web d'OpenClassrooms.
 
 ---
-
-### Développé avec ❤️ pour OpenClassrooms

@@ -1,8 +1,8 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupSearchBar } from "@/components/search/manager.js";
-import { logCategorySummary } from "../logging/console.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
-vi.mock("@tests-mocks/skeletonsManager.js", () => ({
+vi.mock("@/components/skeletons/manager.js", () => ({
   searchSkeleton: vi.fn(() => ({
     show: vi.fn(),
     hide: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock("@tests-mocks/skeletonsManager.js", () => ({
 
 const SEARCH_INPUT_ID = "search-input";
 const SEARCH_CLEAR_BTN_ID = "search-clear-button";
-const SEARCH_SUBMIT_BTN_ID = "search-submit-btn";
+const SEARCH_SUBMIT_BTN_ID = "search-submit-button";
 const SEARCH_BAR_ID = "search-bar";
 
 describe("search manager", () => {
@@ -28,10 +28,10 @@ describe("search manager", () => {
     beforeEach(() => {
       document.body.innerHTML = `
         <div id="search-bar" class="main-search-bar">
-          <div class="search-bar-container">
+          <div class="search-bar-container" id="search-bar-container">
             <input type="text" id="search-input" />
             <button id="search-clear-button" class="hidden"></button>
-            <button id="search-submit-btn" class="search-btn"></button>
+            <button id="search-submit-button" class="search-button"></button>
           </div>
         </div>
       `;

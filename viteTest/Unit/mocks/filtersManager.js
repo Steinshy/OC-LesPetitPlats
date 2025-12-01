@@ -1,7 +1,7 @@
 // Test wrapper for filters manager - adds missing exports without modifying source
 import { setupRecipesCards } from "@/components/cards/manager.js";
 import { setupFilters } from "@/components/filters/manager.js";
-import * as filtersBy from "@/components/filters/recipeFilters.js";
+import * as filtersBy from "./filtersBy.js";
 
 // Re-export setupFilters from actual manager
 export { setupFilters };
@@ -13,7 +13,7 @@ const filtersState = {
   mainSearchText: "",
   tags: {
     ingredients: new Set(),
-    ustensils: new Set(),
+    utensils: new Set(),
     appliances: new Set(),
   },
 };
@@ -24,14 +24,14 @@ export const resetFiltersState = () => {
   filteredRecipes = [];
   filtersState.mainSearchText = "";
   filtersState.tags.ingredients.clear();
-  filtersState.tags.ustensils.clear();
+  filtersState.tags.utensils.clear();
   filtersState.tags.appliances.clear();
 };
 
 const syncUI = () => {
   // Apply filters
   filteredRecipes = allRecipes;
-  filteredRecipes = filtersBy.SearchInput(filteredRecipes, filtersState.mainSearchText);
+  filteredRecipes = filtersBy.searchInput(filteredRecipes, filtersState.mainSearchText);
   filteredRecipes = filtersBy.filterByField(
     filteredRecipes,
     filtersState.tags.ingredients,
@@ -44,8 +44,8 @@ const syncUI = () => {
   );
   filteredRecipes = filtersBy.filterByField(
     filteredRecipes,
-    filtersState.tags.ustensils,
-    "ustensils",
+    filtersState.tags.utensils,
+    "utensils",
   );
 
   // Update cards if setupRecipesCards is available
@@ -57,7 +57,7 @@ const syncUI = () => {
 // Test exports
 export const renderSearch = () => {
   const input = document.getElementById("recipe-search");
-  const button = document.querySelector(".search-btn");
+  const button = document.querySelector(".search-button");
 
   if (input) {
     input.disabled = true;
@@ -86,7 +86,7 @@ export const enableSearch = recipes => {
 
   const searchInput = document.querySelector(".main-search-bar input");
   const clearButton = document.getElementById("clear-recipe-search");
-  const searchButton = document.querySelector(".main-search-bar .search-btn");
+  const searchButton = document.querySelector(".main-search-bar .search-button");
 
   if (!searchInput) return;
 
@@ -169,7 +169,7 @@ export const getActiveFilters = () => {
   return {
     ingredients: new Set(filtersState.tags.ingredients),
     appliances: new Set(filtersState.tags.appliances),
-    ustensils: new Set(filtersState.tags.ustensils),
+    utensils: new Set(filtersState.tags.utensils),
   };
 };
 
@@ -177,13 +177,13 @@ export const clearAllFilters = () => {
   filtersState.mainSearchText = "";
   filtersState.tags.ingredients.clear();
   filtersState.tags.appliances.clear();
-  filtersState.tags.ustensils.clear();
+  filtersState.tags.utensils.clear();
 
-  const mainSearchInput = document.getElementById("main-search-input");
+  const mainsearchInput = document.getElementById("main-search-input");
   const clearSearchBtn = document.getElementById("main-clear-search-btn");
   const searchBtn = document.getElementById("main-search-btn");
 
-  if (mainSearchInput) mainSearchInput.value = "";
+  if (mainsearchInput) mainsearchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
   if (searchBtn) searchBtn.classList.remove("hidden");
 

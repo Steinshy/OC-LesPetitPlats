@@ -9,13 +9,13 @@ import {
   clearAllFilters,
   renderSearch,
 } from "@/components/filters/manager.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 import {
   mockRecipesForSearch,
   RESULTS_COUNTER_SELECTOR,
   SEARCH_INPUT_SELECTOR,
   SEARCH_BUTTON_SELECTOR,
 } from "../data/testData.js";
-import { logCategorySummary } from "../logging/console.js";
 
 vi.mock("@/components/cards/manager.js", () => ({
   setupRecipesCards: vi.fn(),
@@ -48,7 +48,7 @@ describe("search", () => {
       </div>
       <div class="main-search-bar">
         <input type="text" />
-        <button class="search-btn"></button>
+        <button class="search-button"></button>
       </div>
     `;
   });
@@ -58,14 +58,14 @@ describe("search", () => {
       document.body.innerHTML = `
         <input type="text" id="recipe-search" />
         <div class="main-search-bar">
-          <button class="search-btn"></button>
+          <button class="search-button"></button>
         </div>
       `;
 
       renderSearch();
 
       const input = document.getElementById("recipe-search");
-      const button = document.querySelector(".search-btn");
+      const button = document.querySelector(".search-button");
 
       expect(input.disabled).toBe(true);
       expect(input.classList.contains("disabled")).toBe(true);
@@ -78,7 +78,7 @@ describe("search", () => {
     it("should handle missing input element gracefully", () => {
       document.body.innerHTML = `
         <div class="main-search-bar">
-          <button class="search-btn"></button>
+          <button class="search-button"></button>
         </div>
       `;
 
@@ -160,7 +160,7 @@ describe("search", () => {
         <div class="main-search-bar">
           <input type="text" id="recipe-search" value="test" />
           <button id="clear-recipe-search" class="search-clear-btn"></button>
-          <button class="search-btn"></button>
+          <button class="search-button"></button>
         </div>
       `;
 
@@ -292,10 +292,10 @@ describe("search", () => {
     });
 
     it("should add ustensil filter", () => {
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
       // Active filters
       const filters = getActiveFilters();
-      expect(filters.ustensils.has("Spoon")).toBe(true);
+      expect(filters.utensils.has("Spoon")).toBe(true);
     });
 
     it("should trigger applyFilters when filter is added", () => {
@@ -346,19 +346,19 @@ describe("search", () => {
       const filters = getActiveFilters();
       expect(filters.ingredients.size).toBe(0);
       expect(filters.appliances.size).toBe(0);
-      expect(filters.ustensils.size).toBe(0);
+      expect(filters.utensils.size).toBe(0);
     });
 
     it("should return current active filters", () => {
       addFilter("ingredients", "Tomato");
       addFilter("appliances", "Oven");
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
 
       // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.has("Tomato")).toBe(true);
       expect(filters.appliances.has("Oven")).toBe(true);
-      expect(filters.ustensils.has("Spoon")).toBe(true);
+      expect(filters.utensils.has("Spoon")).toBe(true);
     });
 
     it("should return a copy of filters (not reference)", () => {
@@ -378,7 +378,7 @@ describe("search", () => {
       enableSearch(mockRecipes);
       addFilter("ingredients", "Tomato");
       addFilter("appliances", "Oven");
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
       vi.clearAllMocks();
     });
 
@@ -389,7 +389,7 @@ describe("search", () => {
       const filters = getActiveFilters();
       expect(filters.ingredients.size).toBe(0);
       expect(filters.appliances.size).toBe(0);
-      expect(filters.ustensils.size).toBe(0);
+      expect(filters.utensils.size).toBe(0);
     });
 
     it("should trigger applyFilters when clearing all filters", () => {

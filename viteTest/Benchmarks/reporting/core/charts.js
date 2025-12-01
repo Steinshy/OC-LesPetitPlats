@@ -139,7 +139,7 @@ async function generatePerformanceChart(
   colors,
   flattened,
 ) {
-  const categories = ["Search", "Ingredients", "Appliances", "Ustensils", "Combined"];
+  const categories = ["Search", "Ingredients", "Appliances", "utensils", "Combined"];
   const categoryAverages = categories.map(category => {
     const categoryResults = flattened.filter(r => r.category === category);
     if (categoryResults.length === 0) {

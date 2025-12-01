@@ -1,18 +1,25 @@
-import { setupDropdowns } from "@components/dropdown/manager.js";
+// src/App.js
+import { setupCoordinator } from "@/coordinator.js";
+import { setupDropdowns } from "@components/dropdowns/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
-import { setupHeader } from "@components/renderHeaderImg.js";
+import { setupHeader } from "@components/header.js";
 import { setupResultsCounter } from "@components/resultsCounter.js";
+import { setupScrollLock } from "@components/scrollLock.js";
 import { setupScrollToTop } from "@components/scrollToTop.js";
 import { setupSearchBar } from "@components/search/manager.js";
-import { setupSkeletons } from "@components/skeletonsManager.js";
-import { setupAppError } from "@utils/errorHandler.js";
+import { setupSkeletons } from "@components/skeletons/manager.js";
 import { buildRecipesData } from "@utils/recipesBuilder.js";
+import { setupToast } from "@utils/toast.js";
 import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
 
 const initApp = async () => {
+  setupScrollLock();
+  setupScrollToTop();
   setupSkeletons();
+  setupCoordinator();
 
+  // Fetch + transform recipes
   const recipesResult = await buildRecipesData();
 
   recipesResult.match(
@@ -23,14 +30,12 @@ const initApp = async () => {
       setupDropdowns(recipesData);
       setupFilters(recipesData);
     },
-    async error => {
-      await setupAppError(error, "default");
+    async message => {
+      setupToast(message, "default");
       setupSearchBar();
       setupResultsCounter(0);
     },
   );
-
-  setupScrollToTop();
 };
 
 initApp();

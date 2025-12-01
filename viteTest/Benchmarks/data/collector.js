@@ -14,7 +14,7 @@ const defaultResults = {
   search: [],
   ingredients: [],
   appliances: [],
-  ustensils: [],
+  utensils: [],
   combined: [],
   timestamp: null,
 };
@@ -23,7 +23,7 @@ const categories = [
   { key: "search", name: "Search" },
   { key: "ingredients", name: "Ingredients" },
   { key: "appliances", name: "Appliances" },
-  { key: "ustensils", name: "Ustensils" },
+  { key: "utensils", name: "utensils" },
   { key: "combined", name: "Combined" },
 ];
 

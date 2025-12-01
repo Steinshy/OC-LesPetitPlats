@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect } from "vitest";
-import { renderDropdownSearch } from "@/components/search/render.js";
-import { logCategorySummary } from "../logging/console.js";
+import { renderDropdownSearch } from "@tests-mocks/searchRender.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
 describe("search render", () => {
 
@@ -14,12 +14,12 @@ describe("search render", () => {
       expect(html).toContain("Rechercher un ingredients");
     });
 
-    it("should render dropdown search for ustensils", () => {
-      const html = renderDropdownSearch("ustensils");
+    it("should render dropdown search for utensils", () => {
+      const html = renderDropdownSearch("utensils");
 
-      expect(html).toContain('id="dropdown-ustensils-search"');
-      expect(html).toContain('id="search-ustensils"');
-      expect(html).toContain("Rechercher un ustensils");
+      expect(html).toContain('id="dropdown-utensils-search"');
+      expect(html).toContain('id="search-utensils"');
+      expect(html).toContain("Rechercher un utensils");
     });
 
     it("should render dropdown search for appliances", () => {
@@ -40,7 +40,7 @@ describe("search render", () => {
     it("should include search icon in submit button", () => {
       const html = renderDropdownSearch("ingredients");
       expect(html).toContain("ri-search-line");
-      expect(html).toContain('id="dropdown-ingredients-search-submit-btn"');
+      expect(html).toContain('id="dropdown-ingredients-search-submit-button"');
     });
 
     it("should include clear button with hidden class", () => {

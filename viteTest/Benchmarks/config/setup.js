@@ -26,7 +26,7 @@ if (!existsSync(clearFlagPath)) {
         search: [],
         ingredients: [],
         appliances: [],
-        ustensils: [],
+        utensils: [],
         combined: [],
         timestamp: null,
       });

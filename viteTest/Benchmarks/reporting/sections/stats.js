@@ -10,15 +10,15 @@ export function generateBenchmarkDataStats() {
   // Collect unique values
   const ingredients = new Set();
   const appliances = new Set();
-  const ustensils = new Set();
+  const utensils = new Set();
   let totalIngredients = 0;
 
   data.forEach(recipe => {
     if (recipe.appliance) {
       appliances.add(recipe.appliance);
     }
-    if (recipe.ustensils && Array.isArray(recipe.ustensils)) {
-      recipe.ustensils.forEach(ustensil => ustensils.add(ustensil));
+    if (recipe.utensils && Array.isArray(recipe.utensils)) {
+      recipe.utensils.forEach(ustensil => utensils.add(ustensil));
     }
     if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
       recipe.ingredients.forEach(ingredient => {
@@ -47,8 +47,8 @@ export function generateBenchmarkDataStats() {
           <p class="coverage-value">${appliances.size}</p>
         </div>
         <div class="coverage-card">
-          <h4>Unique Ustensils</h4>
-          <p class="coverage-value">${ustensils.size}</p>
+          <h4>Unique utensils</h4>
+          <p class="coverage-value">${utensils.size}</p>
         </div>
         <div class="coverage-card">
           <h4>Total Ingredients</h4>
@@ -103,7 +103,7 @@ export function generateTestCoverage(flattened, _allResults) {
         <div class="coverage-card">
           <h4>Categories</h4>
           <p class="coverage-value">${totalCategories}</p>
-          <p class="coverage-detail">Search, Ingredients, Appliances, Ustensils</p>
+          <p class="coverage-detail">Search, Ingredients, Appliances, utensils</p>
         </div>
         <div class="coverage-card">
           <h4>Iterations</h4>

@@ -6,15 +6,15 @@ import {
   renderCardHeader,
   renderCardContents,
 } from "@/components/cards/render.js";
-import { logCategorySummary } from "../logging/console.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
-vi.mock("@/utils/deliveryImages.js", () => ({
-  imagesTypes: vi.fn(),
+vi.mock("@/utils/imageTracker.js", () => ({
+  setupImageTracking: vi.fn(),
 }));
 
-vi.mock("@/components/skeletonsManager.js", () => ({
-  cardSkeletons: vi.fn(() => ({
-    build: vi.fn(),
+vi.mock("@/components/skeletons/manager.js", () => ({
+  cardsSkeletons: vi.fn(() => ({
+    show: vi.fn(),
     hide: vi.fn(),
   })),
 }));
@@ -115,7 +115,7 @@ describe("cards render", () => {
     it("should render card contents with description and ingredients", () => {
       const html = renderCardContents("Délicieuse tarte", mockIngredients);
 
-      expect(html).toContain("contents-container");
+      expect(html).toContain("card-content");
       expect(html).toContain("Délicieuse tarte");
       expect(html).toContain("Pomme");
       expect(html).toContain("3");
@@ -125,14 +125,18 @@ describe("cards render", () => {
 
     it("should include ingredient count in heading", () => {
       const html = renderCardContents("Description", mockIngredients);
-      expect(html).toContain("INGRÉDIENTS (2)");
+      expect(html).toContain("Ingrédients");
+      expect(html).toContain("ingredient-count");
+      expect(html).toContain("2");
     });
 
     it("should handle empty ingredients array", () => {
       const html = renderCardContents("Description", []);
 
-      expect(html).toContain("INGRÉDIENTS (0)");
-      expect(html).toContain("ingredients-details");
+      expect(html).toContain("Ingrédients");
+      expect(html).toContain("ingredient-count");
+      expect(html).toContain("0");
+      expect(html).toContain("ingredients-grid");
     });
 
     it("should handle ingredients without unit", () => {
@@ -165,7 +169,7 @@ describe("cards render", () => {
             { ingredient: "Pomme", quantity: 3 },
             { ingredient: "Sucre", quantity: 50, unit: "g" },
           ],
-          ustensils: ["couteau"],
+          utensils: ["couteau"],
           appliance: "four",
           images: { jpgUrl: TEST_JPG_URL, webpUrl: TEST_WEBP_URL, alt: "Tarte" },
         },
@@ -179,7 +183,7 @@ describe("cards render", () => {
       expect(card.id).toBe("1");
       expect(card.querySelector(".card-header h2").textContent).toBe("Tarte aux pommes");
       expect(card.querySelector(".card-time").textContent).toContain("45");
-      expect(card.querySelectorAll(".ingredients-details .ingredient-items").length).toBe(2);
+      expect(card.querySelectorAll(".ingredients-grid .ingredient-chip").length).toBe(2);
 
       // Empty state should be hidden when cards render
       const empty = document.getElementById("no-results");

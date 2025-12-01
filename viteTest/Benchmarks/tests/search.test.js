@@ -1,8 +1,8 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { runSearchBenchmark, runMemoryBenchmark, TEST_CONFIG } from "@benchmarks-config/testHelpers.js";
-import { filterBySearchTerm as filterBySearchTermMaps } from "@benchmarks-implementations/filtersMap.js";
 import { filterBySearchTerm as filterBySearchTermProduction } from "@benchmarks-implementations/production.js";
 import { logCategorySummary } from "@benchmarks-utils/logging.js";
+import { filterBySearchTerm as filterBySearchTermMaps } from "~/viteTest/Benchmarks/implementations/forEach.js";
 
 describe("Search Benchmark Tests", () => {
   const { iterations, searchBigDataIterations, timeouts } = TEST_CONFIG;

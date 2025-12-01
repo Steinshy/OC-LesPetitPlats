@@ -1,54 +1,57 @@
-const getScrollToTopElements = () => {
-  return {
-    button: document.getElementById("scroll-to-top"),
-    dropdowns: document.querySelector(".dropdowns"),
-    placeholder: document.querySelector(".dropdowns-placeholder"),
-  };
+// src/components/scrollToTop.js
+import { dropdownsElements } from "@components/dropdowns/elements.js";
+import { isScrolledPastHeader } from "@components/header.js";
+import { isMobile } from "@utils/device.js";
+
+let button = null;
+
+const getButton = () => {
+  if (!button) button = document.getElementById("scroll-to-top");
+  return button;
 };
 
-const isMobile = () => {
-  const detector = document.querySelector(".mobile-detector");
-  return detector ? window.getComputedStyle(detector).display !== "none" : false;
+export const showScrollToTop = () => {
+  const buttonElement = getButton();
+  if (!buttonElement) return;
+  buttonElement.classList.add("show");
+  buttonElement.setAttribute("aria-hidden", "false");
 };
 
-const scrollToTop = () => {
-  const { button } = getScrollToTopElements();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  button?.blur();
+export const hideScrollToTop = () => {
+  const buttonElement = getButton();
+  if (!buttonElement) return;
+  buttonElement.classList.remove("show");
+  buttonElement.setAttribute("aria-hidden", "true");
+};
+
+export const hasOpenDropdown = () => {
+  const { section } = dropdownsElements();
+  if (!section) return false;
+  return [...section.querySelectorAll(".dropdown-container")].some(
+    dropdown => dropdown.classList.contains("open"),
+  );
 };
 
 export const updateVisibility = () => {
-  const { button } = getScrollToTopElements();
-  if (!button) return;
+  const buttonElement = getButton();
+  if (!buttonElement) return;
 
-  const dropdownContainer = document.getElementById("dropdowns-container");
-  const mobile = isMobile();
+  const shouldHideOnMobile = isMobile() && hasOpenDropdown();
+  const shouldShow = isScrolledPastHeader() && !shouldHideOnMobile;
 
-  // Check if any dropdown is open
-  const hasOpenDropdown = dropdownContainer
-    ? [...dropdownContainer.querySelectorAll(".dropdown-container")].some(container =>
-        container.classList.contains("open"),
-      )
-    : false;
-
-  const shouldShow = window.scrollY > 300 && !(mobile && hasOpenDropdown);
-
-  button.classList.toggle("show", shouldShow);
-  button.setAttribute("aria-hidden", String(!shouldShow));
-};
-
-const setupListeners = () => {
-  const { button } = getScrollToTopElements();
-  if (!button) return;
-
-  button.addEventListener("click", scrollToTop);
-  window.addEventListener("scroll", updateVisibility, { passive: true });
+  if (shouldShow) {
+    showScrollToTop();
+  } else {
+    hideScrollToTop();
+  }
 };
 
 export const setupScrollToTop = () => {
-  const { button } = getScrollToTopElements();
+  button = document.getElementById("scroll-to-top");
   if (!button) return;
 
-  updateVisibility();
-  setupListeners();
+  button.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    button?.blur();
+  });
 };

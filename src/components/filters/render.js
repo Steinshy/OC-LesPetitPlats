@@ -1,31 +1,34 @@
-export const renderFilters = () => {
-  return `
-      <div class="filters-container" id="filters-container">
-        <div class="filters-header">
-          <h3 class="filters-title">
-            Filtres sélectionnés
-            <span class="filters-count" id="filters-count">(0)</span>
-          </h3>
-          <button type="button" id="clear-filters-btn" class="clear-filters-btn" aria-label="Retirer tous les filtres">
-            Tout effacer
-          </button>
-        </div>
+// src/components/filters/render.js
 
-        <div class="lists-container" id="filters-tags">
-          <!-- Filter tags -->
-        </div>
-      </div>
-  `;
-};
-
-export const renderFilterTag = (value, type) => {
-  const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  const uniqueId = `filter-tag-${type}-${value.replace(/\s+/g, "-").toLowerCase()}`;
-  return `
-  <button type="button" class="filter-tag selected" id="${uniqueId}" data-value="${value}" data-type="${type}"
-    aria-label="Retirer le filtre ${value}">
-    <span>${capitalizedValue}</span>
-    <i class="ri-close-line" aria-hidden="true"></i>
-  </button>
+export const renderFiltersContainer = () => `
+  <div class="filters-header">
+    <h3 class="filters-title">
+      Filtres sélectionnés
+      <span class="filters-count" id="filters-count"></span>
+    </h3>
+    <button 
+      type="button" 
+      id="clear-filters-btn" 
+      class="clear-filters-btn" 
+      aria-hidden="true"
+      aria-label="Retirer tous les filtres">
+      Tout effacer
+    </button>
+  </div>
+  <ul class="lists-container" id="filters-tags" role="list"></ul>
 `;
-};
+
+export const renderFilterTag = ({ label, value, type, id }) => `
+  <li>
+    <button 
+      type="button" 
+      class="filter-tag" 
+      id="${id}" 
+      data-value="${value}" 
+      data-type="${type}"
+      aria-label="Retirer le filtre ${label}">
+      <span>${label}</span>
+      <i class="ri-close-line" aria-hidden="true"></i>
+    </button>
+  </li>
+`;

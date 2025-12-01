@@ -2,7 +2,7 @@ import { exec, spawn, execSync } from "node:child_process";
 import { promisify } from "node:util";
 import chalk from "chalk";
 import { askQuestionMultiple } from "@benchmarks-reporting-cli/prompts.js";
-import { createSpinner } from "@benchmarks-utils/logging.js";
+import { createSpinner } from "@benchmarks-utils/console.js";
 
 const execAsync = promisify(exec);
 
@@ -190,15 +190,29 @@ async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, te
     stderr += data.toString();
   });
 
-  await new Promise((resolve, reject) => {
-    vitestProcess.on("close", code => {
-      if (code !== 0) {
-        reject(new Error(`Vitest exited with code ${code}`));
-      } else {
-        resolve();
-      }
+  try {
+    await new Promise((resolve, reject) => {
+      vitestProcess.on("close", code => {
+        if (code !== 0) {
+          // Log the error output for debugging
+          const errorOutput = stderr || stdout;
+          reject(new Error(`Vitest exited with code ${code} for ${test.name}\n${errorOutput}`));
+        } else {
+          resolve();
+        }
+      });
+
+      vitestProcess.on("error", error => {
+        reject(new Error(`Failed to start Vitest for ${test.name}: ${error.message}`));
+      });
     });
-  });
+  } catch (error) {
+    // Log the error but continue with other tests
+    console.error(chalk.red(`\n❌ Error running ${test.name} benchmark:`));
+    console.error(chalk.red(error.message));
+    // Don't throw - continue with other tests
+    return;
+  }
 
   // Combine stdout and stderr
   const output = stdout + stderr;
@@ -214,11 +228,26 @@ async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, te
 // Run all benchmark tests
 async function runBenchmarkTests(testsToRun, runAllTests, runAllTestsEnv) {
   const testSpinner = createSpinner(`Running ${testsToRun.length} test suite(s)...`);
+  let successCount = 0;
+  let failureCount = 0;
+
   for (let index = 0; index < testsToRun.length; index++) {
     const test = testsToRun[index];
-    await runSingleTest(test, index, testsToRun.length, runAllTests, runAllTestsEnv, testSpinner);
+    try {
+      await runSingleTest(test, index, testsToRun.length, runAllTests, runAllTestsEnv, testSpinner);
+      successCount++;
+    } catch (error) {
+      failureCount++;
+      console.error(chalk.red(`\n❌ Failed to run ${test.name} benchmark: ${error.message}`));
+      // Continue with next test instead of stopping
+    }
   }
-  testSpinner.succeed(`Completed ${testsToRun.length} test suite(s)`);
+
+  if (failureCount > 0) {
+    testSpinner.warn(`Completed ${successCount}/${testsToRun.length} test suite(s) (${failureCount} failed)`);
+  } else {
+    testSpinner.succeed(`Completed ${testsToRun.length} test suite(s)`);
+  }
 }
 
 export { isVitestRunning, handleRunningVitest, filterVitestOutput, runSingleTest, runBenchmarkTests };

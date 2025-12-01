@@ -1,39 +1,9 @@
-export const filtersState = {
-  allRecipes: [],
-  filteredRecipes: [],
-  isInitialLoad: true,
-  filters: {
-    search: "",
-    ingredients: new Set(),
-    appliances: new Set(),
-    ustensils: new Set(),
-  },
-};
+// src/components/filters/elements.js
 
-export const filtersConstants = {
-  ariaHidden: "aria-hidden",
-  ariaHiddenTrue: "true",
-  ariaHiddenFalse: "false",
-};
-
-export const filtersElements = {
-  get mainContainer() {
-    return document.getElementById("filters");
-  },
-  get filtersContainer() {
-    return document.getElementById("filters-container");
-  },
-  get filterCount() {
-    return document.getElementById("filters-count");
-  },
-  get clearAll() {
-    return document.getElementById("clear-filters-btn");
-  },
-  get listsContainer() {
-    return document.getElementById("filters-tags");
-  },
-  get filterTags() {
-    // Better than using a repeated id, just grab by class
-    return document.querySelectorAll(".filter-tag");
-  },
-};
+export const filtersElements = () => ({
+  section: document.getElementById("filters"),
+  container: document.getElementById("filters-container"),
+  count: document.getElementById("filters-count"),
+  clearBtn: document.getElementById("clear-filters-btn"),
+  tagsList: document.getElementById("filters-tags"),
+});

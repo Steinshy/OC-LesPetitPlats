@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
 import { cacheManager } from "@/utils/cache.js";
 import { buildRecipesData } from "@/utils/recipesBuilder.js";
-import { logCategorySummary } from "../logging/console.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
 describe("recipesBuilder", () => {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe("recipesBuilder", () => {
       { ingredient: "Flour", quantity: 200, unit: "g" },
       { ingredient: "Sugar", quantity: 100, unit: "g" },
     ],
-    ustensils: ["Spoon", "Bowl"],
+    ustensils: ["Spoon", "Bowl"], // API uses 'ustensils' (with 'u')
     image: "recipes/test.jpg",
   };
 
@@ -89,8 +89,8 @@ describe("recipesBuilder", () => {
     expect(recipes[0].images.webpUrl).toContain("recipes/test.webp");
   });
 
-  it("should build search string from name, ingredients, ustensils, and appliance", async () => {
-    // Recipe with string ustensils
+  it("should build search string from name, ingredients, utensils, and appliance", async () => {
+    // Recipe with string ustensils (API format)
     const recipeWithStringUstensils = {
       ...mockRawRecipe,
       ustensils: ["Spoon", "Bowl"],
@@ -109,12 +109,13 @@ describe("recipesBuilder", () => {
     const recipes = result.value;
 
     // No search property in actual code - recipe data is returned as-is
+    // ustensils from API is mapped to utensils in output
     expect(recipes[0]).not.toHaveProperty("search");
     expect(recipes[0].name).toBe("Test Recipe");
-    expect(recipes[0].ustensils).toEqual(["Spoon", "Bowl"]);
+    expect(recipes[0].utensils).toEqual(["Spoon", "Bowl"]);
   });
 
-  it("should build ustensils array", async () => {
+  it("should build utensils array", async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
@@ -127,8 +128,8 @@ describe("recipesBuilder", () => {
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
-    // Ustensils are returned as-is, not normalized
-    expect(recipes[0].ustensils).toEqual(expect.arrayContaining(["Spoon", "Bowl"]));
+    // utensils are returned as-is, not normalized
+    expect(recipes[0].utensils).toEqual(expect.arrayContaining(["Spoon", "Bowl"]));
   });
 
   it("should handle missing optional fields", async () => {
@@ -159,7 +160,7 @@ describe("recipesBuilder", () => {
       time: 0,
       appliance: "",
       ingredients: [],
-      ustensils: [],
+      utensils: [],
       images: expect.any(Object),
     });
   });
@@ -206,7 +207,7 @@ describe("recipesBuilder", () => {
           { ingredient: "Sugar", quantity: 100, unit: "g" },
         ],
         appliance: "Oven",
-        ustensils: ["Spoon", "Bowl"],
+        ustensils: ["Spoon", "Bowl"], // API uses 'ustensils'
       },
       {
         ...mockRawRecipe,
@@ -216,7 +217,7 @@ describe("recipesBuilder", () => {
           { ingredient: "Butter", quantity: 100, unit: "g" },
         ],
         appliance: "Oven",
-        ustensils: ["Spoon", "Fork"],
+        ustensils: ["Spoon", "Fork"], // API uses 'ustensils'
       },
     ];
 
@@ -232,13 +233,15 @@ describe("recipesBuilder", () => {
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
-    // buildRecipesData doesn't return dropdownData - that's built separately
-    // Test that recipes are built correctly instead
+    // buildRecipesData doesn't return dropdownData - that's built separately by buildDropdownsData
+    // Test that recipes are built correctly with ustensils mapped to utensils
     expect(recipes).toHaveLength(2);
     expect(recipes[0].ingredients).toHaveLength(2);
     expect(recipes[1].ingredients).toHaveLength(2);
-    expect(recipes[0].ustensils).toContain("Spoon");
-    expect(recipes[0].ustensils).toContain("Bowl");
+    expect(recipes[0].utensils).toContain("Spoon");
+    expect(recipes[0].utensils).toContain("Bowl");
+    expect(recipes[1].utensils).toContain("Spoon");
+    expect(recipes[1].utensils).toContain("Fork");
   });
 
   afterAll(() => {
