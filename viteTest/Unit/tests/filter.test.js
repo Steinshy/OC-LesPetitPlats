@@ -1,11 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 import {
   mockRecipesWithSearch,
   RECIPE_1,
   RECIPE_2,
   RECIPE_ONE,
 } from "../data/testData.js";
-import { logCategorySummary } from "../logging/console.js";
 import {
   filterBySearchTerm,
   filterByIngredients,

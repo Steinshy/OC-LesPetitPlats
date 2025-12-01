@@ -2,16 +2,18 @@
 // This file uses vi.mock to redirect source imports to test wrapper modules
 import { vi } from "vitest";
 
-// Mock deliveryImages to use wrapper with selectRandomImages
-vi.mock("@/utils/deliveryImages.js", async () => {
-  const wrapper = await vi.importActual("@tests-mocks/deliveryImages.js");
+// Mock imageTracker to use wrapper with selectRandomImages
+vi.mock("@/utils/imageTracker.js", async () => {
+  const wrapper = await vi.importActual("@tests-mocks/imageTracker.js");
   return wrapper;
 });
 
-// Mock recipeFilters to use wrapper with test aliases (old file was filtersBy.js, now recipeFilters.js)
-vi.mock("@/components/filters/recipeFilters.js", async () => {
+// Mock filterEngine to use wrapper with test aliases (recipeFilters.js was replaced with filterEngine.js)
+vi.mock("@/utils/filterEngine.js", async () => {
+  const actual = await vi.importActual("@/utils/filterEngine.js");
   const wrapper = await vi.importActual("@tests-mocks/filtersBy.js");
-  return wrapper;
+  // Return actual filterEngine exports, but also include test wrapper exports for backward compatibility
+  return { ...actual, ...wrapper };
 });
 
 // Mock filters manager to use wrapper with missing exports
@@ -22,9 +24,9 @@ vi.mock("@/components/filters/manager.js", async () => {
 });
 
 // Mock dropdown data to use wrapper with test-compatible return structure
-vi.mock("@/components/dropdown/data.js", async () => {
+vi.mock("@/components/dropdowns/data.js", async () => {
   // Import original BEFORE importing wrapper to avoid circular dependency
-  const original = await vi.importActual("@/components/dropdown/data.js");
+  const original = await vi.importActual("@/components/dropdowns/data.js");
 
   // Create wrapper function that uses the original
   const buildDropdownsDataWrapper = recipesData => {
@@ -52,10 +54,10 @@ vi.mock("@/components/dropdown/data.js", async () => {
   };
 });
 
-// Mock string utils to use wrapper with test-compatible functions
-vi.mock("@/utils/string.js", async () => {
+// Mock normalize.js to use wrapper with test-compatible functions
+vi.mock("@/utils/normalize.js", async () => {
   // Import original BEFORE importing wrapper to avoid circular dependency
-  const original = await vi.importActual("@/utils/string.js");
+  const original = await vi.importActual("@/utils/normalize.js");
   const wrappers = await vi.importActual("@tests-mocks/wrappers.js");
 
   // Create wrapper function that uses the original
@@ -73,21 +75,21 @@ vi.mock("@/utils/string.js", async () => {
   };
 });
 
-// Mock search render to use wrapper with missing exports
+// Mock search render to use wrapper that exports renderDropdownSearch from dropdowns/render.js
 vi.mock("@/components/search/render.js", async () => {
   const wrapper = await vi.importActual("@tests-mocks/searchRender.js");
   return wrapper;
 });
 
 // Mock dropdown render to use wrapper with missing exports
-vi.mock("@/components/dropdown/render.js", async () => {
+vi.mock("@/components/dropdowns/render.js", async () => {
   const wrappers = await vi.importActual("@tests-mocks/wrappers.js");
   // Return all exports from wrappers (includes original exports via export *)
   return wrappers;
 });
 
 // Mock skeletons to use wrapper with test-compatible functions
-vi.mock("@/components/skeletons.js", async () => {
+vi.mock("@/components/skeletons/manager.js", async () => {
   const wrapper = await vi.importActual("@tests-mocks/skeletonsManager.js");
   return wrapper;
 });

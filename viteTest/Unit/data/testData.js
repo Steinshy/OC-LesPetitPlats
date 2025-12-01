@@ -8,9 +8,9 @@ export const RECIPE_ONE = "Recipe One";
 export const FILTER_TAG_SELECTOR = ".filter-tag";
 export const RESULTS_COUNTER_SELECTOR = ".results-counter h2";
 export const SEARCH_INPUT_SELECTOR = ".main-search-bar input";
-export const SEARCH_BUTTON_SELECTOR = ".main-search-bar .search-btn";
-export const INGREDIENTS_LIST_SELECTOR = ".ingredients-list";
-export const FILTERS_BOX_SELECTOR = ".filters-box";
+export const SEARCH_BUTTON_SELECTOR = ".main-search-bar .search-button";
+export const FILTERS_SELECTOR = ".filters";
+export const FILTERS_TAGS_SELECTOR = "#filters-tags";
 
 // Mock recipes for filter tests (with search property)
 export const mockRecipesWithSearch = [

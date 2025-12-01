@@ -1,11 +1,11 @@
 import { afterAll, describe, it, expect, beforeEach, afterEach } from "vitest";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 import {
   DROPDOWN_TYPES,
   formatDropdownData,
   getFilteredItems,
   getDropdownElements,
 } from "../helpers/utils.js";
-import { logCategorySummary } from "../logging/console.js";
 
 describe("dropdown utils", () => {
   describe("DROPDOWN_TYPES", () => {
@@ -94,57 +94,57 @@ describe("dropdown utils", () => {
 
     it("should return all items when search input value is empty", () => {
       // Empty search input
-      const filterBysearchInput = { value: "" };
+      const searchInput = { value: "" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual(dropdownData.ingredients);
     });
 
     it("should filter items by search query (case insensitive)", () => {
       // Search input (uppercase)
-      const filterBysearchInput = { value: "TO" };
+      const searchInput = { value: "TO" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should filter items by partial match", () => {
       // Partial search input
-      const filterBysearchInput = { value: "ato" };
+      const searchInput = { value: "ato" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should return empty array when no match found", () => {
       // Non-matching search input
-      const filterBysearchInput = { value: "xyz" };
+      const searchInput = { value: "xyz" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual([]);
     });
 
     it("should handle whitespace in search query", () => {
       // Search input with whitespace
-      const filterBysearchInput = { value: "  tomato  " };
+      const searchInput = { value: "  tomato  " };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual(["tomato"]);
     });
 
     it("should filter appliances", () => {
       // Search input for appliances
-      const filterBysearchInput = { value: "ov" };
+      const searchInput = { value: "ov" };
       // Filtered items
-      const result = getFilteredItems("appliances", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("appliances", dropdownData, searchInput);
       expect(result).toEqual(["oven", "stove"]);
     });
 
     it("should filter utensils", () => {
       // Search input for utensils
-      const filterBysearchInput = { value: "oo" };
+      const searchInput = { value: "oo" };
       // Filtered items
-      const result = getFilteredItems("utensils", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("utensils", dropdownData, searchInput);
       expect(result).toEqual(["spoon"]);
     });
 
@@ -160,11 +160,11 @@ describe("dropdown utils", () => {
       expect(result).toBeUndefined();
     });
 
-    it("should handle filterBysearchInput with null value property", () => {
+    it("should handle searchInput with null value property", () => {
       // Search input with null value
-      const filterBysearchInput = { value: null };
+      const searchInput = { value: null };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
+      const result = getFilteredItems("ingredients", dropdownData, searchInput);
       expect(result).toEqual(dropdownData.ingredients);
     });
   });
@@ -173,8 +173,8 @@ describe("dropdown utils", () => {
     const createDropdownElements = type => {
       const button = document.createElement("button");
       button.id = `dropdown-${type}-button`;
-      const filterBysearchInput = document.createElement("input");
-      filterBysearchInput.id = `search-${type}`;
+      const searchInput = document.createElement("input");
+      searchInput.id = `search-${type}`;
       const searchIcon = document.createElement("span");
       searchIcon.id = `search-icon-${type}`;
       const clearButton = document.createElement("button");
@@ -187,7 +187,7 @@ describe("dropdown utils", () => {
       backdrop.id = `dropdown-${type}-backdrop`;
 
       document.body.appendChild(button);
-      document.body.appendChild(filterBysearchInput);
+      document.body.appendChild(searchInput);
       document.body.appendChild(searchIcon);
       document.body.appendChild(clearButton);
       document.body.appendChild(menu);
@@ -209,8 +209,8 @@ describe("dropdown utils", () => {
 
       expect(elements.button).toBeTruthy();
       expect(elements.button.id).toBe("dropdown-ingredients-button");
-      expect(elements.filterBysearchInput).toBeTruthy();
-      expect(elements.filterBysearchInput.id).toBe("search-ingredients");
+      expect(elements.searchInput).toBeTruthy();
+      expect(elements.searchInput.id).toBe("search-ingredients");
       expect(elements.searchIcon).toBeTruthy();
       expect(elements.searchIcon.id).toBe("search-icon-ingredients");
       expect(elements.clearButton).toBeTruthy();
@@ -229,8 +229,8 @@ describe("dropdown utils", () => {
 
       expect(elements.button).toBeTruthy();
       expect(elements.button.id).toBe("dropdown-appliances-button");
-      expect(elements.filterBysearchInput).toBeTruthy();
-      expect(elements.filterBysearchInput.id).toBe("search-appliances");
+      expect(elements.searchInput).toBeTruthy();
+      expect(elements.searchInput.id).toBe("search-appliances");
       expect(elements.searchIcon).toBeTruthy();
       expect(elements.searchIcon.id).toBe("search-icon-appliances");
       expect(elements.clearButton).toBeTruthy();
@@ -249,8 +249,8 @@ describe("dropdown utils", () => {
 
       expect(elements.button).toBeTruthy();
       expect(elements.button.id).toBe("dropdown-utensils-button");
-      expect(elements.filterBysearchInput).toBeTruthy();
-      expect(elements.filterBysearchInput.id).toBe("search-utensils");
+      expect(elements.searchInput).toBeTruthy();
+      expect(elements.searchInput.id).toBe("search-utensils");
       expect(elements.searchIcon).toBeTruthy();
       expect(elements.searchIcon.id).toBe("search-icon-utensils");
       expect(elements.clearButton).toBeTruthy();
@@ -267,7 +267,7 @@ describe("dropdown utils", () => {
       const elements = getDropdownElements("ingredients");
 
       expect(elements.button).toBeNull();
-      expect(elements.filterBysearchInput).toBeNull();
+      expect(elements.searchInput).toBeNull();
       expect(elements.searchIcon).toBeNull();
       expect(elements.clearButton).toBeNull();
       expect(elements.menu).toBeNull();

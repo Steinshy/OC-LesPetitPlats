@@ -58,20 +58,25 @@ export const renderCardHeader = (name, servings = null) => {
 
 export const renderCardContents = (description, ingredients) => {
   const ingredientsHTML = (ingredients || [])
-    .map(
-      ingredient => `
-    <div class="ingredient-chip">
-      <span class="ingredient-name">${ingredient.ingredient}</span>
-      ${
-        ingredient.quantity || ingredient.unit
-          ? `<span class="ingredient-quantity">${[ingredient.quantity, ingredient.unit]
-        .filter(Boolean)
-              .join(" ")}</span>`
-          : ""
-      }
-    </div>
-  `,
-    )
+    .map(ingredient => {
+      const { quantity, unit } = ingredient;
+      const hasQuantity = quantity != null && quantity !== "";
+      const hasUnit = unit != null && unit !== "";
+
+      const quantityText =
+        hasQuantity || hasUnit
+          ? [hasQuantity ? quantity : null, hasUnit ? unit : null]
+              .filter(value => value != null)
+              .join(" ")
+          : "au goût";
+
+      return `
+        <div class="ingredient-chip">
+          <span class="ingredient-name">${ingredient.ingredient}</span>
+          <span class="ingredient-quantity">${quantityText}</span>
+        </div>
+      `;
+    })
     .join("");
 
   return `

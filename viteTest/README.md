@@ -21,12 +21,13 @@ Les deux systèmes utilisent **Vitest** comme framework de test, avec des config
 - 📈 **Métriques avancées** : Temps moyen, min, max, RME (Relative Measurement Error), taux de victoire
 - 💡 **Recommandations** : Insights et suggestions d'optimisation basées sur les résultats
 - 🔍 **Tests de performance** : Recherche par terme, filtrage par ingrédients, appareils et ustensiles
+- 🔄 **Comparaison d'implémentations** : Production (.map()/.filter()) vs forEach loops
 
 ### Unit Tests
 
 - ✅ **Tests unitaires** : Validation du comportement fonctionnel des composants et utilitaires
-- 🎭 **Tests de composants** : bodyScroll, cards, dropdown, filters, search, skeletons, scrollToTop
-- 🔧 **Tests d'utilitaires** : cache, deliveryImages, errorHandler, recipeApi, recipesBuilder, string
+- 🎭 **Tests de composants** : scrollLock, cards, dropdown, filters, search, skeletons, scrollToTop
+- 🔧 **Tests d'utilitaires** : cache, imageTracker, toast, recipeApi, recipesBuilder, normalize
 - 📊 **Couverture de code** : Rapports de couverture avec seuils configurables
 - 🔄 **Mode watch** : Exécution en temps réel lors des modifications
 - 🎪 **Mocks et helpers** : Infrastructure complète pour les tests avec mocks et utilitaires
@@ -67,7 +68,10 @@ npm run benchmark
 - Le script vous demandera si vous souhaitez exécuter tous les tests :
   - **"yes"** → Exécute tous les tests et génère un rapport **"full"**
   - **"no"** → Permet de sélectionner des tests spécifiques et génère un rapport **"partial"**
-- Les rapports HTML sont sauvegardés avec un timestamp dans le dossier `Report/` avec le suffixe correspondant (`-full` ou `-partial`)
+- Les rapports HTML sont sauvegardés avec un timestamp dans le dossier `Benchmark/` avec le suffixe correspondant (`-full` ou `-partial`)
+- Les tests comparent deux implémentations :
+  - **Production** : Utilise `.map()` et `.filter()` (méthodes fonctionnelles)
+  - **forEach** : Utilise des boucles `forEach` (approche impérative)
 
 #### Interprétation des résultats
 
@@ -98,7 +102,7 @@ npm test
 npm test -- --watch
 
 # Exécuter un fichier de test spécifique
-npm test -- tests/string.test.js
+npm test -- tests/normalize.test.js
 
 # Exécuter les tests en mode verbose
 npm test -- --reporter=verbose
@@ -164,7 +168,7 @@ npm run benchmark        # Exécuter les benchmarks de performance
 
 ```bash
 npm test -- --watch              # Mode watch pour les tests unitaires
-npm test -- tests/string.test.js # Exécuter un fichier spécifique
+npm test -- tests/normalize.test.js # Exécuter un fichier spécifique
 npm test -- --reporter=verbose   # Mode verbose
 ```
 
@@ -178,6 +182,8 @@ npm test -- --reporter=verbose   # Mode verbose
 - **[tsx](https://github.com/esbuild-kit/tsx)** : Exécution TypeScript/ESM
 - **[chart.js](https://www.chartjs.org/)** : Génération de graphiques pour les rapports
 - **[chalk](https://github.com/chalk/chalk)** : Coloration du terminal
+- **[ora](https://github.com/sindresorhus/ora)** : Spinners animés pour le terminal
+- **[cli-progress](https://github.com/npkgz/cli-progress)** : Barres de progression pour le terminal
 
 ### Dépendances principales
 
@@ -186,6 +192,8 @@ npm test -- --reporter=verbose   # Mode verbose
 - `tinybench` : Bibliothèque de benchmarking
 - `chart.js` et `chartjs-node-canvas` : Génération de graphiques
 - `chalk` : Coloration du terminal
+- `ora` : Spinners pour le terminal
+- `cli-progress` : Barres de progression
 - `tsx` : Exécution TypeScript/ESM
 - `vitest` : Framework de test
 
@@ -230,8 +238,8 @@ Benchmarks/
 │   ├── loader.js        # Chargement des données
 │   └── results.js       # Gestion des résultats
 ├── implementations/     # Implémentations à comparer
-│   ├── filtersMap.js    # Implémentation avec Map
-│   └── production.js    # Implémentation de production
+│   ├── production.js    # Implémentation de production (.map()/.filter())
+│   └── forEach.js       # Implémentation avec forEach loops
 ├── reporting/           # Génération des rapports HTML
 │   ├── cli/            # Interface en ligne de commande
 │   ├── core/           # Logique principale
@@ -242,11 +250,13 @@ Benchmarks/
 │   ├── search.test.js
 │   ├── filterByIngredients.test.js
 │   ├── filterByAppliances.test.js
-│   └── filterByutensils.test.js
+│   └── filterByUstensils.test.js
 └── utils/              # Utilitaires (formatage, logging, mesure)
+    ├── console.js      # Wrapper de logging pour benchmarks
     ├── formatting.js
     ├── logging.js
-    └── measurement.js
+    ├── measurement.js
+    └── modernConsole.js # Logging moderne avec spinners et progress bars
 ```
 
 ### Structure détaillée Unit Tests
@@ -262,25 +272,25 @@ Unit/
 │   └── modernConsole.js # Logging moderne avec spinners
 ├── mocks/              # Mocks et wrappers pour les tests
 │   ├── wrappers.js     # Wrappers de compatibilité
-│   ├── deliveryImages.js
+│   ├── imageTracker.js
 │   ├── filtersBy.js
 │   ├── filtersManager.js
 │   ├── searchRender.js
 │   └── skeletonsManager.js
 ├── tests/              # Tests unitaires
-│   ├── bodyScroll.test.js
+│   ├── scrollLock.test.js
 │   ├── cache.test.js
 │   ├── cardsRender.test.js
-│   ├── deliveryImages.test.js
+│   ├── imageTracker.test.js
 │   ├── dropdown*.test.js
-│   ├── errorHandler.test.js
+│   ├── toast.test.js
 │   ├── filter*.test.js
 │   ├── recipeApi.test.js
 │   ├── recipesBuilder.test.js
 │   ├── search*.test.js
 │   ├── skeletons.test.js
 │   ├── scrollToTop.test.js
-│   └── string.test.js
+│   └── normalize.test.js
 └── setup.js            # Configuration globale des tests
 ```
 
@@ -323,8 +333,19 @@ Les alias de chemins suivants sont disponibles pour simplifier les imports :
 
 1. Créer un fichier `*.test.js` dans `Benchmarks/tests/`
 2. Utiliser `tinybench` pour mesurer les performances
-3. Comparer différentes implémentations
+3. Comparer les implémentations `production.js` et `forEach.js`
 4. Exécuter : `npm run benchmark`
+
+**Implémentations disponibles :**
+
+- `production.js` : Implémentation de production utilisant `.map()` et `.filter()`
+- `forEach.js` : Implémentation alternative utilisant des boucles `forEach`
+
+Les deux implémentations doivent exporter les mêmes fonctions pour permettre la comparaison :
+- `filterBySearchTerm(recipes, searchTerm)`
+- `filterByIngredients(recipes, ingredients)`
+- `filterByAppliances(recipes, appliances)`
+- `filterByutensils(recipes, utensils)`
 
 ## 📄 Licence
 

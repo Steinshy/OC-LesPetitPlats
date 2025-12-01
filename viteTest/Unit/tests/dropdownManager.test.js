@@ -1,12 +1,12 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { buildDropdownsData } from "@/components/dropdown/data.js";
+import { buildDropdownsData } from "~/src/components/dropdowns/data.js";
 import {
   setupDropdowns,
   updateDropdownContent,
   currentDropdownsData,
-} from "@/components/dropdown/manager.js";
-import { logCategorySummary } from "../logging/console.js";
+} from "~/src/components/dropdowns/manager.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
@@ -21,7 +21,7 @@ const ARIA_EXPANDED_TRUE = ARIA_TRUE;
 const ARIA_PRESSED_FALSE = ARIA_FALSE;
 const ARIA_HIDDEN_FALSE = ARIA_FALSE;
 
-vi.mock("@/components/dropdown/render.js", () => ({
+vi.mock("@/components/dropdowns/render.js", () => ({
   ingredientsDropdown: vi.fn(
     () => `
     <div class="dropdown-container" id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
@@ -73,15 +73,16 @@ vi.mock("@/components/dropdown/render.js", () => ({
   ),
 }));
 
-vi.mock("@/components/skeletonsManager.js", () => ({
-  dropdownsContainerSkeleton: vi.fn(() => ({
+vi.mock("@/components/skeletons/manager.js", () => ({
+  dropdownsSkeletons: vi.fn(() => ({
+    show: vi.fn(),
     hide: vi.fn(),
   })),
 }));
 
-vi.mock("@/components/bodyScroll.js", () => ({
-  lockBodyScroll: vi.fn(),
-  unlockBodyScroll: vi.fn(),
+vi.mock("@/components/scrollLock.js", () => ({
+  lockScroll: vi.fn(),
+  unlockScroll: vi.fn(),
 }));
 
 vi.mock("@/components/scrollToTop.js", () => ({
@@ -90,7 +91,7 @@ vi.mock("@/components/scrollToTop.js", () => ({
   }),
 }));
 
-vi.mock("@/components/filters/recipeFilters.js", () => ({
+vi.mock("@/utils/filterEngine.js", () => ({
   filterDropdownItems: vi.fn((items, query) => {
     if (!query) return items;
     const lowerQuery = query.toLowerCase();
@@ -99,6 +100,13 @@ vi.mock("@/components/filters/recipeFilters.js", () => ({
       return String(label).toLowerCase().includes(lowerQuery);
     });
   }),
+  // Include other filterEngine exports to avoid breaking other tests
+  filterBySearch: vi.fn((recipes, _searchTerm) => recipes),
+  filterByField: vi.fn((recipes, _selectedValues, _fieldType) => recipes),
+  applyAllFilters: vi.fn((recipes, _filters) => recipes),
+  getActiveFilterCount: vi.fn(() => 0),
+  getActiveFiltersArray: vi.fn(() => []),
+  getFieldTypes: vi.fn(() => ["ingredients", "appliances", "utensils"]),
 }));
 
 // Don't mock cleanupDuplicatedItems - let it use the real implementation
@@ -386,10 +394,10 @@ describe("dropdown manager", () => {
     });
 
     it("should update dropdown list based on search input", () => {
-      const filterBysearchInput = document.getElementById("search-ingredients");
+      const searchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
-      filterBysearchInput.value = "tomato";
+      searchInput.value = "tomato";
       updateDropdownContent("ingredients");
 
       const items = itemsList.querySelectorAll("li");
@@ -397,10 +405,10 @@ describe("dropdown manager", () => {
     });
 
     it("should show empty state when no matches", () => {
-      const filterBysearchInput = document.getElementById("search-ingredients");
+      const searchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
-      filterBysearchInput.value = "nonexistent";
+      searchInput.value = "nonexistent";
       updateDropdownContent("ingredients");
 
       const emptyState = itemsList.querySelector("#dropdown-ingredients-empty-state");
@@ -408,14 +416,14 @@ describe("dropdown manager", () => {
     });
 
     it("should toggle clear button visibility based on input", () => {
-      const filterBysearchInput = document.getElementById("search-ingredients");
+      const searchInput = document.getElementById("search-ingredients");
       const clearButton = document.getElementById("dropdown-ingredients-search-clear-button");
 
-      filterBysearchInput.value = "test";
+      searchInput.value = "test";
       updateDropdownContent("ingredients");
       expect(clearButton.classList.contains("hidden")).toBe(false);
 
-      filterBysearchInput.value = "";
+      searchInput.value = "";
       updateDropdownContent("ingredients");
       expect(clearButton.classList.contains("hidden")).toBe(true);
     });
@@ -426,13 +434,13 @@ describe("dropdown manager", () => {
     });
 
     it("should filter items based on search query", () => {
-      const filterBysearchInput = document.getElementById("search-ingredients");
+      const searchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
       // Ensure data is set (in case setupDropdowns overwrote it)
       currentDropdownsData.ingredients = ["Tomato", "Onion", "Potato"];
 
-      filterBysearchInput.value = "on";
+      searchInput.value = "on";
       updateDropdownContent("ingredients");
 
       const items = itemsList.querySelectorAll(".item-btn");

@@ -1,24 +1,9 @@
 // src/components/cards/manager.js
+import { cardsElements } from "@components/cards/elements.js";
+import { renderNoResults, renderCardPicture, renderCardHeader, renderCardContents } from "@components/cards/render.js";
+import { cardsSkeletons } from "@components/skeletons/manager.js";
 
-import {
-  renderNoResults,
-  renderCardPicture,
-  renderCardHeader,
-  renderCardContents,
-} from "@components/cards/render.js";
-import { cardSkeletons } from "@components/skeletonsManager.js";
-import { imagesTypes } from "@utils/deliveryImages.js";
-
-// ---------------
-// dom elements
-// ---------------
-
-const getCardsElements = () => {
-  return {
-    container: document.getElementById("recipes"),
-    noResults: document.getElementById("no-results"),
-  };
-};
+import { setupImageTracking } from "@utils/imageTracker.js";
 
 // ---------------
 // recipe toggle
@@ -105,14 +90,14 @@ const updateCardContainer = (container, items, createElement) => {
 // ---------------
 
 export const setupRecipesCards = recipesData => {
-  const { container, noResults } = getCardsElements();
+  const { container, emptyState, noResults } = cardsElements();
   if (!container) return;
 
   setupRecipeToggle(container);
 
   // Handle empty state
   if (!recipesData || !Array.isArray(recipesData) || recipesData.length === 0) {
-    cardSkeletons().hide();
+    cardsSkeletons().hide();
     if (noResults) {
       noResults.innerHTML = renderNoResults();
       noResults.classList.remove("hidden");
@@ -123,12 +108,18 @@ export const setupRecipesCards = recipesData => {
         </div>
       `;
     }
+    if (emptyState) {
+      emptyState.classList.add("hidden");
+    }
     return;
   }
 
-  cardSkeletons().build(recipesData.length);
+  cardsSkeletons().show(recipesData.length);
   if (noResults) {
     noResults.classList.add("hidden");
+  }
+  if (emptyState) {
+    emptyState.classList.add("hidden");
   }
 
   const newCards = updateCardContainer(container, recipesData, (recipe, index) => {
@@ -142,13 +133,13 @@ export const setupRecipesCards = recipesData => {
     return template.content.firstElementChild;
   });
 
-  cardSkeletons().hide();
+  cardsSkeletons().hide();
 
   // Setup image loading for new cards
   newCards.forEach(card => {
     const recipe = recipesData.find(r => String(r.id) === card.id);
     if (recipe?.images) {
-      imagesTypes(card, recipe.images);
+      setupImageTracking(card, recipe.images);
     }
   });
 };

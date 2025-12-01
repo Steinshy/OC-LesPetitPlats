@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { createSpinner } from "@benchmarks-utils/logging.js";
+import { createSpinner, logWarning } from "@benchmarks-utils/console.js";
 import { promptForAllTests } from "./cli/prompts.js";
 import { cleanupTempFiles } from "./core/cleanup.js";
 import { finalizeReport } from "./core/finalizer.js";
@@ -23,7 +23,7 @@ async function main() {
     collectSpinner.succeed("Collected benchmark results");
 
     if (results.flattened.length === 0) {
-      console.log(chalk.yellow("\n⚠ Warning: No benchmark results found."));
+      logWarning("No benchmark results found.");
       console.log(
         chalk.dim("Tests need to be modified to use addBenchmarkResult() from collector.js"),
       );
@@ -34,7 +34,11 @@ async function main() {
     await finalizeReport(htmlPath, startTime);
     cleanupTempFiles();
   } catch (error) {
-    console.error("Error generating benchmark report:", error.message);
+    console.error(chalk.red("\n❌ Error generating benchmark report:"));
+    console.error(chalk.red(error.message));
+    if (error.stack) {
+      console.error(chalk.dim(error.stack));
+    }
     process.exit(1);
   }
 }

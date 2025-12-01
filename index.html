@@ -76,7 +76,7 @@
                 <i class="ri-close-line" aria-hidden="true"></i>
               </button>
 
-              <button type="button" id="search-submit-btn" aria-label="Lancer la recherche" class="search-btn">
+              <button type="button" id="search-submit-button" aria-label="Lancer la recherche" class="search-button">
                 <i class="ri-search-line" aria-hidden="true"></i>
               </button>
             </div>
@@ -86,7 +86,7 @@
       <!-- Main Content Section -->
       <main class="main">
         <!-- Filter Dropdowns -->
-        <section class="dropdowns">
+        <section class="dropdowns" id="dropdowns">
           <div id="dropdowns-container" class="dropdowns-container">
             <!-- Dropdowns -->
           </div>
@@ -97,11 +97,13 @@
 
         <!-- Selected Filters Display -->
         <aside class="filters" id="filters">
-          <!-- Filters section -->
+          <div id="filters-container" class="filters-container">
+            <!-- Filters section -->
+          </div>
         </aside>
         <!-- Recipe Cards Grid -->
         <section class="cards-container" id="recipes" aria-label="Liste des recettes">
-
+          <!-- Recipe cards rendered here -->
         </section>
       </main>
 

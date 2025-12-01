@@ -1,8 +1,8 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupSearchBar } from "@/components/search/manager.js";
-import { logCategorySummary } from "../logging/console.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
-vi.mock("@tests-mocks/skeletonsManager.js", () => ({
+vi.mock("@/components/skeletons/manager.js", () => ({
   searchSkeleton: vi.fn(() => ({
     show: vi.fn(),
     hide: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock("@tests-mocks/skeletonsManager.js", () => ({
 
 const SEARCH_INPUT_ID = "search-input";
 const SEARCH_CLEAR_BTN_ID = "search-clear-button";
-const SEARCH_SUBMIT_BTN_ID = "search-submit-btn";
+const SEARCH_SUBMIT_BTN_ID = "search-submit-button";
 const SEARCH_BAR_ID = "search-bar";
 
 describe("search manager", () => {
@@ -28,10 +28,10 @@ describe("search manager", () => {
     beforeEach(() => {
       document.body.innerHTML = `
         <div id="search-bar" class="main-search-bar">
-          <div class="search-bar-container">
+          <div class="search-bar-container" id="search-bar-container">
             <input type="text" id="search-input" />
             <button id="search-clear-button" class="hidden"></button>
-            <button id="search-submit-btn" class="search-btn"></button>
+            <button id="search-submit-button" class="search-button"></button>
           </div>
         </div>
       `;
@@ -43,9 +43,9 @@ describe("search manager", () => {
 
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
-      filterBysearchInput.value = "test";
-      filterBysearchInput.dispatchEvent(new Event("input"));
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
+      searchInput.value = "test";
+      searchInput.dispatchEvent(new Event("input"));
 
       expect(eventSpy).toHaveBeenCalled();
       const event = eventSpy.mock.calls[0][0];
@@ -55,12 +55,12 @@ describe("search manager", () => {
     it("should toggle clear button visibility on input", () => {
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
-      filterBysearchInput.value = "test";
-      filterBysearchInput.dispatchEvent(new Event("input"));
+      searchInput.value = "test";
+      searchInput.dispatchEvent(new Event("input"));
 
       expect(clearButton.classList.contains("hidden")).toBe(false);
       expect(searchButton.classList.contains("hidden")).toBe(true);
@@ -69,15 +69,15 @@ describe("search manager", () => {
     it("should clear search on clear button click", () => {
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
-      filterBysearchInput.value = "test";
-      filterBysearchInput.dispatchEvent(new Event("input")); // Trigger input to show clear button
+      searchInput.value = "test";
+      searchInput.dispatchEvent(new Event("input")); // Trigger input to show clear button
       clearButton.click();
 
-      expect(filterBysearchInput.value).toBe("");
+      expect(searchInput.value).toBe("");
       expect(clearButton.classList.contains("hidden")).toBe(true);
       expect(searchButton.classList.contains("hidden")).toBe(false);
     });
@@ -85,10 +85,10 @@ describe("search manager", () => {
     it("should focus search input on search button click", () => {
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
-      const focusSpy = vi.spyOn(filterBysearchInput, "focus");
+      const focusSpy = vi.spyOn(searchInput, "focus");
       searchButton.click();
 
       expect(focusSpy).toHaveBeenCalled();
@@ -100,10 +100,10 @@ describe("search manager", () => {
 
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
-      filterBysearchInput.value = "query";
+      searchInput.value = "query";
       searchButton.click();
 
       expect(eventSpy).toHaveBeenCalled();
@@ -125,12 +125,12 @@ describe("search manager", () => {
     it("should handle empty input", () => {
       setupSearchBar();
 
-      const filterBysearchInput = document.getElementById(SEARCH_INPUT_ID);
+      const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
-      filterBysearchInput.value = "";
-      filterBysearchInput.dispatchEvent(new Event("input"));
+      searchInput.value = "";
+      searchInput.dispatchEvent(new Event("input"));
 
       expect(clearButton.classList.contains("hidden")).toBe(true);
       expect(searchButton.classList.contains("hidden")).toBe(false);

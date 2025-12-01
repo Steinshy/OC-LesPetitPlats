@@ -7,7 +7,7 @@ import {
   cacheDel,
   cacheGetOrSet,
 } from "@/utils/cache.js";
-import { logCategorySummary } from "../logging/console.js";
+import { logCategorySummary } from "../../Benchmarks/utils/console.js";
 
 describe("cacheManager", () => {
   beforeEach(() => {

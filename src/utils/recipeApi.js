@@ -2,7 +2,7 @@
 
 import { ok, err } from "neverthrow";
 import { cacheGetOrSet } from "@utils/cache.js";
-import { baseUrl } from "@utils/string.js";
+import { baseUrl } from "@utils/config.js";
 
 export const dataUrl = `${baseUrl}api/data.json`;
 

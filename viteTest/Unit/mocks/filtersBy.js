@@ -1,9 +1,9 @@
-// Test wrapper for filtersBy - adds missing exports without modifying source
-export * from "@/components/filters/recipeFilters.js";
-import { normalizeString } from "@/utils/string.js";
+// Test wrapper for filtersBy - uses new filterEngine
+import { filterBySearch as filterBySearchEngine } from "@/utils/filterEngine.js";
+import { normalizeString } from "~/src/utils/normalize.js";
 
-// Re-implement filterBysearchInput to avoid mocking issues
-const filterBysearchInputHelper = (recipes, searchTerm) => {
+// Re-implement searchInput to avoid mocking issues
+const searchInputHelper = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
   if (!query) return recipes;
   return recipes.filter(recipe => {
@@ -48,8 +48,19 @@ const filterByFieldHelper = (recipes, filter, fieldType) => {
 };
 
 // Export aliases for test compatibility
-// Override filterBySearchTerm to handle both ingredient.ingredient and ingredient.name
+// Map to new filterEngine API
 export const filterBySearchTerm = (recipes, searchTerm) => {
+  return filterBySearchEngine(recipes, searchTerm);
+};
+
+// Legacy alias for searchInput
+export const searchInput = filterBySearchEngine;
+
+// Legacy filterByField function - use helper for backward compatibility with test expectations
+export const filterByField = filterByFieldHelper;
+
+// Legacy filterBySearchTerm implementation (kept for backward compatibility)
+const _filterBySearchTermLegacy = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
   if (!query) return recipes;
 
@@ -169,7 +180,7 @@ export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
     }
   }
 
-  filteredRecipes = filterBysearchInputHelper(filteredRecipes, searchTerm);
+  filteredRecipes = searchInputHelper(filteredRecipes, searchTerm);
   filteredRecipes = filterByIngredients(
     filteredRecipes,
     Array.isArray(ingredients) ? ingredients : [...ingredients],

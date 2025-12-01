@@ -3,30 +3,23 @@
 
 // Test wrapper for dropdown render - adds missing exports for tests
 // Import skeleton function
-import { dropdownsSkeleton } from "@/components/skeletonsRenderer.js";
+import { dropdownsSkeleton } from "~/src/components/skeletons/renderer.js";
 
 // Re-export all original dropdown render functions
-export * from "@/components/dropdown/render.js";
+export * from "~/src/components/dropdowns/render.js";
 
 // Re-export for test compatibility
 export const renderDropdownsSkeletons = dropdownsSkeleton;
 
 // Mock searchElements for tests
 // This provides the same structure as the real searchElements but allows test control
-export const searchElements = {
-  get searchBar() {
-    return document.getElementById("search-bar");
-  },
-  get filterBysearchInput() {
-    return document.getElementById("search-input");
-  },
-  get clearButton() {
-    return document.getElementById("search-clear-button");
-  },
-  get submitSearch() {
-    return document.getElementById("search-submit-btn");
-  },
-};
+export const searchElements = () => ({
+  search: document.getElementById("search-bar"),
+  container: document.getElementById("search-bar-container"),
+  input: document.getElementById("search-input"),
+  clear: document.getElementById("search-clear-button"),
+  submit: document.getElementById("search-submit-button"),
+});
 
 // Note: String utils wrapper is now handled directly in setup.js to avoid circular dependencies
 // This file no longer exports string utils wrappers

@@ -1,12 +1,26 @@
-// Test wrapper for search render - adds missing exports for tests
-export * from "@/components/search/render.js";
-import { renderDropdownSearch as originalRenderDropdownSearch } from "@/components/search/render.js";
-
-// Override renderDropdownSearch to add search-icon class for tests
-export const renderDropdownSearch = dropdownType => {
-  const html = originalRenderDropdownSearch(dropdownType);
-  // Add search-icon class to the search icon
-  return html.replace('ri-search-line"', 'ri-search-line search-icon"');
+// Test wrapper for search render - provides renderDropdownSearch function
+// Since renderDropdownSearch is not exported from dropdowns/render.js, we provide it here
+// This matches the actual implementation in dropdowns/render.js
+export const renderDropdownSearch = (type) => {
+  const searchInputId = `search-${type}`;
+  const labelId = `label-${type}`;
+  return `
+    <div class="dropdown-search" id="dropdown-${type}-search">
+      <label for="${searchInputId}" id="${labelId}" class="sr-only">Rechercher un ${type}</label>
+      <input 
+        type="text" 
+        id="${searchInputId}"
+        name="${searchInputId}"
+        aria-labelledby="${labelId}"
+        placeholder="Rechercher un ${type}...">
+      <button type="button" id="dropdown-${type}-search-clear-button" class="search-clear-btn hidden" aria-label="Effacer la recherche">
+        <i class="ri-close-line" aria-hidden="true"></i>
+      </button>
+      <button type="button" id="dropdown-${type}-search-submit-button" aria-label="Lancer la recherche" class="search-button">
+        <i class="ri-search-line" aria-hidden="true"></i>
+      </button>
+    </div>
+  `;
 };
 
 export const mainHeader = imageData => {
@@ -44,7 +58,7 @@ export const mainSearchBar = () => {
           <i class="ri-close-line" aria-hidden="true"></i>
         </button>
 
-        <button type="button" id="search-submit-btn" aria-label="Lancer la recherche" class="search-btn main-search-btn">
+        <button type="button" id="search-submit-button" aria-label="Lancer la recherche" class="search-button main-search-btn">
           <i class="ri-search-line" aria-hidden="true"></i>
         </button>
       </div>

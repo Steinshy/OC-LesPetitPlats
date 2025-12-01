@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import chalk from "chalk";
 import { askQuestion } from "@benchmarks-reporting-cli/prompts.js";
-import { createSpinner } from "@benchmarks-utils/logging.js";
+import { createSpinner } from "@benchmarks-utils/console.js";
 
 // Format duration in a human-readable way
 function formatDuration(ms) {

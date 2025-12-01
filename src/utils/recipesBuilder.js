@@ -1,7 +1,6 @@
 // src/utils/recipesBuilder.js
-
+import { baseUrl } from "@utils/config.js";
 import { fetchRecipes } from "@utils/recipeApi.js";
-import { baseUrl } from "@utils/string.js";
 
 // Build image URLs from recipe data
 const buildImages = recipe => {
@@ -25,7 +24,7 @@ const transformRecipes = apiRecipesData =>
       servings: recipe?.servings || 0,
       time: recipe?.time || 0,
       ingredients: recipe?.ingredients || [],
-      utensils: recipe?.utensils || [],
+      utensils: recipe?.ustensils || [],
       appliance: recipe?.appliance || "",
       images,
     };

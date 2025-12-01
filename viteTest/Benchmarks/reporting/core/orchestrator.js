@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import chalk from "chalk";
 import { getAllResults, getFlattenedResults, getSummary, clearResults, setTimestamp } from "@benchmarks-data/collector.js";
 import { generateHtmlReport } from "@benchmarks-reporting/generateHtml.js";
-import { createSpinner } from "@benchmarks-utils/logging.js";
+import { createSpinner, logWarning } from "@benchmarks-utils/console.js";
 import { generateReportPath } from "../../../../scripts/reportUtils.js";
 import { generateCharts } from "./charts.js";
 import { cleanupBenchmarkFiles } from "./cleanup.js";
@@ -60,7 +60,7 @@ function getTestsToRun() {
     { name: "Search", file: "viteTest/Benchmarks/tests/search.test.js" },
     { name: "Ingredients", file: "viteTest/Benchmarks/tests/filterByIngredients.test.js" },
     { name: "Appliances", file: "viteTest/Benchmarks/tests/filterByAppliances.test.js" },
-    { name: "utensils", file: "viteTest/Benchmarks/tests/filterByutensils.test.js" },
+    { name: "utensils", file: "viteTest/Benchmarks/tests/filterByUstensils.test.js" },
   ];
 
   const testsToRun =
@@ -80,36 +80,60 @@ function getTestsToRun() {
 
 // Generate and save the report
 async function generateAndSaveReport(results, testsToRun, runAllTests) {
-  const chartsSpinner = createSpinner("Generating charts...");
-  const chartsResult = await generateCharts(results);
-  if (Object.keys(chartsResult).length === 0) {
-    chartsSpinner.warn("No charts generated - no data available");
-  } else {
-    chartsSpinner.succeed(`Generated ${Object.keys(chartsResult).length} chart(s)`);
+  try {
+    const chartsSpinner = createSpinner("Generating charts...");
+    let chartsResult = {};
+    try {
+      chartsResult = await generateCharts(results);
+      if (Object.keys(chartsResult).length === 0) {
+        chartsSpinner.warn("No charts generated - no data available");
+        logWarning("No charts generated - no data available");
+      } else {
+        chartsSpinner.succeed(`Generated ${Object.keys(chartsResult).length} chart(s)`);
+      }
+    } catch (error) {
+      chartsSpinner.fail("Failed to generate charts");
+      logWarning(`Chart generation error: ${error.message}`);
+      console.error(chalk.red(`Chart generation error: ${error.message}`));
+      console.error(error.stack);
+      // Continue with empty charts
+    }
+
+    const htmlSpinner = createSpinner("Generating HTML report...");
+    let html;
+    try {
+      html = await generateHTMLReport(results, chartsResult);
+      htmlSpinner.succeed("Generated HTML report");
+    } catch (error) {
+      htmlSpinner.fail("Failed to generate HTML report");
+      console.error(chalk.red(`HTML generation error: ${error.message}`));
+      console.error(error.stack);
+      throw error;
+    }
+
+    // Determine report suffix based on number of tests and whether "All" tests were run
+    let reportSuffix;
+    if (testsToRun.length === 1) {
+      reportSuffix = testsToRun[0].name.toLowerCase().replace(/\s+/g, "-");
+    } else if (runAllTests) {
+      reportSuffix = "all";
+    } else {
+      reportSuffix = "partial";
+    }
+    const htmlPath = generateReportPath(`benchmark-${reportSuffix}`, "html", process.cwd());
+    writeFileSync(htmlPath, html, "utf-8");
+
+    return htmlPath;
+  } catch (error) {
+    console.error(chalk.red(`\n❌ Error in generateAndSaveReport: ${error.message}`));
+    console.error(error.stack);
+    throw error;
   }
-
-  const htmlSpinner = createSpinner("Generating HTML report...");
-  const html = await generateHTMLReport(results, chartsResult);
-  htmlSpinner.succeed("Generated HTML report");
-
-  // Determine report suffix based on number of tests and whether "All" tests were run
-  let reportSuffix;
-  if (testsToRun.length === 1) {
-    reportSuffix = testsToRun[0].name.toLowerCase().replace(/\s+/g, "-");
-  } else if (runAllTests) {
-    reportSuffix = "all";
-  } else {
-    reportSuffix = "partial";
-  }
-  const htmlPath = generateReportPath(`benchmark-${reportSuffix}`, "html", process.cwd());
-  writeFileSync(htmlPath, html, "utf-8");
-
-  return htmlPath;
 }
 
 // Generate HTML report using the enhanced HTML generator
-function generateHTMLReport(results, charts) {
-  return generateHtmlReport(results, charts);
+async function generateHTMLReport(results, charts) {
+  return await generateHtmlReport(results, charts);
 }
 
 export { collectBenchmarkResults, displayHeader, initializeBenchmark, getTestsToRun, generateAndSaveReport, generateHTMLReport };

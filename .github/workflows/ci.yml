@@ -114,16 +114,26 @@ jobs:
         if: always()
         run: |
           # Check for generated benchmark reports
-          # Reports are generated in Report/ directory by viteTest/Benchmarks/reporting/core/orchestrator.js
+          # Reports are generated in Benchmark/ directory by viteTest/Benchmarks/reporting/core/orchestrator.js
           # Report names: benchmark-all-YYYY-MM-DD.html, benchmark-partial-YYYY-MM-DD.html, or benchmark-{testname}-YYYY-MM-DD.html
-          if ls Report/benchmark-*.html 1> /dev/null 2>&1; then
+          # Also check Report/ directory for backward compatibility
+          if ls Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "✓ Benchmark reports found:"
+            echo "report_dir=Benchmark" >> $GITHUB_OUTPUT
+            echo "✓ Benchmark reports found in Benchmark/:"
+            ls -lh Benchmark/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
+            echo "Total reports: $(ls Benchmark/benchmark-*.html | wc -l)"
+          elif ls Report/benchmark-*.html 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "report_dir=Report" >> $GITHUB_OUTPUT
+            echo "✓ Benchmark reports found in Report/:"
             ls -lh Report/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
             echo "Total reports: $(ls Report/benchmark-*.html | wc -l)"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: No benchmark reports found in Report/ directory"
+            echo "⚠ Warning: No benchmark reports found in Benchmark/ or Report/ directories"
+            echo "Listing Benchmark directory contents:"
+            ls -la Benchmark/ 2>/dev/null || echo "Benchmark directory does not exist"
             echo "Listing Report directory contents:"
             ls -la Report/ 2>/dev/null || echo "Report directory does not exist"
           fi
@@ -133,7 +143,7 @@ jobs:
         if: always() && steps.check-reports.outputs.exists == 'true'
         with:
           name: benchmark-reports-html
-          path: Report/benchmark-*.html
+          path: ${{ steps.check-reports.outputs.report_dir || 'Benchmark' }}/benchmark-*.html
           retention-days: 30
           if-no-files-found: ignore
           compression-level: 6

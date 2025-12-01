@@ -3,6 +3,5 @@
   "rules": {
     "element-name": "off",
     "close-order": "off"
-  },
-  "elements": []
+  }
 }

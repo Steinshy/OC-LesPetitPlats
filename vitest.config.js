@@ -64,8 +64,8 @@ export default defineConfig({
         "src/components/headerImage.js",
         "src/components/scrollToTop.js",
         "src/components/skeletons.js",
-        "src/components/dropdown/behavior.js",
-        "src/components/dropdown/render.js",
+        "src/components/dropdowns/behavior.js",
+        "src/components/dropdowns/render.js",
       ],
       thresholds: {
         lines: 70,

@@ -19,7 +19,7 @@ export default {
     "!src/App.js",
     "!src/utils/errorHandler.js",
     "!src/components/scrollToTop.js",
-    "!src/components/dropdown/render.js",
+    "!src/components/dropdowns/render.js",
   ],
   thresholds: {
     high: 80,

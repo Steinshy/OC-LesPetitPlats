@@ -6,9 +6,10 @@ import {
   TEST_CONFIG,
 } from "@benchmarks-config/testHelpers.js";
 import { uniqueValues } from "@benchmarks-data/loader.js";
-import { filterByutensils as filterByutensilsMaps } from "@benchmarks-implementations/filtersMap.js";
 import { filterByutensils as filterByutensilsProduction } from "@benchmarks-implementations/production.js";
 import { logCategorySummary } from "@benchmarks-utils/logging.js";
+import { filterByutensils as filterByutensilsMaps } from "~/viteTest/Benchmarks/implementations/forEach.js";
+import { logWarning } from "../utils/console.js";
 
 describe("Filter Recipes by utensils Benchmarks", () => {
   const { iterations, bigDataIterations } = TEST_CONFIG;
@@ -51,6 +52,10 @@ describe("Filter Recipes by utensils Benchmarks", () => {
     allTestIterations: 30,
     expectInstance: expect,
   });
+
+  if (process.env.RUN_ALL_TESTS !== "true") {
+    logWarning("'All utensils' test skipped (set RUN_ALL_TESTS=true to run)", "⊘");
+  }
 
   (process.env.RUN_ALL_TESTS === "true" ? it : it.skip)(
     "should benchmark filter by all utensils",
