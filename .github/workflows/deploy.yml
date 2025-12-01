@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - design
   workflow_dispatch:
 permissions:
   contents: read
