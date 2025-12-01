@@ -242,7 +242,7 @@ Benchmarks/
 │   ├── search.test.js
 │   ├── filterByIngredients.test.js
 │   ├── filterByAppliances.test.js
-│   └── filterByUstensils.test.js
+│   └── filterByutensils.test.js
 └── utils/              # Utilitaires (formatage, logging, mesure)
     ├── formatting.js
     ├── logging.js

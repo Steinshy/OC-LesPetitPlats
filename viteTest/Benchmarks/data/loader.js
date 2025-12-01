@@ -22,15 +22,15 @@ export const benchmarkData = JSON.parse(readFileSync(benchmarkDataPath, "utf-8")
 function extractUniqueValues(data) {
   const ingredients = new Set();
   const appliances = new Set();
-  const ustensils = new Set();
+  const utensils = new Set();
 
   data.forEach(recipe => {
     if (recipe.appliance) {
       appliances.add(recipe.appliance);
     }
-    if (recipe.ustensils && Array.isArray(recipe.ustensils)) {
-      recipe.ustensils.forEach(ustensil => {
-        if (ustensil) ustensils.add(ustensil);
+    if (recipe.utensils && Array.isArray(recipe.utensils)) {
+      recipe.utensils.forEach(ustensil => {
+        if (ustensil) utensils.add(ustensil);
       });
     }
     if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
@@ -46,7 +46,7 @@ function extractUniqueValues(data) {
   return {
     ingredients: [...ingredients],
     appliances: [...appliances],
-    ustensils: [...ustensils],
+    utensils: [...utensils],
   };
 }
 

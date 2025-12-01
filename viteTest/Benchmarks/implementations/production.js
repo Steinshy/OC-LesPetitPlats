@@ -10,7 +10,7 @@ const normalizeString = value =>
     .trim()
     .toLowerCase();
 
-// Search filter - copied from SearchInput in src/components/filters/recipeFilters.js
+// Search filter - copied from filterBysearchInput in src/components/filters/recipeFilters.js
 const applySearch = (items, searchTerm, getText) => {
   if (!Array.isArray(items)) return [];
 
@@ -36,7 +36,7 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
       recipe.description,
       ...ingredientNames,
       recipe.appliance,
-      ...(recipe.ustensils || []),
+      ...(recipe.utensils || []),
     ].filter(Boolean);
 
     return searchableFields.join(" ");
@@ -66,8 +66,8 @@ const filterByField = (recipes, filter, fieldType) => {
       normalizedRecipeValues = [normalizeString(recipe.appliance)];
     }
 
-    if (fieldType === "ustensils") {
-      normalizedRecipeValues = (recipe.ustensils || []).map(ustensil => normalizeString(ustensil));
+    if (fieldType === "utensils") {
+      normalizedRecipeValues = (recipe.utensils || []).map(ustensil => normalizeString(ustensil));
     }
 
     return selected.every(selectedValue => normalizedRecipeValues.includes(selectedValue));
@@ -96,7 +96,7 @@ export const filterByAppliances = (recipes, appliances) => {
   });
 };
 
-// Ustensils filter - wrapper around filterByField
-export const filterByUstensils = (recipes, ustensils) => {
-  return filterByField(recipes, ustensils, "ustensils");
+// utensils filter - wrapper around filterByField
+export const filterByutensils = (recipes, utensils) => {
+  return filterByField(recipes, utensils, "utensils");
 };

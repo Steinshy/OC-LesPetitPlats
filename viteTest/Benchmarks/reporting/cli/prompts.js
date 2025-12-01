@@ -61,7 +61,7 @@ async function promptForAllTests() {
 
   // Interactive mode: prompt user
   console.log(`\n${chalk.yellow("⚠️  Note:")} 'All' tests benchmark every available filter value`);
-  console.log(chalk.dim("   (ingredients, appliances, ustensils) - up to 10 min each."));
+  console.log(chalk.dim("   (ingredients, appliances, utensils) - up to 10 min each."));
   console.log(chalk.dim("   If skipped, they will be marked as 'skipped' in the report."));
   const runAllTests = await askQuestion("Do you want to run the 'All' tests?");
   const runAllTestsEnv = runAllTests ? "true" : "false";

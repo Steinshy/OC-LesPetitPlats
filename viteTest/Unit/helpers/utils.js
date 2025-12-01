@@ -3,13 +3,6 @@
 import { renderFilterTag } from "@/components/filters/render.js";
 import { normalizeString } from "@/utils/string.js";
 
-// Dropdown utilities
-export const DROPDOWN_TYPES = [
-  { name: "Ingredients", type: "ingredients" },
-  { name: "Appliances", type: "appliances" },
-  { name: "Ustensils", type: "ustensils" },
-];
-
 export const formatDropdownData = dropdownData => {
   const formatted = {};
   for (const [key, items] of Object.entries(dropdownData)) {
@@ -21,21 +14,21 @@ export const formatDropdownData = dropdownData => {
   return formatted;
 };
 
-export const getFilteredItems = (type, dropdownData, searchInput) => {
+export const getFilteredItems = (type, dropdownData, filterBysearchInput) => {
   const items = dropdownData[type];
   if (!items) return undefined;
 
-  if (!searchInput || !searchInput.value || !searchInput.value.trim()) {
+  if (!filterBysearchInput || !filterBysearchInput.value || !filterBysearchInput.value.trim()) {
     return items;
   }
 
-  const query = normalizeString(searchInput.value);
+  const query = normalizeString(filterBysearchInput.value);
   return items.filter(item => normalizeString(item).includes(query));
 };
 
 export const getDropdownElements = dropdownType => ({
   button: document.getElementById(`dropdown-${dropdownType}-button`),
-  searchInput: document.getElementById(`search-${dropdownType}`),
+  filterBysearchInput: document.getElementById(`search-${dropdownType}`),
   searchIcon: document.getElementById(`search-icon-${dropdownType}`),
   clearButton: document.getElementById(`clear-search-${dropdownType}`),
   menu: document.getElementById(`menu-${dropdownType}`),
@@ -70,7 +63,7 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
   const activeFiltersArray = [
     ...toArray(activeFilters.ingredients).map(value => ({ value, type: "ingredients" })),
     ...toArray(activeFilters.appliances).map(value => ({ value, type: "appliances" })),
-    ...toArray(activeFilters.ustensils).map(value => ({ value, type: "ustensils" })),
+    ...toArray(activeFilters.utensils).map(value => ({ value, type: "utensils" })),
   ];
 
   // Update container - normalize values before passing to renderFilterTag

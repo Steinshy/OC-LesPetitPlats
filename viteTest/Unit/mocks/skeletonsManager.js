@@ -1,13 +1,13 @@
 // Test wrapper for skeletonsManager - adds wrapper functions with dynamic element lookup
 import {
   ingredientsDropdown,
-  ustensilsDropdown,
+  utensilsDropdown,
   appliancesDropdown,
 } from "@/components/dropdown/render.js";
-import { cardSkeleton } from "@/components/renderSqueletons.js";
+import { cardSkeleton } from "@/components/skeletonsRenderer.js";
 
-// Create a dynamic squeletonsElements object that re-evaluates elements on access
-const getSqueletonsElements = () => ({
+// Create a dynamic skeletonsElements object that re-evaluates elements on access
+const getskeletonsElements = () => ({
   header: document.getElementById("header"),
   searchBar: document.getElementById("search-bar"),
   cardsContainer: document.getElementById("recipes"),
@@ -21,7 +21,7 @@ const getSqueletonsElements = () => ({
 
 export const searchSkeleton = () => ({
   show: () => {
-    const searchBar = getSqueletonsElements().searchBar;
+    const searchBar = getskeletonsElements().searchBar;
     if (searchBar) {
       searchBar.classList.add("skeleton");
       const inputs = searchBar.querySelectorAll("input, button");
@@ -31,7 +31,7 @@ export const searchSkeleton = () => ({
     }
   },
   hide: () => {
-    const searchBar = getSqueletonsElements().searchBar;
+    const searchBar = getskeletonsElements().searchBar;
     if (searchBar) {
       searchBar.classList.remove("skeleton");
       const inputs = searchBar.querySelectorAll("input, button");
@@ -44,13 +44,13 @@ export const searchSkeleton = () => ({
 
 export const headerSkeleton = () => ({
   show: () => {
-    const header = getSqueletonsElements().header;
+    const header = getskeletonsElements().header;
     if (header) {
       header.classList.add("skeleton");
     }
   },
   hide: () => {
-    const header = getSqueletonsElements().header;
+    const header = getskeletonsElements().header;
     if (header) {
       header.classList.remove("skeleton");
     }
@@ -62,15 +62,15 @@ export const dropdownsContainerSkeleton = () => ({
     const dropdownsContainer = document.getElementById("dropdowns-container");
     if (!dropdownsContainer) return;
     dropdownsContainer.innerHTML =
-      ingredientsDropdown([]) + ustensilsDropdown([]) + appliancesDropdown([]);
+      ingredientsDropdown([]) + utensilsDropdown([]) + appliancesDropdown([]);
 
-    getSqueletonsElements().dropdownsElements.forEach(container => {
+    getskeletonsElements().dropdownsElements.forEach(container => {
       container.classList.add("skeleton");
       container.querySelector("button")?.setAttribute("disabled", "");
     });
   },
   hide: () => {
-    getSqueletonsElements().dropdownsElements.forEach(container =>
+    getskeletonsElements().dropdownsElements.forEach(container =>
       container.classList.remove("skeleton"),
     );
   },
@@ -79,19 +79,19 @@ export const dropdownsContainerSkeleton = () => ({
 export const cardSkeletons = () => ({
   build: count => {
     if (!count) return;
-    const container = getSqueletonsElements().cardsContainer;
+    const container = getskeletonsElements().cardsContainer;
     if (container) {
       container.innerHTML = cardSkeleton(count);
     }
   },
   hide: () => {
-    getSqueletonsElements().cardSkeletons.forEach(skeleton => {
+    getskeletonsElements().cardSkeletons.forEach(skeleton => {
       skeleton.classList.remove("skeleton");
     });
   },
 });
 
-export const squeletonsElements = getSqueletonsElements();
+export const skeletonsElements = getskeletonsElements();
 
 // Export wrapper functions for test compatibility
 export const showSearchSkeleton = () => {

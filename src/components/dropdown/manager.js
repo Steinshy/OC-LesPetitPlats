@@ -12,7 +12,7 @@ import {
 
 import {
   ingredientsDropdown,
-  ustensilsDropdown,
+  utensilsDropdown,
   appliancesDropdown,
   renderEmptyStateItem,
   renderDropdownItem,
@@ -40,7 +40,7 @@ export const setupDropdowns = recipesData => {
   currentDropdownsData = dropdownsData.dropdowns || {};
   dropdownTypes = Object.keys(currentDropdownsData) || [];
 
-  container.innerHTML = ingredientsDropdown() + ustensilsDropdown() + appliancesDropdown();
+  container.innerHTML = ingredientsDropdown() + utensilsDropdown() + appliancesDropdown();
 
   dropdownsContainerSkeleton().hide();
 
@@ -57,13 +57,13 @@ export const setupDropdowns = recipesData => {
 
 const setupDropdownListeners = dropdownTypes => {
   dropdownTypes.forEach(currentType => {
-    const { searchInput, searchClear } = getDropdownSearchElements(currentType);
+    const { filterBysearchInput, searchClear } = getDropdownSearchElements(currentType);
     const { backdrop, button } = getDropdownElements(currentType);
     const { itemsList } = getDropdownListElements(currentType);
 
     // Search
-    if (searchInput) {
-      searchInput.addEventListener("input", () => {
+    if (filterBysearchInput) {
+      filterBysearchInput.addEventListener("input", () => {
         updateDropdownContent(currentType);
       });
     }
@@ -112,9 +112,9 @@ const setupDropdownListeners = dropdownTypes => {
     // Clear
     if (searchClear) {
       searchClear.addEventListener("click", () => {
-        if (!searchInput) return;
-        searchInput.value = "";
-        searchInput.focus();
+        if (!filterBysearchInput) return;
+        filterBysearchInput.value = "";
+        filterBysearchInput.focus();
         updateDropdownContent(currentType);
       });
     }
@@ -222,10 +222,10 @@ document.addEventListener("click", handleDocumentClick);
 // ---------------
 
 export const updateDropdownContent = type => {
-  const { searchInput, searchClear } = getDropdownSearchElements(type);
-  if (!searchInput) return;
+  const { filterBysearchInput, searchClear } = getDropdownSearchElements(type);
+  if (!filterBysearchInput) return;
 
-  const hasQuery = !!searchInput.value.trim();
+  const hasQuery = !!filterBysearchInput.value.trim();
   searchClear?.classList.toggle("hidden", !hasQuery);
 
   updateDropdownList(type);
@@ -241,12 +241,12 @@ const updateDropdownCount = (type, count) => {
 
 const updateDropdownList = type => {
   const { menu, itemsList } = getDropdownListElements(type);
-  const { searchInput, searchWrapper } = getDropdownSearchElements(type) || {};
+  const { filterBysearchInput, searchWrapper } = getDropdownSearchElements(type) || {};
 
   if (!menu || !itemsList) return;
 
   const allItems = currentDropdownsData[type] || [];
-  const query = searchInput?.value?.trim() ?? "";
+  const query = filterBysearchInput?.value?.trim() ?? "";
 
   // Update count
   updateDropdownCount(type, allItems.length);

@@ -276,13 +276,13 @@ export function generateDetailedTestResultsHTML(flattened, allResults) {
       Search: "All query",
       Ingredients: "All ingredient",
       Appliances: "All appliance",
-      Ustensils: "All ustensil",
+      utensils: "All ustensil",
       Combined: "All combined",
     };
     const allLabel = allLabelMap[category] || `All ${category.toLowerCase()}`;
 
     // Check if "All" tests were skipped for this category
-    const categoriesWithAllTests = ["Ingredients", "Appliances", "Ustensils"];
+    const categoriesWithAllTests = ["Ingredients", "Appliances", "utensils"];
     const wasAllTestSkipped =
       categoriesWithAllTests.includes(category) && allResults.runAllTests === false;
 

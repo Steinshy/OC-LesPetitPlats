@@ -165,7 +165,7 @@ describe("cards render", () => {
             { ingredient: "Pomme", quantity: 3 },
             { ingredient: "Sucre", quantity: 50, unit: "g" },
           ],
-          ustensils: ["couteau"],
+          utensils: ["couteau"],
           appliance: "four",
           images: { jpgUrl: TEST_JPG_URL, webpUrl: TEST_WEBP_URL, alt: "Tarte" },
         },

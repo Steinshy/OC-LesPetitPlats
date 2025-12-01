@@ -60,7 +60,7 @@ function getTestsToRun() {
     { name: "Search", file: "viteTest/Benchmarks/tests/search.test.js" },
     { name: "Ingredients", file: "viteTest/Benchmarks/tests/filterByIngredients.test.js" },
     { name: "Appliances", file: "viteTest/Benchmarks/tests/filterByAppliances.test.js" },
-    { name: "Ustensils", file: "viteTest/Benchmarks/tests/filterByUstensils.test.js" },
+    { name: "utensils", file: "viteTest/Benchmarks/tests/filterByutensils.test.js" },
   ];
 
   const testsToRun =

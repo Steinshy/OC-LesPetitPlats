@@ -27,7 +27,7 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
       recipe.description,
       ...ingredientNames,
       recipe.appliance,
-      ...(recipe.ustensils || []),
+      ...(recipe.utensils || []),
     ].filter(Boolean);
 
     // Normalize with map
@@ -81,22 +81,22 @@ export const filterByAppliances = (recipes, appliances) => {
   });
 };
 
-// Ustensils filter - filters recipes by selected ustensils using map/filter
-export const filterByUstensils = (recipes, ustensils) => {
+// utensils filter - filters recipes by selected utensils using map/filter
+export const filterByutensils = (recipes, utensils) => {
   if (
-    !ustensils ||
-    (Array.isArray(ustensils) && ustensils.length === 0) ||
-    (ustensils instanceof Set && ustensils.size === 0)
+    !utensils ||
+    (Array.isArray(utensils) && utensils.length === 0) ||
+    (utensils instanceof Set && utensils.size === 0)
   ) {
     return recipes;
   }
 
-  const ustensilsArray = [...ustensils];
+  const utensilsArray = [...utensils];
 
   return recipes.filter(recipe => {
-    return ustensilsArray.every(selectedUstensil => {
+    return utensilsArray.every(selectedUstensil => {
       const normalizedSelected = canonicalizeTerm(selectedUstensil);
-      return (recipe.ustensils || []).some(ustensil => {
+      return (recipe.utensils || []).some(ustensil => {
         return canonicalizeTerm(ustensil) === normalizedSelected;
       });
     });

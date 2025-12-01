@@ -1,4 +1,4 @@
-// src/components/renderHeaderImg.js
+// src/components/renderHeaderImage.js
 
 import { headerSkeleton } from "@components/skeletonsManager.js";
 

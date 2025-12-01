@@ -8,9 +8,9 @@ import { searchSkeleton } from "@components/skeletonsManager.js";
 // ---------------
 
 export const setupSearchBar = () => {
-  const { searchBar, searchInput, clearButton, submitSearch } = searchElements;
+  const { searchBar, filterBysearchInput, clearButton, submitSearch } = searchElements;
 
-  if (!searchBar || !searchInput) return;
+  if (!searchBar || !filterBysearchInput) return;
 
   searchSkeleton().hide();
 
@@ -22,7 +22,7 @@ export const setupSearchBar = () => {
 
   // Dispatch search event
   const runSearch = () => {
-    const query = searchInput.value || "";
+    const query = filterBysearchInput.value || "";
     const hasText = query.trim().length > 0;
 
     document.dispatchEvent(
@@ -35,21 +35,21 @@ export const setupSearchBar = () => {
     submitSearch?.classList.toggle("hidden", hasText);
   };
 
-  searchInput.addEventListener("input", runSearch);
+  filterBysearchInput.addEventListener("input", runSearch);
   clearButton?.addEventListener("click", event => {
-    searchInput.value = "";
+    filterBysearchInput.value = "";
     clearButton?.classList.add("hidden");
     submitSearch?.classList.remove("hidden");
     event.preventDefault();
     event.stopPropagation();
-    searchInput.focus();
+    filterBysearchInput.focus();
     runSearch();
   });
 
   submitSearch?.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
-    searchInput.focus();
+    filterBysearchInput.focus();
     runSearch();
   });
 

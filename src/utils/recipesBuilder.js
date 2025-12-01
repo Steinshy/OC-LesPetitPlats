@@ -25,7 +25,7 @@ const transformRecipes = apiRecipesData =>
       servings: recipe?.servings || 0,
       time: recipe?.time || 0,
       ingredients: recipe?.ingredients || [],
-      ustensils: recipe?.ustensils || [],
+      utensils: recipe?.utensils || [],
       appliance: recipe?.appliance || "",
       images,
     };

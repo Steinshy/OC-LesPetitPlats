@@ -162,7 +162,7 @@ LesPetitPlats/
 │   │   │
 │   │   ├── bodyScroll.js       # Gestion du scroll
 │   │   ├── renderHeaderImg.js  # Image d'en-tête
-│   │   ├── renderSqueletons.js # Squelettes de chargement
+│   │   ├── skeletonsRenderer.js # Squelettes de chargement
 │   │   ├── resultsCounter.js   # Compteur de résultats
 │   │   ├── scrollToTop.js      # Bouton scroll to top
 │   │   └── skeletonsManager.js # Gestion des squelettes

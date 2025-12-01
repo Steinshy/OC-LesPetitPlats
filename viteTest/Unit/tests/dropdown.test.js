@@ -15,7 +15,7 @@ describe("dropdown utils", () => {
       expect(DROPDOWN_TYPES).toHaveLength(3);
       expect(DROPDOWN_TYPES[0]).toEqual({ name: "Ingredients", type: "ingredients" });
       expect(DROPDOWN_TYPES[1]).toEqual({ name: "Appliances", type: "appliances" });
-      expect(DROPDOWN_TYPES[2]).toEqual({ name: "Ustensils", type: "ustensils" });
+      expect(DROPDOWN_TYPES[2]).toEqual({ name: "utensils", type: "utensils" });
     });
   });
   describe("formatDropdownData", () => {
@@ -24,13 +24,13 @@ describe("dropdown utils", () => {
       const dropdownData = {
         ingredients: ["tomato", "onion", "potato"],
         appliances: ["oven", "stove"],
-        ustensils: ["fork", "knife", "spoon"],
+        utensils: ["fork", "knife", "spoon"],
       };
       // Formatted dropdown data
       const result = formatDropdownData(dropdownData);
       expect(result.ingredients).toEqual(["Tomato", "Onion", "Potato"]);
       expect(result.appliances).toEqual(["Oven", "Stove"]);
-      expect(result.ustensils).toEqual(["Fork", "Knife", "Spoon"]);
+      expect(result.utensils).toEqual(["Fork", "Knife", "Spoon"]);
     });
 
     it("should handle empty arrays", () => {
@@ -38,13 +38,13 @@ describe("dropdown utils", () => {
       const dropdownData = {
         ingredients: [],
         appliances: [],
-        ustensils: [],
+        utensils: [],
       };
       // Formatted dropdown data
       const result = formatDropdownData(dropdownData);
       expect(result.ingredients).toEqual([]);
       expect(result.appliances).toEqual([]);
-      expect(result.ustensils).toEqual([]);
+      expect(result.utensils).toEqual([]);
     });
 
     it("should preserve casing after first letter", () => {
@@ -52,13 +52,13 @@ describe("dropdown utils", () => {
       const dropdownData = {
         ingredients: ["tOmAtO", "onION"],
         appliances: ["oVeN"],
-        ustensils: ["fOrK"],
+        utensils: ["fOrK"],
       };
       // Formatted dropdown data
       const result = formatDropdownData(dropdownData);
       expect(result.ingredients).toEqual(["TOmAtO", "OnION"]);
       expect(result.appliances).toEqual(["OVeN"]);
-      expect(result.ustensils).toEqual(["FOrK"]);
+      expect(result.utensils).toEqual(["FOrK"]);
     });
 
     it("should handle undefined or null values in arrays", () => {
@@ -66,7 +66,7 @@ describe("dropdown utils", () => {
       const dropdownData = {
         ingredients: ["tomato", null, undefined, "onion"],
         appliances: [],
-        ustensils: [null],
+        utensils: [null],
       };
       // Formatted dropdown data
       const result = formatDropdownData(dropdownData);
@@ -74,7 +74,7 @@ describe("dropdown utils", () => {
       expect(result.ingredients[0]).toBe("Tomato");
       expect(result.ingredients[3]).toBe("Onion");
       expect(result.appliances).toEqual([]);
-      expect(result.ustensils).toHaveLength(1);
+      expect(result.utensils).toHaveLength(1);
     });
   });
 
@@ -83,7 +83,7 @@ describe("dropdown utils", () => {
     const dropdownData = {
       ingredients: ["carrot", "onion", "potato", "tomato"],
       appliances: ["oven", "stove"],
-      ustensils: ["fork", "knife", "spoon"],
+      utensils: ["fork", "knife", "spoon"],
     };
 
     it("should return all items when search input is empty", () => {
@@ -94,57 +94,57 @@ describe("dropdown utils", () => {
 
     it("should return all items when search input value is empty", () => {
       // Empty search input
-      const searchInput = { value: "" };
+      const filterBysearchInput = { value: "" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual(dropdownData.ingredients);
     });
 
     it("should filter items by search query (case insensitive)", () => {
       // Search input (uppercase)
-      const searchInput = { value: "TO" };
+      const filterBysearchInput = { value: "TO" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should filter items by partial match", () => {
       // Partial search input
-      const searchInput = { value: "ato" };
+      const filterBysearchInput = { value: "ato" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual(["potato", "tomato"]);
     });
 
     it("should return empty array when no match found", () => {
       // Non-matching search input
-      const searchInput = { value: "xyz" };
+      const filterBysearchInput = { value: "xyz" };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual([]);
     });
 
     it("should handle whitespace in search query", () => {
       // Search input with whitespace
-      const searchInput = { value: "  tomato  " };
+      const filterBysearchInput = { value: "  tomato  " };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual(["tomato"]);
     });
 
     it("should filter appliances", () => {
       // Search input for appliances
-      const searchInput = { value: "ov" };
+      const filterBysearchInput = { value: "ov" };
       // Filtered items
-      const result = getFilteredItems("appliances", dropdownData, searchInput);
+      const result = getFilteredItems("appliances", dropdownData, filterBysearchInput);
       expect(result).toEqual(["oven", "stove"]);
     });
 
-    it("should filter ustensils", () => {
-      // Search input for ustensils
-      const searchInput = { value: "oo" };
+    it("should filter utensils", () => {
+      // Search input for utensils
+      const filterBysearchInput = { value: "oo" };
       // Filtered items
-      const result = getFilteredItems("ustensils", dropdownData, searchInput);
+      const result = getFilteredItems("utensils", dropdownData, filterBysearchInput);
       expect(result).toEqual(["spoon"]);
     });
 
@@ -153,18 +153,18 @@ describe("dropdown utils", () => {
       const incompleteData = {
         ingredients: ["tomato"],
         // appliances missing
-        ustensils: ["fork"],
+        utensils: ["fork"],
       };
       // Filtered items for missing type
       const result = getFilteredItems("appliances", incompleteData, null);
       expect(result).toBeUndefined();
     });
 
-    it("should handle searchInput with null value property", () => {
+    it("should handle filterBysearchInput with null value property", () => {
       // Search input with null value
-      const searchInput = { value: null };
+      const filterBysearchInput = { value: null };
       // Filtered items
-      const result = getFilteredItems("ingredients", dropdownData, searchInput);
+      const result = getFilteredItems("ingredients", dropdownData, filterBysearchInput);
       expect(result).toEqual(dropdownData.ingredients);
     });
   });
@@ -173,8 +173,8 @@ describe("dropdown utils", () => {
     const createDropdownElements = type => {
       const button = document.createElement("button");
       button.id = `dropdown-${type}-button`;
-      const searchInput = document.createElement("input");
-      searchInput.id = `search-${type}`;
+      const filterBysearchInput = document.createElement("input");
+      filterBysearchInput.id = `search-${type}`;
       const searchIcon = document.createElement("span");
       searchIcon.id = `search-icon-${type}`;
       const clearButton = document.createElement("button");
@@ -187,7 +187,7 @@ describe("dropdown utils", () => {
       backdrop.id = `dropdown-${type}-backdrop`;
 
       document.body.appendChild(button);
-      document.body.appendChild(searchInput);
+      document.body.appendChild(filterBysearchInput);
       document.body.appendChild(searchIcon);
       document.body.appendChild(clearButton);
       document.body.appendChild(menu);
@@ -209,8 +209,8 @@ describe("dropdown utils", () => {
 
       expect(elements.button).toBeTruthy();
       expect(elements.button.id).toBe("dropdown-ingredients-button");
-      expect(elements.searchInput).toBeTruthy();
-      expect(elements.searchInput.id).toBe("search-ingredients");
+      expect(elements.filterBysearchInput).toBeTruthy();
+      expect(elements.filterBysearchInput.id).toBe("search-ingredients");
       expect(elements.searchIcon).toBeTruthy();
       expect(elements.searchIcon.id).toBe("search-icon-ingredients");
       expect(elements.clearButton).toBeTruthy();
@@ -229,8 +229,8 @@ describe("dropdown utils", () => {
 
       expect(elements.button).toBeTruthy();
       expect(elements.button.id).toBe("dropdown-appliances-button");
-      expect(elements.searchInput).toBeTruthy();
-      expect(elements.searchInput.id).toBe("search-appliances");
+      expect(elements.filterBysearchInput).toBeTruthy();
+      expect(elements.filterBysearchInput.id).toBe("search-appliances");
       expect(elements.searchIcon).toBeTruthy();
       expect(elements.searchIcon.id).toBe("search-icon-appliances");
       expect(elements.clearButton).toBeTruthy();
@@ -243,31 +243,31 @@ describe("dropdown utils", () => {
       expect(elements.backdrop.id).toBe("dropdown-appliances-backdrop");
     });
 
-    it("should retrieve all dropdown elements for ustensils type", () => {
-      createDropdownElements("ustensils");
-      const elements = getDropdownElements("ustensils");
+    it("should retrieve all dropdown elements for utensils type", () => {
+      createDropdownElements("utensils");
+      const elements = getDropdownElements("utensils");
 
       expect(elements.button).toBeTruthy();
-      expect(elements.button.id).toBe("dropdown-ustensils-button");
-      expect(elements.searchInput).toBeTruthy();
-      expect(elements.searchInput.id).toBe("search-ustensils");
+      expect(elements.button.id).toBe("dropdown-utensils-button");
+      expect(elements.filterBysearchInput).toBeTruthy();
+      expect(elements.filterBysearchInput.id).toBe("search-utensils");
       expect(elements.searchIcon).toBeTruthy();
-      expect(elements.searchIcon.id).toBe("search-icon-ustensils");
+      expect(elements.searchIcon.id).toBe("search-icon-utensils");
       expect(elements.clearButton).toBeTruthy();
-      expect(elements.clearButton.id).toBe("clear-search-ustensils");
+      expect(elements.clearButton.id).toBe("clear-search-utensils");
       expect(elements.menu).toBeTruthy();
-      expect(elements.menu.id).toBe("menu-ustensils");
+      expect(elements.menu.id).toBe("menu-utensils");
       expect(elements.container).toBeTruthy();
-      expect(elements.container.id).toBe("dropdown-ustensils-container");
+      expect(elements.container.id).toBe("dropdown-utensils-container");
       expect(elements.backdrop).toBeTruthy();
-      expect(elements.backdrop.id).toBe("dropdown-ustensils-backdrop");
+      expect(elements.backdrop.id).toBe("dropdown-utensils-backdrop");
     });
 
     it("should return null for missing elements", () => {
       const elements = getDropdownElements("ingredients");
 
       expect(elements.button).toBeNull();
-      expect(elements.searchInput).toBeNull();
+      expect(elements.filterBysearchInput).toBeNull();
       expect(elements.searchIcon).toBeNull();
       expect(elements.clearButton).toBeNull();
       expect(elements.menu).toBeNull();

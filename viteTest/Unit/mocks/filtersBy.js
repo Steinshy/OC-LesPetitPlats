@@ -2,8 +2,8 @@
 export * from "@/components/filters/recipeFilters.js";
 import { normalizeString } from "@/utils/string.js";
 
-// Re-implement SearchInput to avoid mocking issues
-const SearchInputHelper = (recipes, searchTerm) => {
+// Re-implement filterBysearchInput to avoid mocking issues
+const filterBysearchInputHelper = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
   if (!query) return recipes;
   return recipes.filter(recipe => {
@@ -16,7 +16,7 @@ const SearchInputHelper = (recipes, searchTerm) => {
       recipe.description,
       ...ingredientNames,
       recipe.appliance,
-      ...(recipe.ustensils || []),
+      ...(recipe.utensils || []),
     ].filter(Boolean);
     const searchableText = searchableFields.join(" ");
     return normalizeString(searchableText).includes(query);
@@ -40,8 +40,8 @@ const filterByFieldHelper = (recipes, filter, fieldType) => {
     if (fieldType === "appliances") {
       normalizedRecipeValues = [normalizeString(recipe.appliance || "")];
     }
-    if (fieldType === "ustensils") {
-      normalizedRecipeValues = (recipe.ustensils || []).map(ustensil => normalizeString(ustensil));
+    if (fieldType === "utensils") {
+      normalizedRecipeValues = (recipe.utensils || []).map(ustensil => normalizeString(ustensil));
     }
     return selected.every(selectedValue => normalizedRecipeValues.includes(selectedValue));
   });
@@ -71,7 +71,7 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
       recipe.description,
       ...ingredientNames,
       recipe.appliance,
-      ...(recipe.ustensils || []),
+      ...(recipe.utensils || []),
     ].filter(Boolean);
 
     // Normalize with forEach
@@ -118,23 +118,23 @@ export const filterByAppliances = (recipes, appliances) => {
     );
   });
 };
-export const filterByUstensils = (recipes, ustensils) => {
-  if (!ustensils || !Array.isArray(ustensils) || ustensils.length === 0) {
-    return filterByFieldHelper(recipes, ustensils, "ustensils");
+export const filterByutensils = (recipes, utensils) => {
+  if (!utensils || !Array.isArray(utensils) || utensils.length === 0) {
+    return filterByFieldHelper(recipes, utensils, "utensils");
   }
   // Normalize ustensil filter values for comparison - use AND logic (all must match)
-  const normalizedUstensils = ustensils.map(ust => normalizeString(ust));
+  const normalizedutensils = utensils.map(ust => normalizeString(ust));
   return recipes.filter(recipe => {
     if (!recipe) return false;
-    // Handle null/undefined/empty ustensils - recipe should not match if it has no ustensils
-    const recipeUstensils = recipe.ustensils || [];
-    if (!Array.isArray(recipeUstensils) || recipeUstensils.length === 0) {
+    // Handle null/undefined/empty utensils - recipe should not match if it has no utensils
+    const recipeutensils = recipe.utensils || [];
+    if (!Array.isArray(recipeutensils) || recipeutensils.length === 0) {
       return false;
     }
-    const normalizedRecipeUstensils = recipeUstensils.map(ustensil => normalizeString(ustensil));
+    const normalizedRecipeutensils = recipeutensils.map(ustensil => normalizeString(ustensil));
     // All filter values must be present in recipe (AND logic)
-    return normalizedUstensils.every(selectedValue =>
-      normalizedRecipeUstensils.includes(selectedValue),
+    return normalizedutensils.every(selectedValue =>
+      normalizedRecipeutensils.includes(selectedValue),
     );
   });
 };
@@ -145,9 +145,9 @@ export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
   let searchTerm = "";
   let ingredients = new Set();
   let appliances = new Set();
-  let ustensils = new Set();
+  let utensils = new Set();
 
-  // Handle object signature: filterRecipes(recipes, { searchTerm, ingredients, appliances, ustensils })
+  // Handle object signature: filterRecipes(recipes, { searchTerm, ingredients, appliances, utensils })
   if (
     searchTermOrFilters &&
     typeof searchTermOrFilters === "object" &&
@@ -158,18 +158,18 @@ export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
     searchTerm = filters.searchTerm || "";
     ingredients = filters.ingredients || new Set();
     appliances = filters.appliances || new Set();
-    ustensils = filters.ustensils || new Set();
+    utensils = filters.utensils || new Set();
   } else {
     // Handle separate parameters: filterRecipes(recipes, searchTerm, activeFilters)
     searchTerm = searchTermOrFilters || "";
     if (activeFilters) {
       ingredients = activeFilters.ingredients || new Set();
       appliances = activeFilters.appliances || new Set();
-      ustensils = activeFilters.ustensils || new Set();
+      utensils = activeFilters.utensils || new Set();
     }
   }
 
-  filteredRecipes = SearchInputHelper(filteredRecipes, searchTerm);
+  filteredRecipes = filterBysearchInputHelper(filteredRecipes, searchTerm);
   filteredRecipes = filterByIngredients(
     filteredRecipes,
     Array.isArray(ingredients) ? ingredients : [...ingredients],
@@ -178,9 +178,9 @@ export const filterRecipes = (recipes, searchTermOrFilters, activeFilters) => {
     filteredRecipes,
     Array.isArray(appliances) ? appliances : [...appliances],
   );
-  filteredRecipes = filterByUstensils(
+  filteredRecipes = filterByutensils(
     filteredRecipes,
-    Array.isArray(ustensils) ? ustensils : [...ustensils],
+    Array.isArray(utensils) ? utensils : [...utensils],
   );
 
   return filteredRecipes;

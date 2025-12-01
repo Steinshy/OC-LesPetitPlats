@@ -13,7 +13,7 @@ const filtersState = {
   mainSearchText: "",
   tags: {
     ingredients: new Set(),
-    ustensils: new Set(),
+    utensils: new Set(),
     appliances: new Set(),
   },
 };
@@ -24,14 +24,14 @@ export const resetFiltersState = () => {
   filteredRecipes = [];
   filtersState.mainSearchText = "";
   filtersState.tags.ingredients.clear();
-  filtersState.tags.ustensils.clear();
+  filtersState.tags.utensils.clear();
   filtersState.tags.appliances.clear();
 };
 
 const syncUI = () => {
   // Apply filters
   filteredRecipes = allRecipes;
-  filteredRecipes = filtersBy.SearchInput(filteredRecipes, filtersState.mainSearchText);
+  filteredRecipes = filtersBy.filterBysearchInput(filteredRecipes, filtersState.mainSearchText);
   filteredRecipes = filtersBy.filterByField(
     filteredRecipes,
     filtersState.tags.ingredients,
@@ -44,8 +44,8 @@ const syncUI = () => {
   );
   filteredRecipes = filtersBy.filterByField(
     filteredRecipes,
-    filtersState.tags.ustensils,
-    "ustensils",
+    filtersState.tags.utensils,
+    "utensils",
   );
 
   // Update cards if setupRecipesCards is available
@@ -84,14 +84,14 @@ export const enableSearch = recipes => {
   allRecipes = recipes || [];
   filteredRecipes = allRecipes;
 
-  const searchInput = document.querySelector(".main-search-bar input");
+  const filterBysearchInput = document.querySelector(".main-search-bar input");
   const clearButton = document.getElementById("clear-recipe-search");
   const searchButton = document.querySelector(".main-search-bar .search-btn");
 
-  if (!searchInput) return;
+  if (!filterBysearchInput) return;
 
   const applySearch = () => {
-    const query = searchInput.value || "";
+    const query = filterBysearchInput.value || "";
     filtersState.mainSearchText = query;
     syncUI();
   };
@@ -112,8 +112,8 @@ export const enableSearch = recipes => {
     }
   };
 
-  searchInput.addEventListener("input", () => {
-    const hasText = (searchInput.value || "").trim().length > 0;
+  filterBysearchInput.addEventListener("input", () => {
+    const hasText = (filterBysearchInput.value || "").trim().length > 0;
     if (clearButton) {
       clearButton.classList.toggle("hidden", !hasText);
     }
@@ -125,7 +125,7 @@ export const enableSearch = recipes => {
 
   if (clearButton) {
     clearButton.addEventListener("click", () => {
-      searchInput.value = "";
+      filterBysearchInput.value = "";
       if (clearButton) clearButton.classList.add("hidden");
       if (searchButton) searchButton.classList.remove("hidden");
       scheduleSearch();
@@ -134,7 +134,7 @@ export const enableSearch = recipes => {
 
   if (searchButton) {
     searchButton.addEventListener("click", () => {
-      searchInput.focus();
+      filterBysearchInput.focus();
       scheduleSearch();
     });
   }
@@ -169,7 +169,7 @@ export const getActiveFilters = () => {
   return {
     ingredients: new Set(filtersState.tags.ingredients),
     appliances: new Set(filtersState.tags.appliances),
-    ustensils: new Set(filtersState.tags.ustensils),
+    utensils: new Set(filtersState.tags.utensils),
   };
 };
 
@@ -177,13 +177,13 @@ export const clearAllFilters = () => {
   filtersState.mainSearchText = "";
   filtersState.tags.ingredients.clear();
   filtersState.tags.appliances.clear();
-  filtersState.tags.ustensils.clear();
+  filtersState.tags.utensils.clear();
 
-  const mainSearchInput = document.getElementById("main-search-input");
+  const mainfilterBysearchInput = document.getElementById("main-search-input");
   const clearSearchBtn = document.getElementById("main-clear-search-btn");
   const searchBtn = document.getElementById("main-search-btn");
 
-  if (mainSearchInput) mainSearchInput.value = "";
+  if (mainfilterBysearchInput) mainfilterBysearchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
   if (searchBtn) searchBtn.classList.remove("hidden");
 

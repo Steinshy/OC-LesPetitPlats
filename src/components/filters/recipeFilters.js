@@ -30,7 +30,7 @@ export const filterDropdownItems = (items, searchTerm) => {
 };
 
 // Search across name, description, ingredients
-export const SearchInput = (recipes, searchTerm) => {
+export const filterBysearchInput = (recipes, searchTerm) => {
   return applySearch(recipes, searchTerm, recipe => {
     const ingredientNames = (recipe.ingredients || []).map(ing => ing?.ingredient).filter(Boolean);
 
@@ -39,7 +39,7 @@ export const SearchInput = (recipes, searchTerm) => {
       recipe.description,
       ...ingredientNames,
       recipe.appliance,
-      ...(recipe.ustensils || []),
+      ...(recipe.utensils || []),
     ].filter(Boolean);
 
     return searchableFields.join(" ");
@@ -50,7 +50,7 @@ export const SearchInput = (recipes, searchTerm) => {
 // field filter
 // ---------------
 
-// Filter by ingredients, appliances, or ustensils
+// Filter by ingredients, appliances, or utensils
 export const filterByField = (recipes, filter, fieldType) => {
   if (!recipes) return [];
 
@@ -73,8 +73,8 @@ export const filterByField = (recipes, filter, fieldType) => {
       normalizedRecipeValues = [normalizeString(recipe.appliance)];
     }
 
-    if (fieldType === "ustensils") {
-      normalizedRecipeValues = (recipe.ustensils || []).map(ustensil => normalizeString(ustensil));
+    if (fieldType === "utensils") {
+      normalizedRecipeValues = (recipe.utensils || []).map(ustensil => normalizeString(ustensil));
     }
 
     return selected.every(selectedValue => normalizedRecipeValues.includes(selectedValue));

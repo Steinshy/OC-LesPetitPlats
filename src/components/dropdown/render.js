@@ -36,35 +36,35 @@ export const ingredientsDropdown = () => {
   `;
 };
 
-export const ustensilsDropdown = () => {
+export const utensilsDropdown = () => {
   return `
-    <div class="dropdown-container" id="dropdown-ustensils-container" data-type="ustensils">
+    <div class="dropdown-container" id="dropdown-utensils-container" data-type="utensils">
       <button
         type="button"
         class="filter-dropdown"
-        id="dropdown-ustensils-button"
+        id="dropdown-utensils-button"
         aria-expanded="false"
-        aria-controls="menu-ustensils"
-        aria-label="Ouvrir le menu ustensils"
+        aria-controls="menu-utensils"
+        aria-label="Ouvrir le menu utensils"
       >
-        <span class="dropdown-count" id="dropdown-ustensils-count" aria-label="Nombre d'éléments"></span>
+        <span class="dropdown-count" id="dropdown-utensils-count" aria-label="Nombre d'éléments"></span>
         <span class="filter-label">Ustensiles</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
       <div
         class="dropdown-backdrop"
-        id="dropdown-ustensils-backdrop"
+        id="dropdown-utensils-backdrop"
         aria-hidden="true"
       ></div>
       <div
         class="dropdown-menu"
-        id="menu-ustensils"
+        id="menu-utensils"
         aria-hidden="true"
         role="listbox"
-        aria-labelledby="dropdown-ustensils-button"
+        aria-labelledby="dropdown-utensils-button"
       >
-        ${renderDropdownSearch("ustensils")}
-        <ul class="dropdown-list" id="dropdown-ustensils-list"></ul>
+        ${renderDropdownSearch("utensils")}
+        <ul class="dropdown-list" id="dropdown-utensils-list"></ul>
       </div>
     </div>
   `;

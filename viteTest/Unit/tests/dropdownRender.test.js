@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, vi } from "vitest";
 import {
   ingredientsDropdown,
-  ustensilsDropdown,
+  utensilsDropdown,
   appliancesDropdown,
   renderEmptyStateItem,
   renderDropdownItem,
@@ -18,10 +18,10 @@ vi.mock("@/components/search/render.js", () => ({
 const DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR = "dropdown-ingredients-container";
 const DROPDOWN_SEARCH_STRING = "dropdown-search";
 const DATA_TYPE_INGREDIENTS_ATTR = 'data-type="ingredients"';
-const DATA_TYPE_USTENSILS_ATTR = 'data-type="ustensils"';
+const DATA_TYPE_utensils_ATTR = 'data-type="utensils"';
 const DATA_TYPE_APPLIANCES_ATTR = 'data-type="appliances"';
 const LABEL_INGREDIENTS = "Ingrédients";
-const LABEL_USTENSILS = "Ustensiles";
+const LABEL_utensils = "Ustensiles";
 const LABEL_APPLIANCES = "Appareils";
 
 describe("dropdown render", () => {
@@ -55,13 +55,13 @@ describe("dropdown render", () => {
     });
   });
 
-  describe("ustensilsDropdown", () => {
-    it("should render ustensils dropdown", () => {
-      const html = ustensilsDropdown();
+  describe("utensilsDropdown", () => {
+    it("should render utensils dropdown", () => {
+      const html = utensilsDropdown();
 
-      expect(html).toContain("dropdown-ustensils-container");
-      expect(html).toContain(DATA_TYPE_USTENSILS_ATTR);
-      expect(html).toContain(LABEL_USTENSILS);
+      expect(html).toContain("dropdown-utensils-container");
+      expect(html).toContain(DATA_TYPE_utensils_ATTR);
+      expect(html).toContain(LABEL_utensils);
     });
   });
 

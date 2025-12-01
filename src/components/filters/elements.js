@@ -8,14 +8,8 @@ export const filtersState = {
     search: "",
     ingredients: new Set(),
     appliances: new Set(),
-    ustensils: new Set(),
+    utensils: new Set(),
   },
-};
-
-export const filtersConstants = {
-  ariaHidden: "aria-hidden",
-  ariaHiddenTrue: "true",
-  ariaHiddenFalse: "false",
 };
 
 export const filtersElements = {

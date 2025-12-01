@@ -72,7 +72,7 @@ export function generateMethodologyNotes() {
 - **Search:** Text-based recipe search functionality
 - **Ingredients:** Filtering recipes by ingredient criteria
 - **Appliances:** Filtering recipes by appliance requirements
-- **Ustensils:** Filtering recipes by utensil needs
+- **utensils:** Filtering recipes by utensil needs
 
 ### Implementations
 

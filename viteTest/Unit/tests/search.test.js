@@ -292,10 +292,10 @@ describe("search", () => {
     });
 
     it("should add ustensil filter", () => {
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
       // Active filters
       const filters = getActiveFilters();
-      expect(filters.ustensils.has("Spoon")).toBe(true);
+      expect(filters.utensils.has("Spoon")).toBe(true);
     });
 
     it("should trigger applyFilters when filter is added", () => {
@@ -346,19 +346,19 @@ describe("search", () => {
       const filters = getActiveFilters();
       expect(filters.ingredients.size).toBe(0);
       expect(filters.appliances.size).toBe(0);
-      expect(filters.ustensils.size).toBe(0);
+      expect(filters.utensils.size).toBe(0);
     });
 
     it("should return current active filters", () => {
       addFilter("ingredients", "Tomato");
       addFilter("appliances", "Oven");
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
 
       // Active filters
       const filters = getActiveFilters();
       expect(filters.ingredients.has("Tomato")).toBe(true);
       expect(filters.appliances.has("Oven")).toBe(true);
-      expect(filters.ustensils.has("Spoon")).toBe(true);
+      expect(filters.utensils.has("Spoon")).toBe(true);
     });
 
     it("should return a copy of filters (not reference)", () => {
@@ -378,7 +378,7 @@ describe("search", () => {
       enableSearch(mockRecipes);
       addFilter("ingredients", "Tomato");
       addFilter("appliances", "Oven");
-      addFilter("ustensils", "Spoon");
+      addFilter("utensils", "Spoon");
       vi.clearAllMocks();
     });
 
@@ -389,7 +389,7 @@ describe("search", () => {
       const filters = getActiveFilters();
       expect(filters.ingredients.size).toBe(0);
       expect(filters.appliances.size).toBe(0);
-      expect(filters.ustensils.size).toBe(0);
+      expect(filters.utensils.size).toBe(0);
     });
 
     it("should trigger applyFilters when clearing all filters", () => {

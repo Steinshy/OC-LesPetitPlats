@@ -1,4 +1,4 @@
-// src/components/renderSqueletons.js
+// src/components/skeletonsRenderer.js
 
 export const searchBarSkeleton = () => {
   return `
@@ -34,8 +34,8 @@ export const dropdownsSkeleton = () => {
         <i class="ri-arrow-down-s-line"></i>
       </button>
     </div>
-    <div class="dropdown-container skeleton" id="dropdown-ustensils-container" data-type="ustensils">
-      <button type="button" class="filter-dropdown" id="dropdown-ustensils-button" disabled
+    <div class="dropdown-container skeleton" id="dropdown-utensilsntainer" data-type="ustutensils
+      <button type="button" class="filter-dropdown" id="dropdown-utensils-button" disabled
         aria-expanded="false" aria-label="Chargement Ustensiles">
         <span class="filter-label"></span>
         <i class="ri-arrow-down-s-line"></i>

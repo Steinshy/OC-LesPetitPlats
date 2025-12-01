@@ -19,7 +19,7 @@ export const mockRecipesWithSearch = [
     description: "A recipe with one ingredient",
     ingredients: [{ name: "Tomato" }, { name: "Onion" }],
     appliance: "Oven",
-    ustensils: ["Spoon", "Fork"],
+    utensils: ["Spoon", "Fork"],
     search: "recipe one tomato onion spoon fork oven",
   },
   {
@@ -27,7 +27,7 @@ export const mockRecipesWithSearch = [
     description: "A test recipe",
     ingredients: [{ name: "Potato" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Knife", "Spoon"],
+    utensils: ["Knife", "Spoon"],
     search: "recipe 2 a test recipe potato onion knife spoon stove",
   },
   {
@@ -35,7 +35,7 @@ export const mockRecipesWithSearch = [
     description: "Another recipe",
     ingredients: [{ name: "Carrot" }],
     appliance: "Oven",
-    ustensils: ["Fork"],
+    utensils: ["Fork"],
     search: "recipe 3 carrot fork oven",
   },
   {
@@ -43,7 +43,7 @@ export const mockRecipesWithSearch = [
     description: "Classic Italian pasta dish with eggs and bacon",
     ingredients: [{ name: "Pasta" }, { name: "Eggs" }, { name: "Bacon" }, { name: "Cheese" }],
     appliance: "Stove",
-    ustensils: ["Pan", "Whisk", "Spoon"],
+    utensils: ["Pan", "Whisk", "Spoon"],
     search: "pasta carbonara classic italian pasta dish with eggs and bacon stove pan whisk spoon",
   },
   {
@@ -51,7 +51,7 @@ export const mockRecipesWithSearch = [
     description: "Delicious homemade chocolate cake",
     ingredients: [{ name: "Flour" }, { name: "Sugar" }, { name: "Cocoa" }, { name: "Eggs" }],
     appliance: "Oven",
-    ustensils: ["Whisk", "Bowl", "Spatula"],
+    utensils: ["Whisk", "Bowl", "Spatula"],
     search: "chocolate cake delicious homemade chocolate cake flour sugar cocoa eggs oven whisk bowl spatula",
   },
   {
@@ -59,7 +59,7 @@ export const mockRecipesWithSearch = [
     description: "Fresh salmon with herbs and lemon",
     ingredients: [{ name: "Salmon" }, { name: "Lemon" }, { name: "Herbs" }],
     appliance: "Grill",
-    ustensils: ["Tongs", "Knife"],
+    utensils: ["Tongs", "Knife"],
     search: "grilled salmon fresh salmon with herbs and lemon grill tongs knife",
   },
   {
@@ -67,7 +67,7 @@ export const mockRecipesWithSearch = [
     description: "Healthy vegetable soup",
     ingredients: [{ name: "Carrot" }, { name: "Potato" }, { name: "Onion" }, { name: "Celery" }],
     appliance: "Stove",
-    ustensils: ["Pot", "Ladle", "Knife"],
+    utensils: ["Pot", "Ladle", "Knife"],
     search: "vegetable soup healthy vegetable soup carrot potato onion celery stove pot ladle knife",
   },
   {
@@ -75,7 +75,7 @@ export const mockRecipesWithSearch = [
     description: "Hearty beef stew with vegetables",
     ingredients: [{ name: "Beef" }, { name: "Potato" }, { name: "Carrot" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Pot", "Spoon", "Knife"],
+    utensils: ["Pot", "Spoon", "Knife"],
     search: "beef stew hearty beef stew with vegetables beef potato carrot onion stove pot spoon knife",
   },
   {
@@ -83,7 +83,7 @@ export const mockRecipesWithSearch = [
     description: "Fresh Caesar salad with croutons",
     ingredients: [{ name: "Lettuce" }, { name: "Cheese" }, { name: "Croutons" }],
     appliance: "None",
-    ustensils: ["Bowl", "Fork"],
+    utensils: ["Bowl", "Fork"],
     search: "caesar salad fresh caesar salad with croutons lettuce cheese croutons none bowl fork",
   },
   {
@@ -91,7 +91,7 @@ export const mockRecipesWithSearch = [
     description: "Spicy chicken curry with rice",
     ingredients: [{ name: "Chicken" }, { name: "Rice" }, { name: "Curry Powder" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Pan", "Spoon", "Knife"],
+    utensils: ["Pan", "Spoon", "Knife"],
     search: "chicken curry spicy chicken curry with rice chicken rice curry powder onion stove pan spoon knife",
   },
 ];
@@ -115,51 +115,51 @@ export const mockRecipesForDropdown = [
   {
     ingredients: [{ name: "Tomato" }, { name: "Onion" }],
     appliance: "Oven",
-    ustensils: ["Spoon", "Fork"],
+    utensils: ["Spoon", "Fork"],
   },
   {
     ingredients: [{ name: "Potato" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Knife", "Spoon"],
+    utensils: ["Knife", "Spoon"],
   },
   {
     ingredients: [{ name: "Carrot" }],
     appliance: "Oven",
-    ustensils: ["Fork"],
+    utensils: ["Fork"],
   },
   {
     ingredients: [{ name: "Pasta" }, { name: "Eggs" }, { name: "Bacon" }, { name: "Cheese" }],
     appliance: "Stove",
-    ustensils: ["Pan", "Whisk", "Spoon"],
+    utensils: ["Pan", "Whisk", "Spoon"],
   },
   {
     ingredients: [{ name: "Flour" }, { name: "Sugar" }, { name: "Cocoa" }, { name: "Eggs" }],
     appliance: "Oven",
-    ustensils: ["Whisk", "Bowl", "Spatula"],
+    utensils: ["Whisk", "Bowl", "Spatula"],
   },
   {
     ingredients: [{ name: "Salmon" }, { name: "Lemon" }, { name: "Herbs" }],
     appliance: "Grill",
-    ustensils: ["Tongs", "Knife"],
+    utensils: ["Tongs", "Knife"],
   },
   {
     ingredients: [{ name: "Carrot" }, { name: "Potato" }, { name: "Onion" }, { name: "Celery" }],
     appliance: "Stove",
-    ustensils: ["Pot", "Ladle", "Knife"],
+    utensils: ["Pot", "Ladle", "Knife"],
   },
   {
     ingredients: [{ name: "Beef" }, { name: "Potato" }, { name: "Carrot" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Pot", "Spoon", "Knife"],
+    utensils: ["Pot", "Spoon", "Knife"],
   },
   {
     ingredients: [{ name: "Lettuce" }, { name: "Cheese" }, { name: "Croutons" }],
     appliance: "None",
-    ustensils: ["Bowl", "Fork"],
+    utensils: ["Bowl", "Fork"],
   },
   {
     ingredients: [{ name: "Chicken" }, { name: "Rice" }, { name: "Curry Powder" }, { name: "Onion" }],
     appliance: "Stove",
-    ustensils: ["Pan", "Spoon", "Knife"],
+    utensils: ["Pan", "Spoon", "Knife"],
   },
 ];

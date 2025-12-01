@@ -1,8 +1,8 @@
 // src/App.js
 
+import { setupHeader } from "@/header.js";
 import { setupDropdowns } from "@components/dropdown/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
-import { setupHeader } from "@components/renderHeaderImg.js";
 import { setupResultsCounter } from "@components/resultsCounter.js";
 import { setupScrollToTop } from "@components/scrollToTop.js";
 import { setupSearchBar } from "@components/search/manager.js";

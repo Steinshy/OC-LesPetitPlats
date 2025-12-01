@@ -3,7 +3,7 @@
 
 // Test wrapper for dropdown render - adds missing exports for tests
 // Import skeleton function
-import { dropdownsSkeleton } from "@/components/renderSqueletons.js";
+import { dropdownsSkeleton } from "@/components/skeletonsRenderer.js";
 
 // Re-export all original dropdown render functions
 export * from "@/components/dropdown/render.js";
@@ -17,7 +17,7 @@ export const searchElements = {
   get searchBar() {
     return document.getElementById("search-bar");
   },
-  get searchInput() {
+  get filterBysearchInput() {
     return document.getElementById("search-input");
   },
   get clearButton() {

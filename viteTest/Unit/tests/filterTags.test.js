@@ -35,7 +35,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato", "Onion"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(["Spoon"]),
+      utensils: new Set(["Spoon"]),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -52,7 +52,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -67,7 +67,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -82,7 +82,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -98,7 +98,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -121,7 +121,7 @@ describe("filterTags", () => {
       const activeFilters = {
         ingredients: new Set(["Tomato"]),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
 
       updateFilterTagsWithMocks(activeFilters);
@@ -138,7 +138,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -155,7 +155,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -179,7 +179,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
@@ -194,7 +194,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
@@ -205,7 +205,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(["Oven"]),
-      ustensils: new Set(["Spoon", "Fork"]),
+      utensils: new Set(["Spoon", "Fork"]),
     };
 
     updateFilterTagsWithMocks(activeFilters);
@@ -218,7 +218,7 @@ describe("filterTags", () => {
     const types = [...tags].map(tag => tag.dataset.type);
     expect(types).toContain("ingredients");
     expect(types).toContain("appliances");
-    expect(types).toContain("ustensils");
+    expect(types).toContain("utensils");
   });
 
   it("should handle invalid filter type with fallback", () => {
@@ -226,7 +226,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
       unknownType: new Set(["TestValue"]),
     };
 
@@ -252,7 +252,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     expect(() => updateFilterTagsWithMocks(activeFilters)).not.toThrow();
@@ -292,7 +292,7 @@ describe("filterTags", () => {
     const activeFilters = {
       ingredients: new Set(["Tomato"]),
       appliances: new Set(),
-      ustensils: new Set(),
+      utensils: new Set(),
     };
 
     updateFilterTagsWithMocks(activeFilters);

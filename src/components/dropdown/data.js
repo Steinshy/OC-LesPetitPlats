@@ -9,13 +9,13 @@ export const buildDropdownsData = recipesData => {
     .flatMap(recipe => recipe?.ingredients?.map(ingredient => ingredient?.ingredient) || [])
     .filter(Boolean);
 
-  const allUstensils = recipesData.flatMap(recipe => recipe?.ustensils || []).filter(Boolean);
+  const allutensils = recipesData.flatMap(recipe => recipe?.utensils || []).filter(Boolean);
   const allAppliances = recipesData.map(recipe => recipe?.appliance).filter(Boolean);
 
   return {
     dropdowns: {
       ingredients: cleanupDuplicatedItems(allIngredients),
-      ustensils: cleanupDuplicatedItems(allUstensils),
+      utensils: cleanupDuplicatedItems(allutensils),
       appliances: cleanupDuplicatedItems(allAppliances),
     },
   };

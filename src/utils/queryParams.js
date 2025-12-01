@@ -20,7 +20,7 @@ export const parseURLState = () => {
     search: parsed.search || "",
     ingredients: parseSet("ingredients"),
     appliances: parseSet("appliances"),
-    ustensils: parseSet("ustensils"),
+    utensils: parseSet("utensils"),
   };
 };
 
@@ -39,8 +39,8 @@ export const updateURLState = state => {
     params.appliances = [...state.appliances];
   }
 
-  if (state.ustensils.size > 0) {
-    params.ustensils = [...state.ustensils];
+  if (state.utensils.size > 0) {
+    params.utensils = [...state.utensils];
   }
 
   const query = queryString.stringify(params, { arrayFormat: "comma" });

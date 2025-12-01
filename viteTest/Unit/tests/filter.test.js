@@ -10,7 +10,7 @@ import {
   filterBySearchTerm,
   filterByIngredients,
   filterByAppliances,
-  filterByUstensils,
+  filterByutensils,
   filterRecipes,
 } from "../mocks/filtersBy.js";
 
@@ -178,72 +178,72 @@ describe("filter", () => {
     });
   });
 
-  describe("filterByUstensils", () => {
-    it("should return all recipes when no ustensils filter", () => {
-      // Empty ustensils array
-      const result = filterByUstensils(mockRecipes, []);
+  describe("filterByutensils", () => {
+    it("should return all recipes when no utensils filter", () => {
+      // Empty utensils array
+      const result = filterByutensils(mockRecipes, []);
       expect(result).toEqual(mockRecipes);
     });
 
     it("should filter recipes by single ustensil", () => {
       // Single ustensil filter
-      const result = filterByUstensils(mockRecipes, ["Fork"]);
+      const result = filterByutensils(mockRecipes, ["Fork"]);
       expect(result.length).toBeGreaterThanOrEqual(2);
       expect(result.some(r => r.name === "Recipe One")).toBe(true);
       expect(result.some(r => r.name === "Recipe 3")).toBe(true);
     });
 
-    it("should filter recipes by multiple ustensils (AND logic)", () => {
-      // Multiple ustensils filter
-      const result = filterByUstensils(mockRecipes, ["Spoon", "Fork"]);
+    it("should filter recipes by multiple utensils (AND logic)", () => {
+      // Multiple utensils filter
+      const result = filterByutensils(mockRecipes, ["Spoon", "Fork"]);
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe(RECIPE_ONE);
     });
 
-    it("should return empty array when no recipe matches all ustensils", () => {
-      // Non-matching ustensils filter
-      const result = filterByUstensils(mockRecipes, ["Fork", "Knife"]);
+    it("should return empty array when no recipe matches all utensils", () => {
+      // Non-matching utensils filter
+      const result = filterByutensils(mockRecipes, ["Fork", "Knife"]);
       expect(result).toHaveLength(0);
     });
 
     it("should be case insensitive", () => {
       // Lowercase ustensil filter
-      const result = filterByUstensils(mockRecipes, ["fork"]);
+      const result = filterByutensils(mockRecipes, ["fork"]);
       expect(result.length).toBeGreaterThanOrEqual(2);
     });
 
-    it("should handle recipes without ustensils", () => {
-      // Recipes without ustensils property
-      const recipesWithoutUstensils = [
-        { name: RECIPE_1, ustensils: ["Spoon"] },
+    it("should handle recipes without utensils", () => {
+      // Recipes without utensils property
+      const recipesWithoututensils = [
+        { name: RECIPE_1, utensils: ["Spoon"] },
         { name: RECIPE_2 },
       ];
       // Filter result
-      const result = filterByUstensils(recipesWithoutUstensils, ["Spoon"]);
+      const result = filterByutensils(recipesWithoututensils, ["Spoon"]);
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe(RECIPE_1);
     });
 
-    it("should handle recipes with null ustensils", () => {
-      // Recipes with null ustensils
-      const recipesWithNullUstensils = [
-        { name: RECIPE_1, ustensils: ["Spoon"] },
-        { name: RECIPE_2, ustensils: null },
+    it("should handle recipes with null utensils", () => {
+      // Recipes with null utensils
+      const recipesWithNullutensils = [
+        { name: RECIPE_1, utensils: ["Spoon"] },
+        { name: RECIPE_2, utensils: null },
       ];
       // Filter result
-      const result = filterByUstensils(recipesWithNullUstensils, ["Spoon"]);
+      const result = filterByutensils(recipesWithNullutensils, ["Spoon"]);
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe(RECIPE_1);
     });
 
-    it("should handle recipes with undefined ustensils", () => {
-      // Recipes with undefined ustensils
-      const recipesWithUndefinedUstensils = [
-        { name: RECIPE_1, ustensils: ["Spoon"] },
-        { name: RECIPE_2, ustensils: undefined },
+    it("should handle recipes with undefined utensils", () => {
+      // Recipes with undefined utensils
+      const recipesWithUndefinedutensils = [
+        { name: RECIPE_1, utensils: ["Spoon"] },
+        { name: RECIPE_2, utensils: undefined },
       ];
       // Filter result
-      const result = filterByUstensils(recipesWithUndefinedUstensils, ["Spoon"]);
+      const result = filterByutensils(recipesWithUndefinedutensils, ["Spoon"]);
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe(RECIPE_1);
     });
@@ -255,7 +255,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(["Onion"]),
         appliances: new Set(["Oven"]),
-        ustensils: new Set(["Fork"]),
+        utensils: new Set(["Fork"]),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, "recipe", activeFilters);
@@ -268,7 +268,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(["Tomato"]),
         appliances: new Set(["Stove"]),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, "recipe", activeFilters);
@@ -280,7 +280,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, "one", activeFilters);
@@ -293,7 +293,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(["Tomato"]),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, "", activeFilters);
@@ -306,7 +306,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, "", activeFilters);
@@ -319,7 +319,7 @@ describe("filter", () => {
         searchTerm: "one",
         ingredients: new Set(["Onion"]),
         appliances: new Set(["Oven"]),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, filters);
@@ -332,7 +332,7 @@ describe("filter", () => {
       const filters = {
         ingredients: new Set(["Tomato"]),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, filters);
@@ -345,7 +345,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, null, activeFilters);
@@ -357,7 +357,7 @@ describe("filter", () => {
       const activeFilters = {
         ingredients: new Set(),
         appliances: new Set(),
-        ustensils: new Set(),
+        utensils: new Set(),
       };
       // Filter result
       const result = filterRecipes(mockRecipes, undefined, activeFilters);

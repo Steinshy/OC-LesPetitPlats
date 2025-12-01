@@ -14,12 +14,12 @@ describe("search render", () => {
       expect(html).toContain("Rechercher un ingredients");
     });
 
-    it("should render dropdown search for ustensils", () => {
-      const html = renderDropdownSearch("ustensils");
+    it("should render dropdown search for utensils", () => {
+      const html = renderDropdownSearch("utensils");
 
-      expect(html).toContain('id="dropdown-ustensils-search"');
-      expect(html).toContain('id="search-ustensils"');
-      expect(html).toContain("Rechercher un ustensils");
+      expect(html).toContain('id="dropdown-utensils-search"');
+      expect(html).toContain('id="search-utensils"');
+      expect(html).toContain("Rechercher un utensils");
     });
 
     it("should render dropdown search for appliances", () => {

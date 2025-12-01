@@ -9,10 +9,10 @@ import {
 import { logCategorySummary } from "../logging/console.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
-const DROPDOWN_USTENSILS_CONTAINER_ID = "dropdown-ustensils-container";
+const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
 const DROPDOWN_APPLIANCES_CONTAINER_ID = "dropdown-appliances-container";
 const DATA_TYPE_INGREDIENTS = 'data-type="ingredients"';
-const DATA_TYPE_USTENSILS = 'data-type="ustensils"';
+const DATA_TYPE_utensils = 'data-type="utensils"';
 const DATA_TYPE_APPLIANCES = 'data-type="appliances"';
 const ARIA_FALSE = "false";
 const ARIA_TRUE = "true";
@@ -36,17 +36,17 @@ vi.mock("@/components/dropdown/render.js", () => ({
       </div>
     </div>`,
   ),
-  ustensilsDropdown: vi.fn(
+  utensilsDropdown: vi.fn(
     () => `
-    <div class="dropdown-container" id="${DROPDOWN_USTENSILS_CONTAINER_ID}" ${DATA_TYPE_USTENSILS}>
-      <button id="dropdown-ustensils-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-ustensils"></button>
-      <div id="dropdown-ustensils-backdrop" aria-hidden="${ARIA_TRUE}"></div>
-      <div id="menu-ustensils" aria-hidden="${ARIA_TRUE}" role="menu">
-        <div id="dropdown-ustensils-search">
-          <input id="search-ustensils" />
-          <button id="dropdown-ustensils-search-clear-button" class="hidden"></button>
+    <div class="dropdown-container" id="${DROPDOWN_utensils_CONTAINER_ID}" ${DATA_TYPE_utensils}>
+      <button id="dropdown-utensils-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-utensils"></button>
+      <div id="dropdown-utensils-backdrop" aria-hidden="${ARIA_TRUE}"></div>
+      <div id="menu-utensils" aria-hidden="${ARIA_TRUE}" role="menu">
+        <div id="dropdown-utensils-search">
+          <input id="search-utensils" />
+          <button id="dropdown-utensils-search-clear-button" class="hidden"></button>
         </div>
-        <ul id="dropdown-ustensils-list" role="listbox"></ul>
+        <ul id="dropdown-utensils-list" role="listbox"></ul>
       </div>
     </div>`,
   ),
@@ -130,12 +130,12 @@ describe("dropdown manager", () => {
   const mockRecipes = [
     {
       ingredients: [{ ingredient: "Tomato" }, { ingredient: "Onion" }],
-      ustensils: ["Spoon", "Fork"],
+      utensils: ["Spoon", "Fork"],
       appliance: "Oven",
     },
     {
       ingredients: [{ ingredient: "Potato" }],
-      ustensils: ["Knife"],
+      utensils: ["Knife"],
       appliance: "Stove",
     },
   ];
@@ -145,10 +145,10 @@ describe("dropdown manager", () => {
       const result = buildDropdownsData(mockRecipes);
 
       expect(result.ingredients).toBeDefined();
-      expect(result.ustensils).toBeDefined();
+      expect(result.utensils).toBeDefined();
       expect(result.appliances).toBeDefined();
       expect(Array.isArray(result.ingredients)).toBe(true);
-      expect(Array.isArray(result.ustensils)).toBe(true);
+      expect(Array.isArray(result.utensils)).toBe(true);
       expect(Array.isArray(result.appliances)).toBe(true);
     });
 
@@ -157,9 +157,9 @@ describe("dropdown manager", () => {
       expect(result.ingredients.length).toBeGreaterThan(0);
     });
 
-    it("should extract ustensils from recipes", () => {
+    it("should extract utensils from recipes", () => {
       const result = buildDropdownsData(mockRecipes);
-      expect(result.ustensils.length).toBeGreaterThan(0);
+      expect(result.utensils.length).toBeGreaterThan(0);
     });
 
     it("should extract appliances from recipes", () => {
@@ -170,7 +170,7 @@ describe("dropdown manager", () => {
     it("should handle empty recipes array", () => {
       const result = buildDropdownsData([]);
       expect(result.ingredients).toEqual([]);
-      expect(result.ustensils).toEqual([]);
+      expect(result.utensils).toEqual([]);
       expect(result.appliances).toEqual([]);
     });
   });
@@ -179,7 +179,7 @@ describe("dropdown manager", () => {
     it("should setup dropdowns with recipe data", () => {
       // Set up currentDropdownsData directly instead of passing recipes
       currentDropdownsData.ingredients = [];
-      currentDropdownsData.ustensils = [];
+      currentDropdownsData.utensils = [];
       currentDropdownsData.appliances = [];
       // Pass empty array to satisfy the parameter check, but data is set up directly
       setupDropdowns([]);
@@ -195,23 +195,23 @@ describe("dropdown manager", () => {
     it("should handle missing container element", () => {
       document.body.innerHTML = "";
       currentDropdownsData.ingredients = [];
-      currentDropdownsData.ustensils = [];
+      currentDropdownsData.utensils = [];
       currentDropdownsData.appliances = [];
       expect(() => setupDropdowns([])).not.toThrow();
     });
 
     it("should render all three dropdown types", () => {
       currentDropdownsData.ingredients = [];
-      currentDropdownsData.ustensils = [];
+      currentDropdownsData.utensils = [];
       currentDropdownsData.appliances = [];
       setupDropdowns([]);
 
       const ingredientsContainer = document.getElementById(DROPDOWN_INGREDIENTS_CONTAINER_ID);
-      const ustensilsContainer = document.getElementById(DROPDOWN_USTENSILS_CONTAINER_ID);
+      const utensilsContainer = document.getElementById(DROPDOWN_utensils_CONTAINER_ID);
       const appliancesContainer = document.getElementById(DROPDOWN_APPLIANCES_CONTAINER_ID);
 
       expect(ingredientsContainer).toBeTruthy();
-      expect(ustensilsContainer).toBeTruthy();
+      expect(utensilsContainer).toBeTruthy();
       expect(appliancesContainer).toBeTruthy();
     });
   });
@@ -276,9 +276,9 @@ describe("dropdown manager", () => {
 
     it("should close other dropdowns when opening one", () => {
       const ingredientsContainer = document.getElementById(DROPDOWN_INGREDIENTS_CONTAINER_ID);
-      const ustensilsContainer = document.getElementById("dropdown-ustensils-container");
+      const utensilsContainer = document.getElementById("dropdown-utensils-container");
       const ingredientsButton = document.getElementById("dropdown-ingredients-button");
-      const ustensilsButton = document.getElementById("dropdown-ustensils-button");
+      const utensilsButton = document.getElementById("dropdown-utensils-button");
 
       // Open ingredients dropdown
       ingredientsButton.click();
@@ -289,20 +289,20 @@ describe("dropdown manager", () => {
       }
       expect(ingredientsContainer.classList.contains("open")).toBe(true);
 
-      // Open ustensils dropdown (should close ingredients)
-      ustensilsButton.click();
+      // Open utensils dropdown (should close ingredients)
+      utensilsButton.click();
       if (ingredientsContainer.classList.contains("open")) {
         ingredientsContainer.classList.remove("open");
         ingredientsButton.classList.remove("active");
         ingredientsButton.setAttribute("aria-expanded", ARIA_EXPANDED_FALSE);
       }
-      if (!ustensilsContainer.classList.contains("open")) {
-        ustensilsContainer.classList.add("open");
-        ustensilsButton.classList.add("active");
-        ustensilsButton.setAttribute("aria-expanded", ARIA_EXPANDED_TRUE);
+      if (!utensilsContainer.classList.contains("open")) {
+        utensilsContainer.classList.add("open");
+        utensilsButton.classList.add("active");
+        utensilsButton.setAttribute("aria-expanded", ARIA_EXPANDED_TRUE);
       }
       expect(ingredientsContainer.classList.contains("open")).toBe(false);
-      expect(ustensilsContainer.classList.contains("open")).toBe(true);
+      expect(utensilsContainer.classList.contains("open")).toBe(true);
     });
 
     it("should dispatch dropdown:itemToggled event when item is clicked", () => {
@@ -379,17 +379,17 @@ describe("dropdown manager", () => {
       setupDropdowns([]);
       // Set up dropdown data
       currentDropdownsData.ingredients = ["Tomato", "Onion", "Potato"];
-      currentDropdownsData.ustensils = [];
+      currentDropdownsData.utensils = [];
       currentDropdownsData.appliances = [];
       // Re-run setupDropdowns to set up listeners with populated dropdownTypes
       setupDropdowns([]);
     });
 
     it("should update dropdown list based on search input", () => {
-      const searchInput = document.getElementById("search-ingredients");
+      const filterBysearchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
-      searchInput.value = "tomato";
+      filterBysearchInput.value = "tomato";
       updateDropdownContent("ingredients");
 
       const items = itemsList.querySelectorAll("li");
@@ -397,10 +397,10 @@ describe("dropdown manager", () => {
     });
 
     it("should show empty state when no matches", () => {
-      const searchInput = document.getElementById("search-ingredients");
+      const filterBysearchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
-      searchInput.value = "nonexistent";
+      filterBysearchInput.value = "nonexistent";
       updateDropdownContent("ingredients");
 
       const emptyState = itemsList.querySelector("#dropdown-ingredients-empty-state");
@@ -408,14 +408,14 @@ describe("dropdown manager", () => {
     });
 
     it("should toggle clear button visibility based on input", () => {
-      const searchInput = document.getElementById("search-ingredients");
+      const filterBysearchInput = document.getElementById("search-ingredients");
       const clearButton = document.getElementById("dropdown-ingredients-search-clear-button");
 
-      searchInput.value = "test";
+      filterBysearchInput.value = "test";
       updateDropdownContent("ingredients");
       expect(clearButton.classList.contains("hidden")).toBe(false);
 
-      searchInput.value = "";
+      filterBysearchInput.value = "";
       updateDropdownContent("ingredients");
       expect(clearButton.classList.contains("hidden")).toBe(true);
     });
@@ -426,13 +426,13 @@ describe("dropdown manager", () => {
     });
 
     it("should filter items based on search query", () => {
-      const searchInput = document.getElementById("search-ingredients");
+      const filterBysearchInput = document.getElementById("search-ingredients");
       const itemsList = document.getElementById("dropdown-ingredients-list");
 
       // Ensure data is set (in case setupDropdowns overwrote it)
       currentDropdownsData.ingredients = ["Tomato", "Onion", "Potato"];
 
-      searchInput.value = "on";
+      filterBysearchInput.value = "on";
       updateDropdownContent("ingredients");
 
       const items = itemsList.querySelectorAll(".item-btn");

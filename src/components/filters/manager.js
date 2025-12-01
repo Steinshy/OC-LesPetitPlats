@@ -2,26 +2,31 @@
 
 import { setupRecipesCards } from "@components/cards/manager.js";
 import { setupDropdowns } from "@components/dropdown/manager.js";
-import { filtersState, filtersConstants, filtersElements } from "@components/filters/elements.js";
-import { SearchInput, filterByField } from "@components/filters/recipeFilters.js";
+import { filtersState, filtersElements } from "@components/filters/elements.js";
+import { filterBysearchInput, filterByField } from "@components/filters/recipeFilters.js";
 import { renderFilters, renderFilterTag } from "@components/filters/render.js";
 import { setupResultsCounter } from "@components/resultsCounter.js";
 import { searchElements } from "@components/search/elements.js";
 import { parseURLState, updateURLState, clearURLState } from "@utils/queryParams.js";
 import { normalizeString } from "@utils/string.js";
 
+const filtersConstants = {
+  ariaHidden: "aria-hidden",
+  ariaHiddenTrue: "true",
+  ariaHiddenFalse: "false",
+};
 export const setupFilters = recipesData => {
   if (!recipesData) return;
 
   // Store all recipes once
   filtersState.allRecipes = Array.isArray(recipesData) ? recipesData : [];
 
-  const { searchInput, clearButton, submitSearch } = searchElements;
+  const { filterBysearchInput, clearButton, submitSearch } = searchElements;
   const { mainContainer } = filtersElements;
 
   // Initial search input value from filters state (e.g., from URL)
-  if (searchInput && filtersState.filters.search) {
-    searchInput.value = filtersState.filters.search ?? "";
+  if (filterBysearchInput && filtersState.filters.search) {
+    filterBysearchInput.value = filtersState.filters.search ?? "";
     clearButton?.classList.toggle("hidden", !filtersState.filters.search);
     submitSearch?.classList.toggle("hidden", !!filtersState.filters.search);
   }
@@ -48,10 +53,10 @@ export const setupFilters = recipesData => {
 
     filtersState.filters.ingredients = new Set(urlFilters.ingredients || []);
     filtersState.filters.appliances = new Set(urlFilters.appliances || []);
-    filtersState.filters.ustensils = new Set(urlFilters.ustensils || []);
+    filtersState.filters.utensils = new Set(urlFilters.utensils || []);
 
-    if (searchInput) {
-      searchInput.value = filtersState.filters.search ?? "";
+    if (filterBysearchInput) {
+      filterBysearchInput.value = filtersState.filters.search ?? "";
       clearButton?.classList.toggle("hidden", !filtersState.filters.search);
       submitSearch?.classList.toggle("hidden", !!filtersState.filters.search);
     }
@@ -73,10 +78,10 @@ const getFilteredRecipes = (recipes, filters) => {
 
   let current = recipes;
 
-  current = SearchInput(current, filters.search ?? "");
+  current = filterBysearchInput(current, filters.search ?? "");
   current = filterByField(current, filters.ingredients, "ingredients");
   current = filterByField(current, filters.appliances, "appliances");
-  current = filterByField(current, filters.ustensils, "ustensils");
+  current = filterByField(current, filters.utensils, "utensils");
 
   return current;
 };
@@ -120,7 +125,7 @@ const updateFiltersContainer = filters => {
   const { filtersContainer, filterCount, clearAll } = filtersElements;
   if (!filtersContainer || !filterCount || !clearAll) return;
 
-  const total = filters.ingredients.size + filters.appliances.size + filters.ustensils.size;
+  const total = filters.ingredients.size + filters.appliances.size + filters.utensils.size;
 
   if (total === 0) {
     filtersContainer.style.display = "none";
@@ -152,7 +157,7 @@ const updateFilterTagsUI = () => {
   const activeFiltersArray = [
     ...[...filtersState.filters.ingredients].map(value => ({ value, type: "ingredients" })),
     ...[...filtersState.filters.appliances].map(value => ({ value, type: "appliances" })),
-    ...[...filtersState.filters.ustensils].map(value => ({ value, type: "ustensils" })),
+    ...[...filtersState.filters.utensils].map(value => ({ value, type: "utensils" })),
   ];
 
   listsContainer.innerHTML = activeFiltersArray
@@ -255,11 +260,11 @@ const clearAllFilters = () => {
   filtersState.filters.search = "";
   filtersState.filters.ingredients.clear();
   filtersState.filters.appliances.clear();
-  filtersState.filters.ustensils.clear();
+  filtersState.filters.utensils.clear();
 
   // Reset search UI
-  if (searchElements.searchInput && searchElements.clearButton && searchElements.submitSearch) {
-    searchElements.searchInput.value = "";
+  if (searchElements.filterBysearchInput && searchElements.clearButton && searchElements.submitSearch) {
+    searchElements.filterBysearchInput.value = "";
     searchElements.clearButton.classList.add("hidden");
     searchElements.submitSearch.classList.remove("hidden");
   }

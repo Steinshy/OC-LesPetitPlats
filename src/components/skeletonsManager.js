@@ -2,16 +2,16 @@
 
 import {
   ingredientsDropdown,
-  ustensilsDropdown,
+  utensilsDropdown,
   appliancesDropdown,
 } from "@components/dropdown/render.js";
-import { cardSkeleton } from "@components/renderSqueletons.js";
+import { cardSkeleton } from "@components/skeletonsRenderer.js";
 
 // ---------------
 // dom elements
 // ---------------
 
-export const squeletonsElements = {
+export const skeletonsElements = {
   header: document.getElementById("header"),
   searchBar: document.getElementById("search-bar"),
   cardsContainer: document.getElementById("recipes"),
@@ -29,7 +29,7 @@ export const squeletonsElements = {
 
 export const searchSkeleton = () => ({
   show: () => {
-    const searchBar = squeletonsElements.searchBar;
+    const searchBar = skeletonsElements.searchBar;
     if (searchBar) {
       searchBar.classList.add("skeleton");
       const inputs = searchBar.querySelectorAll("input, button");
@@ -40,7 +40,7 @@ export const searchSkeleton = () => ({
   },
 
   hide: () => {
-    const searchBar = squeletonsElements.searchBar;
+    const searchBar = skeletonsElements.searchBar;
     if (searchBar) {
       searchBar.classList.remove("skeleton");
       const inputs = searchBar.querySelectorAll("input, button");
@@ -57,14 +57,14 @@ export const searchSkeleton = () => ({
 
 export const headerSkeleton = () => ({
   show: () => {
-    if (squeletonsElements.header) {
-      squeletonsElements.header.classList.add("skeleton");
+    if (skeletonsElements.header) {
+      skeletonsElements.header.classList.add("skeleton");
     }
   },
 
   hide: () => {
-    if (squeletonsElements.header) {
-      squeletonsElements.header.classList.remove("skeleton");
+    if (skeletonsElements.header) {
+      skeletonsElements.header.classList.remove("skeleton");
     }
   },
 });
@@ -78,16 +78,16 @@ export const dropdownsContainerSkeleton = () => ({
     const dropdownsContainer = document.getElementById("dropdowns-container");
     if (!dropdownsContainer) return;
     dropdownsContainer.innerHTML =
-      ingredientsDropdown([]) + ustensilsDropdown([]) + appliancesDropdown([]);
+      ingredientsDropdown([]) + utensilsDropdown([]) + appliancesDropdown([]);
 
-    squeletonsElements.dropdownsElements.forEach(container => {
+    skeletonsElements.dropdownsElements.forEach(container => {
       container.classList.add("skeleton");
       container.querySelector("button")?.setAttribute("disabled", "");
     });
   },
 
   hide: () => {
-    squeletonsElements.dropdownsElements.forEach(container =>
+    skeletonsElements.dropdownsElements.forEach(container =>
       container.classList.remove("skeleton"),
     );
   },
@@ -100,11 +100,11 @@ export const dropdownsContainerSkeleton = () => ({
 export const cardSkeletons = () => ({
   build: count => {
     if (!count) return;
-    squeletonsElements.cardsContainer.innerHTML = cardSkeleton(count);
+    skeletonsElements.cardsContainer.innerHTML = cardSkeleton(count);
   },
 
   hide: () => {
-    squeletonsElements.cardSkeletons.forEach(skeleton => {
+    skeletonsElements.cardSkeletons.forEach(skeleton => {
       skeleton.classList.remove("skeleton");
     });
   },

@@ -21,7 +21,7 @@ describe("recipesBuilder", () => {
       { ingredient: "Flour", quantity: 200, unit: "g" },
       { ingredient: "Sugar", quantity: 100, unit: "g" },
     ],
-    ustensils: ["Spoon", "Bowl"],
+    utensils: ["Spoon", "Bowl"],
     image: "recipes/test.jpg",
   };
 
@@ -89,17 +89,17 @@ describe("recipesBuilder", () => {
     expect(recipes[0].images.webpUrl).toContain("recipes/test.webp");
   });
 
-  it("should build search string from name, ingredients, ustensils, and appliance", async () => {
-    // Recipe with string ustensils
-    const recipeWithStringUstensils = {
+  it("should build search string from name, ingredients, utensils, and appliance", async () => {
+    // Recipe with string utensils
+    const recipeWithStringutensils = {
       ...mockRawRecipe,
-      ustensils: ["Spoon", "Bowl"],
+      utensils: ["Spoon", "Bowl"],
     };
 
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve([recipeWithStringUstensils]),
+        json: () => Promise.resolve([recipeWithStringutensils]),
       }),
     );
 
@@ -111,10 +111,10 @@ describe("recipesBuilder", () => {
     // No search property in actual code - recipe data is returned as-is
     expect(recipes[0]).not.toHaveProperty("search");
     expect(recipes[0].name).toBe("Test Recipe");
-    expect(recipes[0].ustensils).toEqual(["Spoon", "Bowl"]);
+    expect(recipes[0].utensils).toEqual(["Spoon", "Bowl"]);
   });
 
-  it("should build ustensils array", async () => {
+  it("should build utensils array", async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: true,
@@ -127,8 +127,8 @@ describe("recipesBuilder", () => {
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
-    // Ustensils are returned as-is, not normalized
-    expect(recipes[0].ustensils).toEqual(expect.arrayContaining(["Spoon", "Bowl"]));
+    // utensils are returned as-is, not normalized
+    expect(recipes[0].utensils).toEqual(expect.arrayContaining(["Spoon", "Bowl"]));
   });
 
   it("should handle missing optional fields", async () => {
@@ -159,7 +159,7 @@ describe("recipesBuilder", () => {
       time: 0,
       appliance: "",
       ingredients: [],
-      ustensils: [],
+      utensils: [],
       images: expect.any(Object),
     });
   });
@@ -206,7 +206,7 @@ describe("recipesBuilder", () => {
           { ingredient: "Sugar", quantity: 100, unit: "g" },
         ],
         appliance: "Oven",
-        ustensils: ["Spoon", "Bowl"],
+        utensils: ["Spoon", "Bowl"],
       },
       {
         ...mockRawRecipe,
@@ -216,7 +216,7 @@ describe("recipesBuilder", () => {
           { ingredient: "Butter", quantity: 100, unit: "g" },
         ],
         appliance: "Oven",
-        ustensils: ["Spoon", "Fork"],
+        utensils: ["Spoon", "Fork"],
       },
     ];
 
@@ -237,8 +237,8 @@ describe("recipesBuilder", () => {
     expect(recipes).toHaveLength(2);
     expect(recipes[0].ingredients).toHaveLength(2);
     expect(recipes[1].ingredients).toHaveLength(2);
-    expect(recipes[0].ustensils).toContain("Spoon");
-    expect(recipes[0].ustensils).toContain("Bowl");
+    expect(recipes[0].utensils).toContain("Spoon");
+    expect(recipes[0].utensils).toContain("Bowl");
   });
 
   afterAll(() => {

@@ -16,7 +16,7 @@ export const getDropdownElements = type => ({
 // Search elements
 export const getDropdownSearchElements = type => ({
   searchWrapper: document.getElementById(`dropdown-${type}-search`),
-  searchInput: document.getElementById(`search-${type}`),
+  filterBysearchInput: document.getElementById(`search-${type}`),
   searchClear: document.getElementById(`dropdown-${type}-search-clear-button`),
 });
 

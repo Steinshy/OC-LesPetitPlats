@@ -29,18 +29,18 @@ vi.mock("@/components/dropdown/data.js", async () => {
   // Create wrapper function that uses the original
   const buildDropdownsDataWrapper = recipesData => {
     const result = original.buildDropdownsData(recipesData);
-    // Tests expect { ingredients, ustensils, appliances } directly
-    // but function returns { dropdowns: { ingredients, ustensils, appliances } }
+    // Tests expect { ingredients, utensils, appliances } directly
+    // but function returns { dropdowns: { ingredients, utensils, appliances } }
     if (!result || !result.dropdowns) {
       return {
         ingredients: [],
-        ustensils: [],
+        utensils: [],
         appliances: [],
       };
     }
     return {
       ingredients: result.dropdowns.ingredients || [],
-      ustensils: result.dropdowns.ustensils || [],
+      utensils: result.dropdowns.utensils || [],
       appliances: result.dropdowns.appliances || [],
     };
   };
