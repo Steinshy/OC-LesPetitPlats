@@ -131,7 +131,7 @@ export const renderDropdownItem = (type, item, itemId, itemBtnId) => {
   `;
 };
 
-const renderDropdownSearch = (type) => {
+const renderDropdownSearch = type => {
   const searchInputId = `search-${type}`;
   const labelId = `label-${type}`;
   return `

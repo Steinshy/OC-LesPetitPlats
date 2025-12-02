@@ -1,6 +1,6 @@
 import { createInterface } from "node:readline";
-import chalk from "chalk";
 import { getAllResults, saveResultsData } from "@benchmarks-data/collector.js";
+import { colors } from "@viteTest-helper/message.js";
 
 // Prompt user for yes/no question with modern styling
 function askQuestion(question) {
@@ -10,7 +10,7 @@ function askQuestion(question) {
       output: process.stdout,
     });
 
-    rl.question(chalk.cyan(`\n${question} ${chalk.dim("(yes/no)")}: `), answer => {
+    rl.question(colors.cyan(`\n${question} ${colors.dim("(yes/no)")}: `), answer => {
       rl.close();
       const normalized = answer.trim().toLowerCase();
       resolve(normalized === "yes" || normalized === "y");
@@ -26,7 +26,7 @@ function askQuestionMultiple(question, options) {
       output: process.stdout,
     });
 
-    rl.question(chalk.cyan(`\n${question} ${chalk.dim(`(${options.join("/")})`)}: `), answer => {
+    rl.question(colors.cyan(`\n${question} ${colors.dim(`(${options.join("/")})`)}: `), answer => {
       rl.close();
       resolve(answer.trim().toLowerCase());
     });
@@ -46,9 +46,9 @@ async function promptForAllTests() {
     const runAllTestsEnv = runAllTests ? "true" : "false";
 
     if (runAllTests) {
-      console.log(chalk.green("✓ 'All' tests will be included (CI mode)"));
+      console.log(colors.success("✓ 'All' tests will be included (CI mode)"));
     } else {
-      console.log(chalk.dim("⊘ 'All' tests will be skipped (CI mode)"));
+      console.log(colors.dim("⊘ 'All' tests will be skipped (CI mode)"));
     }
 
     // Store the "All" tests preference in results
@@ -60,16 +60,16 @@ async function promptForAllTests() {
   }
 
   // Interactive mode: prompt user
-  console.log(`\n${chalk.yellow("⚠️  Note:")} 'All' tests benchmark every available filter value`);
-  console.log(chalk.dim("   (ingredients, appliances, utensils) - up to 10 min each."));
-  console.log(chalk.dim("   If skipped, they will be marked as 'skipped' in the report."));
+  console.log(`\n${colors.warning("⚠️  Note:")} 'All' tests benchmark every available filter value`);
+  console.log(colors.dim("   (ingredients, appliances, utensils) - up to 10 min each."));
+  console.log(colors.dim("   If skipped, they will be marked as 'skipped' in the report."));
   const runAllTests = await askQuestion("Do you want to run the 'All' tests?");
   const runAllTestsEnv = runAllTests ? "true" : "false";
 
   if (runAllTests) {
-    console.log(chalk.green("✓ 'All' tests will be included"));
+    console.log(colors.success("✓ 'All' tests will be included"));
   } else {
-    console.log(chalk.dim("⊘ 'All' tests will be skipped"));
+    console.log(colors.dim("⊘ 'All' tests will be skipped"));
   }
 
   // Store the "All" tests preference in results

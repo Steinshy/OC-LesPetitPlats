@@ -39,7 +39,7 @@
     ],
     "time": 75,
     "description": "Découper les légumes. Faire revenir dans une poêle. Ajouter les épices.",
-    "appliance": "Cocotte",
+    "appliance": "Marmite",
     "ustensils": [
       "casserole",
       "fouet",
@@ -85,7 +85,7 @@
     ],
     "time": 12,
     "description": "Éplucher et couper les ingrédients. Mettre dans un plat. Cuire environ 30 minutes.",
-    "appliance": "Sauteuse",
+    "appliance": "Plaque de cuisson",
     "ustensils": [
       "râpe à fromage",
       "cuillère à Soupe"

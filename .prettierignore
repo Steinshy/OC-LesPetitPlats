@@ -16,5 +16,6 @@ lighthouse/
 lighthouse-report*.html
 lighthouse-report*.json
 lighthouse-report-formatted.json
+benchmark-results/
 Benchmark/
 Report/

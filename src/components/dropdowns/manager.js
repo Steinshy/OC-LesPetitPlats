@@ -1,8 +1,19 @@
 // src/components/dropdowns/manager.js
 
 import { buildDropdownsData } from "@components/dropdowns/data.js";
-import { dropdownElements, dropdownSearchElements, dropdownListElements, dropdownsElements } from "@components/dropdowns/elements.js";
-import { ingredientsDropdown, utensilsDropdown, appliancesDropdown, renderEmptyStateItem, renderDropdownItem } from "@components/dropdowns/render.js";
+import {
+  dropdownElements,
+  dropdownSearchElements,
+  dropdownListElements,
+  dropdownsElements,
+} from "@components/dropdowns/elements.js";
+import {
+  ingredientsDropdown,
+  utensilsDropdown,
+  appliancesDropdown,
+  renderEmptyStateItem,
+  renderDropdownItem,
+} from "@components/dropdowns/render.js";
 import { isScrolledPastHeader } from "@components/header.js";
 import { lockScroll, unlockScroll } from "@components/scrollLock.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";

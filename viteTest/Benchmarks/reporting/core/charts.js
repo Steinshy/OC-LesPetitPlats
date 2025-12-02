@@ -16,21 +16,25 @@ function createChartLabels(implementations) {
 }
 
 // Helper function to get color palette using chroma-js
-function getColorPalette() {
+function getColorPalette(implementations = []) {
   // Generate colors using chroma-js for better color management
   const productionColor = chroma("#36a2eb"); // Blue
   const mapsColor = chroma("#ff6384"); // Red/Pink
+
+  // Use actual implementation names from data, with fallback to file names
+  const impl1 = implementations[0] || "production";
+  const impl2 = implementations[1] || "forEach";
 
   return [
     {
       bg: productionColor.alpha(0.6).css(),
       border: productionColor.css(),
-      name: "Production",
+      name: impl1,
     },
     {
       bg: mapsColor.alpha(0.6).css(),
       border: mapsColor.css(),
-      name: "Maps",
+      name: impl2,
     },
   ];
 }
@@ -139,7 +143,9 @@ async function generatePerformanceChart(
   colors,
   flattened,
 ) {
-  const categories = ["Search", "Ingredients", "Appliances", "utensils", "Combined"];
+  // Extract categories from actual test results
+  const testedCategories = [...new Set(flattened.map(r => r.category).filter(Boolean))];
+  const categories = testedCategories.length > 0 ? testedCategories : ["Search", "Ingredients", "Appliances", "utensils", "Combined"];
   const categoryAverages = categories.map(category => {
     const categoryResults = flattened.filter(r => r.category === category);
     if (categoryResults.length === 0) {
@@ -447,6 +453,15 @@ async function generateConsistencyChart(
 
 // Generate improvement chart
 async function generateImprovementChart(chartJSNodeCanvas, flattened) {
+  // Get actual implementation names from data
+  const implementations = getImplementations(flattened);
+  if (implementations.length < 2) {
+    return null;
+  }
+
+  const impl1 = implementations[0]; // e.g., "production"
+  const impl2 = implementations[1]; // e.g., "forEach"
+
   // Group results by test case (category + testName)
   const testCases = {};
   flattened.forEach(result => {
@@ -465,25 +480,26 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
   const improvementData = [];
   const labels = [];
 
-  Object.entries(testCases).forEach(([key, implementations]) => {
-    const productionTime = implementations["Production"]?.time || 0;
-    const mapsTime = implementations["Maps"]?.time || 0;
+  Object.entries(testCases).forEach(([key, implResults]) => {
+    // Use actual implementation names from data
+    const impl1Time = implResults[impl1]?.time || implResults["Production"]?.time || 0;
+    const impl2Time = implResults[impl2]?.time || implResults["Maps"]?.time || 0;
 
-    if (productionTime > 0 && mapsTime > 0) {
-      // Calculate improvement: positive if Maps is faster, negative if Production is faster
+    if (impl1Time > 0 && impl2Time > 0) {
+      // Calculate improvement: positive if impl2 is faster, negative if impl1 is faster
       // Improvement = ((slower - faster) / slower) * 100
-      const slower = Math.max(productionTime, mapsTime);
-      const faster = Math.min(productionTime, mapsTime);
+      const slower = Math.max(impl1Time, impl2Time);
+      const faster = Math.min(impl1Time, impl2Time);
       const improvement = slower > 0 ? ((slower - faster) / slower) * 100 : 0;
 
-      // Make it positive if Maps is faster, negative if Production is faster
-      const improvementValue = mapsTime < productionTime ? improvement : -improvement;
+      // Make it positive if impl2 is faster, negative if impl1 is faster
+      const improvementValue = impl2Time < impl1Time ? improvement : -improvement;
 
       improvementData.push(improvementValue);
 
       // Create a short label for the test
       const testName =
-        implementations["Production"]?.testName || implementations["Maps"]?.testName || key;
+        implResults[impl1]?.testName || implResults[impl2]?.testName || implResults["Production"]?.testName || implResults["Maps"]?.testName || key;
       const shortName = testName.length > 30 ? `${testName.substring(0, 27)}...` : testName;
       labels.push(shortName);
     }
@@ -499,7 +515,7 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
       labels,
       datasets: [
         {
-          label: "Maps vs Production (%)",
+          label: `${impl2} vs ${impl1} (%)`,
           data: improvementData,
           borderColor: "rgba(75, 192, 192, 1)",
           backgroundColor: "rgba(75, 192, 192, 0.2)",
@@ -522,7 +538,7 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
       plugins: {
         title: {
           display: true,
-          text: "Performance Improvement: Maps vs Production",
+          text: `Performance Improvement: ${impl2} vs ${impl1}`,
           font: { size: 13 },
         },
         legend: {
@@ -542,7 +558,7 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
             label(context) {
               const value = context.parsed.y;
               const sign = value >= 0 ? "+" : "";
-              return `${sign}${value.toFixed(2)}% ${value >= 0 ? "(Maps faster)" : "(Production faster)"}`;
+              return `${sign}${value.toFixed(2)}% ${value >= 0 ? `(${impl2} faster)` : `(${impl1} faster)`}`;
             },
           },
         },
@@ -560,7 +576,7 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
           beginAtZero: false,
           title: {
             display: true,
-            text: "Improvement % (positive = Maps faster)",
+            text: `Improvement % (positive = ${impl2} faster)`,
             font: { size: 11 },
           },
           ticks: {
@@ -587,7 +603,7 @@ export async function generateCharts(results) {
 
   const implementations = getImplementations(flattened);
   const { shortLabels, legendLabels } = createChartLabels(implementations);
-  const colors = getColorPalette();
+  const colors = getColorPalette(implementations);
   const implAverages = implementations.map(impl => ({
     name: impl,
     avg: getAverageExecutionTime(flattened, impl),

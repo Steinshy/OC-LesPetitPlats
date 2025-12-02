@@ -36,7 +36,7 @@
 
 ## 🎯 À propos
 
-> Les Petits Plats est une Progressive Web App (PWA) développée avec des technologies modernes. L'application offre une expérience utilisateur fluide avec recherche instantanée et filtrage dynamique. Optimisée pour les performances, elle inclut un système de cache, un service worker pour le mode hors ligne, et une interface responsive.
+Progressive Web App (PWA) permettant de rechercher parmi plus de 1500 recettes culinaires. Recherche instantanée, filtrage dynamique, système de cache, mode hors ligne et interface responsive optimisée pour les performances.
 
 ## ✨ Fonctionnalités
 
@@ -48,12 +48,9 @@
 - ⚡ **Performance optimisée** : Système de cache, lazy loading des images, optimisations des assets
 - 🎨 **Interface moderne** : Design épuré avec Tailwind CSS
 
-## 📦 Prérequis
-
-- **Node.js** (version 18 ou supérieure)
-- **npm** (version 9 ou supérieure)
-
 ## 🚀 Installation
+
+**Prérequis :** Node.js 18+ et npm 9+
 
 ```bash
 git clone https://github.com/steinshy/OC-LesPetitPlats.git
@@ -62,15 +59,9 @@ npm install
 npm run dev
 ```
 
-L'application sera accessible à l'adresse `http://localhost:5173`.
+L'application sera accessible à `http://localhost:5173`.
 
 ## 💻 Utilisation
-
-**Commandes principales** :
-
-- `npm run dev` - Serveur de développement
-- `npm run build` - Build de production
-- `npm run preview` - Prévisualisation du build
 
 ### Recherche et filtrage
 
@@ -84,21 +75,28 @@ L'application sera accessible à l'adresse `http://localhost:5173`.
 
 ## 📜 Scripts disponibles
 
-| Commande                  | Description                                              |
-| ------------------------- | -------------------------------------------------------- |
-| `npm run dev`             | Serveur de développement                                 |
-| `npm run build`           | Build de production                                      |
-| `npm run preview`         | Prévisualisation du build                                |
-| `npm test`                | Tests unitaires                                          |
-| `npm run test:ui`         | Interface UI pour les tests                              |
-| `npm run test:coverage`   | Tests avec couverture de code                            |
-| `npm run lint`            | Vérification du code (ESLint, Stylelint, HTML, Markdown) |
-| `npm run lint:fix`        | Correction automatique ESLint                            |
-| `npm run format`          | Formatage du code avec Prettier                          |
-| `npm run analyze`         | Analyse du bundle                                        |
-| `npm run optimize:images` | Optimisation des images                                  |
-| `npm run clean`           | Nettoyage des dossiers de build                          |
-| `npm run lighthouse`      | Rapport Lighthouse                                       |
+### Développement
+
+- `npm run dev` - Serveur de développement
+- `npm run build` - Build de production
+- `npm run preview` - Prévisualisation du build
+
+### Qualité du code
+
+- `npm run lint` - Vérification du code (ESLint, Stylelint, HTML, Markdown)
+- `npm run lint:fix` - Correction automatique ESLint
+- `npm run format` - Formatage du code avec Prettier
+
+### Analyse & Optimisation
+
+- `npm run analyze` - Analyse du bundle
+- `npm run lighthouse` - Rapport Lighthouse
+- `npm run jsben` - Générer des fichiers de benchmark pour jsben.ch
+
+### Utilitaires
+
+- `npm run clean` - Nettoyage des dossiers de build
+- `npm run generate:pwa-assets` - Générer les assets PWA
 
 ## 🛠️ Technologies
 
@@ -107,109 +105,39 @@ L'application sera accessible à l'adresse `http://localhost:5173`.
 - **PWA** - Progressive Web App avec Service Worker
 - **Neverthrow** - Gestion d'erreurs fonctionnelle
 - **Query String** - Gestion des paramètres d'URL
+- **Vitest** - Framework de tests unitaires
+- **tinybench** - Bibliothèque de benchmarking
+- **systeminformation** - Collecte d'informations système détaillées pour les rapports de performance
 
-### Qualité du code
-
-Le projet utilise plusieurs outils pour maintenir la qualité du code :
-
-- **ESLint** : Analyse statique du code JavaScript
-- **Stylelint** : Validation des styles CSS
-- **HTML Validate** : Validation HTML
-- **Prettier** : Formatage automatique du code
+**Qualité du code :** ESLint, Stylelint, HTML Validate, Prettier
 
 ```bash
-npm run lint
-npm run lint:fix
-npm run format
+npm run lint          # Vérification du code
+npm run lint:fix      # Correction automatique
+npm run format        # Formatage automatique
 ```
+
+## 📊 Performances & Tests
+
+Pour plus d'informations :
+
+- [viteTest/README-Benchmarks.md](viteTest/README-Benchmarks.md) - Benchmarks de performance
+- [viteTest/README-Unit.md](viteTest/README-Unit.md) - Tests unitaires
+- [viteTest/README-Jsben.md](viteTest/README-Jsben.md) - Benchmarks avec jsben.ch
 
 ## 📁 Structure du projet
 
 ```text
 LesPetitPlats/
-├── public/                       # Fichiers statiques
-│   ├── api/                     # Données des recettes
-│   │   ├── data.json           # Base de données des recettes
-│   │   └── data.js             # Version JavaScript
-│   ├── favicons/                # Icônes et logos
-│   ├── recipes/                 # Images des recettes
-│   └── sw.js                    # Service Worker
-│
-├── src/                         # Code source
-│   ├── App.js                   # Point d'entrée de l'application
-│   ├── coordinator.js           # Coordinateur d'événements et synchronisation UI
-│   │
-│   ├── components/              # Composants UI
-│   │   ├── cards/              # Cartes de recettes
-│   │   │   ├── manager.js      # Gestion des cartes
-│   │   │   ├── render.js       # Rendu des cartes
-│   │   │   └── elements.js     # Éléments DOM
-│   │   │
-│   │   ├── dropdowns/          # Menus déroulants
-│   │   │   ├── manager.js      # Gestion des menus
-│   │   │   ├── render.js       # Rendu des menus
-│   │   │   ├── data.js         # Gestion des données
-│   │   │   └── elements.js     # Éléments DOM
-│   │   │
-│   │   ├── filters/            # Filtres de recherche
-│   │   │   ├── manager.js      # Gestion des filtres
-│   │   │   ├── render.js       # Rendu des filtres
-│   │   │   ├── data.js         # Données des filtres
-│   │   │   ├── state.js        # État des filtres
-│   │   │   └── elements.js     # Éléments DOM
-│   │   │
-│   │   ├── search/             # Recherche
-│   │   │   ├── manager.js      # Gestion de la recherche
-│   │   │   └── elements.js     # Éléments DOM
-│   │   │
-│   │   ├── skeletons/          # Squelettes de chargement
-│   │   │   ├── manager.js      # Gestion des squelettes
-│   │   │   └── renderer.js     # Rendu des squelettes
-│   │   │
-│   │   ├── header.js           # En-tête de l'application
-│   │   ├── resultsCounter.js   # Compteur de résultats
-│   │   ├── scrollLock.js       # Verrouillage du scroll
-│   │   └── scrollToTop.js      # Bouton scroll to top
-│   │
-│   └── utils/                   # Utilitaires
-│       ├── cache.js            # Système de cache
-│       ├── config.js           # Configuration de l'application
-│       ├── device.js           # Détection d'appareils
-│       ├── filterEngine.js     # Moteur de filtrage
-│       ├── imageTracker.js     # Suivi et gestion des images
-│       ├── normalize.js        # Normalisation de chaînes
-│       ├── recipeApi.js        # API des recettes
-│       ├── recipesBuilder.js   # Construction des données
-│       ├── toast.js            # Notifications toast
-│       └── urlState.js         # Gestion de l'état URL
-│
-├── styles/                      # Styles CSS
-│   ├── base.css                # Styles de base
-│   ├── components.css          # Styles des composants
-│   ├── global.css              # Styles globaux
-│   ├── skeletons.css           # Styles des squelettes
-│   └── utilities.css           # Utilitaires CSS
-│
-├── scripts/                     # Scripts utilitaires
-│   ├── exportRecipesJson.js    # Export des recettes
-│   ├── generateIcons.js        # Génération d'icônes
-│   ├── lighthouse.js           # Tests Lighthouse
-│   └── optimizeImages.js       # Optimisation d'images
-│
-├── index.html                   # Fichier HTML principal
-├── vite.config.js              # Configuration Vite
-├── tailwind.config.js          # Configuration Tailwind
-├── package.json                # Dépendances et scripts
+├── public/              # Fichiers statiques (api/, favicons/, recipes/, sw.js)
+├── src/
+│   ├── App.js          # Point d'entrée
+│   ├── coordinator.js  # Coordinateur d'événements
+│   ├── components/     # Composants UI (cards, dropdowns, filters, search, skeletons)
+│   └── utils/          # Utilitaires (cache, filterEngine, recipeApi, etc.)
+├── styles/             # Styles CSS (base, components, global, utilities)
+├── scripts/            # Scripts utilitaires (analyze, export, lighthouse)
 ```
-
-## 📊 Performances
-
-Le projet inclut des benchmarks de performance pour mesurer les algorithmes de recherche et de filtrage. Un rapport Lighthouse est généré automatiquement pour analyser les performances de l'application.
-
-- 🎯 **Recherche rapide** : Algorithmes optimisés pour une recherche en temps réel
-- 💾 **Cache intelligent** : Système de cache pour améliorer les performances
-- ⚡ **Lighthouse Score** : Score de performance optimisé (vérifier avec `npm run lighthouse`)
-- 📈 **Benchmarks** : Mesure des performances des algorithmes (voir `npm run benchmark`)
 
 ## 📄 Licence
 

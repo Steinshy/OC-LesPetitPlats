@@ -19,6 +19,9 @@
       "@benchmarks-tests/*": ["./viteTest/Benchmarks/tests/*"],
       "@benchmarks-utils/*": ["./viteTest/Benchmarks/utils/*"],
 
+      // Jsben
+      "@jsben/*": ["./viteTest/Jsben/*"],
+
       // Benchmarks reporting
       "@benchmarks-reporting/*": ["./viteTest/Benchmarks/reporting/*"],
       "@benchmarks-reporting-cli/*": ["./viteTest/Benchmarks/reporting/cli/*"],
@@ -29,15 +32,25 @@
 
       // Unit tests
       "@tests/*": ["./viteTest/Unit/*"],
-      "@tests-tests/*": ["./viteTest/Unit/tests/*"],
       "@tests-data/*": ["./viteTest/Unit/data/*"],
       "@tests-helpers/*": ["./viteTest/Unit/helpers/*"],
-      "@tests-logging/*": ["./viteTest/Unit/logging/*"],
+      
+      // Unit tests - mocks (mirrors src/ structure)
       "@tests-mocks/*": ["./viteTest/Unit/mocks/*"],
+      "@tests-mocks-components/*": ["./viteTest/Unit/mocks/components/*"],
+      "@tests-mocks-utils/*": ["./viteTest/Unit/mocks/utils/*"],
+      
+      // Unit tests - tests (mirrors src/ structure)
+      "@tests-tests/*": ["./viteTest/Unit/tests/*"],
+      "@tests-tests-components/*": ["./viteTest/Unit/tests/components/*"],
+      "@tests-tests-utils/*": ["./viteTest/Unit/tests/utils/*"],
+
+      // ViteTest helpers (centralized utilities)
+      "@viteTest-helper/*": ["./viteTest/helper/*"],
     },
     "allowJs": true,
     "checkJs": false,
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "coverage", "temp", "Benchmark", "Report"]
+  "exclude": ["node_modules", "dist", "benchmark-results", "temp", "Report"]
 }

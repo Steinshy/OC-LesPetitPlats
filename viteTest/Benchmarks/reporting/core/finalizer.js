@@ -1,7 +1,6 @@
 import { execSync } from "node:child_process";
-import chalk from "chalk";
 import { askQuestion } from "@benchmarks-reporting-cli/prompts.js";
-import { createSpinner } from "@benchmarks-utils/console.js";
+import { colors, createSpinner } from "@viteTest-helper/message.js";
 
 // Format duration in a human-readable way
 function formatDuration(ms) {
@@ -28,20 +27,20 @@ async function finalizeReport(htmlPath, startTime) {
   const totalDuration = endTime - startTime;
   const formattedDuration = formatDuration(totalDuration);
 
-  console.log(`\n${chalk.bold(chalk.green(`╔${"═".repeat(58)}╗`))}`);
+  console.log(`\n${colors.bold(colors.success(`╔${"═".repeat(58)}╗`))}`);
   console.log(
-    chalk.bold(chalk.green(`║${" ".repeat(12)}REPORT GENERATION COMPLETED${" ".repeat(20)}║`)),
+    colors.bold(colors.success(`║${" ".repeat(12)}REPORT GENERATION COMPLETED${" ".repeat(20)}║`)),
   );
-  console.log(chalk.bold(chalk.green(`╚${"═".repeat(58)}╝`)));
-  console.log(`${chalk.green("\n✓ HTML Report:")} ${chalk.cyan(htmlPath)}`);
-  console.log(chalk.dim(`   Total Duration: ${chalk.bold(formattedDuration)}`));
+  console.log(colors.bold(colors.success(`╚${"═".repeat(58)}╝`)));
+  console.log(`${colors.success("\n✓ HTML Report:")} ${colors.cyan(htmlPath)}`);
+  console.log(colors.dim(`   Total Duration: ${colors.bold(formattedDuration)}`));
 
   // Skip browser opening prompt in CI environment
   const isCI = process.env.CI === "true";
   if (isCI) {
-    console.log(chalk.dim("\n   Browser opening skipped (CI mode)"));
-    console.log(chalk.dim("   Report saved. You can download it from CI artifacts."));
-    console.log(chalk.cyan(`   ${htmlPath}`));
+    console.log(colors.dim("\n   Browser opening skipped (CI mode)"));
+    console.log(colors.dim("   Report saved. You can download it from CI artifacts."));
+    console.log(colors.cyan(`   ${htmlPath}`));
     return;
   }
 
@@ -62,16 +61,16 @@ async function finalizeReport(htmlPath, startTime) {
 
       execSync(command, { stdio: "ignore" });
       openSpinner.succeed("Report opened in browser");
-      console.log(chalk.cyan("\n👋 Bye bye!"));
+      console.log(colors.cyan("\n👋 Bye bye!"));
     } catch (_error) {
       openSpinner.warn("Could not open report automatically");
-      console.log(chalk.dim(`   Please open manually: ${htmlPath}`));
-      console.log(chalk.cyan("\n👋 Bye bye!"));
+      console.log(colors.dim(`   Please open manually: ${htmlPath}`));
+      console.log(colors.cyan("\n👋 Bye bye!"));
     }
   } else {
-    console.log(chalk.dim("   Report saved. You can open it later at:"));
-    console.log(chalk.cyan(`   ${htmlPath}`));
-    console.log(chalk.cyan("\n👋 Bye bye!"));
+    console.log(colors.dim("   Report saved. You can open it later at:"));
+    console.log(colors.cyan(`   ${htmlPath}`));
+    console.log(colors.cyan("\n👋 Bye bye!"));
   }
 }
 

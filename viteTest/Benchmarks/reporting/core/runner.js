@@ -1,8 +1,7 @@
-import { exec, spawn, execSync } from "node:child_process";
+import { exec, execSync, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import chalk from "chalk";
 import { askQuestionMultiple } from "@benchmarks-reporting-cli/prompts.js";
-import { createSpinner } from "@benchmarks-utils/console.js";
+import { colors, createSpinner, logError, logWarning } from "@viteTest-helper/message.js";
 
 const execAsync = promisify(exec);
 
@@ -43,7 +42,7 @@ async function isVitestRunning() {
     }
   } catch (_error) {
     // If check fails, assume no process is running to avoid blocking
-    console.warn(chalk.yellow("⚠ Could not check for running Vitest processes, continuing..."));
+    logWarning("Could not check for running Vitest processes, continuing...");
     return false;
   }
 }
@@ -55,8 +54,8 @@ async function handleRunningVitest() {
   checkSpinner.stop();
 
   if (isRunning) {
-    console.log(chalk.yellow("\n⚠️  A Vitest process is already running!"));
-    console.log(chalk.dim("   This could cause conflicts or resource issues."));
+    logWarning("\n⚠️  A Vitest process is already running!");
+    console.log(colors.dim("   This could cause conflicts or resource issues."));
 
     const action = await askQuestionMultiple(
       "Do you want to wait for it to finish, kill it, or exit?",
@@ -95,17 +94,17 @@ async function handleRunningVitest() {
         }
 
         attempts++;
-        waitSpinner.text = chalk.cyan(`Waiting for Vitest processes to finish... (${attempts}s)`);
+        waitSpinner.text = colors.cyan(`Waiting for Vitest processes to finish... (${attempts}s)`);
       }
 
       waitSpinner.warn("Timeout waiting for processes. Continuing anyway...");
     } else {
       // exit
-      console.log(chalk.red("Exiting. Please wait for the current Vitest process to finish."));
+      logError("Exiting. Please wait for the current Vitest process to finish.");
       process.exit(0);
     }
   } else {
-    console.log(chalk.green("✓ No Vitest processes running"));
+    console.log(colors.success("✓ No Vitest processes running"));
   }
 }
 
@@ -165,9 +164,9 @@ function filterVitestOutput(output) {
 
 // Run a single benchmark test file
 async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, testSpinner) {
-  testSpinner.text = chalk.cyan(`Running ${test.name} Benchmark Tests (${index + 1}/${total})...`);
+  testSpinner.text = colors.cyan(`Running ${test.name} Benchmark Tests (${index + 1}/${total})...`);
   if (!runAllTests) {
-    testSpinner.text += chalk.dim(" (Skipping 'All' tests)");
+    testSpinner.text += colors.dim(" (Skipping 'All' tests)");
   }
 
   const vitestProcess = spawn("npx", ["vitest", "run", test.file], {
@@ -208,8 +207,8 @@ async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, te
     });
   } catch (error) {
     // Log the error but continue with other tests
-    console.error(chalk.red(`\n❌ Error running ${test.name} benchmark:`));
-    console.error(chalk.red(error.message));
+    logError(`\n❌ Error running ${test.name} benchmark:`);
+    logError(error.message);
     // Don't throw - continue with other tests
     return;
   }
@@ -238,7 +237,7 @@ async function runBenchmarkTests(testsToRun, runAllTests, runAllTestsEnv) {
       successCount++;
     } catch (error) {
       failureCount++;
-      console.error(chalk.red(`\n❌ Failed to run ${test.name} benchmark: ${error.message}`));
+      logError(`\n❌ Failed to run ${test.name} benchmark: ${error.message}`);
       // Continue with next test instead of stopping
     }
   }

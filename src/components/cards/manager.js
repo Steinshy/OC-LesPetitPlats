@@ -1,6 +1,11 @@
 // src/components/cards/manager.js
 import { cardsElements } from "@components/cards/elements.js";
-import { renderNoResults, renderCardPicture, renderCardHeader, renderCardContents } from "@components/cards/render.js";
+import {
+  renderNoResults,
+  renderCardPicture,
+  renderCardHeader,
+  renderCardContents,
+} from "@components/cards/render.js";
 import { cardsSkeletons } from "@components/skeletons/manager.js";
 
 import { setupImageTracking } from "@utils/imageTracker.js";

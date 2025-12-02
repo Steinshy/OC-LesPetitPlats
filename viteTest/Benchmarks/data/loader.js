@@ -1,22 +1,24 @@
+// Data loading utilities for benchmarks
+import { readFile, getDirname, joinPath } from "@viteTest-helper/fileSystem.js";
 
-// Paths and data loading utilities for benchmarks
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Path constants
 const DATA_FILE = "data.json";
+const benchmarkDataPath = joinPath(getDirname(import.meta.url), DATA_FILE);
+const dataContent = readFile(benchmarkDataPath, "utf-8");
+if (!dataContent) {
+  throw new Error(`Failed to load benchmark data from ${benchmarkDataPath}`);
+}
+const rawData = JSON.parse(dataContent);
 
-// Path to benchmark data file
-// This file is at: viteTest/Benchmarks/data/loader.js
-// Data file is at: viteTest/Benchmarks/data/data.json (./data.json from here)
-const benchmarkDataPath = resolve(__dirname, DATA_FILE);
+const normalizedData = rawData.map(recipe => {
+  const normalized = { ...recipe };
+  if (normalized.ustensils && !normalized.utensils) {
+    normalized.utensils = normalized.ustensils;
+    delete normalized.ustensils;
+  }
+  return normalized;
+});
 
-// Data loading
-export const benchmarkData = JSON.parse(readFileSync(benchmarkDataPath, "utf-8"));
+export const benchmarkData = normalizedData;
 
 // Extract unique values from benchmark data
 function extractUniqueValues(data) {
@@ -29,8 +31,8 @@ function extractUniqueValues(data) {
       appliances.add(recipe.appliance);
     }
     if (recipe.utensils && Array.isArray(recipe.utensils)) {
-      recipe.utensils.forEach(ustensil => {
-        if (ustensil) utensils.add(ustensil);
+      recipe.utensils.forEach(utensil => {
+        if (utensil) utensils.add(utensil);
       });
     }
     if (recipe.ingredients && Array.isArray(recipe.ingredients)) {

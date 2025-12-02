@@ -17,7 +17,7 @@ export default {
     "!**/viteTest/**",
     "!**/*.config.js",
     "!src/App.js",
-    "!src/utils/errorHandler.js",
+    "!src/utils/toast.js",
     "!src/components/scrollToTop.js",
     "!src/components/dropdowns/render.js",
   ],
@@ -26,8 +26,10 @@ export default {
     low: 70,
     break: 60,
   },
-  timeoutMS: 30000,
-  concurrency: 8,
+  timeoutMS: 60000, // Increased to 60 seconds for slower tests
+  dryRunTimeoutMS: 600000, // 10 minutes for initial dry run (CI can be slow)
+  concurrency: 4, // Reduced from 8 to avoid resource exhaustion
+  maxTestRunnerReuse: 25, // Reuse test runners more to speed up execution
   ignoreStatic: true,
   logLevel: "info",
   plugins: ["@stryker-mutator/vitest-runner"],

@@ -37,4 +37,3 @@ export const getFilterCount = filters => {
 // Capitalize first letter
 const capitalize = value =>
   value ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() : "";
-

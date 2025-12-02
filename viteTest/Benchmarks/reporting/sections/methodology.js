@@ -1,46 +1,25 @@
-// Methodology section generator
 import { readFileSync } from "node:fs";
-import { cpus } from "node:os";
 import { join } from "node:path";
+import si from "systeminformation";
 import { renderMarked } from "@benchmarks-reporting-helpers/markdown.js";
-import {
-  BENCHMARK_TIME,
-  MAX_ITERATIONS,
-  WARMUP_TIME,
-  WARMUP_ITERATIONS,
-} from "@benchmarks-utils/measurement.js";
+import { BENCHMARK_TIME, MAX_ITERATIONS, WARMUP_TIME, WARMUP_ITERATIONS } from "@benchmarks-utils/measurement.js";
 
-export function generateMethodologyNotes() {
-  // Get system information
-  const nodeVersion = process.version;
-  const platform = process.platform;
-  const arch = process.arch;
-  const cpuCount = cpus().length;
+export async function generateMethodologyNotes() {
+  const [osInfo, cpuInfo, memInfo] = await Promise.all([
+    si.osInfo(),
+    si.cpu(),
+    si.mem(),
+  ]);
 
-  // Format OS name nicely
-  const osNames = {
-    darwin: "macOS",
-    linux: "Linux",
-    win32: "Windows",
-  };
-  const osName = osNames[platform] || platform;
-
-  // Get memory limit from NODE_OPTIONS
-  const nodeOptions = process.env.NODE_OPTIONS || "";
-  const memoryMatch = nodeOptions.match(/--max-old-space-size=(\d+)/);
+  const memoryMatch = (process.env.NODE_OPTIONS || "").match(/--max-old-space-size=(\d+)/);
   const memoryLimit = memoryMatch ? `${parseInt(memoryMatch[1]) / 1024}GB` : "Default";
 
-  // Get Vitest version from package.json
   let vitestVersion = "N/A";
   try {
-    const packageJsonPath = join(process.cwd(), "package.json");
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-    vitestVersion =
-      packageJson.devDependencies?.vitest || packageJson.dependencies?.vitest || "N/A";
-    // Remove ^ or ~ prefix if present
-    vitestVersion = vitestVersion.replace(/^[\^~]/, "");
+    const packageJson = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf-8"));
+    vitestVersion = (packageJson.devDependencies?.vitest || packageJson.dependencies?.vitest || "N/A").replace(/^[\^~]/, "");
   } catch (_error) {
-    // If we can't read package.json, keep N/A
+    // Keep N/A if can't read package.json
   }
 
   const markdownContent = `
@@ -55,10 +34,11 @@ export function generateMethodologyNotes() {
 - **Warmup:** ${WARMUP_TIME}ms (${WARMUP_ITERATIONS} iter)
 - **Max Iter:** ${MAX_ITERATIONS}/test
 - **Unit:** ms
-- **Node.js Version:** ${nodeVersion}
-- **Operating System:** ${osName}
-- **CPU Cores:** ${cpuCount}
-- **CPU Architecture:** ${arch}
+- **Node.js Version:** ${process.version}
+- **Operating System:** ${osInfo.distro} ${osInfo.release || ""} (${osInfo.platform})
+- **CPU:** ${cpuInfo.manufacturer} ${cpuInfo.brand} (${cpuInfo.cores} cores, ${cpuInfo.physicalCores} physical)
+- **CPU Architecture:** ${cpuInfo.architecture || process.arch}
+- **Total Memory:** ${(memInfo.total / (1024 ** 3)).toFixed(2)}GB
 - **Memory Limit:** ${memoryLimit}
 
 ### Metrics
@@ -78,8 +58,8 @@ export function generateMethodologyNotes() {
 
 This benchmark compares two implementation approaches:
 
-- **Production:** A traditional implementation using \`forEach\` loops for iteration and filtering operations
-- **Maps:** A modern implementation leveraging \`map\` and \`filter\` array methods for functional programming patterns
+- **Production:** Implementation from \`production.js\` using \`.map()\` and \`.filter()\` array methods for functional programming patterns
+- **ForEach:** Implementation from \`forEach.js\` using \`forEach\` loops for iteration and filtering operations
 
 ### Process
 
@@ -91,18 +71,15 @@ Each benchmark follows a standardized measurement protocol:
 
 3. **Analysis:** Results are analyzed to calculate mean execution time, minimum/maximum values, and Relative Measurement Error (RME) to assess consistency and reliability.
 
-4. **Ranking:** Implementations are ranked by their average execution time, with the fastest implementation identified as the winner for each test scenario.
+4. **Ranking:** Implementations are ranked using a composite scoring system that considers execution time (primary), Relative Measurement Error (RME) for consistency, standard deviation for variance, and worst-case performance for stability. The implementation with the best composite score wins each test scenario.
 
 > **Note:** Results may vary based on system load, CPU architecture, and Node.js version. Always test on target production environments before making implementation decisions.
   `.trim();
 
-  // Convert markdown to HTML using marked
-  const htmlContent = renderMarked(markdownContent);
-
   return `
     <div class="methodology-notes">
       <div class="methodology-content markdown-content">
-        ${htmlContent}
+        ${renderMarked(markdownContent)}
       </div>
     </div>
   `;

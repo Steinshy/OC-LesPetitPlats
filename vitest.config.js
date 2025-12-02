@@ -1,9 +1,17 @@
-import { cpus } from "node:os";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import si from "systeminformation";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
-// Get CPU count for optimal worker/thread configuration
-const CPU_COUNT = cpus().length;
+const cpuInfo = await si.cpu();
+const CPU_COUNT = cpuInfo.cores || cpuInfo.physicalCores || 1;
+
+// Use system temp directory for coverage when using forks to avoid temp files in benchmark-results
+const isForksPool = process.argv.includes("--pool=forks");
+const coverageReportsDir = isForksPool
+  ? join(tmpdir(), "lespetitplats-coverage")
+  : "benchmark-results/Unit";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -23,10 +31,10 @@ export default defineConfig({
     },
     maxWorkers: CPU_COUNT,
     minWorkers: 1,
-    teardownTimeout: 1000,
+    teardownTimeout: 30000,
     testTimeout: 30000,
-    // Setup file runs for all tests but uses atomic flag to only clear benchmark results once
-    setupFiles: ["viteTest/Benchmarks/config/setup.js", "viteTest/Unit/setup.js"],
+    globalSetup: ["viteTest/Benchmarks/setup.js"],
+    setupFiles: ["viteTest/Unit/setup.js"],
     reporters: [
       [
         "default",
@@ -38,16 +46,19 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
-      reportsDirectory: "coverage",
+      reportsDirectory: coverageReportsDir,
+      all: false,
+      skipFull: true,
       include: ["src/**/*.js"],
       exclude: [
         "node_modules/",
         "dist/",
-        "coverage/",
+        "benchmark-results/Unit/",
         "temp/",
         "**/*.config.js",
         "stryker.conf.js",
         "viteTest/**/*.test.js",
+        "viteTest/Benchmarks/**",
         "**/*.test.js",
         "**/*.spec.js",
         "scripts/**",
@@ -56,10 +67,9 @@ export default defineConfig({
         "**/README.md",
         "**/robots.txt",
         "**/sitemap.xml",
-        // DOM manipulation and entry point files (not unit tested)
         "src/App.js",
         "src/card.js",
-        "src/errorHandler.js",
+        "src/utils/toast.js",
         "src/components/dropdown.js",
         "src/components/headerImage.js",
         "src/components/scrollToTop.js",

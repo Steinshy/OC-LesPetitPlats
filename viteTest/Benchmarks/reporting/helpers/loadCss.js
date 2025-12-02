@@ -1,9 +1,4 @@
-import { readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { getDirname, joinPath, readFile } from "@viteTest-helper/fileSystem.js";
 
 const CSS_FILES = [
   "variables.css",
@@ -15,19 +10,14 @@ const CSS_FILES = [
 ];
 
 export function loadCss() {
-  const stylesDir = resolve(__dirname, "../styles");
-  let cssContent = "";
+  const stylesDir = joinPath(getDirname(import.meta.url), "..", "styles");
 
-  for (const cssFile of CSS_FILES) {
-    const cssPath = join(stylesDir, cssFile);
-    try {
-      const fileContent = readFileSync(cssPath, "utf-8");
-      cssContent += `\n/* ${cssFile} */\n${fileContent}\n`;
-    } catch (error) {
-      console.warn(`Could not load CSS file: ${cssFile}`, error.message);
-    }
-  }
-
-  return cssContent;
+  return CSS_FILES
+    .map((file) => {
+      const content = readFile(joinPath(stylesDir, file));
+      return content ? `/* ${file} */\n${content}` : null;
+    })
+    .filter(Boolean)
+    .join("\n\n");
 }
 

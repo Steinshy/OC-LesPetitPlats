@@ -1,47 +1,52 @@
-// Formatting helper functions for HTML reports
 import { format } from "date-fns";
 import numeral from "numeral";
 
-// Helper to ensure a value is a safe number, converting invalid to 0
 export function getSafeNumber(value) {
   const num = Number(value);
   return typeof num === "number" && !isNaN(num) && isFinite(num) ? num : 0;
 }
 
-// Format time value in a friendly way
 export function formatFriendlyTime(timeValue, includeUnit = true) {
-  // Check for NaN or invalid values
   if (typeof timeValue !== "number" || isNaN(timeValue) || !isFinite(timeValue)) {
     return "N/A";
   }
 
-  // For very small values (essentially zero), show friendly message
+  // Very fast operations - below measurable precision
   if (timeValue < 0.0001) {
-    return includeUnit ? "< 0.0001ms" : "< 0.0001";
+    return includeUnit ? "Very fast (< 0.0001ms)" : "< 0.0001";
   }
 
-  // Format normally for other values
-  const formatted = numeral(timeValue).format("0.0000");
+  // Fast operations - show with 4 decimal precision
+  if (timeValue < 0.01) {
+    const formatted = numeral(timeValue).format("0.0000");
+    return includeUnit ? `${formatted}ms` : formatted;
+  }
+
+  // Normal operations - show with 2 decimal precision
+  if (timeValue < 1) {
+    const formatted = numeral(timeValue).format("0.00");
+    return includeUnit ? `${formatted}ms` : formatted;
+  }
+
+  // Slower operations - show with 1 decimal precision
+  const formatted = numeral(timeValue).format("0.0");
   return includeUnit ? `${formatted}ms` : formatted;
 }
 
-// Format date in a friendly way using date-fns
 export function formatFriendlyDate(timestamp) {
-  if (!timestamp) {
-    timestamp = new Date().toISOString();
-  }
-
-  const date = new Date(timestamp);
-
-  // Use date-fns for primary formatting
-  const dateFnsFormatted = format(date, "MMMM d, yyyy 'at' h:mm a");
-
-  return dateFnsFormatted;
+  const date = new Date(timestamp || new Date().toISOString());
+  return format(date, "MMMM d, yyyy 'at' h:mm a");
 }
 
-// Add to helpers/formatting.js
 export function getShortLabel(impl, maxLength = 20) {
-  if (impl.includes("Production") || impl.includes("forEach")) return "Production";
-  if (impl.includes("Maps") || impl.includes("map/filter")) return "Maps";
-  return impl.length > maxLength ? `${impl.substring(0, maxLength)}...` : impl;
+  const lower = impl.toLowerCase();
+  if (lower.includes("production")) return capitalize("production");
+  if (lower.includes("foreach")) return capitalize("forEach");
+  const label = impl.length > maxLength ? `${impl.substring(0, maxLength)}...` : impl;
+  return capitalize(label);
+}
+
+export function capitalize(str) {
+  if (!str || str === "N/A") return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

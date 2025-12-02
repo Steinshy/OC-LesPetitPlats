@@ -1,20 +1,28 @@
 export { addBenchmarkResult } from "./collector.js";
 import { mean } from "simple-statistics";
 
-// Calculate average execution time for an implementation using simple-statistics
+// Calculate average execution time for an implementation
 export function getAverageExecutionTime(flattenedResults, implementation) {
   const implResults = flattenedResults.filter(result => result.implementation === implementation);
   if (implResults.length === 0) return 0;
-  const values = implResults.map(result => result.mean || result.executionTime || 0);
-  return mean(values);
+  const values = implResults
+    .map(result => result.mean || result.executionTime || 0)
+    .filter(value => typeof value === "number" && !isNaN(value) && isFinite(value) && value >= 0);
+  if (values.length === 0) return 0;
+  const result = mean(values);
+  return typeof result === "number" && !isNaN(result) && isFinite(result) ? result : 0;
 }
 
-// Calculate average RME for an implementation using simple-statistics
+// Calculate average RME for an implementation
 export function getAverageRME(flattenedResults, implementation) {
   const implResults = flattenedResults.filter(result => result.implementation === implementation);
   if (implResults.length === 0) return 0;
-  const values = implResults.map(result => result.rme || 0);
-  return mean(values);
+  const values = implResults
+    .map(result => result.rme || 0)
+    .filter(value => typeof value === "number" && !isNaN(value) && isFinite(value) && value >= 0);
+  if (values.length === 0) return 0;
+  const result = mean(values);
+  return typeof result === "number" && !isNaN(result) && isFinite(result) ? result : 0;
 }
 
 // Get unique implementations from flattened results

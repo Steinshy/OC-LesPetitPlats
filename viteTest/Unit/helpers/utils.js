@@ -1,8 +1,7 @@
-// Test utilities for components that don't exist in the project
-// Consolidated from: dropdownUtils.js and filterTagsUtils.js
+// Test utilities consolidated from dropdownUtils.js and filterTagsUtils.js
 import { buildActiveFilters } from "@/components/filters/data.js";
 import { renderFilterTag } from "@/components/filters/render.js";
-import { normalizeString } from "~/src/utils/normalize.js";
+import { normalizeString } from "@utils/normalize.js";
 
 export const DROPDOWN_TYPES = [
   { name: "Ingredients", type: "ingredients" },
@@ -56,7 +55,6 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
   const filtersSection = document.querySelector(".filters");
   const filterCount = document.querySelector("#filters-count");
 
-  // Convert to Sets if needed for buildActiveFilters
   const normalizedFilters = {
     ingredients: activeFilters.ingredients instanceof Set
       ? activeFilters.ingredients

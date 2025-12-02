@@ -27,8 +27,8 @@ export const hideScrollToTop = () => {
 export const hasOpenDropdown = () => {
   const { section } = dropdownsElements();
   if (!section) return false;
-  return [...section.querySelectorAll(".dropdown-container")].some(
-    dropdown => dropdown.classList.contains("open"),
+  return [...section.querySelectorAll(".dropdown-container")].some(dropdown =>
+    dropdown.classList.contains("open"),
   );
 };
 

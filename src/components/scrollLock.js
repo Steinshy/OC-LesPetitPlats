@@ -29,7 +29,7 @@ export const unlockScroll = () => {
   document.body.style.position = "";
   document.body.style.top = "";
   document.body.style.width = "";
-  (isLocked && scrollPosition > 0) && window.scrollTo(0, scrollPosition);
+  isLocked && scrollPosition > 0 && window.scrollTo(0, scrollPosition);
   isLocked = false;
   scrollPosition = 0;
 };
@@ -38,10 +38,14 @@ export const unlockScroll = () => {
 // Setup Scroll Lock
 // ---------------
 export const setupScrollLock = () => {
-  window.addEventListener("scroll", () => {
-    scrollToTopVisibility();
-    stickyDropdowns();
-  }, { passive: true });
+  window.addEventListener(
+    "scroll",
+    () => {
+      scrollToTopVisibility();
+      stickyDropdowns();
+    },
+    { passive: true },
+  );
 
   window.addEventListener("resize", () => {
     isMobile() && isLocked && unlockScroll();

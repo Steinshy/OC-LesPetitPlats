@@ -1,4 +1,3 @@
-import { createRequire } from "node:module";
 import tailwindcss from "@tailwindcss/vite";
 import analyzer from "rollup-plugin-analyzer";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -7,60 +6,25 @@ import viteCompression from "vite-plugin-compression";
 import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { generateReportPath } from "./scripts/reportUtils.js";
+import pkg from "./package.json" with { type: "json" };
+import { generateAnalyze } from "./scripts/analyze.js";
 
-const require = createRequire(import.meta.url);
-const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
-const PORT = 5173;
-const CSS_TARGET = ["chrome61", "safari11", "firefox115"];
-const COMMONJS_INCLUDE = [/node_modules/];
-const { version: APP_VERSION } = require("./package.json");
-
-// App metadata
-const APP_NAME = "Les Petits Plats";
-const APP_SHORT_NAME = "Les Petits Plats";
-const APP_DESCRIPTION = "Découvrez des recettes délicieuses et faciles à réaliser";
-const APP_LANG = "fr";
-const APP_THEME_COLOR = "#FFD15B";
-const APP_BG_COLOR = "#ffffff";
-
-// Build configuration
-const OUT_DIR = "dist";
-const CHUNK_SIZE_WARNING_LIMIT = 500;
-const ASSETS_INLINE_LIMIT = 4096;
-const MAX_FILE_SIZE_TO_CACHE = 5_242_880;
-
-// File patterns
-const IMAGE_EXTENSIONS = /png|jpe?g|svg|gif|tiff|bmp|ico/i;
-const FONT_EXTENSIONS = /woff2$/i;
-const LEGACY_FONT_EXTENSIONS = /\.(woff|ttf|eot)$/i;
-
-// Vendor packages for code splitting
-const TREE_SHAKEABLE_PACKAGES = ["tiny-lru", "neverthrow", "query-string", "toastify-js"];
-const VENDOR_CHUNKS = {
-  tailwind: "tailwindcss",
-  cache: "tiny-lru",
-  utils: ["neverthrow", "query-string"],
-  ui: "toastify-js",
-  icons: "remixicon",
-};
-
-// Plugin configuration
-const WEBFONT_TIMEOUT = 7_000;
-const WEBFONT_MAX_RETRIES = 3;
-const ANALYZER_LIMIT = 20;
+export const BASE_PATH = process.env.BASE_PATH || "/OC-LesPetitPlats/";
+export const PORT = 5173;
+export const OUT_DIR = "dist";
 
 export default defineConfig(({ mode }) => {
-  const isAnalyze = mode === "analyze";
-  const isProduction = mode === "production";
-  const isDev = mode === "development";
+  const escapeRegex = (string) => string.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+  const basePathPattern = new RegExp(`^${escapeRegex(BASE_PATH)}?$`);
+  const internalPathPattern = /^\/_/;
+  const fileExtensionPattern = /\/[^/?]+\.[^/]+$/;
 
   return {
-    define: { __VITE_VERSION__: JSON.stringify(APP_VERSION) },
-    base: isDev ? "/" : BASE_PATH,
+    define: { __VITE_VERSION__: JSON.stringify(pkg.version) },
+    base: mode === "development" ? "/" : BASE_PATH,
     root: ".",
     esbuild: {
-      drop: isProduction ? ["console"] : [],
+      drop: mode === "production" ? ["console"] : [],
       legalComments: "none",
     },
     plugins: [
@@ -68,33 +32,22 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["favicons/*.svg", "favicons/*.png"],
         manifest: {
-          name: APP_NAME,
-          short_name: APP_SHORT_NAME,
-          description: APP_DESCRIPTION,
+          $schema: "https://json.schemastore.org/web-manifest-combined.json",
+          name: "Les Petits Plats",
+          short_name: "Les Petits Plats",
+          description: "Découvrez des recettes délicieuses et faciles à réaliser",
           start_url: BASE_PATH,
           scope: BASE_PATH,
           display: "standalone",
-          background_color: APP_BG_COLOR,
-          theme_color: APP_THEME_COLOR,
+          background_color: "#ffffff",
+          theme_color: "#FFD15B",
           orientation: "portrait-primary",
-          lang: APP_LANG,
+          lang: "fr",
           icons: [
             {
               src: `${BASE_PATH}favicons/logo.svg`,
               sizes: "any",
               type: "image/svg+xml",
-              purpose: "any maskable",
-            },
-            {
-              src: `${BASE_PATH}favicons/icon-192.png`,
-              sizes: "192x192",
-              type: "image/png",
-              purpose: "any maskable",
-            },
-            {
-              src: `${BASE_PATH}favicons/icon-512.png`,
-              sizes: "512x512",
-              type: "image/png",
               purpose: "any maskable",
             },
           ],
@@ -104,30 +57,39 @@ export default defineConfig(({ mode }) => {
         filename: "sw.js",
         injectManifest: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
-          globIgnores: ["**/recipes/*.jpg"],
-          maximumFileSizeToCacheInBytes: MAX_FILE_SIZE_TO_CACHE,
+          globIgnores: [
+            "**/recipes/*.jpg",
+            "**/recipes/*.webp",
+            "**/mockup/**",
+            "**/viteTest/**",
+            "**/scripts/**",
+            "**/benchmark-results/**",
+            "**/Benchmark/**",
+            "**/Report/**",
+            "**/*.test.js",
+            "**/*.spec.js",
+          ],
+          maximumFileSizeToCacheInBytes: 5_242_880,
         },
         workbox: {
           navigateFallback: `${BASE_PATH}index.html`,
-          navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
+          navigateFallbackDenylist: [internalPathPattern, fileExtensionPattern],
         },
         devOptions: {
           enabled: false,
           type: "module",
-          navigateFallbackAllowlist: [
-            new RegExp(`^${BASE_PATH.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&")}?$`),
-          ],
+          navigateFallbackAllowlist: [basePathPattern],
         },
       }),
       tailwindcss(),
-      !isDev &&
+      mode !== "development" &&
         webfontDownload({
           injectAsBase64: false,
-          maxRetries: WEBFONT_MAX_RETRIES,
-          timeout: WEBFONT_TIMEOUT,
+          maxRetries: 3,
+          timeout: 7_000,
           cache: true,
         }),
-      !isDev &&
+      mode !== "development" &&
         viteCompression({
           algorithm: "gzip",
           ext: ".gz",
@@ -144,7 +106,7 @@ export default defineConfig(({ mode }) => {
           threshold: 0,
           deleteOriginFile: false,
         }),
-      !isDev &&
+      mode !== "development" &&
         viteCompression({
           algorithm: "brotliCompress",
           ext: ".br",
@@ -162,13 +124,13 @@ export default defineConfig(({ mode }) => {
           deleteOriginFile: false,
         }),
       tsconfigPaths(),
-      isAnalyze &&
+      mode === "analyze" &&
         visualizer({
-          filename: generateReportPath("analyze", "html", process.cwd()),
-          open: true,
+          filename: generateAnalyze(),
+          open: false,
           gzipSize: true,
           brotliSize: true,
-          template: "sunburst", // Options: 'treemap', 'sunburst', 'network'
+          template: "treemap",
         }),
     ].filter(Boolean),
     resolve: {
@@ -183,7 +145,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: { port: PORT, strictPort: true },
     build: {
-      outDir: OUT_DIR,
+      outDir: "dist",
       emptyOutDir: true,
       target: "esnext",
       minify: "esbuild",
@@ -191,23 +153,23 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       cssCodeSplit: true,
       cssMinify: "lightningcss",
-      cssTarget: CSS_TARGET,
+      cssTarget: ["chrome61", "safari11", "firefox115"],
       reportCompressedSize: true,
-      chunkSizeWarningLimit: CHUNK_SIZE_WARNING_LIMIT,
-      assetsInlineLimit: ASSETS_INLINE_LIMIT,
+      chunkSizeWarningLimit: 500,
+      assetsInlineLimit: 4096,
       dynamicImportVarsOptions: {
         warnOnError: true,
         exclude: [/node_modules/],
       },
       commonjsOptions: {
-        include: COMMONJS_INCLUDE,
+        include: [/node_modules/],
         transformMixedEsModules: true,
       },
       rollupOptions: {
         treeshake: {
           moduleSideEffects: id => {
             // Allow tree-shaking for npm packages that support it
-            if (TREE_SHAKEABLE_PACKAGES.some(pkg => id.includes(pkg))) {
+            if (["tiny-lru", "neverthrow", "query-string", "toastify-js"].some(pkg => id.includes(pkg))) {
               return false;
             }
             return null;
@@ -216,10 +178,10 @@ export default defineConfig(({ mode }) => {
           tryCatchDeoptimization: false,
         },
         plugins: [
-          isAnalyze &&
+          mode === "analyze" &&
             analyzer({
               summaryOnly: false,
-              limit: ANALYZER_LIMIT,
+              limit: 20,
               writeTo: analysis => {
                 console.log("\n📊 Bundle Analysis & Recommendations:\n");
                 console.log(analysis);
@@ -241,8 +203,33 @@ export default defineConfig(({ mode }) => {
             generateBundle(options, bundle) {
               // Remove legacy font formats (woff, ttf, eot) - only keep woff2
               Object.keys(bundle).forEach(fileName => {
-                if (LEGACY_FONT_EXTENSIONS.test(fileName) && !fileName.endsWith(".woff2")) {
+                if (/\.(woff|ttf|eot)$/i.test(fileName) && !fileName.endsWith(".woff2")) {
                   delete bundle[fileName];
+                }
+              });
+            },
+          },
+          mode !== "development" && {
+            name: "optimize-svg",
+            generateBundle(options, bundle) {
+              // Optimize SVG files by removing unnecessary attributes and whitespace
+              Object.entries(bundle).forEach(([fileName, chunk]) => {
+                if (fileName.endsWith(".svg") && chunk.type === "asset" && typeof chunk.source === "string") {
+                  const optimized = chunk.source
+                    // Remove comments
+                    .replace(/<!--[\S\s]*?-->/g, "")
+                    // Remove XML declaration
+                    .replace(/<\?xml[^>]*\?>/gi, "")
+                    // Remove DOCTYPE
+                    .replace(/<!doctype[^>]*>/gi, "")
+                    // Remove unnecessary whitespace
+                    .replace(/\s+/g, " ")
+                    .replace(/>\s+</g, "><")
+                    .trim();
+                  // Only update if optimization reduced size
+                  if (optimized.length < chunk.source.length) {
+                    chunk.source = optimized;
+                  }
                 }
               });
             },
@@ -251,21 +238,21 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            if (id.includes(VENDOR_CHUNKS.tailwind)) return "vendor-tailwind";
-            if (id.includes(VENDOR_CHUNKS.cache)) return "vendor-cache";
-            if (VENDOR_CHUNKS.utils.some(pkg => id.includes(pkg))) return "vendor-utils";
-            if (id.includes(VENDOR_CHUNKS.ui)) return "vendor-ui";
-            if (id.includes(VENDOR_CHUNKS.icons)) return "vendor-icons";
+            if (id.includes("tailwindcss")) return "vendor-tailwind";
+            if (id.includes("tiny-lru")) return "vendor-cache";
+            if (["neverthrow", "query-string"].some(pkg => id.includes(pkg))) return "vendor-utils";
+            if (id.includes("toastify-js")) return "vendor-ui";
+            if (id.includes("remixicon")) return "vendor-icons";
             return "vendor";
           },
           chunkFileNames: "assets/js/[name]-[hash].js",
           entryFileNames: "assets/js/[name]-[hash].js",
           assetFileNames: assetInfo => {
             const ext = assetInfo.name.split(".").pop();
-            if (IMAGE_EXTENSIONS.test(ext)) {
+            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
               return "assets/images/[name]-[hash][extname]";
             }
-            if (FONT_EXTENSIONS.test(ext)) {
+            if (/woff2$/i.test(ext)) {
               return "assets/fonts/[name]-[hash][extname]";
             }
             return "assets/[ext]/[name]-[hash][extname]";
@@ -275,7 +262,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: TREE_SHAKEABLE_PACKAGES,
+      include: ["tiny-lru", "neverthrow", "query-string", "toastify-js"],
       esbuildOptions: {
         treeShaking: true,
       },

@@ -1,11 +1,9 @@
-import { writeFileSync } from "node:fs";
-import chalk from "chalk";
 import { getAllResults, getFlattenedResults, getSummary, clearResults, setTimestamp } from "@benchmarks-data/collector.js";
 import { generateHtmlReport } from "@benchmarks-reporting/generateHtml.js";
-import { createSpinner, logWarning } from "@benchmarks-utils/console.js";
-import { generateReportPath } from "../../../../scripts/reportUtils.js";
+import { deleteFiles, pathExists, writeFile } from "@viteTest-helper/fileSystem.js";
+import { colors, createSpinner, logError, logWarning } from "@viteTest-helper/message.js";
+import { generateReportPath, getBenchmarkDir } from "@viteTest-helper/paths.js";
 import { generateCharts } from "./charts.js";
-import { cleanupBenchmarkFiles } from "./cleanup.js";
 import { handleRunningVitest } from "./runner.js";
 
 // Collect benchmark results from test execution
@@ -29,11 +27,11 @@ async function collectBenchmarkResults() {
 
 // Display header banner
 function displayHeader() {
-  console.log(`\n${chalk.bold(chalk.cyan(`╔${"═".repeat(58)}╗`))}`);
+  console.log(`\n${colors.bold(colors.cyan(`╔${"═".repeat(58)}╗`))}`);
   console.log(
-    chalk.bold(chalk.cyan(`║${" ".repeat(15)}BENCHMARK REPORT GENERATOR${" ".repeat(18)}║`)),
+    colors.bold(colors.cyan(`║${" ".repeat(15)}BENCHMARK REPORT GENERATOR${" ".repeat(18)}║`)),
   );
-  console.log(chalk.bold(chalk.cyan(`╚${"═".repeat(58)}╝`)));
+  console.log(colors.bold(colors.cyan(`╚${"═".repeat(58)}╝`)));
 }
 
 
@@ -42,7 +40,10 @@ function displayHeader() {
 // Initialize benchmark process (cleanup and setup)
 async function initializeBenchmark() {
   const cleanupSpinner = createSpinner("Cleaning up existing benchmark files...");
-  cleanupBenchmarkFiles();
+  const benchmarkDir = getBenchmarkDir();
+  if (pathExists(benchmarkDir)) {
+    deleteFiles(benchmarkDir, file => file.endsWith(".html"));
+  }
   cleanupSpinner.succeed("Cleaned up existing benchmark files");
 
   const clearSpinner = createSpinner("Clearing previous benchmark results...");
@@ -57,10 +58,10 @@ async function initializeBenchmark() {
 function getTestsToRun() {
   const testFiles = process.argv.slice(2);
   const allTests = [
-    { name: "Search", file: "viteTest/Benchmarks/tests/search.test.js" },
-    { name: "Ingredients", file: "viteTest/Benchmarks/tests/filterByIngredients.test.js" },
-    { name: "Appliances", file: "viteTest/Benchmarks/tests/filterByAppliances.test.js" },
-    { name: "utensils", file: "viteTest/Benchmarks/tests/filterByUstensils.test.js" },
+    { name: "Search", file: "viteTest/Benchmarks/tests/utils/filterEngine/search.test.js" },
+    { name: "Ingredients", file: "viteTest/Benchmarks/tests/utils/filterEngine/ingredients.test.js" },
+    { name: "Appliances", file: "viteTest/Benchmarks/tests/utils/filterEngine/appliances.test.js" },
+    { name: "utensils", file: "viteTest/Benchmarks/tests/utils/filterEngine/utensils.test.js" },
   ];
 
   const testsToRun =
@@ -69,8 +70,8 @@ function getTestsToRun() {
       : allTests;
 
   if (testsToRun.length === 0) {
-    console.error("No matching test files found. Available tests:");
-    allTests.forEach(test => console.error(`  - ${test.file}`));
+    logError("No matching test files found. Available tests:");
+    allTests.forEach(test => logError(`  - ${test.file}`));
     process.exit(1);
   }
 
@@ -94,7 +95,7 @@ async function generateAndSaveReport(results, testsToRun, runAllTests) {
     } catch (error) {
       chartsSpinner.fail("Failed to generate charts");
       logWarning(`Chart generation error: ${error.message}`);
-      console.error(chalk.red(`Chart generation error: ${error.message}`));
+      logError(`Chart generation error: ${error.message}`);
       console.error(error.stack);
       // Continue with empty charts
     }
@@ -106,7 +107,7 @@ async function generateAndSaveReport(results, testsToRun, runAllTests) {
       htmlSpinner.succeed("Generated HTML report");
     } catch (error) {
       htmlSpinner.fail("Failed to generate HTML report");
-      console.error(chalk.red(`HTML generation error: ${error.message}`));
+      logError(`HTML generation error: ${error.message}`);
       console.error(error.stack);
       throw error;
     }
@@ -121,11 +122,11 @@ async function generateAndSaveReport(results, testsToRun, runAllTests) {
       reportSuffix = "partial";
     }
     const htmlPath = generateReportPath(`benchmark-${reportSuffix}`, "html", process.cwd());
-    writeFileSync(htmlPath, html, "utf-8");
+    writeFile(htmlPath, html);
 
     return htmlPath;
   } catch (error) {
-    console.error(chalk.red(`\n❌ Error in generateAndSaveReport: ${error.message}`));
+    logError(`\n❌ Error in generateAndSaveReport: ${error.message}`);
     console.error(error.stack);
     throw error;
   }

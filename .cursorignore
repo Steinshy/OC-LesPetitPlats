@@ -26,8 +26,11 @@ Thumbs.db
 .oc
 
 # Lighthouse reports
+lighthouse
 lighthouse-report*.html
 .lighthouseci
 
-# Benchmark reports (generated)
-Benchmark/
+# Generated reports and benchmarks
+benchmark-results
+Benchmark
+Report

@@ -13,7 +13,7 @@ import { generateImplementationBreakdown } from "@benchmarks-reporting-sections/
 import { generateInsightsAndRecommendations } from "@benchmarks-reporting-sections/insights.js";
 import { generateKeyFindings } from "@benchmarks-reporting-sections/keyFindings.js";
 import { generateMethodologyNotes } from "@benchmarks-reporting-sections/methodology.js";
-import { generateBenchmarkDataStats, generateTestCoverage } from "@benchmarks-reporting-sections/stats.js";
+import { generateBenchmarkDataStats } from "@benchmarks-reporting-sections/stats.js";
 import { generateDetailedTestResultsHTML } from "@benchmarks-reporting-sections/testResults.js";
 
 // Icon helper functions (merged from helpers/icons.js)
@@ -73,7 +73,6 @@ function generateTableOfContents() {
       <ul>
         <li><a href="#executive-summary">Executive Summary</a></li>
         <li><a href="#benchmark-data">Benchmark Data</a></li>
-        <li><a href="#test-coverage-summary">Test Coverage</a></li>
         <li><a href="#quick-comparison">Quick Comparison</a></li>
         <li><a href="#performance-comparison">Performance by Category</a></li>
         <li><a href="#performance-ranking">Ranking</a></li>
@@ -95,8 +94,7 @@ export async function generateHtmlReport(results, charts) {
   const allResults = results.all || {};
 
   const keyFindings = generateKeyFindings(flattened, summary);
-  const benchmarkDataStats = generateBenchmarkDataStats();
-  const testCoverage = generateTestCoverage(flattened, allResults);
+  const benchmarkDataStats = generateBenchmarkDataStats(flattened);
   const skippedTestsNote = generateSkippedTestsNote(allResults);
   const toc = generateTableOfContents();
 
@@ -117,7 +115,7 @@ export async function generateHtmlReport(results, charts) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Comprehensive benchmark performance report comparing production and map-based implementations">
+  <meta name="description" content="Comprehensive benchmark performance report comparing Production.js and ForEach.js implementations">
   <title>Les Petit Plats - Benchmark Performance Report</title>
   <style>
     ${cssContent || ""}
@@ -146,11 +144,6 @@ export async function generateHtmlReport(results, charts) {
     <section id="benchmark-data" class="section">
       <h2>Benchmark Data</h2>
       ${benchmarkDataStats}
-    </section>
-
-    <section id="test-coverage-summary" class="section">
-      <h2>Test Coverage</h2>
-      ${testCoverage}
     </section>
 
     <section id="quick-comparison" class="section">
@@ -194,7 +187,7 @@ export async function generateHtmlReport(results, charts) {
 
     <section id="methodology-measurement-notes" class="section page-break-before">
       <h2>Methodology</h2>
-      ${generateMethodologyNotes()}
+      ${await generateMethodologyNotes()}
     </section>
 
     <section id="key-insights-recommendations" class="section">

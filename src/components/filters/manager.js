@@ -1,6 +1,9 @@
 // src/components/filters/manager.js
 
-import { getDropdownItemSelector, getSelectedDropdownItems } from "@components/dropdowns/elements.js";
+import {
+  getDropdownItemSelector,
+  getSelectedDropdownItems,
+} from "@components/dropdowns/elements.js";
 import { dropdownTypes } from "@components/dropdowns/manager.js";
 import { buildActiveFilters, getFilterCount } from "@components/filters/data.js";
 import { filtersElements } from "@components/filters/elements.js";

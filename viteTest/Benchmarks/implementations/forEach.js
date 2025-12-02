@@ -1,4 +1,4 @@
-// Filter functions using forEach loops instead of .map() and .filter() methods
+// Filter functions using forEach loops instead of .map() and .filter()
 
 const normalizeString = value =>
   String(value || "")
@@ -10,7 +10,7 @@ const normalizeString = value =>
 
 const canonicalizeTerm = value => normalizeString(value);
 
-// Search filter - filters recipes by search term using forEach
+// Search filter using forEach
 export const filterBySearchTerm = (recipes, searchTerm) => {
   const query = normalizeString(searchTerm);
   if (!query) return recipes;
@@ -19,14 +19,12 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
   recipes.forEach(recipe => {
     if (!recipe) return;
 
-    // Build ingredients array with forEach
     const ingredientNames = [];
     (recipe.ingredients || []).forEach(ingredient => {
       const name = ingredient?.ingredient;
       if (name) ingredientNames.push(name);
     });
 
-    // Build haystack array
     const haystackParts = [];
     if (recipe.name) haystackParts.push(recipe.name);
     if (recipe.description) haystackParts.push(recipe.description);
@@ -36,7 +34,6 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
       if (utensil) haystackParts.push(utensil);
     });
 
-    // Normalize with forEach
     const normalizedParts = [];
     haystackParts.forEach(part => {
       normalizedParts.push(normalizeString(part));
@@ -51,7 +48,7 @@ export const filterBySearchTerm = (recipes, searchTerm) => {
   return result;
 };
 
-// Ingredients filter - filters recipes by selected ingredients using forEach
+// Ingredients filter using forEach
 export const filterByIngredients = (recipes, ingredients) => {
   if (
     !ingredients ||
@@ -95,7 +92,7 @@ export const filterByIngredients = (recipes, ingredients) => {
   return result;
 };
 
-// Appliances filter - filters recipes by selected appliances using forEach
+// Appliances filter using forEach
 export const filterByAppliances = (recipes, appliances) => {
   if (
     !appliances ||
@@ -129,7 +126,7 @@ export const filterByAppliances = (recipes, appliances) => {
   return result;
 };
 
-// Utensils filter - filters recipes by selected utensils using forEach
+// Utensils filter using forEach
 export const filterByutensils = (recipes, utensils) => {
   if (
     !utensils ||

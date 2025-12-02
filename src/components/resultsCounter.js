@@ -1,9 +1,9 @@
 // src/components/resultsCounter.js
 
 const resultsCounterElement = () => ({
-    counter: document.getElementById("results-counter"),
-    container: document.querySelector(".results-counter-container"),
-  });
+  counter: document.getElementById("results-counter"),
+  container: document.querySelector(".results-counter-container"),
+});
 
 export const setupResultsCounter = count => {
   const { counter } = resultsCounterElement();

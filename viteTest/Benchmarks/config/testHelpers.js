@@ -1,9 +1,9 @@
-// Shared test helper functions for benchmark tests
+// Test helper functions for benchmark tests
 import { PRODUCTION_LABEL, MAPS_LABEL } from "@benchmarks-config/constants.js";
 import { benchmarkData } from "@benchmarks-data/loader.js";
 import { addBenchmarkResult } from "@benchmarks-data/results.js";
-import { logBenchmarkSection, logMemoryComparison } from "@benchmarks-utils/logging.js";
-import { compareResults, measureMemoryUsage, runBenchmark } from "@benchmarks-utils/measurement.js";
+import { compareBenchmarkResults, measureMemoryUsage, runBenchmark } from "@benchmarks-utils/measurement.js";
+import { logBenchmarkSection, logMemoryComparison } from "@viteTest-helper/benchmark.js";
 
 export async function runAllBenchmarks(implementations, iterations) {
   const productionStats = await runBenchmark(implementations.production, iterations);
@@ -45,7 +45,7 @@ export async function runFilterBenchmark({
   );
 
   const allStats = await runAllBenchmarks(implementations, iterations);
-  const comparison = compareResults(
+  const comparison = compareBenchmarkResults(
     allStats.productionStats,
     allStats.mapsStats,
     PRODUCTION_LABEL,
@@ -114,7 +114,7 @@ export function createAllItemsTest({
   allItems,
   category,
   categoryKey,
-  allTestIterations = 30,
+  allTestIterations = 50, // Increased from 30 for better accuracy
   expectInstance,
 }) {
   return async () => {
@@ -135,9 +135,9 @@ export function createAllItemsTest({
 
 // Test configuration constants
 export const TEST_CONFIG = {
-  iterations: 50,
-  bigDataIterations: 150,
-  searchBigDataIterations: 100,
+  iterations: 100, // Increased from 50 for better accuracy
+  bigDataIterations: 200, // Increased from 150 for better accuracy
+  searchBigDataIterations: 150, // Increased from 100 for better accuracy
   timeouts: {
     small: 60000,
     medium: 90000,

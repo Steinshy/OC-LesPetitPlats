@@ -38,4 +38,3 @@ export const setupCoordinator = () => {
 export const markInitialSyncComplete = () => {
   isInitialSync = false;
 };
-

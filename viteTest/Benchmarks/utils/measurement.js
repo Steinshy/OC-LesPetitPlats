@@ -1,22 +1,15 @@
-// Core measurement and calculation functions for benchmarking using TinyBench
+// Measurement and calculation functions for benchmarking
 import { Bench } from "tinybench";
 
-// Configuration Constants
-export const BENCHMARK_TIME = 75;
-export const MAX_ITERATIONS = 25;
-export const WARMUP_TIME = 15;
-export const WARMUP_ITERATIONS = 2;
+// Configuration constants
+export const BENCHMARK_TIME = 100;
+export const MAX_ITERATIONS = 200;
+export const WARMUP_TIME = 20;
+export const WARMUP_ITERATIONS = 3;
 
-// Internal constants
-const NS_TO_MS_DIVISOR = 1_000_000;
-const MS_TO_SECONDS_DIVISOR = 1000;
-const BYTES_TO_MB_DIVISOR = 1024 * 1024;
-const DEFAULT_ITERATIONS = 100;
-const DEFAULT_MEMORY_ITERATIONS = 10;
-
-// Calculation Utilities
+// Calculation utilities
 export function calculateOpsPerSecond(timeMs) {
-  return timeMs === 0 ? Infinity : MS_TO_SECONDS_DIVISOR / timeMs;
+  return timeMs === 0 ? Infinity : 1000 / timeMs;
 }
 
 export function calculateImprovement(baselineTime, comparisonTime) {
@@ -26,7 +19,7 @@ export function calculateImprovement(baselineTime, comparisonTime) {
   return ((baselineTime - comparisonTime) / baselineTime) * 100;
 }
 
-// Memory Measurement
+// Memory measurement
 function hasMemoryAPI() {
   return typeof performance.memory !== "undefined";
 }
@@ -38,10 +31,10 @@ export function measureMemoryDelta(fn) {
   const before = performance.memory.usedJSHeapSize;
   fn();
   const after = performance.memory.usedJSHeapSize;
-  return (after - before) / BYTES_TO_MB_DIVISOR;
+  return (after - before) / (1024 * 1024);
 }
 
-export function measureMemoryUsage(fn, iterations = DEFAULT_MEMORY_ITERATIONS) {
+export function measureMemoryUsage(fn, iterations = 10) {
   if (!hasMemoryAPI()) {
     return 0;
   }
@@ -52,24 +45,37 @@ export function measureMemoryUsage(fn, iterations = DEFAULT_MEMORY_ITERATIONS) {
   return totalDelta / iterations;
 }
 
-// Benchmark Execution
+// Benchmark execution
 function convertTinybenchResult(result) {
-  const convertToMs = value => value / NS_TO_MS_DIVISOR;
-  const stdDev = Number.isNaN(result.stdDev) ? 0 : convertToMs(result.stdDev);
-  const samples = result.samples?.length || 0;
+  const latency = result.latency || result;
+  const isV6 = !!result.latency;
+
+  const convertToMs = isV6
+    ? (value) => value * 1000
+    : (value) => value / 1_000_000;
+
+  const mean = latency.mean ?? result.mean;
+  const min = latency.min ?? result.min;
+  const max = latency.max ?? result.max;
+  const stdDev = latency.sd ?? latency.stdDev ?? result.stdDev;
+  const rme = latency.rme ?? result.rme ?? 0;
+  const samples = latency.samplesCount ?? latency.samples?.length ?? result.samples?.length ?? 0;
+
+  const meanMs = convertToMs(mean);
+  const stdDevMs = Number.isNaN(stdDev) ? 0 : convertToMs(stdDev);
 
   return {
-    avg: convertToMs(result.mean),
-    min: convertToMs(result.min),
-    max: convertToMs(result.max),
-    stdDev,
-    opsPerSecond: calculateOpsPerSecond(convertToMs(result.mean)),
+    avg: meanMs,
+    min: convertToMs(min),
+    max: convertToMs(max),
+    stdDev: stdDevMs,
+    opsPerSecond: calculateOpsPerSecond(meanMs),
     samples,
-    rme: result.rme || 0,
+    rme: rme || 0,
   };
 }
 
-export async function runBenchmark(fn, iterations = DEFAULT_ITERATIONS) {
+export async function runBenchmark(fn, iterations = 100) {
   const bench = new Bench({
     time: BENCHMARK_TIME,
     iterations: Math.min(iterations, MAX_ITERATIONS),
@@ -87,30 +93,31 @@ export async function runBenchmark(fn, iterations = DEFAULT_ITERATIONS) {
 
   return convertTinybenchResult(result);
 }
+
 // Comparison utilities for benchmark results
 
-export function compareResults(
-  result1,
-  result2,
-  name1 = "Implementation 1",
-  name2 = "Implementation 2",
+export function compareBenchmarkResults(
+  baselineResult,
+  comparisonResult,
+  baselineName = "Baseline",
+  comparisonName = "Comparison",
 ) {
-  const improvement = calculateImprovement(result1.avg, result2.avg);
-  const faster = result1.avg < result2.avg ? name1 : name2;
-  const slower = result1.avg < result2.avg ? name2 : name1;
+  const improvementPercentage = calculateImprovement(baselineResult.avg, comparisonResult.avg);
+  const fasterImplementation = baselineResult.avg < comparisonResult.avg ? baselineName : comparisonName;
+  const slowerImplementation = baselineResult.avg < comparisonResult.avg ? comparisonName : baselineName;
 
   return {
-    faster,
-    slower,
-    improvement: Math.abs(improvement),
-    isFaster: result1.avg < result2.avg,
-    result1: {
-      name: name1,
-      ...result1,
+    faster: fasterImplementation,
+    slower: slowerImplementation,
+    improvement: Math.abs(improvementPercentage),
+    isBaselineFaster: baselineResult.avg < comparisonResult.avg,
+    baselineResult: {
+      name: baselineName,
+      ...baselineResult,
     },
-    result2: {
-      name: name2,
-      ...result2,
+    comparisonResult: {
+      name: comparisonName,
+      ...comparisonResult,
     },
   };
 }

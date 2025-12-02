@@ -1,14 +1,11 @@
 // Benchmark results collection and persistence
-import { writeFileSync, readFileSync, existsSync, mkdirSync, unlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { PRODUCTION_LABEL, MAPS_LABEL } from "@benchmarks-config/constants.js";
+import { readFile, writeFile, pathExists, deleteFile, ensureDirectory } from "@viteTest-helper/fileSystem.js";
+import { logWarning } from "@viteTest-helper/message.js";
+import { getBenchmarkResultsFilePath, getTempDir } from "@viteTest-helper/paths.js";
 
 // Configuration
-// Benchmark output directory (Benchmark folder at project root)
-const benchmarkDir = join(process.cwd(), "Benchmark");
-const tempDir = join(tmpdir(), "lespetitplats-benchmark");
-const resultsFilePath = join(tempDir, "benchmark-results.json");
+const resultsFilePath = getBenchmarkResultsFilePath();
 
 const defaultResults = {
   search: [],
@@ -23,7 +20,7 @@ const categories = [
   { key: "search", name: "Search" },
   { key: "ingredients", name: "Ingredients" },
   { key: "appliances", name: "Appliances" },
-  { key: "utensils", name: "utensils" },
+  { key: "utensils", name: "Utensils" },
   { key: "combined", name: "Combined" },
 ];
 
@@ -34,12 +31,14 @@ const statsMapping = [
 
 // File Operations
 function loadResults() {
-  if (existsSync(resultsFilePath)) {
+  if (pathExists(resultsFilePath)) {
     try {
-      const data = readFileSync(resultsFilePath, "utf-8");
-      return JSON.parse(data);
+      const data = readFile(resultsFilePath);
+      if (data) {
+        return JSON.parse(data);
+      }
     } catch (error) {
-      console.warn("Failed to load benchmark results:", error.message);
+      logWarning(`Failed to load benchmark results: ${error.message}`);
       return { ...defaultResults };
     }
   }
@@ -48,10 +47,11 @@ function loadResults() {
 
 function saveResults(results) {
   try {
-    mkdirSync(tempDir, { recursive: true });
-    writeFileSync(resultsFilePath, JSON.stringify(results, null, 2), "utf-8");
+    const tempDir = getTempDir();
+    ensureDirectory(tempDir);
+    writeFile(resultsFilePath, JSON.stringify(results, null, 2));
   } catch (error) {
-    console.warn("Failed to save benchmark results:", error.message);
+    logWarning(`Failed to save benchmark results: ${error.message}`);
   }
 }
 
@@ -109,11 +109,12 @@ function flattenCurrentFormat(result, categoryName, index) {
   statsMapping.forEach(({ key, label }) => {
     const stats = result[key];
     if (stats) {
+      const meanValue = getMeanValue(stats);
       flattened.push({
         category: categoryName,
         testName: getTestName(result, categoryName, index),
         implementation: label,
-        mean: getMeanValue(stats),
+        mean: meanValue,
         executionTime: getExecutionTime(stats),
         rme: getSafeNumber(stats.rme) || 0,
         queryCount: result.queryCount,
@@ -176,19 +177,7 @@ export function getFlattenedResults() {
 }
 
 export function clearResults() {
-  try {
-    if (existsSync(resultsFilePath)) {
-      unlinkSync(resultsFilePath);
-    }
-
-    const clearFlagPath = join(benchmarkDir, ".benchmark-cleared");
-    if (existsSync(clearFlagPath)) {
-      unlinkSync(clearFlagPath);
-    }
-  } catch (_error) {
-    // Ignore errors if file doesn't exist or can't be deleted
-  }
-
+  deleteFile(resultsFilePath);
   saveResults({ ...defaultResults });
 }
 
@@ -202,19 +191,78 @@ export function getSummary() {
       testCases[key] = [];
     }
     const timeValue = getMeanValue(result) || getExecutionTime(result) || 0;
+    const rmeValue = getSafeNumber(result.rme) || 0;
+    const minValue = getSafeNumber(result.min) || 0;
+    const maxValue = getSafeNumber(result.max) || 0;
+    const stdDevValue = getSafeNumber(result.stdDev) || 0;
+    const rangeValue = maxValue > minValue ? maxValue - minValue : 0;
+
     testCases[key].push({
       implementation: result.implementation,
       time: timeValue,
+      rme: rmeValue,
+      min: minValue,
+      max: maxValue,
+      stdDev: stdDevValue,
+      range: rangeValue,
     });
   });
 
   const winCounts = {};
   Object.values(testCases).forEach(testResults => {
     if (testResults.length > 0) {
-      const fastest = testResults.reduce((prev, current) =>
-        prev.time < current.time ? prev : current,
-      );
-      winCounts[fastest.implementation] = (winCounts[fastest.implementation] || 0) + 1;
+      // Calculate composite score considering multiple factors:
+      // 1. Time (mean) - primary factor
+      // 2. RME (Relative Measurement Error) - consistency measure
+      // 3. Standard Deviation - variance measure
+      // 4. Max time - worst case performance (stability)
+      // 5. Range (max - min) - performance spread (stability)
+      // Lower score is better
+      const getScore = result => {
+        const time = result.time || 0;
+        const rme = result.rme || 0;
+        const stdDev = result.stdDev || 0;
+        const maxTime = result.max || 0;
+        const range = result.range || 0;
+
+        // Normalize factors relative to time to avoid over-weighting
+        // Weight: time (100%), RME (10%), stdDev (5%), maxTime (5%), range (2%)
+        const rmeWeight = time > 0 ? (rme / 100) * time * 0.1 : 0;
+        const stdDevWeight = stdDev * 0.05;
+        const maxTimeWeight = maxTime > time ? (maxTime - time) * 0.05 : 0;
+        const rangeWeight = range * 0.02;
+
+        return time + rmeWeight + stdDevWeight + maxTimeWeight + rangeWeight;
+      };
+
+      const winner = testResults.reduce((prev, current) => {
+        const prevScore = getScore(prev);
+        const currentScore = getScore(current);
+
+        // If scores are very close (within 1%), use tiebreakers:
+        // 1. Lower RME (more consistent)
+        // 2. Lower stdDev (less variance)
+        // 3. Lower max time (better worst case)
+        // 4. Lower range (more stable)
+        if (Math.abs(prevScore - currentScore) / Math.max(prevScore, currentScore, 0.0001) < 0.01) {
+          if (Math.abs(prev.rme - current.rme) > 0.01) {
+            return prev.rme < current.rme ? prev : current;
+          }
+          if (Math.abs(prev.stdDev - current.stdDev) > 0.0001) {
+            return prev.stdDev < current.stdDev ? prev : current;
+          }
+          if (Math.abs(prev.max - current.max) > 0.0001) {
+            return prev.max < current.max ? prev : current;
+          }
+          if (Math.abs(prev.range - current.range) > 0.0001) {
+            return prev.range < current.range ? prev : current;
+          }
+        }
+
+        return currentScore < prevScore ? current : prev;
+      });
+
+      winCounts[winner.implementation] = (winCounts[winner.implementation] || 0) + 1;
     }
   });
 

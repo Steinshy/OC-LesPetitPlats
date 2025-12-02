@@ -5,7 +5,6 @@ import { headerElement } from "@components/header.js";
 import { searchElements } from "@components/search/elements.js";
 import { cardSkeleton, dropdownsSkeleton } from "@components/skeletons/renderer.js";
 
-
 // ---------------
 // search skeleton
 // ---------------
@@ -13,18 +12,18 @@ import { cardSkeleton, dropdownsSkeleton } from "@components/skeletons/renderer.
 export const searchSkeleton = () => ({
   show: () => {
     const { search, input, clear, submit } = searchElements();
-      search.classList.add("skeleton");
-      input?.classList.add("skeleton");
-      clear?.classList.add("skeleton");
-      submit?.classList.add("skeleton");
+    search.classList.add("skeleton");
+    input?.classList.add("skeleton");
+    clear?.classList.add("skeleton");
+    submit?.classList.add("skeleton");
   },
 
   hide: () => {
     const { search, input, clear, submit } = searchElements();
-      search.classList.remove("skeleton");
-      input?.classList.remove("skeleton");
-      clear?.classList.remove("skeleton");
-      submit?.classList.remove("skeleton");
+    search.classList.remove("skeleton");
+    input?.classList.remove("skeleton");
+    clear?.classList.remove("skeleton");
+    submit?.classList.remove("skeleton");
   },
 });
 

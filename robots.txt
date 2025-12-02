@@ -6,7 +6,7 @@ Allow: /
 Disallow: /dist/
 Disallow: /dev-dist/
 Disallow: /node_modules/
-Disallow: /coverage/
+Disallow: /benchmark-results/
 Disallow: /.vite/
 
 # Sitemap
