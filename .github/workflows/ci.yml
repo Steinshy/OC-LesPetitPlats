@@ -452,6 +452,7 @@ jobs:
           name: unit-tests-coverage
           fail_ci_if_error: false
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   mutation-test:
     name: Mutation Testing

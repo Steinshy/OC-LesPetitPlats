@@ -45,10 +45,28 @@ export default defineConfig(({ mode }) => {
           lang: "fr",
           icons: [
             {
+              src: `${BASE_PATH}favicons/pwa-192x192.png`,
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any",
+            },
+            {
+              src: `${BASE_PATH}favicons/pwa-512x512.png`,
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any",
+            },
+            {
+              src: `${BASE_PATH}favicons/maskable-icon-512x512.png`,
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable",
+            },
+            {
               src: `${BASE_PATH}favicons/logo.svg`,
               sizes: "any",
               type: "image/svg+xml",
-              purpose: "any maskable",
+              purpose: "any",
             },
           ],
         },
