@@ -18,9 +18,9 @@ async function main() {
 
     await runBenchmarkTests(testsToRun, runAllTests, runAllTestsEnv);
 
-    const collectSpinner = createSpinner("Collecting benchmark results...");
+    const collectSpinner = createSpinner("📦 Collecting benchmark results...");
     const results = await collectBenchmarkResults();
-    collectSpinner.succeed("Collected benchmark results");
+    collectSpinner.succeed("✓ Collected benchmark results");
 
     if (results.flattened.length === 0) {
       logWarning("No benchmark results found.");
@@ -41,7 +41,7 @@ async function main() {
     logError("\n❌ Error generating benchmark report:");
     logError(error.message);
     if (error.stack) {
-      console.error(colors.dim(error.stack));
+      console.error(`❌ ${colors.dim(error.stack)}`);
     }
     process.exit(1);
   }

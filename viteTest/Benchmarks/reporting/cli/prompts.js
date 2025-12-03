@@ -46,7 +46,7 @@ async function promptForAllTests() {
     const runAllTestsEnv = runAllTests ? "true" : "false";
 
     if (runAllTests) {
-      console.log(colors.success("✓ 'All' tests will be included (CI mode)"));
+      console.log(colors.success("✓ User choice: 'All' tests will be included (CI mode)"));
     } else {
       console.log(colors.dim("⊘ 'All' tests will be skipped (CI mode)"));
     }
@@ -67,7 +67,7 @@ async function promptForAllTests() {
   const runAllTestsEnv = runAllTests ? "true" : "false";
 
   if (runAllTests) {
-    console.log(colors.success("✓ 'All' tests will be included"));
+    console.log(colors.success("✓ User choice: 'All' tests will be included"));
   } else {
     console.log(colors.dim("⊘ 'All' tests will be skipped"));
   }

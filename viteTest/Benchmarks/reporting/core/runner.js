@@ -42,20 +42,20 @@ async function isVitestRunning() {
     }
   } catch (_error) {
     // If check fails, assume no process is running to avoid blocking
-    logWarning("Could not check for running Vitest processes, continuing...");
+    logWarning("⚠️ Could not check for running Vitest processes, continuing...");
     return false;
   }
 }
 
 // Wait for Vitest process to finish or ask user what to do
 async function handleRunningVitest() {
-  const checkSpinner = createSpinner("Checking for running Vitest processes...");
+  const checkSpinner = createSpinner("🔍 Checking for running Vitest processes...");
   const isRunning = await isVitestRunning();
   checkSpinner.stop();
 
   if (isRunning) {
     logWarning("\n⚠️  A Vitest process is already running!");
-    console.log(colors.dim("   This could cause conflicts or resource issues."));
+    console.log(colors.dim("This could cause conflicts or resource issues."));
 
     const action = await askQuestionMultiple(
       "Do you want to wait for it to finish, kill it, or exit?",
@@ -75,39 +75,40 @@ async function handleRunningVitest() {
         }
         // Wait a moment for processes to terminate
         await new Promise(resolve => setTimeout(resolve, 1000));
-        killSpinner.succeed("Killed running Vitest processes");
+        killSpinner.succeed("✓ Killed running Vitest processes");
       } catch (_error) {
-        killSpinner.warn("Could not kill processes (they may have already finished)");
+        killSpinner.warn("⚠️ Could not kill processes (they may have already finished)");
       }
     } else if (normalized === "wait" || normalized === "w") {
-      const waitSpinner = createSpinner("Waiting for Vitest processes to finish...");
+      const waitSpinner = createSpinner("⏳ Waiting for Vitest processes to finish...");
       let attempts = 0;
-      const maxAttempts = 300; // 5 minutes max wait (1 second per attempt)
+      const maxAttempts = 300;
 
       while (attempts < maxAttempts) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const stillRunning = await isVitestRunning();
 
         if (!stillRunning) {
-          waitSpinner.succeed("Vitest processes finished");
+          waitSpinner.succeed("✓ Vitest processes finished");
           return;
         }
 
         attempts++;
-        waitSpinner.text = colors.cyan(`Waiting for Vitest processes to finish... (${attempts}s)`);
+        waitSpinner.text = colors.cyan(
+          `⏳ Waiting for Vitest processes to finish... (${attempts}s)`,
+        );
       }
 
-      waitSpinner.warn("Timeout waiting for processes. Continuing anyway...");
+      waitSpinner.warn("⚠️ Timeout waiting for processes. Continuing anyway...");
     } else {
       // exit
-      logError("Exiting. Please wait for the current Vitest process to finish.");
+      logError("❌ Exiting. Please wait for the current Vitest process to finish.");
       process.exit(0);
     }
   } else {
-    console.log(colors.success("✓ No Vitest processes running"));
+    console.log(colors.success("✓ No Vitest processes running - All good!"));
   }
 }
-
 
 // Filter vitest output to remove test summary lines
 function filterVitestOutput(output) {
@@ -161,10 +162,11 @@ function filterVitestOutput(output) {
   return filteredLines;
 }
 
-
 // Run a single benchmark test file
 async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, testSpinner) {
-  testSpinner.text = colors.cyan(`Running ${test.name} Benchmark Tests (${index + 1}/${total})...`);
+  testSpinner.text = colors.cyan(
+    `▶️ Running ${test.name} Benchmark Tests (${index + 1}/${total})...`,
+  );
   if (!runAllTests) {
     testSpinner.text += colors.dim(" (Skipping 'All' tests)");
   }
@@ -195,14 +197,14 @@ async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, te
         if (code !== 0) {
           // Log the error output for debugging
           const errorOutput = stderr || stdout;
-          reject(new Error(`Vitest exited with code ${code} for ${test.name}\n${errorOutput}`));
+          reject(new Error(`❌ Vitest exited with code ${code} for ${test.name}\n${errorOutput}`));
         } else {
           resolve();
         }
       });
 
       vitestProcess.on("error", error => {
-        reject(new Error(`Failed to start Vitest for ${test.name}: ${error.message}`));
+        reject(new Error(`❌ Failed to start Vitest for ${test.name}: ${error.message}`));
       });
     });
   } catch (error) {
@@ -223,10 +225,9 @@ async function runSingleTest(test, index, total, runAllTests, runAllTestsEnv, te
   }
 }
 
-
 // Run all benchmark tests
 async function runBenchmarkTests(testsToRun, runAllTests, runAllTestsEnv) {
-  const testSpinner = createSpinner(`Running ${testsToRun.length} test suite(s)...`);
+  const testSpinner = createSpinner(`▶️ Running ${testsToRun.length} test suite(s)...`);
   let successCount = 0;
   let failureCount = 0;
 
@@ -243,11 +244,18 @@ async function runBenchmarkTests(testsToRun, runAllTests, runAllTestsEnv) {
   }
 
   if (failureCount > 0) {
-    testSpinner.warn(`Completed ${successCount}/${testsToRun.length} test suite(s) (${failureCount} failed)`);
+    testSpinner.warn(
+      `⚠️ Completed ${successCount}/${testsToRun.length} test suite(s) (${failureCount} failed)`,
+    );
   } else {
-    testSpinner.succeed(`Completed ${testsToRun.length} test suite(s)`);
+    testSpinner.succeed(`✓ Completed ${testsToRun.length} test suite(s)`);
   }
 }
 
-export { isVitestRunning, handleRunningVitest, filterVitestOutput, runSingleTest, runBenchmarkTests };
-
+export {
+  isVitestRunning,
+  handleRunningVitest,
+  filterVitestOutput,
+  runSingleTest,
+  runBenchmarkTests,
+};

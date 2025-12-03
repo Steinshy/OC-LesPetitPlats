@@ -62,15 +62,15 @@ export function logSuccess(message, icon = "✓") {
   console.log(colors.success(`${icon} ${message}`));
 }
 
-export function logWarning(message, icon = "⚠") {
+export function logWarning(message, icon = "⚠️") {
   console.log(colors.warning(`${icon} ${message}`));
 }
 
-export function logInfo(message, icon = "ℹ") {
+export function logInfo(message, icon = "ℹ️") {
   console.log(colors.info(`${icon} ${message}`));
 }
 
-export function logError(message, icon = "✗") {
+export function logError(message, icon = "❌") {
   console.log(colors.error(`${icon} ${message}`));
 }
 
@@ -109,9 +109,9 @@ export function logHeader(title, width = 60) {
 export function logStep(stepNumber, message, status = "pending") {
   const icons = {
     pending: "○",
-    running: "⟳",
+    running: "▶️",
     success: "✓",
-    error: "✗",
+    error: "❌",
   };
   const colorsMap = {
     pending: colors.dim,
@@ -134,7 +134,7 @@ export function logTestComplete(testName, duration) {
 }
 
 export function logTestFailure(testName, error) {
-  console.log(colors.error(`✗ Failed: ${testName}`));
+  console.log(colors.error(`❌ Failed: ${testName}`));
   if (error) {
     console.log(colors.dim(`  ${error.message || error}`));
   }

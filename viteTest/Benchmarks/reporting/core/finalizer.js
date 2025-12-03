@@ -46,7 +46,7 @@ async function finalizeReport(htmlPath, startTime) {
 
   const openReport = await askQuestion("\nDo you want to open the report in your browser?");
   if (openReport) {
-    const openSpinner = createSpinner("Opening report in browser...");
+    const openSpinner = createSpinner("🌐 Opening report in browser...");
     try {
       const platform = process.platform;
       let command;
@@ -60,10 +60,10 @@ async function finalizeReport(htmlPath, startTime) {
       }
 
       execSync(command, { stdio: "ignore" });
-      openSpinner.succeed("Report opened in browser");
+      openSpinner.succeed("✓ Report opened in browser");
       console.log(colors.cyan("\n👋 Bye bye!"));
     } catch (_error) {
-      openSpinner.warn("Could not open report automatically");
+      openSpinner.warn("⚠️ Could not open report automatically");
       console.log(colors.dim(`   Please open manually: ${htmlPath}`));
       console.log(colors.cyan("\n👋 Bye bye!"));
     }

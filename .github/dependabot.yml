@@ -19,8 +19,6 @@ updates:
       development-dependencies:
         dependency-type: "development"
 
-  # Enable version updates for GitHub Actions in .github/workflows
-  # This monitors all workflow files for action updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -5,7 +5,7 @@
 
 export default {
   packageManager: "npm",
-  reporters: ["html", "clear-text", "progress"],
+  reporters: ["html", "clear-text", "progress", "json"],
   htmlReporter: {
     fileName: "reports/mutation.html",
   },

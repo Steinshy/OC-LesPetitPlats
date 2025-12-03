@@ -105,7 +105,7 @@ export async function generateHtmlReport(results, charts) {
   try {
     cssContent = loadCss();
   } catch (error) {
-    console.warn("Could not load CSS files, using inline styles:", error.message);
+    console.warn("⚠️ Could not load CSS files, using inline styles:", error.message);
     cssContent = "";
   }
 
@@ -228,7 +228,7 @@ export async function generateHtmlReport(results, charts) {
     });
   } catch (error) {
     // If Prettier fails, return the js-beautify result
-    console.warn("Prettier HTML formatting failed, using js-beautify result:", error.message);
+    console.warn("⚠️ Prettier HTML formatting failed, using js-beautify result:", error.message);
     return beautifiedHtml;
   }
 }

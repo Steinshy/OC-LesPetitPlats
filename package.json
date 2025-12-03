@@ -86,7 +86,6 @@
     "plotly.js-dist-min": "^3.3.0",
     "prettier": "^3.7.1",
     "prettier-plugin-tailwindcss": "^0.7.1",
-    "puppeteer": "^24.29.1",
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",

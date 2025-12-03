@@ -7,16 +7,14 @@ import { colors, logSection } from "@viteTest-helper/message.js";
 function logBenchmarkResult(label, value, unit = "ms", isWinner = false) {
   const formattedValue = typeof value === "number" ? value.toFixed(4) : value;
   const color = isWinner ? colors.success : colors.dim;
-  console.log(`  ${color(label.padEnd(20))} ${colors.bold(formattedValue)}${unit}`);
+  const winnerIcon = isWinner ? "✓ " : "  ";
+  console.log(`  ${winnerIcon}${color(label.padEnd(18))} ${colors.bold(formattedValue)}${unit}`);
 }
 
 function logComparison(winner, improvement, faster, slower) {
-  console.log(`\n${colors.bold("Comparison:")}`);
-  console.log(`  ${colors.success("Winner:")} ${colors.bold(winner)}`);
   console.log(
-    `  ${colors.info("Improvement:")} ${colors.bold(improvement.toFixed(2))}% faster than ${slower}`,
+    `\n  ${colors.success("✓ Winner:")} ${colors.bold(winner)} ${colors.dim("•")} ${colors.info(`+${improvement.toFixed(2)}%`)} ${colors.dim(`faster than ${slower}`)}`,
   );
-  console.log(`  ${colors.dim(`${faster} vs ${slower}`)}`);
 }
 
 function logMemory(label, value, unit = "MB") {
@@ -45,20 +43,8 @@ export function logBenchmarkComparison(productionStats, mapsStats, comparison) {
   const mapsTime = mapsStats.avg || mapsStats.mean || 0;
   const isProductionWinner = prodTime < mapsTime;
 
-  console.log(colors.dim("  Execution Times:"));
   logBenchmarkResult(productionLabel, prodTime, "ms", isProductionWinner);
   logBenchmarkResult(mapsLabel, mapsTime, "ms", !isProductionWinner);
-
-  const prodMin = productionStats.min || 0;
-  const prodMax = productionStats.max || 0;
-  const mapsMin = mapsStats.min || 0;
-  const mapsMax = mapsStats.max || 0;
-
-  if (prodMin > 0 || mapsMin > 0) {
-    console.log(colors.dim("  Range:"));
-    console.log(`    ${productionLabel}: ${prodMin.toFixed(4)}ms - ${prodMax.toFixed(4)}ms`);
-    console.log(`    ${mapsLabel}: ${mapsMin.toFixed(4)}ms - ${mapsMax.toFixed(4)}ms`);
-  }
 
   logComparison(
     comparison.faster,
@@ -78,7 +64,6 @@ export function logBenchmarkSection(
   const categoryLabel = category || "Benchmark";
 
   logSection(`${categoryLabel} - ${title}`);
-  console.log(colors.dim(`  Benchmarking: ${categoryLabel} - ${title}`));
   logBenchmarkComparison(productionStats, mapsStats, comparison);
 }
 

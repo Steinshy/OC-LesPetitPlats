@@ -22,6 +22,22 @@ env:
   NODE_VERSION: "22"
 
 jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-2.0, GPL-3.0
+          comment-summary-in-pr: always
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -74,16 +90,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript
           queries: +security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript"
 
@@ -141,7 +157,7 @@ jobs:
           exit-code: "0"
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
@@ -262,25 +278,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vite-
 
-      - name: Cache Puppeteer
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/puppeteer
-          key: ${{ runner.os }}-puppeteer-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-puppeteer-
-
       - name: Install dependencies
         run: npm ci
-
-      - name: Cache system dependencies
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt
-          key: ${{ runner.os }}-apt-benchmark-deps-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-apt-benchmark-deps-
 
       - name: Install system dependencies for benchmark
         run: |
@@ -314,10 +313,15 @@ jobs:
         if: always()
         run: |
           # Check for generated benchmark reports
-          # Reports are generated in Benchmark/ directory by viteTest/Benchmarks/reporting/core/orchestrator.js
+          # Reports are generated in benchmark-results/Benchmark/ directory (per viteTest/helper/paths.js)
           # Report names: benchmark-all-YYYY-MM-DD.html, benchmark-partial-YYYY-MM-DD.html, or benchmark-{testname}-YYYY-MM-DD.html
-          # Also check Report/ directory for backward compatibility
-          if ls Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
+          if ls benchmark-results/Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "report_dir=benchmark-results/Benchmark" >> $GITHUB_OUTPUT
+            echo "✓ Benchmark reports found in benchmark-results/Benchmark/:"
+            ls -lh benchmark-results/Benchmark/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
+            echo "Total reports: $(ls benchmark-results/Benchmark/benchmark-*.html | wc -l)"
+          elif ls Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_dir=Benchmark" >> $GITHUB_OUTPUT
             echo "✓ Benchmark reports found in Benchmark/:"
@@ -331,11 +335,15 @@ jobs:
             echo "Total reports: $(ls Report/benchmark-*.html | wc -l)"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: No benchmark reports found in Benchmark/ or Report/ directories"
-            echo "Listing Benchmark directory contents:"
+            echo "⚠ Warning: No benchmark reports found"
+            echo "Checking benchmark-results/Benchmark/:"
+            ls -la benchmark-results/Benchmark/ 2>/dev/null || echo "benchmark-results/Benchmark directory does not exist"
+            echo "Checking Benchmark/:"
             ls -la Benchmark/ 2>/dev/null || echo "Benchmark directory does not exist"
-            echo "Listing Report directory contents:"
+            echo "Checking Report/:"
             ls -la Report/ 2>/dev/null || echo "Report directory does not exist"
+            echo "Searching for benchmark HTML files:"
+            find . -name "benchmark-*.html" -type f 2>/dev/null | head -5 || echo "No benchmark HTML files found"
           fi
 
       - name: Upload benchmark HTML reports
@@ -343,7 +351,7 @@ jobs:
         if: always() && steps.check-reports.outputs.exists == 'true'
         with:
           name: benchmark-reports-html
-          path: ${{ steps.check-reports.outputs.report_dir || 'Benchmark' }}/benchmark-*.html
+          path: ${{ steps.check-reports.outputs.report_dir || 'benchmark-results/Benchmark' }}/benchmark-*.html
           retention-days: 30
           if-no-files-found: ignore
           compression-level: 6
@@ -394,7 +402,7 @@ jobs:
           # - CI=true: Ensures non-interactive mode
           # Tests are located in viteTest/Unit/
           # Note: Coverage may fail due to thresholds, but reports are still generated
-          npm run test:coverage -- viteTest/Unit/ --run || true
+          npm run test:coverage -- viteTest/Unit/ || true
         continue-on-error: true
 
       - name: Check if coverage reports exist
@@ -402,19 +410,27 @@ jobs:
         if: always()
         run: |
           # Check for generated coverage reports
-          # Coverage reports are generated in coverage/ directory
+          # Coverage reports are generated in benchmark-results/Unit/ directory (per vitest.config.js)
           # Even if tests fail due to thresholds, the lcov.info file should exist
-          if [ -f "coverage/lcov.info" ]; then
+          if [ -f "benchmark-results/Unit/lcov.info" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
+            echo "report_path=benchmark-results/Unit" >> $GITHUB_OUTPUT
+            echo "✓ Coverage report found: benchmark-results/Unit/lcov.info"
+            echo "File size: $(wc -c < benchmark-results/Unit/lcov.info) bytes"
+          elif [ -f "coverage/lcov.info" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "report_path=coverage" >> $GITHUB_OUTPUT
             echo "✓ Coverage report found: coverage/lcov.info"
             echo "File size: $(wc -c < coverage/lcov.info) bytes"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: Coverage report not found at coverage/lcov.info"
-            echo "Listing coverage directory contents:"
-            ls -la coverage/ 2>/dev/null || echo "Coverage directory does not exist"
-            echo "Checking for any .info files:"
-            find coverage -name "*.info" 2>/dev/null || echo "No .info files found"
+            echo "⚠ Warning: Coverage report not found"
+            echo "Checking benchmark-results/Unit/:"
+            ls -la benchmark-results/Unit/ 2>/dev/null || echo "benchmark-results/Unit directory does not exist"
+            echo "Checking coverage/:"
+            ls -la coverage/ 2>/dev/null || echo "coverage directory does not exist"
+            echo "Searching for any .info files:"
+            find . -name "lcov.info" -type f 2>/dev/null | head -5 || echo "No lcov.info files found"
           fi
 
       - name: Upload test coverage report
@@ -422,7 +438,7 @@ jobs:
         if: always() && steps.check-coverage.outputs.exists == 'true'
         with:
           name: unit-tests-coverage
-          path: coverage/
+          path: ${{ steps.check-coverage.outputs.report_path || 'benchmark-results/Unit' }}/
           retention-days: 7
           if-no-files-found: ignore
           compression-level: 6
@@ -431,7 +447,7 @@ jobs:
         uses: codecov/codecov-action@v5
         if: always() && steps.check-coverage.outputs.exists == 'true'
         with:
-          files: ./coverage/lcov.info
+          files: ./${{ steps.check-coverage.outputs.report_path || 'benchmark-results/Unit' }}/lcov.info
           flags: unit-tests
           name: unit-tests-coverage
           fail_ci_if_error: false
@@ -516,3 +532,17 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
           compression-level: 6
+
+      - name: Extract and display mutation score
+        if: always() && steps.check-mutation-reports.outputs.exists == 'true'
+        run: |
+          # Extract mutation score from JSON report if available
+          if [ -f "reports/mutation/mutation.json" ]; then
+            echo "📊 Mutation Test Results:"
+            cat reports/mutation/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || echo "Could not extract mutation score"
+          elif [ -f "reports/mutation.json" ]; then
+            echo "📊 Mutation Test Results:"
+            cat reports/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || echo "Could not extract mutation score"
+          else
+            echo "ℹ️ JSON mutation report not found (HTML report available in artifacts)"
+          fi

@@ -19,7 +19,7 @@ export function writeFile(filePath, content, encoding = "utf-8") {
     writeFileSync(filePath, content, encoding);
     return true;
   } catch (error) {
-    console.warn(`Failed to write file ${filePath}:`, error.message);
+    console.warn(`⚠️ Failed to write file ${filePath}:`, error.message);
     return false;
   }
 }
@@ -31,7 +31,7 @@ export function readFile(filePath, encoding = "utf-8") {
     }
     return null;
   } catch (error) {
-    console.warn(`Failed to read file ${filePath}:`, error.message);
+    console.warn(`⚠️ Failed to read file ${filePath}:`, error.message);
     return null;
   }
 }
@@ -47,7 +47,7 @@ export function deleteFile(filePath) {
     }
     return true;
   } catch (error) {
-    console.warn(`Failed to delete file ${filePath}:`, error.message);
+    console.warn(`⚠️ Failed to delete file ${filePath}:`, error.message);
     return false;
   }
 }
@@ -59,7 +59,7 @@ export function listFiles(dirPath) {
     }
     return [];
   } catch (error) {
-    console.warn(`Failed to list files in ${dirPath}:`, error.message);
+    console.warn(`⚠️ Failed to list files in ${dirPath}:`, error.message);
     return [];
   }
 }
@@ -83,7 +83,7 @@ export function deleteFiles(dirPath, filterFn) {
 
     return deletedCount;
   } catch (error) {
-    console.warn(`Failed to delete files in ${dirPath}:`, error.message);
+    console.warn(`⚠️ Failed to delete files in ${dirPath}:`, error.message);
     return 0;
   }
 }

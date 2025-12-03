@@ -39,16 +39,16 @@ function displayHeader() {
 
 // Initialize benchmark process (cleanup and setup)
 async function initializeBenchmark() {
-  const cleanupSpinner = createSpinner("Cleaning up existing benchmark files...");
+  const cleanupSpinner = createSpinner("🧹 Cleaning up existing benchmark files...");
   const benchmarkDir = getBenchmarkDir();
   if (pathExists(benchmarkDir)) {
     deleteFiles(benchmarkDir, file => file.endsWith(".html"));
   }
-  cleanupSpinner.succeed("Cleaned up existing benchmark files");
+  cleanupSpinner.succeed("✓ Cleaned up existing benchmark files");
 
-  const clearSpinner = createSpinner("Clearing previous benchmark results...");
+  const clearSpinner = createSpinner("🧹 Clearing previous benchmark results...");
   clearResults();
-  clearSpinner.succeed("Cleared previous benchmark results");
+  clearSpinner.succeed("✓ Cleared previous benchmark results");
 
   await handleRunningVitest();
 }
@@ -70,7 +70,7 @@ function getTestsToRun() {
       : allTests;
 
   if (testsToRun.length === 0) {
-    logError("No matching test files found. Available tests:");
+    logError("❌ No matching test files found. Available tests:");
     allTests.forEach(test => logError(`  - ${test.file}`));
     process.exit(1);
   }
@@ -82,33 +82,33 @@ function getTestsToRun() {
 // Generate and save the report
 async function generateAndSaveReport(results, testsToRun, runAllTests) {
   try {
-    const chartsSpinner = createSpinner("Generating charts...");
+    const chartsSpinner = createSpinner("📊 Generating charts...");
     let chartsResult = {};
     try {
       chartsResult = await generateCharts(results);
       if (Object.keys(chartsResult).length === 0) {
-        chartsSpinner.warn("No charts generated - no data available");
+        chartsSpinner.warn("⚠️ No charts generated - no data available");
         logWarning("No charts generated - no data available");
       } else {
-        chartsSpinner.succeed(`Generated ${Object.keys(chartsResult).length} chart(s)`);
+        chartsSpinner.succeed(`✓ Generated ${Object.keys(chartsResult).length} chart(s)`);
       }
     } catch (error) {
-      chartsSpinner.fail("Failed to generate charts");
+      chartsSpinner.fail("❌ Failed to generate charts");
       logWarning(`Chart generation error: ${error.message}`);
       logError(`Chart generation error: ${error.message}`);
-      console.error(error.stack);
+      console.error(`❌ ${error.stack}`);
       // Continue with empty charts
     }
 
-    const htmlSpinner = createSpinner("Generating HTML report...");
+    const htmlSpinner = createSpinner("📄 Generating HTML report...");
     let html;
     try {
       html = await generateHTMLReport(results, chartsResult);
-      htmlSpinner.succeed("Generated HTML report");
+      htmlSpinner.succeed("✓ Generated HTML report");
     } catch (error) {
-      htmlSpinner.fail("Failed to generate HTML report");
+      htmlSpinner.fail("❌ Failed to generate HTML report");
       logError(`HTML generation error: ${error.message}`);
-      console.error(error.stack);
+      console.error(`❌ ${error.stack}`);
       throw error;
     }
 
@@ -127,7 +127,7 @@ async function generateAndSaveReport(results, testsToRun, runAllTests) {
     return htmlPath;
   } catch (error) {
     logError(`\n❌ Error in generateAndSaveReport: ${error.message}`);
-    console.error(error.stack);
+    console.error(`❌ ${error.stack}`);
     throw error;
   }
 }
