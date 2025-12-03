@@ -1,9 +1,34 @@
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import chroma from "chroma-js";
-import { getAverageExecutionTime, getAverageRME, getImplementations } from "@benchmarks-data/results.js";
+import { getChartCanvasConfig } from "@benchmarks-config/chartConfig.js";
+import {
+  getAverageExecutionTime,
+  getAverageRME,
+  getImplementations,
+} from "@benchmarks-data/results.js";
 import { getShortLabel } from "@benchmarks-reporting-helpers/formatting.js";
 
-// Helper function to create chart labels
+async function suppressMtimeWarnings(callback) {
+  const originalStderrWrite = process.stderr.write.bind(process.stderr);
+
+  process.stderr.write = function (chunk, encoding, writeCallback) {
+    const message = chunk.toString();
+    if (message.includes("Unable to revert mtime")) {
+      if (typeof writeCallback === "function") {
+        writeCallback();
+      }
+      return true;
+    }
+    return originalStderrWrite(chunk, encoding, writeCallback);
+  };
+
+  try {
+    return await callback();
+  } finally {
+    process.stderr.write = originalStderrWrite;
+  }
+}
+
 function createChartLabels(implementations) {
   const shortLabels = implementations.map(impl => getShortLabel(impl, 15));
 
@@ -15,13 +40,10 @@ function createChartLabels(implementations) {
   return { shortLabels, legendLabels };
 }
 
-// Helper function to get color palette using chroma-js
 function getColorPalette(implementations = []) {
-  // Generate colors using chroma-js for better color management
   const productionColor = chroma("#36a2eb"); // Blue
   const mapsColor = chroma("#ff6384"); // Red/Pink
 
-  // Use actual implementation names from data, with fallback to file names
   const impl1 = implementations[0] || "production";
   const impl2 = implementations[1] || "forEach";
 
@@ -145,7 +167,10 @@ async function generatePerformanceChart(
 ) {
   // Extract categories from actual test results
   const testedCategories = [...new Set(flattened.map(r => r.category).filter(Boolean))];
-  const categories = testedCategories.length > 0 ? testedCategories : ["Search", "Ingredients", "Appliances", "utensils", "Combined"];
+  const categories =
+    testedCategories.length > 0
+      ? testedCategories
+      : ["Search", "Ingredients", "Appliances", "utensils", "Combined"];
   const categoryAverages = categories.map(category => {
     const categoryResults = flattened.filter(r => r.category === category);
     if (categoryResults.length === 0) {
@@ -499,7 +524,11 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
 
       // Create a short label for the test
       const testName =
-        implResults[impl1]?.testName || implResults[impl2]?.testName || implResults["Production"]?.testName || implResults["Maps"]?.testName || key;
+        implResults[impl1]?.testName ||
+        implResults[impl2]?.testName ||
+        implResults["Production"]?.testName ||
+        implResults["Maps"]?.testName ||
+        key;
       const shortName = testName.length > 30 ? `${testName.substring(0, 27)}...` : testName;
       labels.push(shortName);
     }
@@ -593,61 +622,65 @@ async function generateImprovementChart(chartJSNodeCanvas, flattened) {
 
 // Generate charts using Chart.js
 export async function generateCharts(results) {
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 1200, height: 400 });
-  const charts = {};
-  const flattened = results.flattened || [];
+  // Suppress mtime warnings from ChartJSNodeCanvas font access
+  return await suppressMtimeWarnings(async () => {
+    const chartConfig = getChartCanvasConfig();
+    const chartJSNodeCanvas = new ChartJSNodeCanvas(chartConfig);
+    const charts = {};
+    const flattened = results.flattened || [];
 
-  if (flattened.length === 0) {
+    if (flattened.length === 0) {
+      return charts;
+    }
+
+    const implementations = getImplementations(flattened);
+    const { shortLabels, legendLabels } = createChartLabels(implementations);
+    const colors = getColorPalette(implementations);
+    const implAverages = implementations.map(impl => ({
+      name: impl,
+      avg: getAverageExecutionTime(flattened, impl),
+    }));
+
+    charts.quickComparison = await generateQuickComparisonChart(
+      chartJSNodeCanvas,
+      implementations,
+      shortLabels,
+      legendLabels,
+      colors,
+      implAverages,
+    );
+
+    charts.performance = await generatePerformanceChart(
+      chartJSNodeCanvas,
+      implementations,
+      shortLabels,
+      colors,
+      flattened,
+    );
+
+    charts.ranking = await generateRankingChart(
+      chartJSNodeCanvas,
+      implementations,
+      shortLabels,
+      legendLabels,
+      colors,
+      implAverages,
+    );
+
+    charts.consistency = await generateConsistencyChart(
+      chartJSNodeCanvas,
+      implementations,
+      shortLabels,
+      legendLabels,
+      colors,
+      flattened,
+    );
+
+    const improvementChart = await generateImprovementChart(chartJSNodeCanvas, flattened);
+    if (improvementChart) {
+      charts.improvement = improvementChart;
+    }
+
     return charts;
-  }
-
-  const implementations = getImplementations(flattened);
-  const { shortLabels, legendLabels } = createChartLabels(implementations);
-  const colors = getColorPalette(implementations);
-  const implAverages = implementations.map(impl => ({
-    name: impl,
-    avg: getAverageExecutionTime(flattened, impl),
-  }));
-
-  charts.quickComparison = await generateQuickComparisonChart(
-    chartJSNodeCanvas,
-    implementations,
-    shortLabels,
-    legendLabels,
-    colors,
-    implAverages,
-  );
-
-  charts.performance = await generatePerformanceChart(
-    chartJSNodeCanvas,
-    implementations,
-    shortLabels,
-    colors,
-    flattened,
-  );
-
-  charts.ranking = await generateRankingChart(
-    chartJSNodeCanvas,
-    implementations,
-    shortLabels,
-    legendLabels,
-    colors,
-    implAverages,
-  );
-
-  charts.consistency = await generateConsistencyChart(
-    chartJSNodeCanvas,
-    implementations,
-    shortLabels,
-    legendLabels,
-    colors,
-    flattened,
-  );
-
-  const improvementChart = await generateImprovementChart(chartJSNodeCanvas, flattened);
-  if (improvementChart) {
-    charts.improvement = improvementChart;
-  }
-
-  return charts;
+  });
 }
