@@ -1,127 +1,86 @@
 // src/components/cards/manager.js
 import { cardsElements } from "@components/cards/elements.js";
-import {
-  renderNoResults,
-  renderCardPicture,
-  renderCardHeader,
-  renderCardContents,
-} from "@components/cards/render.js";
+import { renderCard, renderIngredient, emptyCards } from "@components/cards/render.js";
 import { cardsSkeletons } from "@components/skeletons/manager.js";
-import { setupImageTracking } from "@utils/imageTracker.js";
 
-const setupRecipeToggle = container => {
-  if (!container || container.dataset.toggleInitialized) return;
+const buildIngredient = ({ ingredient, quantity, unit }) => {
+  const hasQuantity = quantity != null && quantity !== "";
+  const hasUnit = unit != null && unit !== "";
 
-  container.addEventListener("click", event => {
-    const toggleButton = event.target.closest(".card-recipe-toggle");
-    const recipeSection = toggleButton?.closest(".card-recipe");
-    if (!recipeSection) return;
+  const quantityText =
+    hasQuantity || hasUnit
+      ? [hasQuantity ? quantity : null, hasUnit ? unit : null].filter(Boolean).join(" ")
+      : "au goût";
 
-    const isExpanded = recipeSection.classList.toggle("expanded");
-    toggleButton.setAttribute("aria-expanded", isExpanded);
-    const toggleText = toggleButton.querySelector(".toggle-text");
-    if (toggleText) toggleText.textContent = isExpanded ? "Voir moins" : "Voir plus";
-  });
-
-  container.dataset.toggleInitialized = "true";
-};
-
-const createCard = (recipe, index) => {
-  const template = document.createElement("template");
-  template.innerHTML = `
-    <article class="card" id="${recipe.id}">
-      ${renderCardPicture(recipe.images, recipe.time, index)}
-      ${renderCardHeader(recipe.name, recipe.servings)}
-      ${renderCardContents(recipe.description, recipe.ingredients)}
-    </article>`;
-  return template.content.firstElementChild;
-};
-
-const updateCardContainer = (container, items, createElement) => {
-  if (!container || !Array.isArray(items)) return [];
-
-  const existing = new Map();
-  const children = [...container.children];
-
-  children.forEach(element => {
-    if (element.id) {
-      existing.set(element.id, element);
-    } else if (element.classList.contains("card") && element.classList.contains("skeleton")) {
-      element.remove();
-    }
-  });
-
-  const needed = new Set(items.map(item => String(item.id)));
-  existing.forEach((element, id) => {
-    if (!needed.has(id)) element.remove();
-  });
-
-  const newCards = [];
-  const fragment = document.createDocumentFragment();
-  const currentChildren = [...container.children];
-  const currentOrder = new Map(currentChildren.map((element, index) => [element.id, index]));
-
-  items.forEach((item, index) => {
-    const id = String(item.id);
-    let card = existing.get(id);
-
-    if (!card) {
-      card = createElement(item, index);
-      newCards.push(card);
-      fragment.appendChild(card);
-    } else {
-      const currentIndex = currentOrder.get(id);
-      if (currentIndex !== undefined && currentIndex !== index) {
-        const referenceNode = currentChildren[index];
-        if (referenceNode && referenceNode !== card) {
-          container.insertBefore(card, referenceNode);
-        } else if (!referenceNode) {
-          container.appendChild(card);
-        }
-      }
-    }
-  });
-
-  if (fragment.hasChildNodes()) container.appendChild(fragment);
-  return newCards;
+  return {
+    ingredient,
+    quantity,
+    unit,
+    quantityText,
+  };
 };
 
 export const setupRecipesCards = recipesData => {
-  const { container, emptyState, noResults } = cardsElements();
+  if (!recipesData) return;
+
+  const { container } = cardsElements();
   if (!container) return;
 
-  setupRecipeToggle(container);
+  cardsSkeletons().show(recipesData?.length || 0);
 
-  const isEmpty = !recipesData?.length;
-  cardsSkeletons()[isEmpty ? "hide" : "show"](recipesData?.length || 0);
-
-  if (isEmpty) {
-    const noResultsHTML = `<div class="no-results" id="no-results" aria-label="Aucune recette trouvée">${renderNoResults()}</div>`;
-    noResults
-      ? ((noResults.innerHTML = renderNoResults()), noResults.classList.remove("hidden"))
-      : (container.innerHTML = noResultsHTML);
-    emptyState?.classList.add("hidden");
-    return;
+  if (!recipesData.length) {
+    container.innerHTML = emptyCards();
+  } else {
+    container.innerHTML = "";
+    container.append(...createCards(recipesData));
+    setupRecipeToggle(container);
   }
 
-  noResults?.classList.add("hidden");
-  emptyState?.classList.add("hidden");
+  cardsSkeletons().hide();
+};
 
-  requestAnimationFrame(() => {
-    const newCards = updateCardContainer(container, recipesData, createCard);
-    cardsSkeletons().hide();
+const setupRecipeToggle = container => {
+  container.querySelectorAll(".recipe-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const recipe = button.closest(".card-recipe");
+      const isExpanded = recipe.classList.toggle("expanded");
+      const toggleText = button.querySelector(".toggle-text");
 
-    if (newCards.length > 0) {
-      const recipeMap = new Map(recipesData.map(r => [String(r.id), r]));
-      requestIdleCallback(
-        () => {
-          newCards.forEach(card => {
-            const recipe = recipeMap.get(card.id);
-            if (recipe?.images) setupImageTracking(card, recipe.images);
-          });
-        },
-        { timeout: 1000 },
-      );
-    }
+      button.setAttribute("aria-expanded", isExpanded);
+      toggleText.textContent = isExpanded ? "Voir moins" : "Voir plus";
+    });
   });
+};
+
+const createCards = recipesData => {
+  return recipesData.map(recipe => {
+    const { id, name, time, images, description, ingredients } = recipe;
+    const { webpUrl, jpgUrl, alt } = images || {};
+    const ingredientsCount = ingredients?.length || 0;
+    const items = (ingredients || []).map(buildIngredient);
+    const ingredientsList = createIngredientsList(items);
+
+    const template = document.createElement("template");
+    template.innerHTML = renderCard(
+      id,
+      name,
+      time,
+      description,
+      webpUrl,
+      jpgUrl,
+      alt,
+      ingredientsCount,
+      ingredientsList,
+    );
+    return template.content.firstElementChild;
+  });
+};
+
+const createIngredientsList = items => {
+  return items
+    .map(item => {
+      const { ingredient, quantityText } = item;
+      return renderIngredient(ingredient, quantityText);
+    })
+    .join("");
 };

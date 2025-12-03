@@ -152,34 +152,47 @@ describe("dropdown manager", () => {
     it("should build dropdowns data from recipes", () => {
       const result = buildDropdownsData(mockRecipes);
 
-      expect(result.ingredients).toBeDefined();
-      expect(result.utensils).toBeDefined();
-      expect(result.appliances).toBeDefined();
-      expect(Array.isArray(result.ingredients)).toBe(true);
-      expect(Array.isArray(result.utensils)).toBe(true);
-      expect(Array.isArray(result.appliances)).toBe(true);
+      expect(result.dropdowns).toBeDefined();
+      expect(result.dropdowns.ingredients).toBeDefined();
+      expect(result.dropdowns.utensils).toBeDefined();
+      expect(result.dropdowns.appliances).toBeDefined();
+      expect(Array.isArray(result.dropdowns.ingredients)).toBe(true);
+      expect(Array.isArray(result.dropdowns.utensils)).toBe(true);
+      expect(Array.isArray(result.dropdowns.appliances)).toBe(true);
     });
 
     it("should extract ingredients from recipes", () => {
       const result = buildDropdownsData(mockRecipes);
-      expect(result.ingredients.length).toBeGreaterThan(0);
+      expect(result.dropdowns.ingredients.length).toBeGreaterThan(0);
     });
 
     it("should extract utensils from recipes", () => {
       const result = buildDropdownsData(mockRecipes);
-      expect(result.utensils.length).toBeGreaterThan(0);
+      expect(result.dropdowns.utensils.length).toBeGreaterThan(0);
     });
 
     it("should extract appliances from recipes", () => {
       const result = buildDropdownsData(mockRecipes);
-      expect(result.appliances.length).toBeGreaterThan(0);
+      expect(result.dropdowns.appliances.length).toBeGreaterThan(0);
     });
 
     it("should handle empty recipes array", () => {
       const result = buildDropdownsData([]);
-      expect(result.ingredients).toEqual([]);
-      expect(result.utensils).toEqual([]);
-      expect(result.appliances).toEqual([]);
+      expect(result).toBeDefined();
+      expect(result.dropdowns).toBeDefined();
+      expect(result.dropdowns.ingredients).toEqual([]);
+      expect(result.dropdowns.utensils).toEqual([]);
+      expect(result.dropdowns.appliances).toEqual([]);
+    });
+
+    it("should handle null recipes data", () => {
+      const result = buildDropdownsData(null);
+      expect(result).toEqual({});
+    });
+
+    it("should handle undefined recipes data", () => {
+      const result = buildDropdownsData(undefined);
+      expect(result).toEqual({});
     });
   });
 

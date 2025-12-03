@@ -36,30 +36,10 @@ vi.mock("@/components/filters/manager.js", async () => {
   return { ...actual, ...wrapper };
 });
 
-// Mock dropdown data with test-compatible return structure
+// Mock dropdown data - use actual implementation to match production code structure
 vi.mock("@/components/dropdowns/data.js", async () => {
   const original = await vi.importActual("@/components/dropdowns/data.js");
-
-  const buildDropdownsDataWrapper = recipesData => {
-    const result = original.buildDropdownsData(recipesData);
-    if (!result || !result.dropdowns) {
-      return {
-        ingredients: [],
-        utensils: [],
-        appliances: [],
-      };
-    }
-    return {
-      ingredients: result.dropdowns.ingredients || [],
-      utensils: result.dropdowns.utensils || [],
-      appliances: result.dropdowns.appliances || [],
-    };
-  };
-
-  return {
-    ...original,
-    buildDropdownsData: buildDropdownsDataWrapper,
-  };
+  return original;
 });
 
 // Mock dropdown render with wrapper exports

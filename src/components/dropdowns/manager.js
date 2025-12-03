@@ -21,15 +21,10 @@ import { updateVisibility as scrollToTopVisibility } from "@components/scrollToT
 import { dropdownsSkeletons } from "@components/skeletons/manager.js";
 import { isMobile } from "@utils/device.js";
 import { filterDropdownItems } from "@utils/filterEngine.js";
-import { normalizeString } from "@utils/normalize.js";
 
 export let currentDropdownsData = {};
 export let dropdownTypes = [];
 const ARIA_HIDDEN = "aria-hidden";
-
-// ---------------
-// setup dropdowns
-// ---------------
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
@@ -52,10 +47,6 @@ export const setupDropdowns = recipesData => {
     updateDropdownList(type);
   });
 };
-
-// ---------------
-// listeners
-// ---------------
 
 const setupDropdownListeners = dropdownTypes => {
   dropdownTypes.forEach(currentType => {
@@ -132,10 +123,6 @@ const setupDropdownListeners = dropdownTypes => {
   });
 };
 
-// ---------------
-// state control
-// ---------------
-
 const openDropdown = type => {
   const { container, button, backdrop, menu } = dropdownElements(type);
   if (!container || !button) return;
@@ -195,18 +182,11 @@ const toggleDropdown = type => {
   }
 };
 
-// ---------------
-// sticky dropdowns
-// ---------------
 export const stickyDropdowns = () => {
   const { section } = dropdownsElements();
   if (!section) return;
   section.classList.toggle("is-sticky", isScrolledPastHeader());
 };
-
-// ---------------
-// Interaction handlers
-// ---------------
 
 const handlerInteraction = {
   escapeKey: event => {
@@ -230,9 +210,6 @@ const handlerInteraction = {
 document.addEventListener("keydown", handlerInteraction.escapeKey);
 document.addEventListener("click", handlerInteraction.click);
 
-// ---------------
-// list rendering
-// ---------------
 export const updateDropdownContent = type => {
   const { searchWrapper, searchInput, searchClear, searchSubmit } = dropdownSearchElements(type);
   if (!searchInput) return;

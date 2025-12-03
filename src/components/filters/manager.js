@@ -106,7 +106,7 @@ const removeTag = (type, value) => {
       const item = document.querySelector(getDropdownItemSelector(type, value));
       if (item) updateDropdownItem(item, false);
       syncUI();
-    }, 250);
+    }, 150);
   } else {
     filtersState.filters[type]?.delete(value);
     const item = document.querySelector(getDropdownItemSelector(type, value));
@@ -167,7 +167,7 @@ const clearAll = () => {
       getSelectedDropdownItems().forEach(item => updateDropdownItem(item, false));
       clearURLState();
       syncUI();
-    }, 250);
+    }, 150);
   } else {
     filtersState.filters.search = "";
     filtersState.filters.ingredients.clear();

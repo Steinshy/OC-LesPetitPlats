@@ -1,10 +1,9 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupRecipesCards } from "@/components/cards/manager.js";
 import {
-  renderNoResults,
-  renderCardPicture,
-  renderCardHeader,
-  renderCardContents,
+  emptyCards,
+  renderCard,
+  renderIngredient,
 } from "@/components/cards/render.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
@@ -25,134 +24,115 @@ const TEST_WEBP_URL = "/recipes/test.webp";
 describe("cards render", () => {
   beforeEach(() => {
     document.body.innerHTML = `
-      <section class="cards-container" id="recipes" aria-label="Liste des recettes"></section>
-      <div class="no-results hidden" id="no-results"></div>
+      <section id="cards" class="cards" aria-label="Liste des recettes">
+        <div class="cards-container" id="cards-container"></div>
+      </section>
     `;
   });
 
-  describe("renderNoResults", () => {
+  describe("emptyCards", () => {
     it("should render empty state HTML", () => {
-      const html = renderNoResults();
+      const html = emptyCards();
 
-      expect(html).toContain("no-results-icon");
+      expect(html).toContain("empty-cards");
+      expect(html).toContain("empty-cards-icon");
       expect(html).toContain("Aucune recette trouvée");
       expect(html).toContain("Essayez de modifier");
     });
 
     it("should include error icon", () => {
-      const html = renderNoResults();
+      const html = emptyCards();
       expect(html).toContain("ri-error-warning-line");
-      expect(html).toContain("no-results-icon");
+      expect(html).toContain("empty-cards-icon");
     });
   });
 
-  describe("renderCardPicture", () => {
-    it("should render card picture with image data", () => {
-      const imageData = {
-        jpgUrl: TEST_JPG_URL,
-        webpUrl: TEST_WEBP_URL,
-        alt: "Test Recipe",
-      };
+  describe("renderCard", () => {
+    it("should render complete card with all elements", () => {
+      const html = renderCard(
+        1,
+        "Tarte aux pommes",
+        45,
+        "Délicieuse tarte maison",
+        TEST_WEBP_URL,
+        TEST_JPG_URL,
+        "Tarte",
+        2,
+        '<div class="ingredient-chip"><span class="ingredient-name">Pomme</span><span class="ingredient-quantity">3</span></div>',
+      );
 
-      const html = renderCardPicture(imageData);
-
-      expect(html).toContain("card-picture");
+      expect(html).toContain('id="card-1"');
+      expect(html).toContain("Tarte aux pommes");
+      expect(html).toContain("45 min");
+      expect(html).toContain("Délicieuse tarte maison");
       expect(html).toContain(TEST_JPG_URL);
       expect(html).toContain(TEST_WEBP_URL);
-      expect(html).toContain("Test Recipe");
+      expect(html).toContain("Tarte");
+      expect(html).toContain("card-header");
+      expect(html).toContain("card-recipe");
+      expect(html).toContain("card-ingredients");
+      expect(html).toContain("tag-time");
+      expect(html).toContain("recipe-toggle");
     });
 
-    it("should handle null image data", () => {
-      const html = renderCardPicture(null);
+    it("should include picture element with source", () => {
+      const html = renderCard(1, "Test", 30, "Desc", TEST_WEBP_URL, TEST_JPG_URL, "Alt", 0, "");
 
-      expect(html).toContain("card-picture");
-    });
-
-    it("should handle image data with only jpgUrl", () => {
-      const imageData = {
-        jpgUrl: TEST_JPG_URL,
-        alt: "Test",
-      };
-
-      const html = renderCardPicture(imageData);
-      expect(html).toContain("/recipes/test.jpg");
-      expect(html).not.toContain("source");
-    });
-
-    it("should include WebP source when webpUrl is provided", () => {
-      const imageData = {
-        jpgUrl: TEST_JPG_URL,
-        webpUrl: TEST_WEBP_URL,
-        alt: "Test",
-      };
-
-      const html = renderCardPicture(imageData);
+      expect(html).toContain("<picture>");
       expect(html).toContain("<source");
       expect(html).toContain('type="image/webp"');
+      expect(html).toContain(`srcset="${TEST_WEBP_URL}"`);
+      expect(html).toContain(`src="${TEST_JPG_URL}"`);
+    });
+
+    it("should include time tag with correct id", () => {
+      const html = renderCard(5, "Test", 60, "Desc", "", "", "", 0, "");
+
+      expect(html).toContain('id="tag-time-5"');
+      expect(html).toContain('id="time-text-5"');
+      expect(html).toContain("60 min");
+    });
+
+    it("should include recipe toggle button", () => {
+      const html = renderCard(1, "Test", 30, "Desc", "", "", "", 0, "");
+
+      expect(html).toContain("recipe-toggle");
+      expect(html).toContain("Voir plus");
+      expect(html).toContain('aria-expanded="false"');
+    });
+
+    it("should include ingredients count", () => {
+      const html = renderCard(1, "Test", 30, "Desc", "", "", "", 5, "");
+
+      expect(html).toContain("ingredient-count");
+      expect(html).toContain("5");
+      expect(html).toContain("Ingrédients");
     });
   });
 
-  describe("renderCardHeader", () => {
-    it("should render card header with name", () => {
-      const html = renderCardHeader("Tarte aux pommes");
+  describe("renderIngredient", () => {
+    it("should render ingredient chip with name and quantity", () => {
+      const html = renderIngredient("Pomme", "3");
 
-      expect(html).toContain("card-header");
-      expect(html).toContain("Tarte aux pommes");
-    });
-
-    it("should handle empty name", () => {
-      const html = renderCardHeader("");
-      expect(html).toContain("card-header");
-    });
-  });
-
-  describe("renderCardContents", () => {
-    const mockIngredients = [
-      { ingredient: "Pomme", quantity: 3 },
-      { ingredient: "Sucre", quantity: 50, unit: "g" },
-    ];
-
-    it("should render card contents with description and ingredients", () => {
-      const html = renderCardContents("Délicieuse tarte", mockIngredients);
-
-      expect(html).toContain("card-content");
-      expect(html).toContain("Délicieuse tarte");
+      expect(html).toContain("ingredient-chip");
+      expect(html).toContain("ingredient-name");
+      expect(html).toContain("ingredient-quantity");
       expect(html).toContain("Pomme");
       expect(html).toContain("3");
+    });
+
+    it("should handle quantity text with unit", () => {
+      const html = renderIngredient("Sucre", "50 g");
+
       expect(html).toContain("Sucre");
       expect(html).toContain("50 g");
     });
 
-    it("should include ingredient count in heading", () => {
-      const html = renderCardContents("Description", mockIngredients);
-      expect(html).toContain("Ingrédients");
-      expect(html).toContain("ingredient-count");
-      expect(html).toContain("2");
-    });
+    it("should handle au goût quantity", () => {
+      const html = renderIngredient("Sel", "au goût");
 
-    it("should handle empty ingredients array", () => {
-      const html = renderCardContents("Description", []);
-
-      expect(html).toContain("Ingrédients");
-      expect(html).toContain("ingredient-count");
-      expect(html).toContain("0");
-      expect(html).toContain("ingredients-grid");
-    });
-
-    it("should handle ingredients without unit", () => {
-      const ingredients = [{ ingredient: "Tomato", quantity: 2 }];
-      const html = renderCardContents("Description", ingredients);
-
-      expect(html).toContain("Tomato");
-      expect(html).toContain("2");
-    });
-
-    it("should handle ingredients with unit", () => {
-      const ingredients = [{ ingredient: "Sugar", quantity: 100, unit: "g" }];
-      const html = renderCardContents("Description", ingredients);
-
-      expect(html).toContain("Sugar");
-      expect(html).toContain("100 g");
+      expect(html).toContain("Sel");
+      expect(html).toContain("au goût");
     });
   });
 
@@ -163,51 +143,70 @@ describe("cards render", () => {
           id: 1,
           name: "Tarte aux pommes",
           description: "Délicieuse tarte maison",
-          servings: 4,
           time: 45,
           ingredients: [
             { ingredient: "Pomme", quantity: 3 },
             { ingredient: "Sucre", quantity: 50, unit: "g" },
           ],
-          utensils: ["couteau"],
-          appliance: "four",
           images: { jpgUrl: TEST_JPG_URL, webpUrl: TEST_WEBP_URL, alt: "Tarte" },
         },
       ];
 
       setupRecipesCards(recipes);
 
-      const container = document.getElementById("recipes");
+      const container = document.getElementById("cards-container");
       const card = container.querySelector(".card");
       expect(card).toBeTruthy();
-      expect(card.id).toBe("1");
+      expect(card.id).toBe("card-1");
       expect(card.querySelector(".card-header h2").textContent).toBe("Tarte aux pommes");
-      expect(card.querySelector(".card-time").textContent).toContain("45");
-      expect(card.querySelectorAll(".ingredients-grid .ingredient-chip").length).toBe(2);
-
-      // Empty state should be hidden when cards render
-      const empty = document.getElementById("no-results");
-      expect(empty.classList.contains("hidden")).toBe(true);
+      expect(card.querySelector(".tag-time .time-text").textContent).toContain("45");
+      expect(card.querySelectorAll(".ingredients-lists .ingredient-chip").length).toBe(2);
+      expect(card.querySelector(".recipe-toggle")).toBeTruthy();
     });
 
     it("should show empty state when no recipes", () => {
       setupRecipesCards([]);
 
-      const empty = document.getElementById("no-results");
-      expect(empty.classList.contains("hidden")).toBe(false);
+      const container = document.getElementById("cards-container");
+      const emptyCardsElement = container.querySelector(".empty-cards");
+      expect(emptyCardsElement).toBeTruthy();
+      expect(emptyCardsElement.id).toBe("empty-cards");
     });
 
     it("should render multiple cards", () => {
       const recipes = [
-        { id: 1, name: "Recipe 1", description: "Desc 1", time: 30, ingredients: [] },
-        { id: 2, name: "Recipe 2", description: "Desc 2", time: 45, ingredients: [] },
+        {
+          id: 1,
+          name: "Recipe 1",
+          description: "Desc 1",
+          time: 30,
+          ingredients: [],
+          images: { jpgUrl: TEST_JPG_URL, webpUrl: TEST_WEBP_URL, alt: "Recipe 1" },
+        },
+        {
+          id: 2,
+          name: "Recipe 2",
+          description: "Desc 2",
+          time: 45,
+          ingredients: [],
+          images: { jpgUrl: TEST_JPG_URL, webpUrl: TEST_WEBP_URL, alt: "Recipe 2" },
+        },
       ];
 
       setupRecipesCards(recipes);
 
-      const container = document.getElementById("recipes");
+      const container = document.getElementById("cards-container");
       const cards = container.querySelectorAll(".card");
       expect(cards.length).toBe(2);
+    });
+
+    it("should handle null recipes data", () => {
+      expect(() => setupRecipesCards(null)).not.toThrow();
+    });
+
+    it("should handle missing container element", () => {
+      document.body.innerHTML = "";
+      expect(() => setupRecipesCards([])).not.toThrow();
     });
   });
 

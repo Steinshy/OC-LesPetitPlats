@@ -1,8 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { dataUrl } from "@/utils/recipeApi.js";
-import { updateCounter } from "@tests-mocks/wrappers.js";
-import { baseUrl } from "~/src/utils/config.js";
-import { normalizeString, cleanupDuplicatedItems } from "~/src/utils/normalize.js";
+import { describe, it, expect } from "vitest";
+import { normalizeString, cleanupDuplicatedItems, toFilterItem } from "~/src/utils/normalize.js";
 
 describe("normalize", () => {
   describe("normalizeString", () => {
@@ -106,57 +103,54 @@ describe("normalize", () => {
     });
   });
 
-  describe("updateCounter", () => {
-    beforeEach(() => {
-      document.body.innerHTML = "";
+  describe("toFilterItem", () => {
+    it("should convert raw value to filter item", () => {
+      const result = toFilterItem("Tomate");
+      expect(result).toBeDefined();
+      expect(result.label).toBe("Tomate");
+      expect(result.value).toBe("tomate");
+      expect(result.key).toBe("tomate");
     });
 
-    it("should update counter with correct count", () => {
-      document.body.innerHTML = '<div id="results-counter"></div>';
-      updateCounter(5);
-      const counter = document.getElementById("results-counter");
-      expect(counter.innerHTML).toBe("5 résultats");
+    it("should handle values with parentheses", () => {
+      const result = toFilterItem("Tomate (rouge)");
+      expect(result.label).toBe("Tomate");
+      expect(result.value).toBe("tomate");
     });
 
-    it("should use singular form for count of 1", () => {
-      document.body.innerHTML = '<div id="results-counter"></div>';
-      updateCounter(1);
-      const counter = document.getElementById("results-counter");
-      expect(counter.innerHTML).toBe("1 résultat");
+    it("should remove trailing 's' for deduplication key", () => {
+      const result = toFilterItem("Tomates");
+      expect(result.key).toBe("tomate");
+      expect(result.value).toBe("tomates");
     });
 
-    it("should use plural form for count of 0", () => {
-      document.body.innerHTML = '<div id="results-counter"></div>';
-      updateCounter(0);
-      const counter = document.getElementById("results-counter");
-      expect(counter.innerHTML).toBe("0 résultats");
+    it("should handle plural forms correctly", () => {
+      const result1 = toFilterItem("tomate");
+      const result2 = toFilterItem("tomates");
+      expect(result1.key).toBe("tomate");
+      expect(result2.key).toBe("tomate");
     });
 
-    it("should handle missing counter element gracefully", () => {
-      document.body.innerHTML = "";
-      expect(() => updateCounter(5)).not.toThrow();
+    it("should return null for empty strings", () => {
+      expect(toFilterItem("")).toBeNull();
+      expect(toFilterItem("   ")).toBeNull();
     });
 
-    it("should update existing counter content", () => {
-      document.body.innerHTML = '<div id="results-counter">Old content</div>';
-      updateCounter(10);
-      const counter = document.getElementById("results-counter");
-      expect(counter.innerHTML).toBe("10 résultats");
-    });
-  });
-
-  describe("baseUrl and dataUrl", () => {
-    it("should export baseUrl", () => {
-      expect(baseUrl).toBeDefined();
-      expect(typeof baseUrl).toBe("string");
-      expect(baseUrl).toBe("/");
+    it("should return null for null or undefined", () => {
+      expect(toFilterItem(null)).toBeNull();
+      expect(toFilterItem(undefined)).toBeNull();
     });
 
-    it("should export dataUrl", () => {
-      expect(dataUrl).toBeDefined();
-      expect(typeof dataUrl).toBe("string");
-      expect(dataUrl).toContain("api/data.json");
-      expect(dataUrl).toBe("/api/data.json");
+    it("should normalize and capitalize label", () => {
+      const result = toFilterItem("  TOMATE  ");
+      expect(result.label).toBe("Tomate");
+      expect(result.value).toBe("tomate");
+    });
+
+    it("should handle accents in values", () => {
+      const result = toFilterItem("Café");
+      expect(result.label).toBe("Café");
+      expect(result.value).toBe("cafe");
     });
   });
 });

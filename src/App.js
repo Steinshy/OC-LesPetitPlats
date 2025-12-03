@@ -1,5 +1,6 @@
 // src/App.js
 import { setupCoordinator } from "@/coordinator.js";
+import { setupRecipesCards } from "@components/cards/manager.js";
 import { setupDropdowns } from "@components/dropdowns/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
 import { setupHeader } from "@components/header.js";
@@ -14,9 +15,10 @@ import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
 
 const initApp = async () => {
+  setupSkeletons();
   setupScrollLock();
   setupScrollToTop();
-  setupSkeletons();
+
   setupCoordinator();
 
   // Fetch + transform recipes
@@ -29,6 +31,7 @@ const initApp = async () => {
       setupSearchBar();
       setupDropdowns(recipesData);
       setupFilters(recipesData);
+      setupRecipesCards(recipesData);
     },
     async message => {
       setupToast(message, "default");

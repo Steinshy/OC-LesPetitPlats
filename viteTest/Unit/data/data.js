@@ -9,7 +9,7 @@ export const RESULTS_COUNTER_SELECTOR = ".results-counter h2";
 export const SEARCH_INPUT_SELECTOR = ".main-search-bar input";
 export const SEARCH_BUTTON_SELECTOR = ".main-search-bar .search-button";
 export const FILTERS_SELECTOR = ".filters";
-export const FILTERS_TAGS_SELECTOR = "#filters-tags";
+export const FILTERS_TAGS_SELECTOR = "#tags-list";
 
 // Mock recipes for filter tests
 export const mockRecipesWithSearch = [

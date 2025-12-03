@@ -26,7 +26,7 @@ vi.mock("@/components/dropdowns/elements.js", async () => {
 
 const MAIN_SEARCH_BAR_SELECTOR = "#search-bar";
 const SKELETON_LOADING_CLASS = "skeleton";
-const CARDS_CONTAINER_ID = "recipes";
+const CARDS_CONTAINER_ID = "cards-container";
 const CARD_SKELETON_SELECTOR = ".card.skeleton";
 const EMPTY_HTML = "";
 const DROPDOWN_INGREDIENTS_ID = "dropdown-ingredients-container";

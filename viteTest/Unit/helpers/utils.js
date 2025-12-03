@@ -47,13 +47,13 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
   const { removeFilter, clearAllFilters } = callbacks;
 
   const container =
-    document.querySelector("#filters-tags") ||
+    document.querySelector("#tags-list") ||
     document.querySelector(".lists-container");
 
   if (!container) return;
 
   const filtersSection = document.querySelector(".filters");
-  const filterCount = document.querySelector("#filters-count");
+  const filterCount = document.querySelector("#tags-count-text");
 
   const normalizedFilters = {
     ingredients: activeFilters.ingredients instanceof Set
@@ -89,7 +89,7 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
     });
   });
 
-  const clearAllBtn = document.querySelector("#clear-filters-btn");
+  const clearAllBtn = document.querySelector("#clear-tags-button");
   if (clearAllBtn) {
     const newBtn = clearAllBtn.cloneNode(true);
     clearAllBtn.parentNode.replaceChild(newBtn, clearAllBtn);

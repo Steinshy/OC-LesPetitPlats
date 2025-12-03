@@ -9,15 +9,13 @@ export const normalizeString = value =>
     .trim()
     .toLowerCase();
 
-// Clean display label: remove parenthetical content and normalize casing
 const cleanLabel = raw => {
   const cleaned = String(raw ?? "")
-    .replace(/\s*\([^)]*\)/g, "") // Remove (6), (ou blanc), etc.
+    .replace(/\s*\([^)]*\)/g, "")
     .trim();
 
   if (!cleaned) return "";
 
-  // Capitalize first letter, lowercase the rest for consistency
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 };
 

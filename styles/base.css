@@ -75,6 +75,18 @@
     width: 100%;
   }
 
+  html.scroll-locked,
+  body.scroll-locked {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  body.scroll-locked {
+    left: 0;
+    position: fixed;
+    right: 0;
+  }
+
   :where(button, [role="button"], a, input, textarea, select):focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
