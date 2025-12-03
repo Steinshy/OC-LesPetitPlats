@@ -1,15 +1,5 @@
 // Test setup configures mocks that mirror src/ structure
-import { join } from "node:path";
 import { vi } from "vitest";
-import { cleanUnit } from "@viteTest-helper/cleanup.js";
-import { ensureDirectory } from "@viteTest-helper/fileSystem.js";
-import { getUnitCoverageDir } from "@viteTest-helper/paths.js";
-
-cleanUnit();
-
-const coverageDir = getUnitCoverageDir();
-ensureDirectory(coverageDir);
-ensureDirectory(join(coverageDir, ".tmp"));
 
 // Utils mocks
 vi.mock("@/utils/imageTracker.js", async () => {
