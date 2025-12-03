@@ -82,20 +82,28 @@
       </header>
       <!-- Main Content Section -->
       <main class="main">
-        <!-- Filter Dropdowns -->
+        <!-- Dropdowns -->
         <section class="dropdowns" id="dropdowns">
           <div id="dropdowns-container" class="dropdowns-container">
-            <!-- Dropdowns -->
+            <!-- Dropdown ingredients -->
           </div>
           <div class="results-counter">
-            <h2 id="results-counter">0 résultats</h2>
+            <span class="results-counter-text" id="results-counter">0 résultats</span>
           </div>
         </section>
 
-        <!-- Selected Filters Display -->
+        <!-- Filters -->
         <aside class="filters" id="filters">
-          <div id="filters-container" class="filters-container">
-            <!-- Filters section -->
+          <div class="filters-container" id="tags-container">
+            <div class="filters-header">
+              <h2 class="filters-title">
+                <span class="filters-count-text" id="tags-count-text"></span>
+              </h2>
+              <button type="button" id="clear-tags-button" class="clear-tags-button" aria-hidden="true" aria-label="Retirer tous les tags">Tout effacer</button>
+            </div>
+            <ul class="lists-container" id="tags-list">
+              <!-- Filter tags -->
+            </ul>
           </div>
         </aside>
         <!-- Recipe Cards Grid -->

@@ -8,5 +8,7 @@ const resultsCounterElement = () => ({
 export const setupResultsCounter = count => {
   const { counter } = resultsCounterElement();
   if (!counter) return;
-  counter.textContent = `${count} ${count === 1 ? "résultat" : "résultats"}`;
+
+  counter.textContent =
+    count === 0 ? "Aucun résultats" : `${count} ${count === 1 ? "résultat" : "résultats"}`;
 };

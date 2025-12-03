@@ -2,8 +2,9 @@
 
 export const filtersElements = () => ({
   section: document.getElementById("filters"),
-  container: document.getElementById("filters-container"),
-  count: document.getElementById("filters-count"),
-  clearBtn: document.getElementById("clear-filters-btn"),
-  tagsList: document.getElementById("filters-tags"),
+  container: document.getElementById("tags-container"),
+  count: document.getElementById("tags-count-text"),
+  clearBtn: document.getElementById("clear-tags-button"),
+  tagsList: document.getElementById("tags-list"),
+  allTags: document.getElementById("tags-list")?.querySelectorAll("li"),
 });

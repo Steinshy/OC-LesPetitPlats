@@ -14,12 +14,14 @@ import {
   renderEmptyStateItem,
   renderDropdownItem,
 } from "@components/dropdowns/render.js";
+import { filtersState } from "@components/filters/state.js";
 import { isScrolledPastHeader } from "@components/header.js";
 import { lockScroll, unlockScroll } from "@components/scrollLock.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
 import { dropdownsSkeletons } from "@components/skeletons/manager.js";
 import { isMobile } from "@utils/device.js";
 import { filterDropdownItems } from "@utils/filterEngine.js";
+import { normalizeString } from "@utils/normalize.js";
 
 export let currentDropdownsData = {};
 export let dropdownTypes = [];
@@ -266,16 +268,19 @@ const updateDropdownList = type => {
   const filtered = filterDropdownItems(allItems, query);
 
   if (filtered.length > 0) {
+    const selectedSet = filtersState.filters[type];
     const html = filtered
       .map(item => {
         const label = item?.label ?? item;
         const value = item?.value ?? item;
+        const isSelected = selectedSet instanceof Set && selectedSet.has(value);
 
         return renderDropdownItem(
           type,
           { label, value },
           `dropdown-item-${type}-${value}`,
           `item-btn-${type}-${value}`,
+          isSelected,
         );
       })
       .join("");

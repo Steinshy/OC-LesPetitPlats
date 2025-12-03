@@ -112,16 +112,16 @@ export const renderEmptyStateItem = type => {
   `;
 };
 
-export const renderDropdownItem = (type, item, itemId, itemBtnId) => {
+export const renderDropdownItem = (type, item, itemId, itemBtnId, isSelected = false) => {
   return `
-    <li role="option" id="${itemId}" aria-selected="false">
+    <li role="option" id="${itemId}" aria-selected="${isSelected}">
       <button
         type="button"
-        class="dropdown-item item-btn"
+        class="dropdown-item item-btn${isSelected ? " selected" : ""}"
         id="${itemBtnId}"
         data-value="${item.value}"
         data-type="${type}"
-        aria-pressed="false"
+        aria-pressed="${isSelected}"
         aria-label="${item.label}"
       >
         <span class="dropdown-item-label">${item.label}</span>

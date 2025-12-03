@@ -398,11 +398,11 @@ jobs:
         env:
           CI: true
         run: |
-          # Run Unit tests with coverage
+          # Run Unit tests with coverage and JUnit XML output for Codecov Test Analytics
           # - CI=true: Ensures non-interactive mode
           # Tests are located in viteTest/Unit/
           # Note: Coverage may fail due to thresholds, but reports are still generated
-          npm run test:coverage -- viteTest/Unit/ || true
+          vitest --coverage --reporter=junit --outputFile=test-report.junit.xml --run viteTest/Unit/ || true
         continue-on-error: true
 
       - name: Check if coverage reports exist
@@ -453,6 +453,13 @@ jobs:
           fail_ci_if_error: false
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: test-report.junit.xml
 
   mutation-test:
     name: Mutation Testing
