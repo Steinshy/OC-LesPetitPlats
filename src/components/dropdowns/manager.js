@@ -48,6 +48,68 @@ export const setupDropdowns = recipesData => {
   });
 };
 
+export const stickyDropdowns = () => {
+  const { section } = dropdownsElements();
+  if (!section) return;
+
+  const shouldStick = isScrolledPastHeader();
+  const sheetOpen = document.body.classList.contains("dropdown-open");
+
+  const resetInlineStyles = () => {
+    section.style.position = "";
+    section.style.top = "";
+    section.style.left = "";
+    section.style.right = "";
+    section.style.width = "";
+  };
+
+  // 📱 Mobile: fixed bar at top, full width, disabled while bottom sheet is open
+  if (isMobile()) {
+    // If the bottom sheet is open, we don’t want the bar to be sticky/fixed
+    if (sheetOpen) {
+      section.classList.remove("is-sticky");
+      resetInlineStyles();
+      return;
+    }
+
+    if (!shouldStick) {
+      section.classList.remove("is-sticky");
+      resetInlineStyles();
+      return;
+    }
+
+    // When scrolled past threshold: behave like tablet, but 100% width
+    section.classList.add("is-sticky");
+    section.style.position = "fixed";
+    section.style.top = "0";
+    section.style.left = "0";
+    section.style.right = "0";
+    section.style.width = "100%";
+    return;
+  }
+
+  // 💻 Tablet / Desktop: keep your existing behaviour
+  section.classList.toggle("is-sticky", shouldStick);
+
+  if (!shouldStick) {
+    resetInlineStyles();
+    return;
+  }
+
+  const main = document.querySelector(".main");
+  if (!main) {
+    resetInlineStyles();
+    return;
+  }
+
+  const rect = main.getBoundingClientRect();
+  section.style.position = "fixed";
+  section.style.top = "0";
+  section.style.left = `${rect.left}px`;
+  section.style.right = "";
+  section.style.width = `${rect.width}px`;
+};
+
 const setupDropdownListeners = dropdownTypes => {
   dropdownTypes.forEach(currentType => {
     const { searchInput, searchClear } = dropdownSearchElements(currentType);
@@ -136,7 +198,18 @@ const openDropdown = type => {
 
   document.body.classList.add("dropdown-open");
 
-  lockScroll();
+  if (isMobile()) {
+    const { section } = dropdownsElements();
+    if (section) {
+      section.classList.remove("is-sticky");
+      section.style.position = ""; // remove fixed
+      section.style.top = "";
+      section.style.left = "";
+      section.style.width = "";
+    }
+    lockScroll();
+  }
+
   scrollToTopVisibility();
   document.dispatchEvent(new CustomEvent("dropdown:opened"));
 };
@@ -156,6 +229,9 @@ const closeAllDropdowns = () => {
     });
   }
 
+  if (isMobile()) {
+    stickyDropdowns();
+  }
   document.body.classList.remove("dropdown-open");
 
   unlockScroll();
@@ -182,12 +258,6 @@ const toggleDropdown = type => {
   }
 };
 
-export const stickyDropdowns = () => {
-  const { section } = dropdownsElements();
-  if (!section) return;
-  section.classList.toggle("is-sticky", isScrolledPastHeader());
-};
-
 const handlerInteraction = {
   escapeKey: event => {
     if (event.key === "Escape") closeAllDropdowns();
@@ -209,6 +279,8 @@ const handlerInteraction = {
 
 document.addEventListener("keydown", handlerInteraction.escapeKey);
 document.addEventListener("click", handlerInteraction.click);
+document.addEventListener("scroll", stickyDropdowns, { passive: true });
+window.addEventListener("resize", stickyDropdowns);
 
 export const updateDropdownContent = type => {
   const { searchWrapper, searchInput, searchClear, searchSubmit } = dropdownSearchElements(type);

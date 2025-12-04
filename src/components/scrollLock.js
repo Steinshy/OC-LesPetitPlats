@@ -7,36 +7,31 @@ import { isMobile } from "@utils/device.js";
 let scrollPosition = 0;
 let isLocked = false;
 
-// ---------------
-// Lock Scroll
-// ---------------
+// Lock scroll on mobile by toggling a class on <html>.
+// Much safer than forcing body to fixed with top offsets.
 export const lockScroll = () => {
   if (!isMobile() || isLocked) return;
 
   scrollPosition = window.scrollY || document.documentElement.scrollTop;
-  document.body.style.overflow = "hidden";
-  document.body.style.position = "fixed";
-  document.body.style.top = `-${scrollPosition}px`;
-  document.body.style.width = "100%";
+
+  document.documentElement.classList.add("no-scroll");
   isLocked = true;
 };
 
-// ---------------
-// Unlock Scroll
-// ---------------
 export const unlockScroll = () => {
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.top = "";
-  document.body.style.width = "";
-  isLocked && scrollPosition > 0 && window.scrollTo(0, scrollPosition);
+  if (!isLocked) return;
+
+  document.documentElement.classList.remove("no-scroll");
+
+  // Restore scroll position without visual jump
+  window.scrollTo({
+    top: scrollPosition,
+    behavior: "auto",
+  });
+
   isLocked = false;
-  scrollPosition = 0;
 };
 
-// ---------------
-// Setup Scroll Lock
-// ---------------
 export const setupScrollLock = () => {
   window.addEventListener(
     "scroll",
@@ -47,7 +42,23 @@ export const setupScrollLock = () => {
     { passive: true },
   );
 
+  let resizeRafId;
+
+  const handleResize = () => {
+    resizeRafId = undefined;
+    stickyDropdowns();
+
+    // If viewport becomes non-mobile while locked, unlock gracefully
+    if (!isMobile() && isLocked) {
+      unlockScroll();
+    }
+  };
+
   window.addEventListener("resize", () => {
-    isMobile() && isLocked && unlockScroll();
+    if (resizeRafId) {
+      cancelAnimationFrame(resizeRafId);
+    }
+
+    resizeRafId = requestAnimationFrame(handleResize);
   });
 };

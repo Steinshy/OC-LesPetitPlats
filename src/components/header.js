@@ -1,6 +1,6 @@
 // src/components/header.js
-
 import { headerSkeleton } from "@components/skeletons/manager.js";
+import { isMobile } from "@utils/device.js";
 
 export const headerElement = () => ({
   header: document.getElementById("header"),
@@ -8,7 +8,17 @@ export const headerElement = () => ({
 
 export const getHeaderHeight = () => headerElement().header?.offsetHeight ?? 0;
 
-export const isScrolledPastHeader = () => window.scrollY > getHeaderHeight();
+export const isScrolledPastHeader = () => {
+  const { header } = headerElement();
+  if (!header) return false;
+
+  const headerHeight = header.offsetHeight || 0;
+
+  // Mobile: trigger earlier so sticky kicks in quickly
+  const threshold = isMobile() ? headerHeight * 0.35 : headerHeight;
+
+  return window.scrollY > threshold;
+};
 
 // Set random recipe image as header background
 export const setupHeader = recipesData => {

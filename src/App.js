@@ -16,9 +16,7 @@ import "@styles/global.css";
 
 const initApp = async () => {
   setupSkeletons();
-  setupScrollLock();
   setupScrollToTop();
-
   setupCoordinator();
 
   // Fetch + transform recipes
@@ -30,6 +28,7 @@ const initApp = async () => {
       setupHeader(recipesData);
       setupSearchBar();
       setupDropdowns(recipesData);
+      setupScrollLock();
       setupFilters(recipesData);
       setupRecipesCards(recipesData);
     },
