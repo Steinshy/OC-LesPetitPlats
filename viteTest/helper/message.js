@@ -141,6 +141,11 @@ export function logTestFailure(testName, error) {
 }
 
 export function logCategorySummary(category, categoryLabel, allLabel) {
+  // Suppress output in test mode to avoid stdout clutter
+  // Vitest sets VITEST env var, and NODE_ENV may be 'test' in test environments
+  if (process.env.VITEST || process.env.NODE_ENV === "test") {
+    return;
+  }
   // Log immediately to avoid setTimeout issues in test environments
   logSection(`${categoryLabel} Test Summary`, "📊");
   console.log(colors.dim(`  Test Category: ${category}`));

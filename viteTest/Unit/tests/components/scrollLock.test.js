@@ -1,46 +1,56 @@
-import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { lockScroll, unlockScroll } from "@/components/scrollLock.js";
+import { afterAll, describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { lockScroll, unlockScroll, setupScrollLock } from "@/components/scrollLock.js";
 import * as deviceModule from "@/utils/device.js";
+import * as dropdownsModule from "@/components/dropdowns/manager.js";
+import * as scrollToTopModule from "@/components/scrollToTop.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 const MOBILE_DETECTOR_HTML = '<div class="mobile-detector"></div>';
 
-// Mock device module
 vi.mock("@/utils/device.js", () => ({
   isMobile: vi.fn(() => false),
+}));
+
+vi.mock("@/components/dropdowns/manager.js", () => ({
+  stickyDropdowns: vi.fn(),
+}));
+
+vi.mock("@/components/scrollToTop.js", () => ({
+  updateVisibility: vi.fn(),
 }));
 
 describe("scrollLock", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
-    document.body.style.cssText = "";
+    document.documentElement.classList.remove("no-scroll");
     window.scrollY = 0;
     document.documentElement.scrollTop = 0;
-    // Mock window.scrollTo for test environment
     window.scrollTo = vi.fn();
-    // Reset isMobile mock
+    window.requestAnimationFrame = vi.fn(cb => {
+      setTimeout(cb, 0);
+      return 1;
+    });
+    window.cancelAnimationFrame = vi.fn();
     vi.mocked(deviceModule.isMobile).mockReturnValue(false);
-    // Ensure scroll is unlocked before each test
     unlockScroll();
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    window.removeEventListener("scroll", vi.fn());
+    window.removeEventListener("resize", vi.fn());
+  });
+
   describe("lockScroll", () => {
     it("should not lock scroll on desktop", () => {
-      // Mock desktop (no mobile detector)
       document.body.innerHTML = "";
-
-      const initialOverflow = document.body.style.overflow;
-      const initialPosition = document.body.style.position;
 
       lockScroll();
 
-      expect(document.body.style.overflow).toBe(initialOverflow);
-      expect(document.body.style.position).toBe(initialPosition);
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
     });
 
     it("should lock scroll on mobile", () => {
-      // Mock mobile detector
       document.body.innerHTML = MOBILE_DETECTOR_HTML;
 
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
@@ -52,17 +62,13 @@ describe("scrollLock", () => {
 
       lockScroll();
 
-      expect(document.body.style.overflow).toBe("hidden");
-      expect(document.body.style.position).toBe("fixed");
-      expect(document.body.style.top).toBe("-100px");
-      expect(document.body.style.width).toBe("100%");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
     });
 
     it("should save scroll position before locking", () => {
       document.body.innerHTML = MOBILE_DETECTOR_HTML;
 
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
-      // Set scrollY directly
       Object.defineProperty(window, "scrollY", {
         value: 250,
         writable: true,
@@ -71,20 +77,18 @@ describe("scrollLock", () => {
 
       lockScroll();
 
-      expect(document.body.style.top).toBe("-250px");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
     });
 
     it("should use document.documentElement.scrollTop if window.scrollY is 0", () => {
       document.body.innerHTML = MOBILE_DETECTOR_HTML;
 
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
-      // Set scrollY to 0
       Object.defineProperty(window, "scrollY", {
         value: 0,
         writable: true,
         configurable: true,
       });
-      // Set documentElement.scrollTop
       Object.defineProperty(document.documentElement, "scrollTop", {
         writable: true,
         value: 150,
@@ -93,23 +97,37 @@ describe("scrollLock", () => {
 
       lockScroll();
 
-      expect(document.body.style.top).toBe("-150px");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
+    });
+
+    it("should not lock if already locked", () => {
+      document.body.innerHTML = MOBILE_DETECTOR_HTML;
+
+      vi.mocked(deviceModule.isMobile).mockReturnValue(true);
+      Object.defineProperty(window, "scrollY", {
+        value: 100,
+        writable: true,
+        configurable: true,
+      });
+
+      lockScroll();
+      const classListBefore = document.documentElement.classList.toString();
+      lockScroll();
+
+      expect(document.documentElement.classList.toString()).toBe(classListBefore);
     });
   });
 
   describe("unlockScroll", () => {
-    it("should not unlock scroll on desktop", () => {
+    it("should not unlock scroll if not locked", () => {
       document.body.innerHTML = "";
 
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
 
       unlockScroll();
 
-      // unlockScroll always clears styles (sets to empty string)
-      expect(document.body.style.overflow).toBe("");
-      expect(document.body.style.position).toBe("");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
+      expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
     it("should unlock scroll on mobile", () => {
@@ -122,17 +140,14 @@ describe("scrollLock", () => {
         configurable: true,
       });
 
-      // First lock
       lockScroll();
-
-      // Then unlock
       unlockScroll();
 
-      expect(document.body.style.overflow).toBe("");
-      expect(document.body.style.position).toBe("");
-      expect(document.body.style.top).toBe("");
-      expect(document.body.style.width).toBe("");
-      expect(window.scrollTo).toHaveBeenCalledWith(0, 200);
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
+      expect(window.scrollTo).toHaveBeenCalledWith({
+        top: 200,
+        behavior: "auto",
+      });
     });
 
     it("should restore scroll position after unlocking", () => {
@@ -148,10 +163,13 @@ describe("scrollLock", () => {
       lockScroll();
       unlockScroll();
 
-      expect(window.scrollTo).toHaveBeenCalledWith(0, 300);
+      expect(window.scrollTo).toHaveBeenCalledWith({
+        top: 300,
+        behavior: "auto",
+      });
     });
 
-    it("should handle missing mobile detector gracefully", () => {
+    it("should handle unlock when not locked gracefully", () => {
       document.body.innerHTML = "";
 
       expect(() => unlockScroll()).not.toThrow();
@@ -171,7 +189,7 @@ describe("scrollLock", () => {
 
       lockScroll();
 
-      expect(document.body.style.overflow).toBe("hidden");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
     });
 
     it("should not detect mobile when mobile-detector display is none", () => {
@@ -181,7 +199,95 @@ describe("scrollLock", () => {
 
       lockScroll();
 
-      expect(document.body.style.overflow).toBe("");
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
+    });
+  });
+
+  describe("setupScrollLock", () => {
+    it("should set up scroll event listener", () => {
+      const scrollSpy = vi.spyOn(window, "addEventListener");
+      setupScrollLock();
+
+      expect(scrollSpy).toHaveBeenCalledWith("scroll", expect.any(Function), { passive: true });
+    });
+
+    it("should call scrollToTopVisibility and stickyDropdowns on scroll", () => {
+      setupScrollLock();
+
+      const scrollEvent = new Event("scroll");
+      window.dispatchEvent(scrollEvent);
+
+      expect(scrollToTopModule.updateVisibility).toHaveBeenCalled();
+      expect(dropdownsModule.stickyDropdowns).toHaveBeenCalled();
+    });
+
+    it("should set up resize event listener", () => {
+      const resizeSpy = vi.spyOn(window, "addEventListener");
+      setupScrollLock();
+
+      expect(resizeSpy).toHaveBeenCalledWith("resize", expect.any(Function));
+    });
+
+    it("should cancel previous RAF when resize fires multiple times", () => {
+      let rafId = 0;
+      window.requestAnimationFrame = vi.fn(cb => {
+        setTimeout(cb, 0);
+        rafId += 1;
+        return rafId;
+      });
+
+      setupScrollLock();
+
+      const resizeEvent1 = new Event("resize");
+      window.dispatchEvent(resizeEvent1);
+      const firstRafId = rafId;
+
+      const resizeEvent2 = new Event("resize");
+      window.dispatchEvent(resizeEvent2);
+
+      expect(window.cancelAnimationFrame).toHaveBeenCalledWith(firstRafId);
+    });
+
+    it("should call stickyDropdowns on resize", () => {
+      setupScrollLock();
+
+      const resizeEvent = new Event("resize");
+      window.dispatchEvent(resizeEvent);
+
+      setTimeout(() => {
+        expect(dropdownsModule.stickyDropdowns).toHaveBeenCalled();
+      }, 10);
+    });
+
+    it("should unlock scroll when switching from mobile to desktop on resize", () => {
+      vi.mocked(deviceModule.isMobile).mockReturnValue(true);
+      lockScroll();
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
+
+      setupScrollLock();
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const resizeEvent = new Event("resize");
+      window.dispatchEvent(resizeEvent);
+
+      setTimeout(() => {
+        expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
+      }, 10);
+    });
+
+    it("should not unlock scroll when staying on mobile on resize", () => {
+      vi.mocked(deviceModule.isMobile).mockReturnValue(true);
+      lockScroll();
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
+
+      setupScrollLock();
+
+      const resizeEvent = new Event("resize");
+      window.dispatchEvent(resizeEvent);
+
+      setTimeout(() => {
+        expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
+      }, 10);
     });
   });
 

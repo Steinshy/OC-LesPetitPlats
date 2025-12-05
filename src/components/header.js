@@ -23,17 +23,19 @@ export const isScrolledPastHeader = () => {
 // Set random recipe image as header background
 export const setupHeader = recipesData => {
   const { header } = headerElement();
-  if (!recipesData) return;
+  if (!recipesData || !header || !Array.isArray(recipesData)) return;
 
   headerSkeleton().hide();
 
   const images = recipesData.map(recipe => recipe?.images).filter(Boolean);
 
-  if (!images) return;
+  if (!images.length) return;
 
   const randomIndex = Math.floor(Math.random() * images.length);
   const { webpUrl, jpgUrl } = images[randomIndex] || {};
-
   const imageUrl = webpUrl || jpgUrl || "";
+
+  if (!imageUrl) return;
+
   header.style.backgroundImage = `url(${imageUrl})`;
 };

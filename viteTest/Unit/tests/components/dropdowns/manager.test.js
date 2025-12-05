@@ -5,8 +5,11 @@ import { buildDropdownsData } from "~/src/components/dropdowns/data.js";
 import {
   currentDropdownsData,
   setupDropdowns,
+  stickyDropdowns,
   updateDropdownContent,
 } from "~/src/components/dropdowns/manager.js";
+import * as headerModule from "@/components/header.js";
+import * as deviceModule from "@/utils/device.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
@@ -89,6 +92,14 @@ vi.mock("@/components/scrollToTop.js", () => ({
   updateVisibility: vi.fn(() => {
     // Mock implementation that does nothing - just prevents errors
   }),
+}));
+
+vi.mock("@/components/header.js", () => ({
+  isScrolledPastHeader: vi.fn(() => false),
+}));
+
+vi.mock("@/utils/device.js", () => ({
+  isMobile: vi.fn(() => false),
 }));
 
 vi.mock("@/utils/filterEngine.js", () => ({
@@ -460,6 +471,128 @@ describe("dropdown manager", () => {
       expect(items.length).toBeGreaterThan(0);
       // Should include both "Onion" and "Tomato" (contains "on")
       expect([...items].some(item => item.textContent.includes("Onion"))).toBe(true);
+    });
+  });
+
+  describe("stickyDropdowns", () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <div class="main" style="width: 800px; margin-left: 100px;">
+          <section id="dropdowns" class="dropdowns">
+            <div id="dropdowns-container"></div>
+          </section>
+        </div>
+      `;
+      setupDropdowns(mockRecipes);
+      vi.clearAllMocks();
+    });
+
+    it("should add is-sticky class when scrolled past header on desktop", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const section = document.getElementById("dropdowns");
+      stickyDropdowns();
+
+      expect(section.classList.contains("is-sticky")).toBe(true);
+    });
+
+    it("should remove is-sticky class when not scrolled past header on desktop", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const section = document.getElementById("dropdowns");
+      section.classList.add("is-sticky");
+      stickyDropdowns();
+
+      expect(section.classList.contains("is-sticky")).toBe(false);
+    });
+
+    it("should set fixed position styles on desktop when sticky", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const section = document.getElementById("dropdowns");
+      const main = document.querySelector(".main");
+      const rect = main.getBoundingClientRect();
+
+      stickyDropdowns();
+
+      expect(section.style.position).toBe("fixed");
+      expect(section.style.top).toBe("0px");
+      expect(section.style.left).toBe(`${rect.left}px`);
+      expect(section.style.width).toBe(`${rect.width}px`);
+    });
+
+    it("should handle mobile sticky behavior when scrolled past header", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(true);
+
+      const section = document.getElementById("dropdowns");
+      document.body.classList.remove("dropdown-open");
+
+      stickyDropdowns();
+
+      expect(section.classList.contains("is-sticky")).toBe(true);
+      expect(section.style.position).toBe("fixed");
+      expect(section.style.top).toBe("0px");
+      expect(section.style.left).toBe("0px");
+      expect(section.style.right).toBe("0px");
+      expect(section.style.width).toBe("100%");
+    });
+
+    it("should remove sticky when bottom sheet is open on mobile", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(true);
+
+      const section = document.getElementById("dropdowns");
+      section.classList.add("is-sticky");
+      document.body.classList.add("dropdown-open");
+
+      stickyDropdowns();
+
+      expect(section.classList.contains("is-sticky")).toBe(false);
+      expect(section.style.position).toBe("");
+      expect(section.style.top).toBe("");
+      expect(section.style.left).toBe("");
+      expect(section.style.width).toBe("");
+    });
+
+    it("should reset inline styles when not sticky", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const section = document.getElementById("dropdowns");
+      section.style.position = "fixed";
+      section.style.top = "0";
+      section.style.left = "100px";
+      section.style.width = "800px";
+
+      stickyDropdowns();
+
+      expect(section.style.position).toBe("");
+      expect(section.style.top).toBe("");
+      expect(section.style.left).toBe("");
+      expect(section.style.width).toBe("");
+    });
+
+    it("should handle missing main element gracefully", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      document.querySelector(".main").remove();
+      const section = document.getElementById("dropdowns");
+
+      expect(() => stickyDropdowns()).not.toThrow();
+      if (section) {
+        expect(section.style.position).toBe("");
+      }
+    });
+
+    it("should handle missing section element gracefully", () => {
+      document.getElementById("dropdowns").remove();
+
+      expect(() => stickyDropdowns()).not.toThrow();
     });
   });
 
