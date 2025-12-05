@@ -64,7 +64,7 @@ const filterBySearchTerm = (recipes, searchTerm) => {
   });
 };
 
-return filterBySearchTerm(recipes, searchTerm);`,
+filterBySearchTerm(recipes, searchTerm);`,
 
     forEach: `// forEach implementation
 const filterBySearchTerm = (recipes, searchTerm) => {
@@ -104,7 +104,6 @@ const filterBySearchTerm = (recipes, searchTerm) => {
   return result;
 };
 
-return filterBySearchTerm(recipes, searchTerm);`,
+filterBySearchTerm(recipes, searchTerm);`,
   };
 }
-

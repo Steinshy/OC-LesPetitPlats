@@ -30,7 +30,7 @@ const filterByAppliances = (recipes, appliances) => {
   });
 };
 
-return filterByAppliances(recipes, appliances);`,
+filterByAppliances(recipes, appliances);`,
 
     forEach: `// forEach implementation
 const filterByAppliances = (recipes, appliances) => {
@@ -62,7 +62,6 @@ const filterByAppliances = (recipes, appliances) => {
   return result;
 };
 
-return filterByAppliances(recipes, appliances);`,
+filterByAppliances(recipes, appliances);`,
   };
 }
-

@@ -52,7 +52,7 @@ const filterByIngredients = (recipes, ingredients) => {
   return filterByField(recipes, ingredients, "ingredients");
 };
 
-return filterByIngredients(recipes, ingredients);`,
+filterByIngredients(recipes, ingredients);`,
 
     forEach: `// forEach implementation
 const filterByIngredients = (recipes, ingredients) => {
@@ -94,7 +94,6 @@ const filterByIngredients = (recipes, ingredients) => {
   return result;
 };
 
-return filterByIngredients(recipes, ingredients);`,
+filterByIngredients(recipes, ingredients);`,
   };
 }
-

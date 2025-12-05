@@ -52,7 +52,7 @@ const filterByutensils = (recipes, utensils) => {
   return filterByField(recipes, utensils, "utensils");
 };
 
-return filterByutensils(recipes, utensils);`,
+filterByutensils(recipes, utensils);`,
 
     forEach: `// forEach implementation
 const filterByutensils = (recipes, utensils) => {
@@ -93,7 +93,6 @@ const filterByutensils = (recipes, utensils) => {
   return result;
 };
 
-return filterByutensils(recipes, utensils);`,
+filterByutensils(recipes, utensils);`,
   };
 }
-

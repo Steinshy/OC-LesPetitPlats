@@ -1,8 +1,8 @@
 import { afterAll, describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { lockScroll, unlockScroll, setupScrollLock } from "@/components/scrollLock.js";
-import * as deviceModule from "@/utils/device.js";
 import * as dropdownsModule from "@/components/dropdowns/manager.js";
+import { lockScroll, unlockScroll, setupScrollLock } from "@/components/scrollLock.js";
 import * as scrollToTopModule from "@/components/scrollToTop.js";
+import * as deviceModule from "@/utils/device.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 const MOBILE_DETECTOR_HTML = '<div class="mobile-detector"></div>';
@@ -248,18 +248,17 @@ describe("scrollLock", () => {
       expect(window.cancelAnimationFrame).toHaveBeenCalledWith(firstRafId);
     });
 
-    it("should call stickyDropdowns on resize", () => {
+    it("should call stickyDropdowns on resize", async () => {
       setupScrollLock();
 
       const resizeEvent = new Event("resize");
       window.dispatchEvent(resizeEvent);
 
-      setTimeout(() => {
-        expect(dropdownsModule.stickyDropdowns).toHaveBeenCalled();
-      }, 10);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(dropdownsModule.stickyDropdowns).toHaveBeenCalled();
     });
 
-    it("should unlock scroll when switching from mobile to desktop on resize", () => {
+    it("should unlock scroll when switching from mobile to desktop on resize", async () => {
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
       lockScroll();
       expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
@@ -270,12 +269,11 @@ describe("scrollLock", () => {
       const resizeEvent = new Event("resize");
       window.dispatchEvent(resizeEvent);
 
-      setTimeout(() => {
-        expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
-      }, 10);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(false);
     });
 
-    it("should not unlock scroll when staying on mobile on resize", () => {
+    it("should not unlock scroll when staying on mobile on resize", async () => {
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
       lockScroll();
       expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
@@ -285,9 +283,8 @@ describe("scrollLock", () => {
       const resizeEvent = new Event("resize");
       window.dispatchEvent(resizeEvent);
 
-      setTimeout(() => {
-        expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
-      }, 10);
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(document.documentElement.classList.contains("no-scroll")).toBe(true);
     });
   });
 

@@ -1,5 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import * as headerModule from "@/components/header.js";
+import * as deviceModule from "@/utils/device.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 import { buildDropdownsData } from "~/src/components/dropdowns/data.js";
 import {
@@ -8,8 +10,6 @@ import {
   stickyDropdowns,
   updateDropdownContent,
 } from "~/src/components/dropdowns/manager.js";
-import * as headerModule from "@/components/header.js";
-import * as deviceModule from "@/utils/device.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
@@ -123,41 +123,44 @@ vi.mock("@/utils/filterEngine.js", () => ({
 // Don't mock cleanupDuplicatedItems - let it use the real implementation
 // This ensures buildDropdownsData returns the correct structure
 
+const mockRecipes = [
+  {
+    ingredients: [{ ingredient: "Tomato" }, { ingredient: "Onion" }],
+    utensils: ["Spoon", "Fork"],
+    appliance: "Oven",
+  },
+  {
+    ingredients: [{ ingredient: "Potato" }],
+    utensils: ["Knife"],
+    appliance: "Stove",
+  },
+];
+
+const setupDropdownsTest = () => {
+  document.body.innerHTML = `
+    <div id="dropdowns-container"></div>
+  `;
+  vi.clearAllMocks();
+
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+};
+
 describe("dropdown manager", () => {
   beforeEach(() => {
-    document.body.innerHTML = `
-      <div id="dropdowns-container"></div>
-    `;
-    vi.clearAllMocks();
-
-    // Mock window.matchMedia
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: vi.fn().mockImplementation(query => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    });
+    setupDropdownsTest();
   });
-
-  const mockRecipes = [
-    {
-      ingredients: [{ ingredient: "Tomato" }, { ingredient: "Onion" }],
-      utensils: ["Spoon", "Fork"],
-      appliance: "Oven",
-    },
-    {
-      ingredients: [{ ingredient: "Potato" }],
-      utensils: ["Knife"],
-      appliance: "Stove",
-    },
-  ];
 
   describe("buildDropdownsData", () => {
     it("should build dropdowns data from recipes", () => {
@@ -474,19 +477,26 @@ describe("dropdown manager", () => {
     });
   });
 
-  describe("stickyDropdowns", () => {
-    beforeEach(() => {
-      document.body.innerHTML = `
-        <div class="main" style="width: 800px; margin-left: 100px;">
-          <section id="dropdowns" class="dropdowns">
-            <div id="dropdowns-container"></div>
-          </section>
-        </div>
-      `;
-      setupDropdowns(mockRecipes);
-      vi.clearAllMocks();
-    });
+  afterAll(() => {
+    logCategorySummary("dropdownManager", "Dropdown Manager", "All dropdown manager tests");
+  });
+});
 
+describe("dropdown manager - stickyDropdowns", () => {
+  beforeEach(() => {
+    setupDropdownsTest();
+    document.body.innerHTML = `
+      <div class="main" style="width: 800px; margin-left: 100px;">
+        <section id="dropdowns" class="dropdowns">
+          <div id="dropdowns-container"></div>
+        </section>
+      </div>
+    `;
+    setupDropdowns(mockRecipes);
+    vi.clearAllMocks();
+  });
+
+  describe("desktop behavior", () => {
     it("should add is-sticky class when scrolled past header on desktop", () => {
       vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
@@ -524,6 +534,26 @@ describe("dropdown manager", () => {
       expect(section.style.width).toBe(`${rect.width}px`);
     });
 
+    it("should reset inline styles when not sticky", () => {
+      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
+
+      const section = document.getElementById("dropdowns");
+      section.style.position = "fixed";
+      section.style.top = "0";
+      section.style.left = "100px";
+      section.style.width = "800px";
+
+      stickyDropdowns();
+
+      expect(section.style.position).toBe("");
+      expect(section.style.top).toBe("");
+      expect(section.style.left).toBe("");
+      expect(section.style.width).toBe("");
+    });
+  });
+
+  describe("mobile behavior", () => {
     it("should handle mobile sticky behavior when scrolled past header", () => {
       vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
@@ -557,25 +587,9 @@ describe("dropdown manager", () => {
       expect(section.style.left).toBe("");
       expect(section.style.width).toBe("");
     });
+  });
 
-    it("should reset inline styles when not sticky", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
-      vi.mocked(deviceModule.isMobile).mockReturnValue(false);
-
-      const section = document.getElementById("dropdowns");
-      section.style.position = "fixed";
-      section.style.top = "0";
-      section.style.left = "100px";
-      section.style.width = "800px";
-
-      stickyDropdowns();
-
-      expect(section.style.position).toBe("");
-      expect(section.style.top).toBe("");
-      expect(section.style.left).toBe("");
-      expect(section.style.width).toBe("");
-    });
-
+  describe("error handling", () => {
     it("should handle missing main element gracefully", () => {
       vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
@@ -597,6 +611,10 @@ describe("dropdown manager", () => {
   });
 
   afterAll(() => {
-    logCategorySummary("dropdownManager", "Dropdown Manager", "All dropdown manager tests");
+    logCategorySummary(
+      "dropdownManager",
+      "Dropdown Manager - stickyDropdowns",
+      "All stickyDropdowns tests",
+    );
   });
 });
