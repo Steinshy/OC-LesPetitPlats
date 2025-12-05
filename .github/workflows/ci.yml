@@ -19,32 +19,61 @@ permissions:
   actions: read
 
 env:
-  NODE_VERSION: "22"
+  NODE_VERSION: "25"
 
 jobs:
-  dependency-review:
-    name: Dependency Review
+  code-quality-security:
+    name: Code Quality & Security
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: github.event_name == 'pull_request'
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Dependency Review
+        if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
           deny-licenses: GPL-2.0, GPL-3.0
           comment-summary-in-pr: always
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          exit-code: "0"
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
+      - name: Upload Trivy results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-results
+          path: trivy-results.sarif
+          retention-days: 1
+          if-no-files-found: ignore
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -77,17 +106,14 @@ jobs:
       - name: Run Markdown lint
         run: npm run lint:md
 
-  code-scanning:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Run ESLint security plugin
+        run: npm run lint:eslint -- --max-warnings=0
+        env:
+          ESLINT_PLUGIN_SECURITY: "true"
+
+      - name: Check for known security issues
+        run: |
+          npm run lint:eslint 2>&1 | grep -i "security" || true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -102,23 +128,6 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript"
-
-  npm-audit:
-    name: NPM Security Audit
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate --production
@@ -135,84 +144,8 @@ jobs:
           name: npm-audit-results
           path: |
             npm-audit-results.json
-          retention-days: 30
+          retention-days: 1
           if-no-files-found: ignore
-
-  dependency-check:
-    name: Dependency Vulnerability Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "0"
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: "trivy-results.sarif"
-
-      - name: Upload Trivy results as artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-results
-          path: trivy-results.sarif
-          retention-days: 30
-          if-no-files-found: ignore
-
-  secret-scanning:
-    name: Secret Scanning
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-
-  security-lint:
-    name: Security Linting
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ESLint security plugin
-        run: npm run lint:eslint -- --max-warnings=0
-        env:
-          ESLINT_PLUGIN_SECURITY: "true"
-
-      - name: Check for known security issues
-        run: |
-          echo "Running security-focused linting checks..."
-          npm run lint:eslint 2>&1 | grep -i "security" || echo "No security warnings found"
 
   build:
     name: Build
@@ -249,7 +182,7 @@ jobs:
         with:
           name: dist
           path: dist/
-          retention-days: 3
+          retention-days: 1
           compression-level: 6
 
   benchmark:
@@ -318,32 +251,14 @@ jobs:
           if ls benchmark-results/Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_dir=benchmark-results/Benchmark" >> $GITHUB_OUTPUT
-            echo "✓ Benchmark reports found in benchmark-results/Benchmark/:"
-            ls -lh benchmark-results/Benchmark/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
-            echo "Total reports: $(ls benchmark-results/Benchmark/benchmark-*.html | wc -l)"
           elif ls Benchmark/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_dir=Benchmark" >> $GITHUB_OUTPUT
-            echo "✓ Benchmark reports found in Benchmark/:"
-            ls -lh Benchmark/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
-            echo "Total reports: $(ls Benchmark/benchmark-*.html | wc -l)"
           elif ls Report/benchmark-*.html 1> /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_dir=Report" >> $GITHUB_OUTPUT
-            echo "✓ Benchmark reports found in Report/:"
-            ls -lh Report/benchmark-*.html | awk '{print "  - " $9 " (" $5 ")"}'
-            echo "Total reports: $(ls Report/benchmark-*.html | wc -l)"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: No benchmark reports found"
-            echo "Checking benchmark-results/Benchmark/:"
-            ls -la benchmark-results/Benchmark/ 2>/dev/null || echo "benchmark-results/Benchmark directory does not exist"
-            echo "Checking Benchmark/:"
-            ls -la Benchmark/ 2>/dev/null || echo "Benchmark directory does not exist"
-            echo "Checking Report/:"
-            ls -la Report/ 2>/dev/null || echo "Report directory does not exist"
-            echo "Searching for benchmark HTML files:"
-            find . -name "benchmark-*.html" -type f 2>/dev/null | head -5 || echo "No benchmark HTML files found"
           fi
 
       - name: Upload benchmark HTML reports
@@ -352,7 +267,7 @@ jobs:
         with:
           name: benchmark-reports-html
           path: ${{ steps.check-reports.outputs.report_dir || 'benchmark-results/Benchmark' }}/benchmark-*.html
-          retention-days: 30
+          retention-days: 1
           if-no-files-found: ignore
           compression-level: 6
 
@@ -415,22 +330,11 @@ jobs:
           if [ -f "benchmark-results/Unit/lcov.info" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_path=benchmark-results/Unit" >> $GITHUB_OUTPUT
-            echo "✓ Coverage report found: benchmark-results/Unit/lcov.info"
-            echo "File size: $(wc -c < benchmark-results/Unit/lcov.info) bytes"
           elif [ -f "coverage/lcov.info" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "report_path=coverage" >> $GITHUB_OUTPUT
-            echo "✓ Coverage report found: coverage/lcov.info"
-            echo "File size: $(wc -c < coverage/lcov.info) bytes"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: Coverage report not found"
-            echo "Checking benchmark-results/Unit/:"
-            ls -la benchmark-results/Unit/ 2>/dev/null || echo "benchmark-results/Unit directory does not exist"
-            echo "Checking coverage/:"
-            ls -la coverage/ 2>/dev/null || echo "coverage directory does not exist"
-            echo "Searching for any .info files:"
-            find . -name "lcov.info" -type f 2>/dev/null | head -5 || echo "No lcov.info files found"
           fi
 
       - name: Upload test coverage report
@@ -439,7 +343,7 @@ jobs:
         with:
           name: unit-tests-coverage
           path: ${{ steps.check-coverage.outputs.report_path || 'benchmark-results/Unit' }}/
-          retention-days: 7
+          retention-days: 1
           if-no-files-found: ignore
           compression-level: 6
 
@@ -451,7 +355,6 @@ jobs:
           flags: unit-tests
           name: unit-tests-coverage
           fail_ci_if_error: false
-          verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results to Codecov
@@ -518,17 +421,8 @@ jobs:
           # Main report: reports/mutation.html
           if [ -f "reports/mutation.html" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "✓ Mutation test report found: reports/mutation.html"
-            echo "File size: $(wc -c < reports/mutation.html) bytes"
-            echo "Listing reports directory contents:"
-            ls -lh reports/ 2>/dev/null | head -10
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "⚠ Warning: Mutation test report not found at reports/mutation.html"
-            echo "Listing reports directory contents:"
-            ls -la reports/ 2>/dev/null || echo "Reports directory does not exist"
-            echo "Checking for any HTML files in reports:"
-            find reports -name "*.html" 2>/dev/null || echo "No HTML files found"
           fi
 
       - name: Upload mutation test report
@@ -537,20 +431,15 @@ jobs:
         with:
           name: mutation-test-report
           path: reports/
-          retention-days: 7
+          retention-days: 1
           if-no-files-found: ignore
           compression-level: 6
 
       - name: Extract and display mutation score
         if: always() && steps.check-mutation-reports.outputs.exists == 'true'
         run: |
-          # Extract mutation score from JSON report if available
           if [ -f "reports/mutation/mutation.json" ]; then
-            echo "📊 Mutation Test Results:"
-            cat reports/mutation/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || echo "Could not extract mutation score"
+            cat reports/mutation/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || true
           elif [ -f "reports/mutation.json" ]; then
-            echo "📊 Mutation Test Results:"
-            cat reports/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || echo "Could not extract mutation score"
-          else
-            echo "ℹ️ JSON mutation report not found (HTML report available in artifacts)"
+            cat reports/mutation.json | grep -E '"mutationScore"|"mutationScoreBasedOnCoveredCode"' | head -2 || true
           fi

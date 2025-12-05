@@ -179,6 +179,7 @@ const setupDropdownListeners = dropdownTypes => {
       button.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
         toggleDropdown(currentType);
       });
     }
@@ -188,6 +189,8 @@ const setupDropdownListeners = dropdownTypes => {
 const openDropdown = type => {
   const { container, button, backdrop, menu } = dropdownElements(type);
   if (!container || !button) return;
+
+  const scrollY = window.scrollY;
 
   container.classList.add("open");
   button.classList.add("active");
@@ -202,12 +205,17 @@ const openDropdown = type => {
     const { section } = dropdownsElements();
     if (section) {
       section.classList.remove("is-sticky");
-      section.style.position = ""; // remove fixed
+      section.style.position = "";
       section.style.top = "";
       section.style.left = "";
       section.style.width = "";
     }
     lockScroll();
+  } else {
+    window.scrollTo({
+      top: scrollY,
+      behavior: "auto",
+    });
   }
 
   scrollToTopVisibility();
@@ -277,11 +285,6 @@ const handlerInteraction = {
   },
 };
 
-document.addEventListener("keydown", handlerInteraction.escapeKey);
-document.addEventListener("click", handlerInteraction.click);
-document.addEventListener("scroll", stickyDropdowns, { passive: true });
-window.addEventListener("resize", stickyDropdowns);
-
 export const updateDropdownContent = type => {
   const { searchWrapper, searchInput, searchClear, searchSubmit } = dropdownSearchElements(type);
   if (!searchInput) return;
@@ -345,3 +348,8 @@ const updateDropdownList = type => {
     searchWrapper.classList.toggle("show", allItems.length > 0);
   }
 };
+
+document.addEventListener("keydown", handlerInteraction.escapeKey);
+document.addEventListener("click", handlerInteraction.click);
+document.addEventListener("scroll", stickyDropdowns, { passive: true });
+window.addEventListener("resize", stickyDropdowns);

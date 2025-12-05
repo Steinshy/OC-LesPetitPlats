@@ -404,11 +404,6 @@
     opacity: 0.6;
   }
 
-  .dropdown-search .search-clear-btn:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-  }
-
   .dropdown-search .search-clear-btn {
     align-items: center;
     background-color: transparent;
@@ -416,7 +411,7 @@
     border-radius: 50%;
     color: var(--color-text-muted);
     cursor: pointer;
-    display: flex;
+    display: none;
     font-size: var(--font-size-sm);
     height: 25px;
     justify-content: center;
@@ -435,6 +430,12 @@
     visibility: hidden;
     width: 25px;
     z-index: 3;
+  }
+
+  .dropdown-search .search-clear-btn:not(.hidden) {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
   }
 
   .dropdown-search .search-clear-btn i {
@@ -480,6 +481,10 @@
     z-index: 2;
   }
 
+  .dropdown-search .search-button.hidden {
+    display: none !important;
+  }
+
   .dropdown-search .search-button:hover {
     color: var(--color-text);
     transform: translateY(-50%) scale(1.1);
@@ -493,6 +498,10 @@
     color: inherit;
     font-size: var(--font-size-base);
     font-weight: 400;
+  }
+
+  .dropdown-search .search-button.hidden {
+    display: none;
   }
 
   /* Dropdowns */
@@ -573,11 +582,18 @@
     font-weight: 500;
     gap: var(--spacing-sm);
     padding: 14px var(--spacing-lg);
+    touch-action: manipulation;
     transition:
       background-color var(--transition),
       border-color var(--transition),
       box-shadow var(--transition),
       transform var(--transition);
+    user-select: none;
+  }
+
+  .filter-dropdown:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 
   .filter-label {
@@ -656,6 +672,7 @@
     opacity: 0;
     pointer-events: none;
     position: fixed;
+    touch-action: none;
     transition: opacity 0.2s ease;
     z-index: calc(var(--z-dropdown) - 1);
   }
@@ -691,8 +708,13 @@
   }
 
   .dropdown-list {
+    flex: 1;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
-    padding-top: 32px; /* Just enough to sit below the drag handle */
+    padding-top: 32px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .dropdown-list::-webkit-scrollbar {
