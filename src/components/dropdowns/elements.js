@@ -5,7 +5,7 @@ import { normalizeString } from "@utils/normalize.js";
 // Main => dropdowns (root container)
 export const dropdownsElements = () => ({
   section: document.getElementById("dropdowns"),
-  container: document.getElementById("dropdowns-container"),
+  containers: document.getElementById("dropdowns-container"),
 });
 
 // Dropdown elements (Single dropdown)
