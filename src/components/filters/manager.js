@@ -175,10 +175,10 @@ const clearAll = () => {
     filtersState.filters.utensils.clear();
 
     const { input, clear, submit } = searchElements();
-    if (!input) {
+    if (input) {
       input.value = "";
-      clear.classList.add("hidden");
-      submit.classList.remove("hidden");
+      clear?.classList.add("hidden");
+      submit?.classList.remove("hidden");
     }
     getSelectedDropdownItems().forEach(item => updateDropdownItem(item, false));
     clearURLState();
