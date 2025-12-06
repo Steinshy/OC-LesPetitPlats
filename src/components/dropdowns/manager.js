@@ -351,5 +351,4 @@ const updateDropdownList = type => {
 
 document.addEventListener("keydown", handlerInteraction.escapeKey);
 document.addEventListener("click", handlerInteraction.click);
-document.addEventListener("scroll", stickyDropdowns, { passive: true });
 window.addEventListener("resize", stickyDropdowns);
