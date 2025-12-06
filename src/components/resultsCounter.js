@@ -10,5 +10,5 @@ export const setupResultsCounter = count => {
   if (!counter) return;
 
   counter.textContent =
-    count === 0 ? "Aucun résultats" : `${count} ${count === 1 ? "résultat" : "résultats"}`;
+    count === 0 ? "Aucun résultat" : `${count} ${count === 1 ? "résultat" : "résultats"}`;
 };
