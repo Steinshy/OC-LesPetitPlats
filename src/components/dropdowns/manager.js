@@ -8,10 +8,8 @@ import {
   dropdownsElements,
 } from "@components/dropdowns/elements.js";
 import {
-  ingredientsDropdown,
-  utensilsDropdown,
-  appliancesDropdown,
   renderEmptyStateItem,
+  renderDropdown,
   renderDropdownItem,
 } from "@components/dropdowns/render.js";
 import { filtersState } from "@components/filters/state.js";
@@ -19,18 +17,18 @@ import { isScrolledPastHeader } from "@components/header.js";
 import { lockScroll, unlockScroll } from "@components/scrollLock.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
 import { dropdownsSkeletons } from "@components/skeletons/manager.js";
+import { ariaHidden } from "@utils/constants.js";
 import { isMobile } from "@utils/device.js";
 import { filterDropdownItems } from "@utils/filterEngine.js";
 
 export let currentDropdownsData = {};
 export let dropdownTypes = [];
-const ARIA_HIDDEN = "aria-hidden";
 
 export const setupDropdowns = recipesData => {
   if (!recipesData) return;
 
-  const { container } = dropdownsElements();
-  if (!container) return;
+  const { containers } = dropdownsElements();
+  if (!containers) return;
 
   unlockScroll();
 
@@ -39,7 +37,8 @@ export const setupDropdowns = recipesData => {
   dropdownTypes = Object.keys(currentDropdownsData) || [];
 
   dropdownsSkeletons().show();
-  container.innerHTML = ingredientsDropdown([]) + utensilsDropdown([]) + appliancesDropdown([]);
+  containers.innerHTML =
+    renderDropdown("ingredients") + renderDropdown("utensils") + renderDropdown("appliances");
   dropdownsSkeletons().hide();
   setupDropdownListeners(dropdownTypes);
 
@@ -55,7 +54,7 @@ export const stickyDropdowns = () => {
   const shouldStick = isScrolledPastHeader();
   const sheetOpen = document.body.classList.contains("dropdown-open");
 
-  const resetInlineStyles = () => {
+  const clearInlineStyles = () => {
     section.style.position = "";
     section.style.top = "";
     section.style.left = "";
@@ -66,19 +65,12 @@ export const stickyDropdowns = () => {
   // 📱 Mobile: fixed bar at top, full width, disabled while bottom sheet is open
   if (isMobile()) {
     // If the bottom sheet is open, we don’t want the bar to be sticky/fixed
-    if (sheetOpen) {
+    if (sheetOpen || !shouldStick) {
       section.classList.remove("is-sticky");
-      resetInlineStyles();
+      clearInlineStyles();
       return;
     }
 
-    if (!shouldStick) {
-      section.classList.remove("is-sticky");
-      resetInlineStyles();
-      return;
-    }
-
-    // When scrolled past threshold: behave like tablet, but 100% width
     section.classList.add("is-sticky");
     section.style.position = "fixed";
     section.style.top = "0";
@@ -88,17 +80,16 @@ export const stickyDropdowns = () => {
     return;
   }
 
-  // 💻 Tablet / Desktop: keep your existing behaviour
   section.classList.toggle("is-sticky", shouldStick);
 
   if (!shouldStick) {
-    resetInlineStyles();
+    clearInlineStyles();
     return;
   }
 
   const main = document.querySelector(".main");
   if (!main) {
-    resetInlineStyles();
+    clearInlineStyles();
     return;
   }
 
@@ -196,8 +187,8 @@ const openDropdown = type => {
   button.classList.add("active");
   button.setAttribute("aria-expanded", "true");
 
-  backdrop?.setAttribute(ARIA_HIDDEN, "false");
-  menu?.setAttribute(ARIA_HIDDEN, "false");
+  backdrop?.setAttribute(ariaHidden, "false");
+  menu?.setAttribute(ariaHidden, "false");
 
   document.body.classList.add("dropdown-open");
 
@@ -232,8 +223,8 @@ const closeAllDropdowns = () => {
       button.classList.remove("active");
       button.setAttribute("aria-expanded", "false");
 
-      backdrop?.setAttribute(ARIA_HIDDEN, "true");
-      menu?.setAttribute(ARIA_HIDDEN, "true");
+      backdrop?.setAttribute(ariaHidden, "true");
+      menu?.setAttribute(ariaHidden, "true");
     });
   }
 
@@ -266,7 +257,7 @@ const toggleDropdown = type => {
   }
 };
 
-const handlerInteraction = {
+const interactionHandlers = {
   escapeKey: event => {
     if (event.key === "Escape") closeAllDropdowns();
   },
@@ -342,13 +333,13 @@ const updateDropdownList = type => {
     itemsList.innerHTML = renderEmptyStateItem(type);
   }
 
-  menu.setAttribute(ARIA_HIDDEN, "false");
+  menu.setAttribute(ariaHidden, "false");
 
   if (searchWrapper) {
     searchWrapper.classList.toggle("show", allItems.length > 0);
   }
 };
 
-document.addEventListener("keydown", handlerInteraction.escapeKey);
-document.addEventListener("click", handlerInteraction.click);
+document.addEventListener("keydown", interactionHandlers.escapeKey);
+document.addEventListener("click", interactionHandlers.click);
 window.addEventListener("resize", stickyDropdowns);

@@ -1,4 +1,4 @@
-// Check mobile via CSS detector
+// Check if mobile via CSS detector
 export const isMobile = () => {
   try {
     const detector = document.querySelector(".mobile-detector");

@@ -33,7 +33,7 @@ const initApp = async () => {
       setupRecipesCards(recipesData);
     },
     async message => {
-      setupToast(error?.message, "default");
+      setupToast(message, "default");
       setupSearchBar();
       setupResultsCounter(0);
     },

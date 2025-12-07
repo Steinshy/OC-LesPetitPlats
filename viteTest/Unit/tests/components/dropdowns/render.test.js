@@ -1,11 +1,9 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 import {
-  appliancesDropdown,
-  ingredientsDropdown,
+  renderDropdown,
   renderDropdownItem,
   renderEmptyStateItem,
-  utensilsDropdown,
 } from "~/src/components/dropdowns/render.js";
 
 vi.mock("@/components/search/render.js", () => ({
@@ -25,9 +23,9 @@ const LABEL_utensils = "Ustensiles";
 const LABEL_APPLIANCES = "Appareils";
 
 describe("dropdown render", () => {
-  describe("ingredientsDropdown", () => {
+  describe("renderDropdown - ingredients", () => {
     it("should render ingredients dropdown", () => {
-      const html = ingredientsDropdown();
+      const html = renderDropdown("ingredients");
 
       expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
       expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
@@ -36,28 +34,28 @@ describe("dropdown render", () => {
     });
 
     it("should include button with correct attributes", () => {
-      const html = ingredientsDropdown([]);
+      const html = renderDropdown("ingredients");
       expect(html).toContain('id="dropdown-ingredients-button"');
       expect(html).toContain('aria-expanded="false"');
       expect(html).toContain('aria-controls="menu-ingredients"');
     });
 
     it("should include backdrop and menu elements", () => {
-      const html = ingredientsDropdown([]);
+      const html = renderDropdown("ingredients");
       expect(html).toContain("dropdown-ingredients-backdrop");
       expect(html).toContain('id="menu-ingredients"');
       expect(html).toContain('aria-hidden="true"');
     });
 
     it("should include dropdown search", () => {
-      const html = ingredientsDropdown([]);
+      const html = renderDropdown("ingredients");
       expect(html).toContain('id="dropdown-ingredients-search"');
     });
   });
 
-  describe("utensilsDropdown", () => {
+  describe("renderDropdown - utensils", () => {
     it("should render utensils dropdown", () => {
-      const html = utensilsDropdown();
+      const html = renderDropdown("utensils");
 
       expect(html).toContain("dropdown-utensils-container");
       expect(html).toContain(DATA_TYPE_utensils_ATTR);
@@ -65,9 +63,9 @@ describe("dropdown render", () => {
     });
   });
 
-  describe("appliancesDropdown", () => {
+  describe("renderDropdown - appliances", () => {
     it("should render appliances dropdown", () => {
-      const html = appliancesDropdown();
+      const html = renderDropdown("appliances");
 
       expect(html).toContain("dropdown-appliances-container");
       expect(html).toContain(DATA_TYPE_APPLIANCES_ATTR);
@@ -142,6 +140,7 @@ describe("dropdown render", () => {
         item,
         ITEM_ID_PREFIX,
         BUTTON_ID_PREFIX,
+        false,
       );
 
       expect(html).toContain('aria-pressed="false"');

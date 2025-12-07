@@ -8,7 +8,6 @@ import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
 
-// Precache assets (manifest will be injected by VitePWA)
 precacheAndRoute(self.__WB_MANIFEST);
 
 registerRoute(
@@ -37,7 +36,7 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 1,
-        maxAgeSeconds: 60 * 60 * 24, // 24 hours
+        maxAgeSeconds: 60 * 60 * 24,
       }),
     ],
   }),

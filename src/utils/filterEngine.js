@@ -1,7 +1,5 @@
 // src/utils/filterEngine.js
 
-// Unified, config-driven filter engine for recipes
-
 import { normalizeString } from "@utils/normalize.js";
 
 const FIELD_CONFIG = {
@@ -21,7 +19,6 @@ const FIELD_CONFIG = {
 
 const SEARCHABLE_FIELDS = ["name", "description", "appliance"];
 
-// Normalize and flatten recipe values for a given field
 const getRecipeFieldValues = (recipe, fieldType) => {
   const config = FIELD_CONFIG[fieldType];
   if (!config) return [];
@@ -33,16 +30,13 @@ const getRecipeFieldValues = (recipe, fieldType) => {
   return values.filter(Boolean).map(normalizeString);
 };
 
-// Build searchable text from a recipe
 const buildSearchableText = recipe => {
   const parts = [];
 
-  // Add direct fields
   for (const field of SEARCHABLE_FIELDS) {
     if (recipe[field]) parts.push(recipe[field]);
   }
 
-  // Add array fields from config
   for (const config of Object.values(FIELD_CONFIG)) {
     if (config.isArray) {
       const values = config.extract(recipe);
@@ -54,7 +48,7 @@ const buildSearchableText = recipe => {
 
   return parts.join(" ");
 };
-// Filter recipes by search term
+
 export const filterBySearch = (recipes, searchTerm) => {
   if (!Array.isArray(recipes)) return [];
 
@@ -67,12 +61,11 @@ export const filterBySearch = (recipes, searchTerm) => {
     return text.includes(query);
   });
 };
-// Filter recipes by a specific field
+
 export const filterByField = (recipes, selectedValues, fieldType) => {
   if (!Array.isArray(recipes)) return [];
   if (!FIELD_CONFIG[fieldType]) return recipes;
 
-  // Handle both Set and Array
   const selected = selectedValues instanceof Set ? [...selectedValues] : selectedValues;
   if (!selected || selected.length === 0) return recipes;
 
@@ -83,18 +76,15 @@ export const filterByField = (recipes, selectedValues, fieldType) => {
   });
 };
 
-// Apply all filters at once
 export const applyAllFilters = (recipes, filters) => {
   if (!Array.isArray(recipes)) return [];
 
   let result = recipes;
 
-  // Apply search filter
   if (filters.search) {
     result = filterBySearch(result, filters.search);
   }
 
-  // Apply each field filter
   for (const fieldType of Object.keys(FIELD_CONFIG)) {
     const selectedValues = filters[fieldType];
     if (selectedValues && (selectedValues.size > 0 || selectedValues.length > 0)) {
@@ -104,7 +94,7 @@ export const applyAllFilters = (recipes, filters) => {
 
   return result;
 };
-// Filter dropdown items by search term
+
 export const filterDropdownItems = (items, searchTerm) => {
   if (!Array.isArray(items)) return [];
 

@@ -3,7 +3,7 @@ import { setupResultsCounter } from "@/components/resultsCounter.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 const RESULTS_COUNTER_ID = "results-counter";
-const TEXT_AUCUN_RESULTATS = "Aucun résultats";
+const TEXT_AUCUN_RESULTAT = "Aucun résultat";
 const TEXT_RESULTATS = "résultats";
 
 describe("resultsCounter", () => {
@@ -13,13 +13,13 @@ describe("resultsCounter", () => {
   });
 
   describe("setupResultsCounter", () => {
-    it("should set counter text to 'Aucun résultats' when count is 0", () => {
+    it("should set counter text to 'Aucun résultat' when count is 0", () => {
       document.body.innerHTML = `<div id="${RESULTS_COUNTER_ID}"></div>`;
 
       setupResultsCounter(0);
 
       const counter = document.getElementById(RESULTS_COUNTER_ID);
-      expect(counter.textContent).toBe(TEXT_AUCUN_RESULTATS);
+      expect(counter.textContent).toBe(TEXT_AUCUN_RESULTAT);
     });
 
     it("should set counter text to singular 'résultat' when count is 1", () => {
@@ -66,7 +66,7 @@ describe("resultsCounter", () => {
       expect(counter.textContent).toBe(`10 ${TEXT_RESULTATS}`);
 
       setupResultsCounter(0);
-      expect(counter.textContent).toBe(TEXT_AUCUN_RESULTATS);
+      expect(counter.textContent).toBe(TEXT_AUCUN_RESULTAT);
     });
   });
 

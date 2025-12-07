@@ -25,54 +25,56 @@ const ARIA_PRESSED_FALSE = ARIA_FALSE;
 const ARIA_HIDDEN_FALSE = ARIA_FALSE;
 
 vi.mock("@/components/dropdowns/render.js", () => ({
-  ingredientsDropdown: vi.fn(
-    () => `
+  renderDropdown: vi.fn(type => {
+    const dropdowns = {
+      ingredients: `
     <div class="dropdown-container" id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
       <button id="dropdown-ingredients-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-ingredients"></button>
       <div id="dropdown-ingredients-backdrop" aria-hidden="${ARIA_TRUE}"></div>
-      <div id="menu-ingredients" aria-hidden="${ARIA_TRUE}" role="menu">
+      <div id="menu-ingredients" aria-hidden="${ARIA_TRUE}" role="listbox">
         <div id="dropdown-ingredients-search">
           <input id="search-ingredients" />
           <button id="dropdown-ingredients-search-clear-button" class="hidden"></button>
+          <button id="dropdown-ingredients-search-submit-button"></button>
         </div>
-        <ul id="dropdown-ingredients-list" role="listbox"></ul>
+        <ul id="dropdown-ingredients-list" class="dropdown-list"></ul>
       </div>
     </div>`,
-  ),
-  utensilsDropdown: vi.fn(
-    () => `
+      utensils: `
     <div class="dropdown-container" id="${DROPDOWN_utensils_CONTAINER_ID}" ${DATA_TYPE_utensils}>
       <button id="dropdown-utensils-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-utensils"></button>
       <div id="dropdown-utensils-backdrop" aria-hidden="${ARIA_TRUE}"></div>
-      <div id="menu-utensils" aria-hidden="${ARIA_TRUE}" role="menu">
+      <div id="menu-utensils" aria-hidden="${ARIA_TRUE}" role="listbox">
         <div id="dropdown-utensils-search">
           <input id="search-utensils" />
           <button id="dropdown-utensils-search-clear-button" class="hidden"></button>
+          <button id="dropdown-utensils-search-submit-button"></button>
         </div>
-        <ul id="dropdown-utensils-list" role="listbox"></ul>
+        <ul id="dropdown-utensils-list" class="dropdown-list"></ul>
       </div>
     </div>`,
-  ),
-  appliancesDropdown: vi.fn(
-    () => `
+      appliances: `
     <div class="dropdown-container" id="${DROPDOWN_APPLIANCES_CONTAINER_ID}" ${DATA_TYPE_APPLIANCES}>
       <button id="dropdown-appliances-button" aria-expanded="${ARIA_EXPANDED_FALSE}" aria-controls="menu-appliances"></button>
       <div id="dropdown-appliances-backdrop" aria-hidden="${ARIA_TRUE}"></div>
-      <div id="menu-appliances" aria-hidden="${ARIA_TRUE}" role="menu">
+      <div id="menu-appliances" aria-hidden="${ARIA_TRUE}" role="listbox">
         <div id="dropdown-appliances-search">
           <input id="search-appliances" />
           <button id="dropdown-appliances-search-clear-button" class="hidden"></button>
+          <button id="dropdown-appliances-search-submit-button"></button>
         </div>
-        <ul id="dropdown-appliances-list" role="listbox"></ul>
+        <ul id="dropdown-appliances-list" class="dropdown-list"></ul>
       </div>
     </div>`,
-  ),
+    };
+    return dropdowns[type] || "";
+  }),
   renderEmptyStateItem: vi.fn(
     type => `<li id='dropdown-${type}-empty-state' class="dropdown-empty-state">Empty</li>`,
   ),
   renderDropdownItem: vi.fn(
-    (type, item, itemId, itemBtnId) =>
-      `<li role="option" id="${itemId}"><button class="dropdown-item item-btn" id="${itemBtnId}" data-value="${item.value}" data-type="${type}" aria-pressed="${ARIA_PRESSED_FALSE}">${item.label}</button></li>`,
+    (type, item, itemId, itemBtnId, isSelected = false) =>
+      `<li role="option" id="${itemId}" aria-selected="${isSelected}"><button class="dropdown-item item-btn${isSelected ? " selected" : ""}" id="${itemBtnId}" data-value="${item.value}" data-type="${type}" aria-pressed="${isSelected}">${item.label}</button></li>`,
   ),
 }));
 
@@ -100,6 +102,10 @@ vi.mock("@/components/header.js", () => ({
 
 vi.mock("@/utils/device.js", () => ({
   isMobile: vi.fn(() => false),
+}));
+
+vi.mock("@/utils/constants.js", () => ({
+  ariaHidden: "aria-hidden",
 }));
 
 vi.mock("@/utils/filterEngine.js", () => ({

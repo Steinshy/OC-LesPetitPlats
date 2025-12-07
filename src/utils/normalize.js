@@ -1,6 +1,3 @@
-// src/utils/normalize.js
-
-// Remove accents, parentheses, lowercase
 export const normalizeString = value =>
   String(value || "")
     .replace(/\s*\([^)]*\)/g, "")
@@ -19,7 +16,6 @@ const cleanLabel = raw => {
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 };
 
-// Convert raw value to filter item
 export const toFilterItem = raw => {
   const trimmed = String(raw ?? "").trim();
   if (!trimmed) return null;
@@ -29,14 +25,12 @@ export const toFilterItem = raw => {
 
   if (!label) return null;
 
-  // Remove trailing 's' for deduplication key
   const key = normalized.replace(/s\b/g, "");
   if (!key) return null;
 
   return { label, value: normalized, key };
 };
 
-// Deduplicate and sort filter items
 export const cleanupDuplicatedItems = (items = []) => {
   const seen = new Set();
   const result = [];

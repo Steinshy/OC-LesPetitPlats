@@ -1,115 +1,43 @@
 // src/components/dropdowns/render.js
-export const ingredientsDropdown = () => {
+export const renderDropdown = type => {
+  const dropdownLabels = {
+    ingredients: "Ingrédients",
+    utensils: "Ustensiles",
+    appliances: "Appareils",
+  };
+  const label = dropdownLabels[type] || type;
   return `
     <div 
       class="dropdown-container" 
-      id="dropdown-ingredients-container" 
-      data-type="ingredients">
+      id="dropdown-${type}-container" 
+      data-type="${type}">
       
       <button
         type="button"
         class="filter-dropdown"
-        id="dropdown-ingredients-button"
+        id="dropdown-${type}-button"
         aria-expanded="false"
-        aria-controls="menu-ingredients"
-        aria-label="Ouvrir le menu ingredients">
-        <span class="dropdown-count" id="dropdown-ingredients-count" aria-label="Nombre d'éléments"></span>
-        <span class="filter-label">Ingrédients</span>
+        aria-controls="menu-${type}"
+        aria-label="Ouvrir le menu ${type}">
+        <span class="dropdown-count" id="dropdown-${type}-count" aria-label="Nombre d'éléments"></span>
+        <span class="filter-label">${label}</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
       
       <div
         class="dropdown-backdrop"
-        id="dropdown-ingredients-backdrop"
+        id="dropdown-${type}-backdrop"
         aria-hidden="true">
       </div>
       
       <div
         class="dropdown-menu"
-        id="menu-ingredients"
+        id="menu-${type}"
         aria-hidden="true"
         role="listbox"
-        aria-labelledby="dropdown-ingredients-button">
-        ${renderDropdownSearch("ingredients")}
-        <ul class="dropdown-list" id="dropdown-ingredients-list"></ul>
-      </div>
-    </div>
-  `;
-};
-
-export const utensilsDropdown = () => {
-  return `
-    <div 
-      class="dropdown-container" 
-      id="dropdown-utensils-container"
-      data-type="utensils">
-
-      <button
-        type="button"
-        class="filter-dropdown"
-        id="dropdown-utensils-button"
-        aria-expanded="false"
-        aria-controls="menu-utensils"
-        aria-label="Ouvrir le menu utensils">
-        <span class="dropdown-count" id="dropdown-utensils-count" aria-label="Nombre d'éléments"></span>
-        <span class="filter-label">Ustensiles</span>
-        <i class="ri-arrow-down-s-line"></i>
-      </button>
-
-      <div
-        class="dropdown-backdrop"
-        id="dropdown-utensils-backdrop"
-        aria-hidden="true">
-      </div>
-
-      <div
-        class="dropdown-menu"
-        id="menu-utensils"
-        aria-hidden="true"
-        role="listbox"
-        aria-labelledby="dropdown-utensils-button">
-        ${renderDropdownSearch("utensils")}
-        <ul class="dropdown-list" id="dropdown-utensils-list"></ul>
-      </div>
-    </div>
-  `;
-};
-
-export const appliancesDropdown = () => {
-  return `
-    <div 
-      class="dropdown-container"
-      id="dropdown-appliances-container"
-      data-type="appliances">
-
-      <button
-        type="button"
-        class="filter-dropdown"
-        id="dropdown-appliances-button"
-        aria-expanded="false"
-        aria-controls="menu-appliances"
-        aria-label="Ouvrir le menu appliances">
-        <span class="dropdown-count" id="dropdown-appliances-count" aria-label="Nombre d'éléments"></span>
-        <span class="filter-label">Appareils</span>
-        <i class="ri-arrow-down-s-line"></i>
-      </button>
-
-      <div
-        class="dropdown-backdrop"
-        id="dropdown-appliances-backdrop"
-        aria-hidden="true"
-        data-type="appliances">
-      </div>
-      
-      <div
-        class="dropdown-menu"
-        id="menu-appliances"
-        aria-hidden="true"
-        role="listbox"
-        aria-labelledby="dropdown-appliances-button"
-        data-type="appliances">
-        ${renderDropdownSearch("appliances")}
-        <ul class="dropdown-list" id="dropdown-appliances-list" data-type="appliances"></ul>
+        aria-labelledby="dropdown-${type}-button">
+        ${renderDropdownSearch(type)}
+        <ul class="dropdown-list" id="dropdown-${type}-list"></ul>
       </div>
     </div>
   `;

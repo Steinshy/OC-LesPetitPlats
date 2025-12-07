@@ -2,18 +2,13 @@
 
 import { lru } from "tiny-lru";
 
-// ---------------
-// config
-// ---------------
-
+// Configuration
 const MAX_ITEMS = 500;
-const DEFAULT_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const DEFAULT_TTL_MS = 1000 * 60 * 5;
 
 export const appCache = lru(MAX_ITEMS);
 
-// ---------------
-// internals
-// ---------------
+// Internals
 
 const buildRecord = (value, ttlMs) => {
   const ttl = typeof ttlMs === "number" && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS;
@@ -30,9 +25,7 @@ const getRecord = key => {
   return record;
 };
 
-// ---------------
-// public api
-// ---------------
+// Public API
 
 export const cacheGet = key => getRecord(key)?.value;
 
@@ -44,7 +37,6 @@ export const cacheHas = key => getRecord(key) !== undefined;
 
 export const cacheDel = key => appCache.delete(key);
 
-// Get from cache or fetch and store
 export const cacheGetOrSet = async (key, fetcher, ttlMs) => {
   const cached = cacheGet(key);
   if (cached !== undefined) {

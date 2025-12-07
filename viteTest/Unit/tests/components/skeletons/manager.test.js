@@ -6,20 +6,13 @@ import {
 } from "@/components/skeletons/manager.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
-// Mock dropdownsElements to return containers (plural) as expected by skeletons/manager.js
-// Note: The source code uses 'containers' but dropdownsElements() returns 'container'
-// This mock fixes the mismatch for tests
 vi.mock("@/components/dropdowns/elements.js", async () => {
   const actual = await vi.importActual("@/components/dropdowns/elements.js");
   return {
     ...actual,
     dropdownsElements: () => {
       const result = actual.dropdownsElements();
-      // Map container to containers to match what skeletons/manager.js expects
-      return {
-        ...result,
-        containers: result.container,
-      };
+      return result;
     },
   };
 });

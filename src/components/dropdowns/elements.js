@@ -31,7 +31,6 @@ export const dropdownListElements = type => ({
   emptyState: document.getElementById(`dropdown-${type}-empty-state`),
 });
 
-// Need to check that closer
 // Get selector for a dropdown item button
 export const getDropdownItemSelector = (type, value) =>
   `.dropdown-item.item-btn[data-type="${type}"][data-value="${normalizeString(value)}"]`;

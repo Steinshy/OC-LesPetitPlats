@@ -9,11 +9,10 @@ import { filtersElements } from "@components/filters/elements.js";
 import { renderFilterTag } from "@components/filters/render.js";
 import { filtersState } from "@components/filters/state.js";
 import { searchElements } from "@components/search/elements.js";
+import { ariaHidden } from "@utils/constants.js";
 import { applyAllFilters } from "@utils/filterEngine.js";
 import { normalizeString } from "@utils/normalize.js";
 import { parseURLState, clearURLState } from "@utils/urlState.js";
-
-const ARIA_HIDDEN = "aria-hidden";
 
 const updateDropdownItem = (item, selected) => {
   item.classList.toggle("selected", selected);
@@ -62,7 +61,7 @@ const updateContainer = () => {
   const hasFilters = total > 0;
   section?.classList.toggle("has-filters", hasFilters);
   clearBtn.classList.toggle("visible", hasFilters);
-  clearBtn.setAttribute(ARIA_HIDDEN, String(!hasFilters));
+  clearBtn.setAttribute(ariaHidden, String(!hasFilters));
   const text =
     total === 0
       ? "Aucun filtre sélectionné"
@@ -70,7 +69,7 @@ const updateContainer = () => {
         ? `${total} filtres sélectionnés`
         : `${total} filtre sélectionné`;
   count.textContent = text;
-  count.setAttribute(ARIA_HIDDEN, String(!hasFilters));
+  count.setAttribute(ariaHidden, String(!hasFilters));
 };
 
 const updateTags = () => {
@@ -94,6 +93,13 @@ const updateTags = () => {
   tagsList.appendChild(fragment);
 };
 
+const removeFilter = (type, value) => {
+  filtersState.filters[type]?.delete(value);
+  const item = document.querySelector(getDropdownItemSelector(type, value));
+  if (item) updateDropdownItem(item, false);
+  syncUI();
+};
+
 const removeTag = (type, value) => {
   const { tagsList } = filtersElements();
   const tagId = `filter-tag-${type}-${normalizeString(value)}`;
@@ -101,17 +107,9 @@ const removeTag = (type, value) => {
 
   if (tagElement) {
     tagElement.classList.add("removing");
-    setTimeout(() => {
-      filtersState.filters[type]?.delete(value);
-      const item = document.querySelector(getDropdownItemSelector(type, value));
-      if (item) updateDropdownItem(item, false);
-      syncUI();
-    }, 150);
+    setTimeout(() => removeFilter(type, value), 150);
   } else {
-    filtersState.filters[type]?.delete(value);
-    const item = document.querySelector(getDropdownItemSelector(type, value));
-    if (item) updateDropdownItem(item, false);
-    syncUI();
+    removeFilter(type, value);
   }
 };
 
@@ -136,53 +134,43 @@ const syncUI = () => {
     updateTags();
     syncDropdownSelections();
 
-    requestAnimationFrame(() => {
-      document.dispatchEvent(
-        new CustomEvent("filters:stateChanged", {
-          detail: { filteredRecipes: filtersState.filteredRecipes, filters: filtersState.filters },
-        }),
-      );
-    });
+    document.dispatchEvent(
+      new CustomEvent("filters:stateChanged", {
+        detail: { filteredRecipes: filtersState.filteredRecipes, filters: filtersState.filters },
+      }),
+    );
   });
+};
+
+const performClear = () => {
+  filtersState.filters.search = "";
+  filtersState.filters.ingredients.clear();
+  filtersState.filters.appliances.clear();
+  filtersState.filters.utensils.clear();
+
+  const { input, clear, submit } = searchElements();
+  if (input) {
+    input.value = "";
+    clear?.classList.add("hidden");
+    submit?.classList.remove("hidden");
+  }
+
+  getSelectedDropdownItems().forEach(item => updateDropdownItem(item, false));
+  clearURLState();
+  syncUI();
 };
 
 const clearAll = () => {
   const { allTags } = filtersElements();
+  const hasTags = allTags && allTags.length > 0;
 
-  if (allTags && allTags.length > 0) {
+  if (hasTags) {
+    // If tags exist, add animation class and wait
     allTags.forEach(li => li.classList.add("removing"));
-    setTimeout(() => {
-      filtersState.filters.search = "";
-      filtersState.filters.ingredients.clear();
-      filtersState.filters.appliances.clear();
-      filtersState.filters.utensils.clear();
-
-      const { input, clear, submit } = searchElements();
-      if (input) {
-        input.value = "";
-        clear?.classList.add("hidden");
-        submit?.classList.remove("hidden");
-      }
-
-      getSelectedDropdownItems().forEach(item => updateDropdownItem(item, false));
-      clearURLState();
-      syncUI();
-    }, 150);
+    setTimeout(() => performClear(), 150);
   } else {
-    filtersState.filters.search = "";
-    filtersState.filters.ingredients.clear();
-    filtersState.filters.appliances.clear();
-    filtersState.filters.utensils.clear();
-
-    const { input, clear, submit } = searchElements();
-    if (input) {
-      input.value = "";
-      clear?.classList.add("hidden");
-      submit?.classList.remove("hidden");
-    }
-    getSelectedDropdownItems().forEach(item => updateDropdownItem(item, false));
-    clearURLState();
-    syncUI();
+    // If no tags, clear immediately
+    performClear();
   }
 };
 

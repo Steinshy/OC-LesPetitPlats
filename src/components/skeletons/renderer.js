@@ -1,30 +1,5 @@
 // src/components/skeletonsRenderer.js
 
-export const searchBarSkeleton = () => {
-  return `
-    <div class="search-bar" id="search-bar">
-      <div class="search-bar-container" id="search-bar-container">
-        <label for="search-input" class="sr-only">Rechercher une recette, un ingrédient</label>
-
-        <input 
-          type="text" 
-          id="search-input"
-          name="search-input"
-          placeholder="Rechercher une recette, un ingrédient..."
-          disabled>
-
-        <button type="button" id="search-clear-button" class="search-clear-btn hidden" aria-label="Effacer la recherche" disabled>
-          <i class="ri-close-line" aria-hidden="true"></i>
-        </button>
-
-        <button type="button" id="search-submit-button" aria-label="Lancer la recherche" class="search-button" disabled>
-          <i class="ri-search-line" aria-hidden="true"></i>
-        </button>
-      </div>
-    </div>
-  `;
-};
-
 export const dropdownsSkeleton = () => {
   return `
     <div class="dropdown-container" id="dropdown-ingredients-container" data-type="ingredients">

@@ -5,7 +5,6 @@ import { launch } from "chrome-launcher";
 import lighthouse from "lighthouse";
 import { BASE_PATH, PORT, OUT_DIR } from "../vite.config.js";
 
-// Configuration constants
 const CONFIG = {
   PROJECT_ROOT: process.cwd(),
   DEFAULT_URL: `http://localhost:${PORT}${BASE_PATH}`,
@@ -27,16 +26,10 @@ const CONFIG = {
 const DIST_DIR = join(CONFIG.PROJECT_ROOT, CONFIG.DIST_DIR);
 const INDEX_PATH = join(DIST_DIR, "index.html");
 
-/**
- * Checks if the build output exists and is non-empty
- */
 const isBuildComplete = () => {
   return existsSync(INDEX_PATH) && statSync(INDEX_PATH).size > 0;
 };
 
-/**
- * Waits for the build to complete by checking for the index.html file
- */
 const waitForBuild = () => {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
@@ -62,16 +55,10 @@ const waitForBuild = () => {
   });
 };
 
-/**
- * Gets the audit URL from command line arguments or uses the default
- */
 const getAuditUrl = () => {
   return process.argv[2] || CONFIG.DEFAULT_URL;
 };
 
-/**
- * Creates output file paths for HTML and JSON reports
- */
 const createOutputPaths = () => {
   const reportDir = join(CONFIG.PROJECT_ROOT, CONFIG.REPORT_DIR);
   mkdirSync(reportDir, { recursive: true });
@@ -85,19 +72,13 @@ const createOutputPaths = () => {
   };
 };
 
-/**
- * Creates Lighthouse configuration options
- */
-const createLighthouseOptions = (port) => ({
+const createLighthouseOptions = port => ({
   logLevel: "info",
   output: ["html", "json"],
   onlyCategories: CONFIG.CATEGORIES,
   port,
 });
 
-/**
- * Saves HTML and JSON reports to disk
- */
 const saveReports = ([htmlReport, jsonReport], { html, json }) => {
   writeFileSync(html, htmlReport);
   writeFileSync(json, jsonReport);
@@ -105,19 +86,13 @@ const saveReports = ([htmlReport, jsonReport], { html, json }) => {
   console.log(`JSON report saved to: ${json}`);
 };
 
-/**
- * Formats category name for display
- */
-const formatCategoryName = (key) => {
+const formatCategoryName = key => {
   if (key === "best-practices") {
     return "Best Practices";
   }
   return key.charAt(0).toUpperCase() + key.slice(1);
 };
 
-/**
- * Displays Lighthouse scores for all categories
- */
 const displayScores = ({ lhr: { categories } }) => {
   console.log("\n=== Lighthouse Scores ===");
   Object.entries(categories).forEach(([key, { score }]) => {
@@ -127,31 +102,27 @@ const displayScores = ({ lhr: { categories } }) => {
   });
 };
 
-/**
- * Checks if the server is responding
- */
 const checkServerHealth = (hostname, port, pathname) => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const request = http.get(
       { hostname, port, path: pathname, timeout: CONFIG.TIMEOUTS.HTTP_REQUEST },
-      (response) => {
+      response => {
         response.resume();
         const isReady = response.statusCode === 200 || response.statusCode === 404;
         resolve(isReady);
       },
     );
 
-    request.on("error", () => resolve(false)).on("timeout", () => {
-      request.destroy();
-      resolve(false);
-    });
+    request
+      .on("error", () => resolve(false))
+      .on("timeout", () => {
+        request.destroy();
+        resolve(false);
+      });
   });
 };
 
-/**
- * Waits for the server to become ready by polling its health endpoint
- */
-const waitForServer = async (url) => {
+const waitForServer = async url => {
   const { hostname, port, pathname } = new URL(url);
   const startTime = Date.now();
 
@@ -169,14 +140,11 @@ const waitForServer = async (url) => {
       return;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, CONFIG.INTERVALS.SERVER_RETRY));
+    await new Promise(resolve => setTimeout(resolve, CONFIG.INTERVALS.SERVER_RETRY));
   }
 };
 
-/**
- * Runs the complete Lighthouse audit process
- */
-const runAudit = async (url) => {
+const runAudit = async url => {
   const chrome = await launch({ chromeFlags: CONFIG.CHROME_FLAGS });
 
   try {

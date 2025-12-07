@@ -20,7 +20,6 @@ const fetchRecipes = async () => {
       return err(error instanceof Error ? error : new Error(String(error)));
     }
   });
-  return result.isOk ? result : ok(result);
 };
 
 export { fetchRecipes };
