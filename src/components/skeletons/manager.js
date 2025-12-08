@@ -3,7 +3,7 @@ import { cardsElements } from "@components/cards/elements.js";
 import { dropdownsElements } from "@components/dropdowns/elements.js";
 import { headerElement } from "@components/header.js";
 import { searchElements } from "@components/search/elements.js";
-import { cardSkeleton, dropdownsSkeleton } from "@components/skeletons/renderer.js";
+import { cardSkeleton, dropdownSkeleton } from "@components/skeletons/renderer.js";
 
 // ---------------
 // search skeleton
@@ -50,19 +50,20 @@ export const headerSkeleton = () => ({
 // ---------------
 // dropdowns skeleton
 // ---------------
-
-export const dropdownsSkeletons = () => ({
+export const dropdownsSkeleton = () => ({
   show: () => {
-    const { containers } = dropdownsElements(); // Root container
+    const { containers } = dropdownsElements();
     if (!containers) return;
-    containers.classList.add("skeleton");
-    containers.innerHTML = dropdownsSkeleton();
+
+    containers.innerHTML = Array.from({ length: 3 }, () => dropdownSkeleton()).join("");
   },
 
   hide: () => {
-    const { containers } = dropdownsElements(); // Root container
+    const { containers } = dropdownsElements();
     if (!containers) return;
-    containers.classList.remove("skeleton");
+    containers.querySelectorAll(".dropdown-container.skeleton").forEach(skeleton => {
+      skeleton.remove();
+    });
   },
 });
 
@@ -97,6 +98,6 @@ export const cardsSkeletons = () => ({
 export const setupSkeletons = () => {
   headerSkeleton().show();
   searchSkeleton().show();
-  dropdownsSkeletons().show();
+  dropdownsSkeleton().show();
   cardsSkeletons().show();
 };

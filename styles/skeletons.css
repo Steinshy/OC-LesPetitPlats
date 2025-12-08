@@ -68,9 +68,17 @@
     position: relative;
   }
 
+  .dropdown-container.skeleton .filter-dropdown {
+    min-width: 140px;
+  }
+
   @media (width <= 767px) {
     .dropdown-container.skeleton {
       width: 80%;
+    }
+
+    .dropdown-container.skeleton .filter-dropdown {
+      min-width: auto;
     }
   }
 }

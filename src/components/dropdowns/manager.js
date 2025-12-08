@@ -16,7 +16,7 @@ import { filtersState } from "@components/filters/state.js";
 import { isScrolledPastHeader } from "@components/header.js";
 import { lockScroll, unlockScroll } from "@components/scrollLock.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
-import { dropdownsSkeletons } from "@components/skeletons/manager.js";
+import { dropdownsSkeleton } from "@components/skeletons/manager.js";
 import { ariaHidden } from "@utils/constants.js";
 import { isMobile } from "@utils/device.js";
 import { filterDropdownItems } from "@utils/filterEngine.js";
@@ -36,10 +36,10 @@ export const setupDropdowns = recipesData => {
   currentDropdownsData = dropdownsData.dropdowns || {};
   dropdownTypes = Object.keys(currentDropdownsData) || [];
 
-  dropdownsSkeletons().show();
+  dropdownsSkeleton().show();
   containers.innerHTML =
     renderDropdown("ingredients") + renderDropdown("utensils") + renderDropdown("appliances");
-  dropdownsSkeletons().hide();
+  dropdownsSkeleton().hide();
   setupDropdownListeners(dropdownTypes);
 
   dropdownTypes.forEach(type => {
@@ -62,9 +62,7 @@ export const stickyDropdowns = () => {
     section.style.width = "";
   };
 
-  // 📱 Mobile: fixed bar at top, full width, disabled while bottom sheet is open
   if (isMobile()) {
-    // If the bottom sheet is open, we don’t want the bar to be sticky/fixed
     if (sheetOpen || !shouldStick) {
       section.classList.remove("is-sticky");
       clearInlineStyles();
@@ -340,6 +338,10 @@ const updateDropdownList = type => {
   }
 };
 
-document.addEventListener("keydown", interactionHandlers.escapeKey);
-document.addEventListener("click", interactionHandlers.click);
-window.addEventListener("resize", stickyDropdowns);
+export const setupDropdownInteractions = () => {
+  if (!dropdownTypes?.length) return;
+
+  document.addEventListener("keydown", interactionHandlers.escapeKey);
+  document.addEventListener("click", interactionHandlers.click);
+  window.addEventListener("resize", stickyDropdowns);
+};

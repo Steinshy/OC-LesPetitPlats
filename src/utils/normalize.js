@@ -6,13 +6,20 @@ export const normalizeString = value =>
     .trim()
     .toLowerCase();
 
+export const singularize = normalized => {
+  const value = String(normalized || "").trim();
+  if (!value) return "";
+  if (value.length <= 3) return value;
+  if (value.endsWith("s")) return value.slice(0, -1);
+  return value;
+};
+
 const cleanLabel = raw => {
   const cleaned = String(raw ?? "")
     .replace(/\s*\([^)]*\)/g, "")
     .trim();
 
   if (!cleaned) return "";
-
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
 };
 
@@ -25,7 +32,7 @@ export const toFilterItem = raw => {
 
   if (!label) return null;
 
-  const key = normalized.replace(/s\b/g, "");
+  const key = singularize(normalized);
   if (!key) return null;
 
   return { label, value: normalized, key };
