@@ -1,0 +1,39 @@
+@startuml
+start
+
+:User focuses main search input (hero input);
+:User types at least 3 characters;
+
+repeat
+  :Take next recipe from initialRecipes array;
+
+  if (Title contains search term?) then (yes)
+    :Add recipe to results[];
+  else (no)
+    if (Any ingredient contains term?) then (yes)
+      :Add recipe to results[];
+    else (no)
+      if (Description contains term?) then (yes)
+        :Add recipe to results[];
+      else (no)
+        :Skip recipe;
+      endif
+    endif
+  endif
+
+repeat while (More recipes in initialRecipes?) is (yes)
+-> yes;
+end repeat
+-> no;
+
+if (results[] is empty?) then (yes)
+  :Show "No recipes to display";
+else (no)
+  :Render recipes from results[];
+endif
+
+:Update advanced filters (dropdown options)
+based on results[];
+
+stop
+@enduml

@@ -8,7 +8,7 @@
     Interface intuitive avec recherche en temps réel, filtres avancés par ingrédients, appareils et ustensiles, et affichage optimisé des résultats.
   </p>
   <p>
-    <img src="public/mockup/all-devices-white.png" alt="Aperçu multi-appareils de Les Petits Plats" width="700" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
+    <img src="public/mockup/mockup.png" alt="Aperçu multi-appareils de Les Petits Plats" width="700" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
   </p>
 
   <p>

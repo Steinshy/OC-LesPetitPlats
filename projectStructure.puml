@@ -1,0 +1,149 @@
+@startuml projectStructure
+!theme carbon-gray
+top to bottom direction
+allowmixing
+
+' ---------------------
+' Style
+' ---------------------
+' General style
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam ArrowStyle none
+
+' Rectangle style
+skinparam rectangle {
+  RoundCorner 25
+  BorderColor $PRIMARY_DARK
+}
+
+' Package style
+skinparam package {
+  BackgroundColor transparent
+}
+
+' Component style
+skinparam component {
+	BackgroundColor $GRAY_10
+	BorderColor $PRIMARY_DARK
+  BorderThickness 0
+  FontName "Inter"
+  FontSize 16
+  FontStyle normal
+}
+
+' Node style
+skinparam node {
+	BackgroundColor $GRAY_10
+	BorderColor $PRIMARY_DARK
+	FontColor $PRIMARY_TEXT
+	Roundcorner 0
+}
+
+' ---------------------
+' Structure
+' ---------------------
+LesPetitsPlats -[hidden]-> Initializers
+LesPetitsPlats -[hidden]-> ComponentManagers
+
+' Decision node for conditional flow
+rectangle "match()" as Decision #LightBlue
+node "SuccessPath" as SuccessPath #LightGreen
+node "ErrorPath" as ErrorPath #Red
+
+' LesPetitsPlats node
+package "LesPetitsPlats" as LesPetitsPlats {
+  node "initApp"
+}
+
+
+
+package "Initializers" as Initializers {
+  folder "Setup" as Setup {
+    file "Skeletons"
+    file "ScrollToTop"
+    file "Coordinator"
+    file "DropdownsManager"
+
+    Skeletons -down-> ScrollToTop
+    ScrollToTop -down-> Coordinator
+    Coordinator -down-> DropdownsManager
+  }
+
+  folder "Fetcher" as Fetcher {
+    file "RecipeApi"
+    file "Cache"
+    file "Config"
+
+    RecipeApi -down-> Cache
+    Cache -down-> Config
+  }
+
+  folder "Builder" as Builder {
+    file "buildRecipesData"
+  }
+
+  
+  folder "Results" as Results {
+    file "recipesResult"
+  }
+  Setup -[hidden]-> Fetcher
+  Fetcher -[hidden]-> Builder
+  Builder -[hidden]-> Results
+}
+Setup --> Fetcher
+Fetcher --> Builder
+Builder --> Results
+' Conditional flow from recipesResult
+LesPetitsPlats --> Initializers
+Results -right-> Decision
+Decision -down-> SuccessPath
+Decision -up-> ErrorPath
+ErrorPath -up-> LesPetitsPlats
+
+SuccessPath -down-> ComponentManagers
+package "Component Managers" as ComponentManagers {
+  file "setupFilters"
+  file "setupSearchBar"
+  file "setupDropdowns"
+  file "setupRecipesCards"
+  file "setupHeader"
+  file "setupResultsCounter"
+  file "setupScrollLock"
+}
+
+package "UI Elements & Renderers" {
+  file "SearchElements"
+  file "FiltersElements"
+  file "FiltersRender"
+  file "DropdownsElements"
+  file "DropdownsRender"
+  file "CardsElements"
+  file "CardsRender"
+  file "SkeletonsRenderer"
+}
+
+package "Domain Logic" {
+  file "FilterEngine"
+  file "Normalize"
+  file "ImageTracker"
+}
+
+package "State Management" {
+  file "FiltersState"
+  file "FiltersData"
+  file "DropdownsData"
+  file "UrlState"
+}
+
+package "Infrastructure" {
+  file "Device"
+  file "Toast"
+  file "ScrollLock"
+  file "Constants"
+}
+
+
+@enduml
