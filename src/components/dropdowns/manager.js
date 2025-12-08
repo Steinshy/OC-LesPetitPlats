@@ -45,6 +45,10 @@ export const setupDropdowns = recipesData => {
   dropdownTypes.forEach(type => {
     updateDropdownList(type);
   });
+
+  document.addEventListener("keydown", interactionHandlers.escapeKey);
+  document.addEventListener("click", interactionHandlers.click);
+  window.addEventListener("resize", stickyDropdowns);
 };
 
 export const stickyDropdowns = () => {
@@ -336,12 +340,4 @@ const updateDropdownList = type => {
   if (searchWrapper) {
     searchWrapper.classList.toggle("show", allItems.length > 0);
   }
-};
-
-export const setupDropdownInteractions = () => {
-  if (!dropdownTypes?.length) return;
-
-  document.addEventListener("keydown", interactionHandlers.escapeKey);
-  document.addEventListener("click", interactionHandlers.click);
-  window.addEventListener("resize", stickyDropdowns);
 };

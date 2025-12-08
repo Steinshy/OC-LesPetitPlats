@@ -46,12 +46,11 @@ skinparam node {
 ' Structure
 ' ---------------------
 LesPetitsPlats -[hidden]-> Initializers
-LesPetitsPlats -[hidden]-> ComponentManagers
-
+LesPetitsPlats -down-> Initializers
 ' Decision node for conditional flow
-rectangle "match()" as Decision #LightBlue
-node "SuccessPath" as SuccessPath #LightGreen
-node "ErrorPath" as ErrorPath #Red
+rectangle "match" as Decision #LightBlue
+node "Success" as Success #LightGreen
+node "Error" as Error #Red
 
 ' LesPetitsPlats node
 package "LesPetitsPlats" as LesPetitsPlats {
@@ -59,91 +58,110 @@ package "LesPetitsPlats" as LesPetitsPlats {
 }
 
 
+Initializers -[hidden]->  Error
+Error -up-> LesPetitsPlats : "Show Toast"
 
 package "Initializers" as Initializers {
   folder "Setup" as Setup {
     file "Skeletons"
     file "ScrollToTop"
     file "Coordinator"
-    file "DropdownsManager"
-
     Skeletons -down-> ScrollToTop
     ScrollToTop -down-> Coordinator
-    Coordinator -down-> DropdownsManager
   }
 
   folder "Fetcher" as Fetcher {
     file "RecipeApi"
     file "Cache"
     file "Config"
-
     RecipeApi -down-> Cache
     Cache -down-> Config
   }
 
-  folder "Builder" as Builder {
-    file "buildRecipesData"
+  folder "Recipes" as Recipes {
+    file "Build"
+    file "Results"
+    Build -down-> Results
   }
-
   
-  folder "Results" as Results {
-    file "recipesResult"
+  Setup -right-> Fetcher
+  Fetcher -right-> Recipes  
+}
+
+Results -right-> Error
+Results -down-> Decision : "Show Recipes"
+Decision -down-> Success : "Hide Skeletons"
+Success -right-> Components
+
+package "Components" as Components {
+  file "ResultsCounter"
+  file "Header" as headerComponent
+  
+  package "Search" as searchManager {
+    file "SearchManager"
+    file "SearchElements"
+    file "SearchRender"
+    file "SearchState"
+    SearchManager -down-> SearchElements
+    SearchElements -down-> SearchRender
+    SearchRender -down-> SearchState
   }
-  Setup -[hidden]-> Fetcher
-  Fetcher -[hidden]-> Builder
-  Builder -[hidden]-> Results
+  
+  package "Cards" as cardsManager {
+    file "CardsManager"
+    file "CardsElements"
+    file "CardsRender"
+    file "CardsState"
+    CardsManager -down-> CardsElements
+    CardsElements -down-> CardsRender
+    CardsRender -down-> CardsState
+  }
+  
+  package "Dropdowns" as dropdownsManager {
+    file "DropdownsManager"
+    file "DropdownsElements"
+    file "DropdownsRender"
+    file "DropdownsState"
+    DropdownsManager -down-> DropdownsElements
+    DropdownsElements -down-> DropdownsRender
+    DropdownsRender -down-> DropdownsState
+  }
+  
+  package "Filters" as filtersManager {
+    file "FiltersManager"
+    file "FiltersElements"
+    file "FiltersRender"
+    file "FiltersState"
+    FiltersManager -down-> FiltersElements
+    FiltersElements -down-> FiltersRender
+    FiltersRender -down-> FiltersState
+  }
+
+  package "Skeletons" as skeletonsManager {
+    file "SkeletonsManager"
+    file "SkeletonsRender"
+    file "SkeletonsState"
+    SkeletonsManager -down-> SkeletonsRender
+    SkeletonsRender -down-> SkeletonsState
+  }
 }
-Setup --> Fetcher
-Fetcher --> Builder
-Builder --> Results
-' Conditional flow from recipesResult
-LesPetitsPlats --> Initializers
-Results -right-> Decision
-Decision -down-> SuccessPath
-Decision -up-> ErrorPath
-ErrorPath -up-> LesPetitsPlats
+' package "Domain Logic" {
+'   file "FilterEngine"
+'   file "Normalize"
+'   file "ImageTracker"
+' }
 
-SuccessPath -down-> ComponentManagers
-package "Component Managers" as ComponentManagers {
-  file "setupFilters"
-  file "setupSearchBar"
-  file "setupDropdowns"
-  file "setupRecipesCards"
-  file "setupHeader"
-  file "setupResultsCounter"
-  file "setupScrollLock"
-}
+' package "State Management" {
+'   file "FiltersState"
+'   file "FiltersData"
+'   file "DropdownsData"
+'   file "UrlState"
+' }
 
-package "UI Elements & Renderers" {
-  file "SearchElements"
-  file "FiltersElements"
-  file "FiltersRender"
-  file "DropdownsElements"
-  file "DropdownsRender"
-  file "CardsElements"
-  file "CardsRender"
-  file "SkeletonsRenderer"
-}
-
-package "Domain Logic" {
-  file "FilterEngine"
-  file "Normalize"
-  file "ImageTracker"
-}
-
-package "State Management" {
-  file "FiltersState"
-  file "FiltersData"
-  file "DropdownsData"
-  file "UrlState"
-}
-
-package "Infrastructure" {
-  file "Device"
-  file "Toast"
-  file "ScrollLock"
-  file "Constants"
-}
-
-
+' package "Infrastructure" {
+'   file "Device"
+'   file "Toast"
+'   file "ScrollLock"
+'   file "Constants"
+' }
 @enduml

@@ -1,7 +1,7 @@
 // src/App.js
 import { setupCoordinator } from "@/coordinator.js";
 import { setupRecipesCards } from "@components/cards/manager.js";
-import { setupDropdownInteractions, setupDropdowns } from "@components/dropdowns/manager.js";
+import { setupDropdowns } from "@components/dropdowns/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
 import { setupHeader } from "@components/header.js";
 import { setupResultsCounter } from "@components/resultsCounter.js";
@@ -18,7 +18,6 @@ const initApp = async () => {
   setupSkeletons();
   setupScrollToTop();
   setupCoordinator();
-  setupDropdownInteractions();
 
   // Fetch + transform recipes
   const recipesResult = await buildRecipesData();
