@@ -41,14 +41,17 @@ skinparam node {
 	FontColor $PRIMARY_TEXT
 	Roundcorner 0
 }
-
+  ' file "ResultsCounter"
+  ' file "Header" as headerInteraction
+  ' file "ScrollToTop" as scrollToTopInteraction
 ' ---------------------
 ' Structure
 ' ---------------------
 LesPetitsPlats -[hidden]-> Initializers
-LesPetitsPlats -down-> Initializers
+LesPetitsPlats -left-> Initializers
+
 ' Decision node for conditional flow
-rectangle "match" as Decision #LightBlue
+
 node "Success" as Success #LightGreen
 node "Error" as Error #Red
 
@@ -57,17 +60,13 @@ package "LesPetitsPlats" as LesPetitsPlats {
   node "initApp"
 }
 
-
-Initializers -[hidden]->  Error
-Error -up-> LesPetitsPlats : "Show Toast"
-
 package "Initializers" as Initializers {
   folder "Setup" as Setup {
-    file "Skeletons"
-    file "ScrollToTop"
-    file "Coordinator"
-    Skeletons -down-> ScrollToTop
-    ScrollToTop -down-> Coordinator
+    file "Skeletons" as SkeletonsInitializer
+    file "ScrollToTop" as ScrollToTopInitializer
+    file "Coordinator" as CoordinatorInitializer
+    SkeletonsInitializer -down-> ScrollToTopInitializer
+    ScrollToTopInitializer -down-> CoordinatorInitializer
   }
 
   folder "Fetcher" as Fetcher {
@@ -77,91 +76,56 @@ package "Initializers" as Initializers {
     RecipeApi -down-> Cache
     Cache -down-> Config
   }
+  Setup -> Fetcher
 
   folder "Recipes" as Recipes {
     file "Build"
-    file "Results"
-    Build -down-> Results
+    file "Results" as ResultsBlock
+    rectangle "Results Match" as ResultsDecision #LightBlue
+    Build -down-> ResultsBlock
+    ResultsBlock -down-> ResultsDecision #LightBlue
+    ResultsDecision -[#LightGreen]-> Success
+    ResultsDecision -[#Red]-> Error
   }
-  
-  Setup -right-> Fetcher
-  Fetcher -right-> Recipes  
+  Fetcher -> Recipes
 }
 
-Results -right-> Error
-Results -down-> Decision : "Show Recipes"
-Decision -down-> Success : "Hide Skeletons"
-Success -right-> Components
-
-package "Components" as Components {
-  file "ResultsCounter"
-  file "Header" as headerComponent
-  
-  package "Search" as searchManager {
-    file "SearchManager"
-    file "SearchElements"
-    file "SearchRender"
-    file "SearchState"
-    SearchManager -down-> SearchElements
-    SearchElements -down-> SearchRender
-    SearchRender -down-> SearchState
-  }
-  
-  package "Cards" as cardsManager {
-    file "CardsManager"
-    file "CardsElements"
-    file "CardsRender"
-    file "CardsState"
-    CardsManager -down-> CardsElements
-    CardsElements -down-> CardsRender
-    CardsRender -down-> CardsState
-  }
-  
-  package "Dropdowns" as dropdownsManager {
-    file "DropdownsManager"
-    file "DropdownsElements"
-    file "DropdownsRender"
-    file "DropdownsState"
-    DropdownsManager -down-> DropdownsElements
-    DropdownsElements -down-> DropdownsRender
-    DropdownsRender -down-> DropdownsState
-  }
-  
-  package "Filters" as filtersManager {
-    file "FiltersManager"
-    file "FiltersElements"
-    file "FiltersRender"
-    file "FiltersState"
-    FiltersManager -down-> FiltersElements
-    FiltersElements -down-> FiltersRender
-    FiltersRender -down-> FiltersState
+package "Managers" as managersBlock {
+  folder "Search" {
+    file "elements" as searchElements
+    file "state" as searchState
+    file "render" as searchRender
   }
 
-  package "Skeletons" as skeletonsManager {
-    file "SkeletonsManager"
-    file "SkeletonsRender"
-    file "SkeletonsState"
-    SkeletonsManager -down-> SkeletonsRender
-    SkeletonsRender -down-> SkeletonsState
+  folder "Cards" {
+    file "elements" as cardsElements
+    file "state" as cardsState
+    file "render" as cardsRender
+  }
+
+  folder "Dropdowns" {
+    file "elements" as dropdownsElements
+    file "state" as dropdownsState
+    file "render" as dropdownsRender
+  }
+
+  folder "Filters" {
+    file "elements" as filtersElements
+    file "state" as filtersState
+    file "render" as filtersRender
   }
 }
-' package "Domain Logic" {
-'   file "FilterEngine"
-'   file "Normalize"
-'   file "ImageTracker"
-' }
+Success -> managersBlock #LightGreen
 
-' package "State Management" {
-'   file "FiltersState"
-'   file "FiltersData"
-'   file "DropdownsData"
-'   file "UrlState"
-' }
+package "User Interactions" as UserInteractions {
+  file "Search" as searchingInteraction
+  file "Dropdowns" as dropdownsInteraction
+  file "Filters" as filtersInteraction
+  searchingInteraction --> filtersInteraction
+  dropdownsInteraction --> filtersInteraction
+}
+UserInteractions -> Error #Red : "Aucun résultat trouvé"
+LesPetitsPlats -> Error #Red : "Erreur recuperation recettes"
+managersBlock -> UserInteractions
 
-' package "Infrastructure" {
-'   file "Device"
-'   file "Toast"
-'   file "ScrollLock"
-'   file "Constants"
-' }
 @enduml
