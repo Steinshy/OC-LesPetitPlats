@@ -41,21 +41,13 @@ skinparam node {
 	FontColor $PRIMARY_TEXT
 	Roundcorner 0
 }
-  ' file "ResultsCounter"
-  ' file "Header" as headerInteraction
-  ' file "ScrollToTop" as scrollToTopInteraction
+
 ' ---------------------
-' Structure
+' Application Structure
 ' ---------------------
 LesPetitsPlats -[hidden]-> Initializers
 LesPetitsPlats -left-> Initializers
 
-' Decision node for conditional flow
-
-node "Success" as Success #LightGreen
-node "Error" as Error #Red
-
-' LesPetitsPlats node
 package "LesPetitsPlats" as LesPetitsPlats {
   node "initApp"
 }
@@ -65,6 +57,7 @@ package "Initializers" as Initializers {
     file "Skeletons" as SkeletonsInitializer
     file "ScrollToTop" as ScrollToTopInitializer
     file "Coordinator" as CoordinatorInitializer
+
     SkeletonsInitializer -down-> ScrollToTopInitializer
     ScrollToTopInitializer -down-> CoordinatorInitializer
   }
@@ -76,17 +69,18 @@ package "Initializers" as Initializers {
     RecipeApi -down-> Cache
     Cache -down-> Config
   }
+
   Setup -> Fetcher
 
   folder "Recipes" as Recipes {
     file "Build"
     file "Results" as ResultsBlock
     rectangle "Results Match" as ResultsDecision #LightBlue
+
     Build -down-> ResultsBlock
     ResultsBlock -down-> ResultsDecision #LightBlue
-    ResultsDecision -[#LightGreen]-> Success
-    ResultsDecision -[#Red]-> Error
   }
+
   Fetcher -> Recipes
 }
 
@@ -115,17 +109,39 @@ package "Managers" as managersBlock {
     file "render" as filtersRender
   }
 }
-Success -> managersBlock #LightGreen
+
 
 package "User Interactions" as UserInteractions {
+  file "Filters" as filtersInteraction
   file "Search" as searchingInteraction
   file "Dropdowns" as dropdownsInteraction
-  file "Filters" as filtersInteraction
+
   searchingInteraction --> filtersInteraction
   dropdownsInteraction --> filtersInteraction
 }
-UserInteractions -> Error #Red : "Aucun résultat trouvé"
-LesPetitsPlats -> Error #Red : "Erreur recuperation recettes"
-managersBlock -> UserInteractions
+
+package "Status" as Responses {
+  rectangle "Success" as Success #LightGreen
+  rectangle "Error" as Error #Red
+  rectangle "No results" as NoResults #Red 
+  rectangle "Data Loaded" as DataLoaded #LightGreen
+  Error -[hidden]-> NoResults
+  Success -[hidden]-> DataLoaded
+
+  DataLoaded <--> Success #LightGreen
+  NoResults <--> Error #Red
+}
+
+LesPetitsPlats -[hidden]-> Responses
+ResultsDecision -[hidden]-> Responses
+Responses -[hidden]-> UserInteractions
+filtersInteraction -> NoResults #Red
+ResultsDecision -> Success #LightGreen
+ResultsDecision -> NoResults #Red
+initApp --> Error #Red
+
+
+filtersInteraction -> DataLoaded #LightGreen
+DataLoaded -down-> managersBlock #LightGreen
 
 @enduml
