@@ -46,6 +46,7 @@ skinparam node {
 folder "1) States" as StatesBlock {
   file "a. Recipes" as Recipes
   file "b. Render" as Render
+
   
   Recipes -> Render #6BCB77
 }
@@ -74,13 +75,13 @@ folder "3) Interactions" as InteractionsBlock {
   DropdownsInteraction -[hidden]-> SearchInteraction
 }
 
-folder "4) Events" as EventsBlock {
-  rectangle "a. Filters: stateChanged" as FiltersStateChangedEvent #LightGreen
-  rectangle "b. Dropdowns: itemToggled" as DropdownEvent #LightBlue
-  rectangle "c. Filters: searchChanged" as FiltersSearchEvent #LightSkyBlue
+folder "4) EventBus" as EventBusBlock {
+  rectangle "Filters: stateChanged" as EBState #LightGreen
+  rectangle "Dropdowns: itemToggled" as EBItem #LightBlue
+  rectangle "Search: searchChanged" as EBSearch #LightSkyBlue
 
-  FiltersStateChangedEvent -[hidden]-> DropdownEvent
-  DropdownEvent -[hidden]-> FiltersSearchEvent
+  EBState -[hidden]-> EBItem
+  EBItem -[hidden]-> EBSearch
 }
 
 folder "5) Filters" as FiltersBlock {
@@ -90,44 +91,46 @@ folder "5) Filters" as FiltersBlock {
 
   ApplyAllFilters -[hidden]-> FilterByField
   FilterByField -[hidden]-> FilterBySearch
+  FilterByField -up-> ApplyAllFilters
+  FilterBySearch -up-> FilterByField
 }
 
-folder "6) Coordinator" as CoordinatorBlock {
-  file "a. Update UI" as UpdateUI
+folder "6) Go to Render" as GoToRenderBlock {
+  file "a. Go to Render" as GoToRender
 }
 
 ' ---------------------
 ' StatesBlock -> Setup
 ' ---------------------
 StatesBlock -[hidden]-> SetupBlock
-CoordinatorBlock -[hidden]-> EventsBlock
-Render -> SetupFilters #6BCB77
+Render -[hidden]-> SetupFilters
+GoToRenderBlock -[hidden]-> FiltersBlock
+Render -down-> SetupFilters #6BCB77
 
 ' ---------------------
 ' Setup -> User Interactions
 ' ---------------------
-SetupFilters -right-> FiltersInteraction
-SetupDropdowns -right-> DropdownsInteraction
-SetupSearchBar -right-> SearchInteraction
-
+SetupFilters -> FiltersInteraction
+SetupDropdowns -> DropdownsInteraction
+SetupSearchBar -> SearchInteraction
 ' ---------------------
 ' EventsBlock -> Filters
 ' ---------------------
-FiltersInteraction -> FiltersStateChangedEvent
-DropdownsInteraction -> DropdownEvent
-SearchInteraction -> FiltersSearchEvent
+FiltersInteraction -> EBState
+DropdownsInteraction -> EBItem
+SearchInteraction -> EBSearch
 
 ' ---------------------
-' Filters -> Coordinator
+' Filters -> EventBus
 ' ---------------------
-FiltersStateChangedEvent -right-> ApplyAllFilters
-DropdownEvent -right-> FilterByField
-FiltersSearchEvent -right-> FilterBySearch
+EBState -> ApplyAllFilters
+EBItem -> FilterByField
+EBSearch -> FilterBySearch
 
 ' ---------------------
-' Coordinator -> Render
+' Filters -> Go to Render
 ' ---------------------
-FiltersBlock -up-> CoordinatorBlock
-UpdateUI -> Render
+ApplyAllFilters -up-> GoToRender
+GoToRender -> Render
 
 @enduml

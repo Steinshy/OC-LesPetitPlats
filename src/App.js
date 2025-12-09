@@ -1,5 +1,4 @@
 // src/App.js
-import { setupCoordinator } from "@/coordinator.js";
 import { setupRecipesCards } from "@components/cards/manager.js";
 import { setupDropdowns } from "@components/dropdowns/manager.js";
 import { setupFilters } from "@components/filters/manager.js";
@@ -17,7 +16,6 @@ import "@styles/global.css";
 const initApp = async () => {
   setupSkeletons();
   setupScrollToTop();
-  setupCoordinator();
 
   // Fetch + transform recipes
   const recipesResult = await buildRecipesData();

@@ -56,9 +56,10 @@ package "Initializers" as Initializers {
   folder "Setup" as Setup {
     file "Skeletons" as SkeletonsInitializer
     file "ScrollToTop" as ScrollToTopInitializer
-    file "Coordinator" as CoordinatorInitializer
+    file "EventBus" as EventBusInitializer
+
     SkeletonsInitializer -down-> ScrollToTopInitializer
-    ScrollToTopInitializer -down-> CoordinatorInitializer
+    ScrollToTopInitializer -down-> EventBusInitializer
   }
 
   folder "Fetcher" as Fetcher {
@@ -106,9 +107,11 @@ package "Managers" as managersBlock {
     file "elements" as filtersElements
     file "state" as filtersState
     file "render" as filtersRender
+    file "manager" as filtersManager
   }
+  rectangle "EventBus" as EventBus #LightBlue
+  filtersManager --> EventBus
 }
-
 
 package "User Interactions" as UserInteractions {
   file "Filters" as filtersInteraction

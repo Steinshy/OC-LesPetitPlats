@@ -19,6 +19,7 @@ import { updateVisibility as scrollToTopVisibility } from "@components/scrollToT
 import { dropdownsSkeleton } from "@components/skeletons/manager.js";
 import { ariaHidden } from "@utils/constants.js";
 import { isMobile } from "@utils/device.js";
+import { eventBus } from "@utils/eventBus.js";
 import { filterDropdownItems } from "@utils/filterEngine.js";
 
 export let currentDropdownsData = {};
@@ -141,15 +142,11 @@ const setupDropdownListeners = dropdownTypes => {
           listItem.setAttribute("aria-selected", String(isSelected));
         }
 
-        document.dispatchEvent(
-          new CustomEvent("dropdown:itemToggled", {
-            detail: {
-              type: clickedButton.dataset.type,
-              value: clickedButton.dataset.value,
-              selected: isSelected,
-            },
-          }),
-        );
+        eventBus.emit("dropdown:itemToggled", {
+          type: clickedButton.dataset.type,
+          value: clickedButton.dataset.value,
+          selected: isSelected,
+        });
 
         if (isMobile()) {
           closeDropdown(currentType);
@@ -212,7 +209,7 @@ const openDropdown = type => {
   }
 
   scrollToTopVisibility();
-  document.dispatchEvent(new CustomEvent("dropdown:opened"));
+  eventBus.emit("dropdown:opened", type);
 };
 
 const closeAllDropdowns = () => {
@@ -237,7 +234,7 @@ const closeAllDropdowns = () => {
 
   unlockScroll();
   scrollToTopVisibility();
-  document.dispatchEvent(new CustomEvent("dropdown:closed"));
+  eventBus.emit("dropdown:closed");
 };
 
 const closeDropdown = type => {
@@ -249,16 +246,14 @@ const closeDropdown = type => {
 
 const toggleDropdown = type => {
   const { container } = dropdownElements(type);
-  const willOpen = !container?.classList.contains("open");
+  const isOpen = container?.classList.contains("open");
 
-  if (willOpen) {
-    closeAllDropdowns();
+  closeAllDropdowns();
+
+  if (!isOpen) {
     openDropdown(type);
-  } else {
-    closeAllDropdowns();
   }
 };
-
 const interactionHandlers = {
   escapeKey: event => {
     if (event.key === "Escape") closeAllDropdowns();

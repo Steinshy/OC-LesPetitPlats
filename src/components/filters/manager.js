@@ -1,18 +1,21 @@
 // src/components/filters/manager.js
+import { setupRecipesCards } from "@components/cards/manager.js";
 import {
   getDropdownItemSelector,
   getSelectedDropdownItems,
 } from "@components/dropdowns/elements.js";
-import { dropdownTypes } from "@components/dropdowns/manager.js";
+import { dropdownTypes, setupDropdowns } from "@components/dropdowns/manager.js";
 import { buildActiveFilters, getFilterCount } from "@components/filters/data.js";
 import { filtersElements } from "@components/filters/elements.js";
 import { renderFilterTag } from "@components/filters/render.js";
 import { filtersState } from "@components/filters/state.js";
+import { setupResultsCounter } from "@components/resultsCounter.js";
 import { searchElements } from "@components/search/elements.js";
 import { ariaHidden } from "@utils/constants.js";
+import { eventBus } from "@utils/eventBus.js";
 import { applyAllFilters } from "@utils/filterEngine.js";
 import { normalizeString } from "@utils/normalize.js";
-import { parseURLState, clearURLState } from "@utils/urlState.js";
+import { parseURLState, clearURLState, updateURLState } from "@utils/urlState.js";
 
 const updateDropdownItem = (item, selected) => {
   item.classList.toggle("selected", selected);
@@ -29,8 +32,8 @@ const searchFromState = () => {
   submit?.classList.toggle("hidden", !!filtersState.filters.search);
 };
 
-const onItemToggled = event => {
-  const { type, value, selected } = event.detail;
+const onItemToggled = payload => {
+  const { type, value, selected } = payload;
   const set = filtersState.filters[type];
   if (!set) return;
 
@@ -129,16 +132,23 @@ const syncDropdownSelections = () => {
 
 const syncUI = () => {
   requestAnimationFrame(() => {
-    filtersState.filteredRecipes = applyAllFilters(filtersState.allRecipes, filtersState.filters);
     updateContainer();
     updateTags();
     syncDropdownSelections();
 
-    document.dispatchEvent(
-      new CustomEvent("filters:stateChanged", {
-        detail: { filteredRecipes: filtersState.filteredRecipes, filters: filtersState.filters },
-      }),
-    );
+    // Apply filtering directly (coordinator removed)
+    const filteredRecipes = applyAllFilters(filtersState.allRecipes, filtersState.filters);
+
+    setupRecipesCards(filteredRecipes);
+    setupDropdowns(filteredRecipes);
+    setupResultsCounter(filteredRecipes.length);
+
+    // Update URL state
+    if (!filtersState.isInitialLoad) {
+      updateURLState(filtersState.filters);
+    }
+
+    filtersState.isInitialLoad = false;
   });
 };
 
@@ -176,8 +186,8 @@ const clearAll = () => {
 
 const setupListeners = () => {
   filtersElements().clearBtn?.addEventListener("click", clearAll);
-  document.addEventListener("dropdown:itemToggled", onItemToggled);
-  document.addEventListener("filters:searchChanged", event => onSearchChanged(event.detail.query));
+  eventBus.on("dropdown:itemToggled", payload => onItemToggled(payload));
+  eventBus.on("filters:searchChanged", payload => onSearchChanged(payload.query));
   window.addEventListener("popstate", onPopState);
 };
 
