@@ -2,11 +2,9 @@
 !theme carbon-gray
 top to bottom direction
 
-
-' ---------------------
-' Style
 ' ---------------------
 ' General style
+' ---------------------
 skinparam backgroundColor #FFFFFF
 skinparam defaultFontSize 16
 skinparam shadowing false
@@ -43,92 +41,93 @@ skinparam node {
 }
 
 ' ---------------------
-' Activity Diagram (structured like projectStructure)
+' Activity Diagram
 ' ---------------------
-folder "States" as States {
-  file "1) Recipes" as Recipes
-  file "2) UI ready/update" as UIReady
+folder "1) States" as StatesBlock {
+  file "a. Recipes" as Recipes
+  file "b. Render" as Render
   
-  Recipes -> UIReady #6BCB77
+  Recipes -> Render #6BCB77
 }
 
-folder "Coordinator" as CoordinatorBlock {
-  file "7) coordinator (updates UI)" as Coordinator
-}
-
-folder "Setup" as SetupBlock {
-  file "3) setupSearchBar" as SetupSearchBar
-  file "4) setupDropdowns" as SetupDropdowns
-  file "5) setupFilters" as SetupFilters
-  file "8) setupRecipesCards" as SetupCards
-  file "9) setupResultsCounter" as SetupCounter
-  file "10) updateURLState" as UpdateURLState
+folder "2) Setup" as SetupBlock {
+  file "a. Filters" as SetupFilters
+  file "b. Dropdowns" as SetupDropdowns
+  file "c. SearchBar" as SetupSearchBar
+  file "d. Results Counter" as SetupCounter
+  file "e. Cards" as SetupCards
+  file "f. URL State" as UpdateURLState
   
-  SetupSearchBar -down-> SetupDropdowns
-  SetupDropdowns -down-> SetupFilters
-  SetupFilters -down-> SetupCards
-  SetupCards -down-> SetupCounter
-  SetupCounter -down-> UpdateURLState
-
+  SetupFilters -down-> SetupDropdowns
+  SetupDropdowns -down-> SetupSearchBar
+  SetupSearchBar -down-> SetupCounter
+  SetupCounter -down-> SetupCards
+  SetupCards -down-> UpdateURLState
 }
 
-folder "User Interactions" as UserInteractions {
-  file "11) Click on filters" as FiltersInteraction
-  file "12) Click on dropdowns" as DropdownsInteraction
-  file "13) Click on search" as SearchInteraction
+folder "3) Interactions" as InteractionsBlock {
+  file "a. Click on Filters" as FiltersInteraction
+  file "b. Click on Dropdowns" as DropdownsInteraction
+  file "c. Type on Search" as SearchInteraction
   
   FiltersInteraction -[hidden]-> DropdownsInteraction
   DropdownsInteraction -[hidden]-> SearchInteraction
 }
 
-folder "Events" as Events {
-  rectangle "14) filters:stateChanged" as FiltersStateChangedEvent #LightGreen
-  rectangle "15) dropdown:itemToggled" as DropdownEvent #LightBlue
-  rectangle "16) filters:searchChanged" as FiltersSearchEvent #LightGreen
+folder "4) Events" as EventsBlock {
+  rectangle "a. Filters: stateChanged" as FiltersStateChangedEvent #LightGreen
+  rectangle "b. Dropdowns: itemToggled" as DropdownEvent #LightBlue
+  rectangle "c. Filters: searchChanged" as FiltersSearchEvent #LightSkyBlue
 
   FiltersStateChangedEvent -[hidden]-> DropdownEvent
   DropdownEvent -[hidden]-> FiltersSearchEvent
 }
 
-folder "Filters Engine" as FiltersEngine {
-  file "6) applyAllFilters" as ApplyAllFilters
-  file "6b) filterByField" as FilterByField
-  file "6c) filterBySearch" as FilterBySearch
+folder "5) Filters" as FiltersBlock {
+  file "a. Apply All Filters" as ApplyAllFilters
+  file "b. Filter By Field" as FilterByField
+  file "c. Filter By Search" as FilterBySearch
 
-  
   ApplyAllFilters -[hidden]-> FilterByField
   FilterByField -[hidden]-> FilterBySearch
 }
-States -[hidden]-> SetupBlock
-UIReady -down-> SetupSearchBar #6BCB77
 
+folder "6) Coordinator" as CoordinatorBlock {
+  file "a. Update UI" as UpdateUI
+}
 
-SetupBlock -right-> UserInteractions
-Events -right-> FiltersEngine
+' ---------------------
+' StatesBlock -> Setup
+' ---------------------
+StatesBlock -[hidden]-> SetupBlock
+CoordinatorBlock -[hidden]-> EventsBlock
+Render -> SetupFilters #6BCB77
 
-FiltersInteraction -right-> FiltersStateChangedEvent
-DropdownsInteraction -right-> DropdownEvent
-SearchInteraction -right-> FiltersSearchEvent
+' ---------------------
+' Setup -> User Interactions
+' ---------------------
+SetupFilters -right-> FiltersInteraction
+SetupDropdowns -right-> DropdownsInteraction
+SetupSearchBar -right-> SearchInteraction
 
+' ---------------------
+' EventsBlock -> Filters
+' ---------------------
+FiltersInteraction -> FiltersStateChangedEvent
+DropdownsInteraction -> DropdownEvent
+SearchInteraction -> FiltersSearchEvent
 
+' ---------------------
+' Filters -> Coordinator
+' ---------------------
 FiltersStateChangedEvent -right-> ApplyAllFilters
 DropdownEvent -right-> FilterByField
 FiltersSearchEvent -right-> FilterBySearch
 
-CoordinatorBlock -[hidden]-> SetupBlock
-CoordinatorBlock -[hidden]-> UserInteractions
-CoordinatorBlock -[hidden]-> Events
-CoordinatorBlock -[hidden]-> FiltersEngine
+' ---------------------
+' Coordinator -> Render
+' ---------------------
+FiltersBlock -up-> CoordinatorBlock
+UpdateUI -> Render
 
 @enduml
-
-
-Coordinator -down-> SetupCards #6BCBFF
-Coordinator -down-> SetupDropdowns #6BCBFF
-Coordinator -down-> SetupCounter #6BCBFF
-Coordinator -down-> UpdateURLState #6BCBFF
-
-SetupCards -down-> UIReady #6BCB77
-SetupDropdowns -down-> UIReady #6BCB77
-SetupCounter -down-> UIReady #6BCB77
-UpdateURLState -down-> UIReady #6BCB77
