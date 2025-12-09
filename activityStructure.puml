@@ -1,0 +1,134 @@
+@startuml activityDiagram
+!theme carbon-gray
+top to bottom direction
+
+
+' ---------------------
+' Style
+' ---------------------
+' General style
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowStyle none
+
+' Rectangle style
+skinparam rectangle {
+  RoundCorner 25
+  BorderColor #2C3E50
+}
+
+' Package style
+skinparam package {
+  BackgroundColor transparent
+}
+
+' Component style
+skinparam component {
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
+  BorderThickness 0
+  FontName "Inter"
+  FontSize 16
+  FontStyle normal
+}
+
+' Node style
+skinparam node {
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
+  FontColor #2C3E50
+  Roundcorner 0
+}
+
+' ---------------------
+' Activity Diagram (structured like projectStructure)
+' ---------------------
+folder "States" as States {
+  file "1) Recipes" as Recipes
+  file "2) UI ready/update" as UIReady
+  
+  Recipes -> UIReady #6BCB77
+}
+
+folder "Coordinator" as CoordinatorBlock {
+  file "7) coordinator (updates UI)" as Coordinator
+}
+
+folder "Setup" as SetupBlock {
+  file "3) setupSearchBar" as SetupSearchBar
+  file "4) setupDropdowns" as SetupDropdowns
+  file "5) setupFilters" as SetupFilters
+  file "8) setupRecipesCards" as SetupCards
+  file "9) setupResultsCounter" as SetupCounter
+  file "10) updateURLState" as UpdateURLState
+  
+  SetupSearchBar -down-> SetupDropdowns
+  SetupDropdowns -down-> SetupFilters
+  SetupFilters -down-> SetupCards
+  SetupCards -down-> SetupCounter
+  SetupCounter -down-> UpdateURLState
+
+}
+
+folder "User Interactions" as UserInteractions {
+  file "11) Click on filters" as FiltersInteraction
+  file "12) Click on dropdowns" as DropdownsInteraction
+  file "13) Click on search" as SearchInteraction
+  
+  FiltersInteraction -[hidden]-> DropdownsInteraction
+  DropdownsInteraction -[hidden]-> SearchInteraction
+}
+
+folder "Events" as Events {
+  rectangle "14) filters:stateChanged" as FiltersStateChangedEvent #LightGreen
+  rectangle "15) dropdown:itemToggled" as DropdownEvent #LightBlue
+  rectangle "16) filters:searchChanged" as FiltersSearchEvent #LightGreen
+
+  FiltersStateChangedEvent -[hidden]-> DropdownEvent
+  DropdownEvent -[hidden]-> FiltersSearchEvent
+}
+
+folder "Filters Engine" as FiltersEngine {
+  file "6) applyAllFilters" as ApplyAllFilters
+  file "6b) filterByField" as FilterByField
+  file "6c) filterBySearch" as FilterBySearch
+
+  
+  ApplyAllFilters -[hidden]-> FilterByField
+  FilterByField -[hidden]-> FilterBySearch
+}
+States -[hidden]-> SetupBlock
+UIReady -down-> SetupSearchBar #6BCB77
+
+
+SetupBlock -right-> UserInteractions
+Events -right-> FiltersEngine
+
+FiltersInteraction -right-> FiltersStateChangedEvent
+DropdownsInteraction -right-> DropdownEvent
+SearchInteraction -right-> FiltersSearchEvent
+
+
+FiltersStateChangedEvent -right-> ApplyAllFilters
+DropdownEvent -right-> FilterByField
+FiltersSearchEvent -right-> FilterBySearch
+
+CoordinatorBlock -[hidden]-> SetupBlock
+CoordinatorBlock -[hidden]-> UserInteractions
+CoordinatorBlock -[hidden]-> Events
+CoordinatorBlock -[hidden]-> FiltersEngine
+
+@enduml
+
+
+Coordinator -down-> SetupCards #6BCBFF
+Coordinator -down-> SetupDropdowns #6BCBFF
+Coordinator -down-> SetupCounter #6BCBFF
+Coordinator -down-> UpdateURLState #6BCBFF
+
+SetupCards -down-> UIReady #6BCB77
+SetupDropdowns -down-> UIReady #6BCB77
+SetupCounter -down-> UIReady #6BCB77
+UpdateURLState -down-> UIReady #6BCB77

@@ -57,7 +57,6 @@ package "Initializers" as Initializers {
     file "Skeletons" as SkeletonsInitializer
     file "ScrollToTop" as ScrollToTopInitializer
     file "Coordinator" as CoordinatorInitializer
-
     SkeletonsInitializer -down-> ScrollToTopInitializer
     ScrollToTopInitializer -down-> CoordinatorInitializer
   }
