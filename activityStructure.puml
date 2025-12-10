@@ -47,8 +47,11 @@ folder "1) States" as StatesBlock {
   file "a. Recipes" as Recipes
   file "b. Render" as Render
 
-  
   Recipes -> Render #6BCB77
+}
+
+folder "6) Go to Render" as GoToRenderBlock {
+  file "a. Go to Render" as GoToRender
 }
 
 folder "2) Setup" as SetupBlock {
@@ -93,11 +96,10 @@ folder "5) Filters" as FiltersBlock {
   FilterByField -[hidden]-> FilterBySearch
   FilterByField -up-> ApplyAllFilters
   FilterBySearch -up-> FilterByField
+  ApplyAllFilters -up-> GoToRender
 }
 
-folder "6) Go to Render" as GoToRenderBlock {
-  file "a. Go to Render" as GoToRender
-}
+
 
 ' ---------------------
 ' StatesBlock -> Setup
@@ -130,7 +132,6 @@ EBSearch -> FilterBySearch
 ' ---------------------
 ' Filters -> Go to Render
 ' ---------------------
-ApplyAllFilters -up-> GoToRender
 GoToRender -> Render
 
 @enduml

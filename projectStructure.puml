@@ -1,22 +1,21 @@
 @startuml projectStructure
 !theme carbon-gray
 top to bottom direction
-allowmixing
+skinparam linetype ortho
 
 ' ---------------------
-' Style
-' ---------------------
 ' General style
-skinparam linetype ortho
+' ---------------------
 skinparam backgroundColor #FFFFFF
 skinparam defaultFontSize 16
 skinparam shadowing false
+skinparam linetype ortho
 skinparam ArrowStyle none
 
 ' Rectangle style
 skinparam rectangle {
   RoundCorner 25
-  BorderColor $PRIMARY_DARK
+  BorderColor #2C3E50
 }
 
 ' Package style
@@ -26,8 +25,8 @@ skinparam package {
 
 ' Component style
 skinparam component {
-	BackgroundColor $GRAY_10
-	BorderColor $PRIMARY_DARK
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
   BorderThickness 0
   FontName "Inter"
   FontSize 16
@@ -36,114 +35,95 @@ skinparam component {
 
 ' Node style
 skinparam node {
-	BackgroundColor $GRAY_10
-	BorderColor $PRIMARY_DARK
-	FontColor $PRIMARY_TEXT
-	Roundcorner 0
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
+  FontColor #2C3E50
+  Roundcorner 0
 }
 
 ' ---------------------
 ' Application Structure
 ' ---------------------
-LesPetitsPlats -[hidden]-> Initializers
-LesPetitsPlats -left-> Initializers
-
-package "LesPetitsPlats" as LesPetitsPlats {
-  node "initApp"
+node "LesPetitsPlats" as LesPetitsPlats {
+  folder "App"
 }
 
-package "Initializers" as Initializers {
-  folder "Setup" as Setup {
-    file "Skeletons" as SkeletonsInitializer
-    file "ScrollToTop" as ScrollToTopInitializer
-    file "EventBus" as EventBusInitializer
+rectangle "EventBus" as EventBusBlock #LightBlue
 
-    SkeletonsInitializer -down-> ScrollToTopInitializer
-    ScrollToTopInitializer -down-> EventBusInitializer
+package "Init" as InitBlock {
+  package "Setup" as SetupBlock {
+    file "Skeletons" as SkeletonsInit
+    file "ScrollToTop" as ScrollToTopInit
+    
+    SkeletonsInit -down-> ScrollToTopInit
   }
 
-  folder "Fetcher" as Fetcher {
-    file "RecipeApi"
-    file "Cache"
-    file "Config"
-    RecipeApi -down-> Cache
-    Cache -down-> Config
+  package "Fetcher" as FetcherBlock {
+    file "RecipeApi" as RecipeApi
+    file "Cache" as CacheFetcher
+    file "Config" as ConfigFetcher
+    
+    RecipeApi -down-> CacheFetcher
+    CacheFetcher -down-> ConfigFetcher
   }
 
-  Setup -> Fetcher
-
-  folder "Recipes" as Recipes {
-    file "Build"
-    file "Results" as ResultsBlock
-    rectangle "Results Match" as ResultsDecision #LightBlue
-
-    Build -down-> ResultsBlock
-    ResultsBlock -down-> ResultsDecision #LightBlue
+  package "Recipes" as RecipesBlock {
+    file "Build" as RecipesBuilder
+    file "Results" as RecipesResults
+    rectangle "Match ?" as MatchResults #LightBlue
+    rectangle "Error" as Error #Red
+    rectangle "Success" as Success #LightGreen
+    
+    RecipeApi -down-> RecipesBuilder
+    RecipesBuilder -down-> RecipesResults
+    RecipesResults -down-> MatchResults
+    MatchResults -down-> Error
+    MatchResults -right-> Success
   }
+}
+LesPetitsPlats -[hidden]-> InitBlock
+LesPetitsPlats -down-> InitBlock
 
-  Fetcher -> Recipes
+package "Interactions" as InteractionsBlock {
+  file "Filters" as FiltersInteraction
+  file "Dropdowns / Search" as SearchInteraction
+  
+  FiltersInteraction <-right-> SearchInteraction
 }
 
-package "Managers" as managersBlock {
-  folder "Search" {
-    file "elements" as searchElements
-    file "state" as searchState
-    file "render" as searchRender
-  }
-
-  folder "Cards" {
-    file "elements" as cardsElements
-    file "state" as cardsState
-    file "render" as cardsRender
-  }
-
-  folder "Dropdowns" {
-    file "elements" as dropdownsElements
-    file "state" as dropdownsState
-    file "render" as dropdownsRender
-  }
-
-  folder "Filters" {
-    file "elements" as filtersElements
-    file "state" as filtersState
-    file "render" as filtersRender
-    file "manager" as filtersManager
-  }
-  rectangle "EventBus" as EventBus #LightBlue
-  filtersManager --> EventBus
+package "Managers" as ManagersBlock {
+  file "Filters" as FiltersManager
+  file "Dropdowns / Search" as SearchManager
+  FiltersManager <-right-> SearchManager
+  
 }
 
-package "User Interactions" as UserInteractions {
-  file "Filters" as filtersInteraction
-  file "Search" as searchingInteraction
-  file "Dropdowns" as dropdownsInteraction
-
-  searchingInteraction --> filtersInteraction
-  dropdownsInteraction --> filtersInteraction
+package "Rendering" as RenderingBlock {
+  rectangle "Error" as RenderError #Red
+  rectangle "Success" as RenderSuccess #LightGreen
+  file "Dropdowns / Count / Cards / Filters" as RenderComponents
 }
 
-package "Status" as Responses {
-  rectangle "Success" as Success #LightGreen
-  rectangle "Error" as Error #Red
-  rectangle "No results" as NoResults #Red 
-  rectangle "Data Loaded" as DataLoaded #LightGreen
-  Error -[hidden]-> NoResults
-  Success -[hidden]-> DataLoaded
+' ---------------------
+' Layout helpers
+' ---------------------
+InitBlock -[hidden]-> InteractionsBlock
+InitBlock -[hidden]-> EventBusBlock
+Success -[hidden]-> ManagersBlock
+InteractionsBlock -[hidden]-> EventBusBlock
+EventBusBlock -[hidden]-> ManagersBlock
+ManagersBlock -[hidden]-> RenderingBlock
+RenderingBlock -[hidden]-> Error
 
-  DataLoaded <--> Success #LightGreen
-  NoResults <--> Error #Red
-}
+' ---------------------
+' Flow
+' ---------------------
+Success -right-> FiltersInteraction
+FiltersInteraction -down-> EventBusBlock
 
-LesPetitsPlats -[hidden]-> Responses
-ResultsDecision -[hidden]-> Responses
-Responses -[hidden]-> UserInteractions
-filtersInteraction -> NoResults #Red
-ResultsDecision -> Success #LightGreen
-ResultsDecision -> NoResults #Red
-initApp --> Error #Red
-
-
-filtersInteraction -> DataLoaded #LightGreen
-DataLoaded -down-> managersBlock #LightGreen
+EventBusBlock -down-> FiltersManager
+FiltersManager -down-> RenderError
+FiltersManager -down-> RenderSuccess
+RenderSuccess -down-> RenderComponents
 
 @enduml
