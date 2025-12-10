@@ -1,0 +1,46 @@
+@startuml overrides
+' GENERAL STYLE
+skinparam shadowing true
+
+' ACTIVITY BLOCKS
+skinparam activity {
+  BackgroundColor #f8fbff
+  BorderColor #5a89c6
+  FontColor #2a2a2a
+}
+
+' PARTITIONS
+skinparam partition {
+  BackgroundColor #e9f1fb
+  BorderColor #5a89c6
+}
+
+' NOTES
+skinparam note {
+  BackgroundColor #fff7d9
+  BorderColor #e0b94d
+  FontColor #3a3a3a
+}
+
+' TITLES
+skinparam title {
+  FontColor #1d3b64
+  BorderColor #1d3b64
+}
+
+' START NODE
+skinparam activityStart {
+  BackgroundColor #d8f5d2
+  BorderColor #5aa65a
+  FontColor #2a2a2a
+  Shadowing true
+}
+
+' END NODE
+skinparam activityEnd {
+  BackgroundColor #ffd8d8
+  BorderColor #c65a5a
+  FontColor #2a2a2a
+  Shadowing true
+}
+@enduml

@@ -1,0 +1,53 @@
+@startuml method2
+!theme carbon-gray
+!include theme/overrides.puml
+
+title Méthode 2 \n Filter() + Some() + ApplyAllFilters()
+
+partition "Moteur de recherche" {
+
+  start
+
+  :query = normalizeString(query);
+
+  note right
+    NormalizeString(query) - Execute la logique de normalisation suivante :
+      ◆ Retire accents et caractères spéciaux
+      ◆ Convertit en minuscules
+      ◆ Élimine parenthèses et espaces inutiles
+      ◆ Objectif : uniformiser texte + éviter faux négatifs.
+  end note
+
+  partition "Filtrage fonctionnel" {
+    :results = applyAllFilters(recipes, query);
+
+  note right
+    ApplyAllFilters() - Execute la logique de filtrage suivante :
+
+    ➤ Normalisation :
+      ◆ Les champs utiles sont comparés via normalizeString().
+
+    ➤ Conditions de correspondance :
+      ◆ Title(recipe, query) :
+          Vérifie si le titre contient la requête normalisée.
+      ◆ Recipe.ingredients.some(matchIngredient) :
+          Recherche un ingrédient correspondant
+      ◆ MatchDescription(recipe, query) :
+          Analyse la description
+
+    ➤ Règle de validation :
+      ◆ La recette est retenue si AU MOINS UNE condition est vraie.
+  end note
+  }
+
+  :retourner results;
+  stop
+
+  note right
+    ➤ Méthode 2 — Filtrage fonctionnel
+      ◆ Array.filter() + Array.some()
+      ◆ ApplyAllFilters() pour la logique de filtrage.
+  end note
+}
+
+@enduml

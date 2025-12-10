@@ -1,0 +1,65 @@
+@startuml method1
+!theme carbon-gray
+!include theme/overrides.puml
+
+title Méthode 1 \n Boucles natives
+
+partition "Moteur de recherche" {
+
+  start
+
+  :query = normalizeString(query);
+  
+    note right
+      NormalizeString(query) - Execute la logique de normalisation suivante :
+
+        ◆ Retire accents et caractères spéciaux
+        ◆ Convertit en minuscules
+        ◆ Élimine parenthèses et espaces inutiles
+        ◆ Objectif : uniformiser texte + éviter faux négatifs.
+    end note
+
+  :initialiser results = [];
+
+  partition "Boucle native" {
+
+    repeat
+      :Lire recette courante;
+
+      if (Title(recipe, query)) then (oui)
+        :results.push(recipe);
+      else (non)
+        if (Ingredients(recipe, query)) then (oui)
+          :results.push(recipe);
+        else (non)
+          if (Description(recipe, query)) then (oui)
+            :results.push(recipe);
+          endif
+        endif
+      endif
+
+    repeat while (recette suivante ?)
+  }
+  :NativeFilter;
+  note right
+    NativeFilter() - Execute la logique de filtrage suivante :
+
+      ◆ Title(recipe, query)
+      ◆ Ingredients(recipe, query)
+      ◆ Description(recipe, query)
+      ◆ Style impératif, conditions imbriquées,
+      ◆ Moins performant et moins lisible.
+  end note
+
+  :retourner results;
+
+  stop
+
+  note right
+    ➤ Méthode 1 — Boucles natives avec fonctions nommées
+      ◆ Fonctions nommées pour le comparatif avec Methode 2.
+  end note
+}
+
+
+@enduml
