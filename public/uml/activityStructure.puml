@@ -1,47 +1,11 @@
 @startuml activityDiagram
 !theme carbon-gray
+!include theme/structure-theme.puml
+
 top to bottom direction
 
 ' ---------------------
-' General style
-' ---------------------
-skinparam backgroundColor #FFFFFF
-skinparam defaultFontSize 16
-skinparam shadowing false
-skinparam linetype ortho
-skinparam ArrowStyle none
-
-' Rectangle style
-skinparam rectangle {
-  RoundCorner 25
-  BorderColor #2C3E50
-}
-
-' Package style
-skinparam package {
-  BackgroundColor transparent
-}
-
-' Component style
-skinparam component {
-  BackgroundColor #F5F5F5
-  BorderColor #2C3E50
-  BorderThickness 0
-  FontName "Inter"
-  FontSize 16
-  FontStyle normal
-}
-
-' Node style
-skinparam node {
-  BackgroundColor #F5F5F5
-  BorderColor #2C3E50
-  FontColor #2C3E50
-  Roundcorner 0
-}
-
-' ---------------------
-' Activity Diagram
+' Application Activity Structure
 ' ---------------------
 folder "1) States" as StatesBlock {
   file "a. Recipes" as Recipes
@@ -79,12 +43,12 @@ folder "3) Interactions" as InteractionsBlock {
 }
 
 folder "4) EventBus" as EventBusBlock {
-  rectangle "Filters: stateChanged" as EBState #LightGreen
-  rectangle "Dropdowns: itemToggled" as EBItem #LightBlue
-  rectangle "Search: searchChanged" as EBSearch #LightSkyBlue
+  rectangle "Filters: stateChanged" as FiltersState #LightGreen
+  rectangle "Dropdowns: itemToggled" as DropdownsState #LightBlue
+  rectangle "Search: searchChanged" as SearchState #LightSkyBlue
 
-  EBState -[hidden]-> EBItem
-  EBItem -[hidden]-> EBSearch
+  FiltersState -[hidden]-> DropdownsState
+  DropdownsState -[hidden]-> SearchState
 }
 
 folder "5) Filters" as FiltersBlock {
@@ -99,10 +63,8 @@ folder "5) Filters" as FiltersBlock {
   ApplyAllFilters -up-> GoToRender
 }
 
-
-
 ' ---------------------
-' StatesBlock -> Setup
+' StatesBlock -> SetupBlock
 ' ---------------------
 StatesBlock -[hidden]-> SetupBlock
 Render -[hidden]-> SetupFilters
@@ -110,24 +72,24 @@ GoToRenderBlock -[hidden]-> FiltersBlock
 Render -down-> SetupFilters #6BCB77
 
 ' ---------------------
-' Setup -> User Interactions
+' Setup -> Interaction
 ' ---------------------
 SetupFilters -> FiltersInteraction
 SetupDropdowns -> DropdownsInteraction
 SetupSearchBar -> SearchInteraction
 ' ---------------------
-' EventsBlock -> Filters
+' Interaction -> EventBusBlock
 ' ---------------------
-FiltersInteraction -> EBState
-DropdownsInteraction -> EBItem
-SearchInteraction -> EBSearch
+FiltersInteraction -> FiltersState
+DropdownsInteraction -> DropdownsState
+SearchInteraction -> SearchState
 
 ' ---------------------
-' Filters -> EventBus
+' EventBusBlock -> FiltersBlock
 ' ---------------------
-EBState -> ApplyAllFilters
-EBItem -> FilterByField
-EBSearch -> FilterBySearch
+FiltersState -> ApplyAllFilters
+DropdownsState -> FilterByField
+SearchState -> FilterBySearch
 
 ' ---------------------
 ' Filters -> Go to Render
