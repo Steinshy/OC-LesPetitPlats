@@ -1,18 +1,6 @@
 // Test setup configures mocks that mirror src/ structure
 import { vi } from "vitest";
 
-// Utils mocks
-vi.mock("@/utils/imageTracker.js", async () => {
-  const wrapper = await vi.importActual("@tests-mocks-utils/imageTracker.js");
-  return wrapper;
-});
-
-// Mock filterEngine without wrapper to avoid circular dependency
-vi.mock("@/utils/filterEngine.js", async () => {
-  const actual = await vi.importActual("@/utils/filterEngine.js");
-  return actual;
-});
-
 // Mock normalize.js with test-compatible wrapper
 vi.mock("@/utils/normalize.js", async () => {
   const original = await vi.importActual("@/utils/normalize.js");
@@ -30,8 +18,8 @@ vi.mock("@/utils/normalize.js", async () => {
 });
 
 // Components mocks
-vi.mock("@/components/filters/manager.js", async () => {
-  const actual = await vi.importActual("@/components/filters/manager.js");
+vi.mock("@/components/filters/setupFilters.js", async () => {
+  const actual = await vi.importActual("@/components/filters/setupFilters.js");
   const wrapper = await vi.importActual("@tests-mocks-components/filters/manager.js");
   return { ...actual, ...wrapper };
 });

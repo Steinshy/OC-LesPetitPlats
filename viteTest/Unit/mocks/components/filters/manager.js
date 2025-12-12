@@ -1,7 +1,8 @@
-// Test wrapper for filters manager (mirrors src/components/filters/manager.js)
+// Test wrapper for filters setupFilters (mirrors src/components/filters/setupFilters.js)
 import { setupRecipesCards } from "@/components/cards/manager.js";
-import { setupFilters } from "@/components/filters/manager.js";
-import * as filterEngine from "@tests-mocks-utils/filterEngine.js";
+import { dropdownTypes } from "@/components/dropdowns/manager.js";
+import { filtersEngine } from "@/components/filters/filtersEngine.js";
+import { setupFilters } from "@/components/filters/setupFilters.js";
 
 export { setupFilters };
 
@@ -28,23 +29,13 @@ export const resetFiltersState = () => {
 };
 
 const syncUI = () => {
-  filteredRecipes = allRecipes;
-  filteredRecipes = filterEngine.searchInput(filteredRecipes, filtersState.mainSearchText);
-  filteredRecipes = filterEngine.filterByField(
-    filteredRecipes,
-    filtersState.tags.ingredients,
-    "ingredients",
-  );
-  filteredRecipes = filterEngine.filterByField(
-    filteredRecipes,
-    filtersState.tags.appliances,
-    "appliances",
-  );
-  filteredRecipes = filterEngine.filterByField(
-    filteredRecipes,
-    filtersState.tags.utensils,
-    "utensils",
-  );
+  const filters = {
+    search: filtersState.mainSearchText,
+    ingredients: filtersState.tags.ingredients,
+    appliances: filtersState.tags.appliances,
+    utensils: filtersState.tags.utensils,
+  };
+  filteredRecipes = filtersEngine.applyAll(allRecipes, filters, dropdownTypes);
 
   if (setupRecipesCards) {
     setupRecipesCards(filteredRecipes);

@@ -1,114 +1,42 @@
-// Production filter functions from src/utils/filterEngine.js and src/utils/normalize.js
-const normalizeString = value =>
-  String(value || "")
-    .replace(/\s*\([^)]*\)/g, "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
+// Production filter functions from src/components/filters/filtersEngine.js
+import { filtersEngine } from "@/components/filters/filtersEngine.js";
+import { normalizeString } from "@/utils/normalize.js";
 
-// Field configuration
-const FIELD_CONFIG = {
-  ingredients: {
-    extract: recipe => (recipe.ingredients || []).map(ingredient => ingredient?.ingredient),
-    isArray: true,
-  },
-  appliances: {
-    extract: recipe => recipe.appliance,
-    isArray: false,
-  },
-  utensils: {
-    extract: recipe => recipe.utensils || [],
-    isArray: true,
-  },
-};
-
-const SEARCHABLE_FIELDS = ["name", "description", "appliance"];
-
-// Normalize and flatten recipe values for a given field
-const getRecipeFieldValues = (recipe, fieldType) => {
-  const config = FIELD_CONFIG[fieldType];
-  if (!config) return [];
-
-  const rawValue = config.extract(recipe);
-  if (!rawValue) return [];
-
-  const values = config.isArray ? rawValue : [rawValue];
-  return values.filter(Boolean).map(normalizeString);
-};
-
-// Build searchable text from a recipe
-const buildSearchableText = recipe => {
-  const parts = [];
-
-  for (const field of SEARCHABLE_FIELDS) {
-    if (recipe[field]) parts.push(recipe[field]);
-  }
-
-  for (const config of Object.values(FIELD_CONFIG)) {
-    if (config.isArray) {
-      const values = config.extract(recipe);
-      if (Array.isArray(values)) {
-        parts.push(...values.filter(Boolean));
-      }
-    }
-  }
-
-  return parts.join(" ");
-};
-
-// Filter recipes by search term (wrapped as filterBySearchTerm for benchmark compatibility)
+// Wrapper functions for benchmark compatibility
 export const filterBySearchTerm = (recipes, searchTerm) => {
   if (!Array.isArray(recipes)) return [];
-
-  const query = normalizeString(searchTerm);
-  if (!query) return recipes;
-
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const text = normalizeString(buildSearchableText(recipe));
-    return text.includes(query);
-  });
+  return filtersEngine.onSearch(recipes, searchTerm);
 };
 
-// Filter recipes by a specific field
-const filterByField = (recipes, selectedValues, fieldType) => {
-  if (!Array.isArray(recipes)) return [];
-  if (!FIELD_CONFIG[fieldType]) return recipes;
-
-  const selected = selectedValues instanceof Set ? [...selectedValues] : selectedValues;
-  if (!selected || selected.length === 0) return recipes;
-
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const recipeValues = getRecipeFieldValues(recipe, fieldType);
-    const normalizedSelected = selected.map(normalizeString);
-    return normalizedSelected.every(value => recipeValues.includes(value));
-  });
-};
-
-// Ingredients filter wrapper
 export const filterByIngredients = (recipes, ingredients) => {
-  return filterByField(recipes, ingredients, "ingredients");
+  if (!Array.isArray(recipes)) return [];
+  const selectedValues = ingredients instanceof Set ? ingredients : new Set(ingredients || []);
+  return filtersEngine.onFilter(recipes, selectedValues, "ingredients");
 };
 
-// Appliances filter uses OR logic (any appliance matches)
 export const filterByAppliances = (recipes, appliances) => {
   if (!Array.isArray(recipes)) return [];
+  if (
+    !appliances ||
+    (Array.isArray(appliances) && appliances.length === 0) ||
+    (appliances instanceof Set && appliances.size === 0)
+  ) {
+    return recipes;
+  }
 
-  const selected = appliances instanceof Set ? [...appliances] : appliances;
-  if (!selected || selected.length === 0) return recipes;
-
-  const normalizedSelected = selected.map(normalizeString);
+  // For appliances, use OR logic (recipe has one appliance, match if it's in selected)
+  // This matches the forEach implementation behavior
+  const selectedValues = appliances instanceof Set ? appliances : new Set(appliances || []);
+  const selected = [...selectedValues];
 
   return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const recipeAppliance = normalizeString(recipe.appliance || "");
-    return normalizedSelected.some(selectedAppliance => selectedAppliance === recipeAppliance);
+    const values = filtersEngine.extract.appliances(recipe);
+    return selected.some(v => values.includes(normalizeString(v)));
   });
 };
 
-// Utensils filter wrapper
 export const filterByutensils = (recipes, utensils) => {
-  return filterByField(recipes, utensils, "utensils");
+  if (!Array.isArray(recipes)) return [];
+  const selectedValues = utensils instanceof Set ? utensils : new Set(utensils || []);
+  return filtersEngine.onFilter(recipes, selectedValues, "utensils");
 };

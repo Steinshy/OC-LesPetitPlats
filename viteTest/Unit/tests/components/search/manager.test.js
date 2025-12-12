@@ -1,17 +1,18 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import { setupSearchBar } from "@/components/search/manager.js";
+import { eventBus } from "@/utils/eventBus.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
+const mockSearchSkeleton = {
+  show: vi.fn(),
+  hide: vi.fn(),
+};
+
 vi.mock("@/components/skeletons/manager.js", () => ({
-  searchSkeleton: vi.fn(() => ({
-    show: vi.fn(),
-    hide: vi.fn(),
-  })),
+  searchSkeleton: vi.fn(() => mockSearchSkeleton),
 }));
 
 // searchElements is mocked in setup.js
-
-
 
 const SEARCH_INPUT_ID = "search-input";
 const SEARCH_CLEAR_BTN_ID = "search-clear-button";
@@ -22,6 +23,9 @@ describe("search manager", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     vi.clearAllMocks();
+    mockSearchSkeleton.hide.mockClear();
+    mockSearchSkeleton.show.mockClear();
+    eventBus.events = {};
   });
 
   describe("setupSearchBar", () => {
@@ -37,9 +41,9 @@ describe("search manager", () => {
       `;
     });
 
-    it("should setup search section event handlers", () => {
+    it("should setup search section event handlers", async () => {
       const eventSpy = vi.fn();
-      document.addEventListener("filters:searchChanged", eventSpy);
+      eventBus.on("filters:searchChanged", eventSpy);
 
       setupSearchBar();
 
@@ -47,12 +51,14 @@ describe("search manager", () => {
       searchInput.value = "test";
       searchInput.dispatchEvent(new Event("input"));
 
+      await new Promise(resolve => setTimeout(resolve, 120));
+
       expect(eventSpy).toHaveBeenCalled();
-      const event = eventSpy.mock.calls[0][0];
-      expect(event.detail.query).toBe("test");
+      const payload = eventSpy.mock.calls[0][0];
+      expect(payload.query).toBe("test");
     });
 
-    it("should toggle clear button visibility on input", () => {
+    it("should toggle clear button visibility on input", async () => {
       setupSearchBar();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
@@ -61,6 +67,8 @@ describe("search manager", () => {
 
       searchInput.value = "test";
       searchInput.dispatchEvent(new Event("input"));
+
+      await new Promise(resolve => setTimeout(resolve, 120));
 
       expect(clearButton.classList.contains("hidden")).toBe(false);
       expect(searchButton.classList.contains("hidden")).toBe(true);
@@ -96,7 +104,7 @@ describe("search manager", () => {
 
     it("should dispatch searchChanged event on search button click", () => {
       const eventSpy = vi.fn();
-      document.addEventListener("filters:searchChanged", eventSpy);
+      eventBus.on("filters:searchChanged", eventSpy);
 
       setupSearchBar();
 
@@ -107,6 +115,8 @@ describe("search manager", () => {
       searchButton.click();
 
       expect(eventSpy).toHaveBeenCalled();
+      const payload = eventSpy.mock.calls[0][0];
+      expect(payload.query).toBe("query");
     });
 
     it("should handle missing search elements gracefully", () => {
@@ -115,14 +125,12 @@ describe("search manager", () => {
       expect(() => setupSearchBar()).not.toThrow();
     });
 
-    it("should enable search section", () => {
+    it("should hide search skeleton on setup", () => {
       setupSearchBar();
-
-      const root = document.getElementById(SEARCH_BAR_ID);
-      expect(root.classList.contains("disabled")).toBe(false);
+      expect(mockSearchSkeleton.hide).toHaveBeenCalled();
     });
 
-    it("should handle empty input", () => {
+    it("should handle empty input", async () => {
       setupSearchBar();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
@@ -131,6 +139,8 @@ describe("search manager", () => {
 
       searchInput.value = "";
       searchInput.dispatchEvent(new Event("input"));
+
+      await new Promise(resolve => setTimeout(resolve, 120));
 
       expect(clearButton.classList.contains("hidden")).toBe(true);
       expect(searchButton.classList.contains("hidden")).toBe(false);
@@ -141,4 +151,3 @@ describe("search manager", () => {
     logCategorySummary("searchManager", "Search Manager", "All search manager tests");
   });
 });
-

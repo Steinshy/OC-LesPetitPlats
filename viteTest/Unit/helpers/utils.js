@@ -1,7 +1,31 @@
 // Test utilities consolidated from dropdownUtils.js and filterTagsUtils.js
-import { buildActiveFilters } from "@/components/filters/data.js";
-import { renderFilterTag } from "@/components/filters/render.js";
-import { normalizeString } from "@utils/normalize.js";
+import { dropdownTypes } from "@/components/dropdowns/manager.js";
+import { normalizeString, capitalize } from "@utils/normalize.js";
+
+const buildActiveFilters = activeFilters => {
+  const result = [];
+  dropdownTypes.forEach(type => {
+    const set = activeFilters[type];
+    if (set instanceof Set) {
+      set.forEach(value => {
+        result.push({ type, value });
+      });
+    }
+  });
+  return result;
+};
+
+const renderFilterTag = ({ type, value, label }) => {
+  const id = `filter-tag-${type}-${value}`;
+  return `
+  <li id="${id}" role="option">
+    <button type="button" class="filter-tag" id="tag-remove-button-${id}" data-type="${type}" data-value="${value}" aria-label="Retirer le tag ${label}">
+      <span>${label}</span>
+      <i aria-hidden="true">×</i>
+    </button>
+  </li>
+`;
+};
 
 export const DROPDOWN_TYPES = [
   { name: "Ingredients", type: "ingredients" },
@@ -69,7 +93,12 @@ export const updateFilterTags = (activeFilters, callbacks = {}) => {
 
   const activeFiltersArray = buildActiveFilters(normalizedFilters);
 
-  container.innerHTML = activeFiltersArray.map(renderFilterTag).join("");
+  container.innerHTML = activeFiltersArray
+    .map(({ type, value }) => {
+      const label = capitalize(value);
+      return renderFilterTag({ type, value, label });
+    })
+    .join("");
 
   if (filtersSection) {
     filtersSection.classList.toggle("has-filters", activeFiltersArray.length > 0);

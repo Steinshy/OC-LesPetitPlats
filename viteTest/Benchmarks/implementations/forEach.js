@@ -73,7 +73,7 @@ export const filterByIngredients = (recipes, ingredients) => {
       let found = false;
       (recipe.ingredients || []).forEach(ingredient => {
         if (found) return;
-        const ingredientName = ingredient.ingredient ?? ingredient.name ?? "";
+        const ingredientName = ingredient?.ingredient ?? "";
         if (canonicalizeTerm(ingredientName) === normalizedSelected) {
           found = true;
         }

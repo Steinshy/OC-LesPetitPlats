@@ -1,5 +1,5 @@
 // Appliances filter benchmark generator
-import { normalizeString, canonicalizeTerm } from "@viteTest-helper/jsben.js";
+import { normalizeString } from "@viteTest-helper/jsben.js";
 
 export function generateAppliancesBenchmark(sampleRecipes) {
   const appliancesSet = new Set();
@@ -10,29 +10,38 @@ export function generateAppliancesBenchmark(sampleRecipes) {
 
   return {
     setup: `${normalizeString}
-${canonicalizeTerm}
 
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const appliances = ${JSON.stringify(testAppliances)};`,
 
-    production: `// Production implementation using .map()/.filter()
+    production: `// Production implementation from src/components/filters/filtersEngine.js
+const filtersEngine = {
+  extract: {
+    appliances(recipe) {
+      return recipe.appliance ? [normalizeString(recipe.appliance)] : [];
+    },
+  },
+  onFilter(recipes, selectedValues, type) {
+    if (!selectedValues || selectedValues.size === 0) return recipes;
+    const selected = [...selectedValues];
+    return recipes.filter(recipe => {
+      const values = this.extract[type](recipe);
+      return selected.every(v => values.includes(normalizeString(v)));
+    });
+  },
+};
+
 const filterByAppliances = (recipes, appliances) => {
   if (!Array.isArray(recipes)) return [];
-  const selected = appliances instanceof Set ? [...appliances] : appliances;
-  if (!selected || selected.length === 0) return recipes;
-
-  const normalizedSelected = selected.map(normalizeString);
-
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const recipeAppliance = normalizeString(recipe.appliance || "");
-    return normalizedSelected.some(selectedAppliance => selectedAppliance === recipeAppliance);
-  });
+  const selectedValues = appliances instanceof Set ? appliances : new Set(appliances || []);
+  return filtersEngine.onFilter(recipes, selectedValues, "appliances");
 };
 
 filterByAppliances(recipes, appliances);`,
 
     forEach: `// forEach implementation
+const canonicalizeTerm = value => normalizeString(value);
+
 const filterByAppliances = (recipes, appliances) => {
   if (!appliances || (Array.isArray(appliances) && appliances.length === 0)) {
     return recipes;

@@ -8,7 +8,7 @@ import {
   getActiveFilters,
   clearAllFilters,
   renderSearch,
-} from "@/components/filters/manager.js";
+} from "@/components/filters/setupFilters.js";
 import {
   mockRecipesForSearch,
   RESULTS_COUNTER_SELECTOR,
@@ -29,7 +29,7 @@ vi.mock("@/components/filterTags.js", () => ({
   updateFilterTags: vi.fn(),
 }));
 
-vi.mock("@/components/filters/manager.js", () => {
+vi.mock("@/components/filters/setupFilters.js", () => {
   return import("@tests-mocks-components/filters/manager.js");
 });
 

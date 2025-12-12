@@ -10,58 +10,43 @@ export function generateSearchBenchmark(sampleRecipes) {
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const searchTerm = ${JSON.stringify(searchTerm)};`,
 
-    production: `// Production implementation using .map()/.filter()
-const FIELD_CONFIG = {
-  ingredients: {
-    extract: recipe => (recipe.ingredients || []).map(ingredient => ingredient?.ingredient),
-    isArray: true,
+    production: `// Production implementation from src/components/filters/filtersEngine.js
+const filtersEngine = {
+  extract: {
+    ingredients(recipe) {
+      return (recipe.ingredients || [])
+        .map(i => i?.ingredient)
+        .filter(Boolean)
+        .map(normalizeString);
+    },
+    appliances(recipe) {
+      return recipe.appliance ? [normalizeString(recipe.appliance)] : [];
+    },
+    utensils(recipe) {
+      return (recipe.utensils || []).filter(Boolean).map(normalizeString);
+    },
   },
-  appliances: {
-    extract: recipe => recipe.appliance,
-    isArray: false,
-  },
-  utensils: {
-    extract: recipe => recipe.utensils || [],
-    isArray: true,
-  },
-};
-
-const SEARCHABLE_FIELDS = ["name", "description", "appliance"];
-
-const getRecipeFieldValues = (recipe, fieldType) => {
-  const config = FIELD_CONFIG[fieldType];
-  if (!config) return [];
-  const rawValue = config.extract(recipe);
-  if (!rawValue) return [];
-  const values = config.isArray ? rawValue : [rawValue];
-  return values.filter(Boolean).map(normalizeString);
-};
-
-const buildSearchableText = recipe => {
-  const parts = [];
-  for (const field of SEARCHABLE_FIELDS) {
-    if (recipe[field]) parts.push(recipe[field]);
-  }
-  for (const config of Object.values(FIELD_CONFIG)) {
-    if (config.isArray) {
-      const values = config.extract(recipe);
-      if (Array.isArray(values)) {
-        parts.push(...values.filter(Boolean));
-      }
+  buildSearchText(recipe) {
+    const base = [recipe.name, recipe.description, recipe.appliance];
+    const extras = [];
+    if (Array.isArray(recipe.ingredients)) {
+      extras.push(...recipe.ingredients.map(i => i?.ingredient));
     }
-  }
-  return parts.join(" ");
+    if (Array.isArray(recipe.utensils)) {
+      extras.push(...recipe.utensils);
+    }
+    return normalizeString([...base, ...extras].filter(Boolean).join(" "));
+  },
+  onSearch(recipes, searchTerm) {
+    const query = normalizeString(searchTerm);
+    if (!query) return recipes;
+    return recipes.filter(recipe => this.buildSearchText(recipe).includes(query));
+  },
 };
 
 const filterBySearchTerm = (recipes, searchTerm) => {
   if (!Array.isArray(recipes)) return [];
-  const query = normalizeString(searchTerm);
-  if (!query) return recipes;
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const text = normalizeString(buildSearchableText(recipe));
-    return text.includes(query);
-  });
+  return filtersEngine.onSearch(recipes, searchTerm);
 };
 
 filterBySearchTerm(recipes, searchTerm);`,

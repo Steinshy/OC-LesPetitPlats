@@ -2,14 +2,18 @@ import { afterAll, describe, it, expect, beforeEach, vi, afterEach } from "vites
 import * as dropdownsModule from "@/components/dropdowns/manager.js";
 import { lockScroll, unlockScroll, setupScrollLock } from "@/components/scrollLock.js";
 import * as scrollToTopModule from "@/components/scrollToTop.js";
-import * as deviceModule from "@/utils/device.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import * as deviceModule from "@/utils/config.js";
 
 const MOBILE_DETECTOR_HTML = '<div class="mobile-detector"></div>';
 
-vi.mock("@/utils/device.js", () => ({
-  isMobile: vi.fn(() => false),
-}));
+vi.mock("@/utils/config.js", async () => {
+  const actual = await vi.importActual("@/utils/config.js");
+  return {
+    ...actual,
+    isMobile: vi.fn(() => false),
+  };
+});
 
 vi.mock("@/components/dropdowns/manager.js", () => ({
   stickyDropdowns: vi.fn(),

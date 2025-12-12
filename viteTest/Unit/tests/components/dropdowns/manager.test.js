@@ -1,7 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import * as headerModule from "@/components/header.js";
-import * as deviceModule from "@/utils/device.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 import { buildDropdownsData } from "~/src/components/dropdowns/data.js";
 import {
@@ -10,6 +9,7 @@ import {
   stickyDropdowns,
   updateDropdownContent,
 } from "~/src/components/dropdowns/manager.js";
+import * as deviceModule from "@/utils/config.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
@@ -79,7 +79,7 @@ vi.mock("@/components/dropdowns/render.js", () => ({
 }));
 
 vi.mock("@/components/skeletons/manager.js", () => ({
-  dropdownsSkeletons: vi.fn(() => ({
+  dropdownsSkeleton: vi.fn(() => ({
     show: vi.fn(),
     hide: vi.fn(),
   })),
@@ -100,9 +100,13 @@ vi.mock("@/components/header.js", () => ({
   isScrolledPastHeader: vi.fn(() => false),
 }));
 
-vi.mock("@/utils/device.js", () => ({
-  isMobile: vi.fn(() => false),
-}));
+vi.mock("@/utils/config.js", async () => {
+  const actual = await vi.importActual("@/utils/config.js");
+  return {
+    ...actual,
+    isMobile: vi.fn(() => false),
+  };
+});
 
 vi.mock("@/utils/constants.js", () => ({
   ariaHidden: "aria-hidden",

@@ -1,7 +1,7 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
 import {
   searchSkeleton,
-  dropdownsSkeletons,
+  dropdownsSkeleton,
   cardsSkeletons,
 } from "@/components/skeletons/manager.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
@@ -97,53 +97,46 @@ describe("skeletons", () => {
     });
   });
 
-  describe("dropdownsSkeletons", () => {
-    it(`should add ${SKELETON_LOADING_CLASS} class to all dropdown containers`, () => {
+  describe("dropdownsSkeleton", () => {
+    it(`should add skeleton HTML to dropdowns container`, () => {
       document.body.innerHTML = `
         <div id="dropdowns-container"></div>
       `;
 
-      dropdownsSkeletons().show();
+      dropdownsSkeleton().show();
 
       const container = document.getElementById("dropdowns-container");
       expect(container).toBeTruthy();
-      expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
-
-      // After show(), the container should have the skeleton HTML with dropdown containers
-      const ingredients = document.getElementById(DROPDOWN_INGREDIENTS_ID);
-      const utensils = document.getElementById(DROPDOWN_utensils_ID);
-      const appliances = document.getElementById(DROPDOWN_APPLIANCES_ID);
-
-      expect(ingredients).toBeTruthy();
-      expect(utensils).toBeTruthy();
-      expect(appliances).toBeTruthy();
+      expect(container.innerHTML).toContain("dropdown-container");
+      expect(container.innerHTML).toContain(SKELETON_LOADING_CLASS);
     });
 
     it("should handle missing containers gracefully", () => {
       document.body.innerHTML = EMPTY_HTML;
 
-      expect(() => dropdownsSkeletons().show()).not.toThrow();
+      expect(() => dropdownsSkeleton().show()).not.toThrow();
     });
 
-    it(`should remove ${SKELETON_LOADING_CLASS} class from all dropdown containers`, () => {
+    it(`should remove skeleton dropdown containers`, () => {
       document.body.innerHTML = `
-        <div id="dropdowns-container" class="${SKELETON_LOADING_CLASS}">
-          <div id="${DROPDOWN_INGREDIENTS_ID}" class="dropdown-container"></div>
-          <div id="${DROPDOWN_utensils_ID}" class="dropdown-container"></div>
-          <div id="${DROPDOWN_APPLIANCES_ID}" class="dropdown-container"></div>
+        <div id="dropdowns-container">
+          <div class="dropdown-container skeleton"></div>
+          <div class="dropdown-container skeleton"></div>
+          <div class="dropdown-container skeleton"></div>
         </div>
       `;
 
-      dropdownsSkeletons().hide();
+      dropdownsSkeleton().hide();
 
       const container = document.getElementById("dropdowns-container");
-      expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(false);
+      const skeletons = container.querySelectorAll(".dropdown-container.skeleton");
+      expect(skeletons.length).toBe(0);
     });
 
     it("should handle missing containers gracefully on hide", () => {
       document.body.innerHTML = EMPTY_HTML;
 
-      expect(() => dropdownsSkeletons().hide()).not.toThrow();
+      expect(() => dropdownsSkeleton().hide()).not.toThrow();
     });
   });
 
@@ -247,12 +240,14 @@ describe("skeletons", () => {
         <div id="dropdowns-container"></div>
       `;
 
-      dropdownsSkeletons().show();
+      dropdownsSkeleton().show();
       const container = document.getElementById("dropdowns-container");
-      expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(true);
+      expect(container.innerHTML).toContain("dropdown-container");
+      expect(container.innerHTML).toContain(SKELETON_LOADING_CLASS);
 
-      dropdownsSkeletons().hide();
-      expect(container.classList.contains(SKELETON_LOADING_CLASS)).toBe(false);
+      dropdownsSkeleton().hide();
+      const skeletons = container.querySelectorAll(".dropdown-container.skeleton");
+      expect(skeletons.length).toBe(0);
     });
   });
 

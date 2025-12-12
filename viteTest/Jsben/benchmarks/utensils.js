@@ -1,5 +1,5 @@
 // Utensils filter benchmark generator
-import { normalizeString, canonicalizeTerm } from "@viteTest-helper/jsben.js";
+import { normalizeString } from "@viteTest-helper/jsben.js";
 
 export function generateUtensilsBenchmark(sampleRecipes) {
   const utensilsSet = new Set();
@@ -12,49 +12,38 @@ export function generateUtensilsBenchmark(sampleRecipes) {
 
   return {
     setup: `${normalizeString}
-${canonicalizeTerm}
 
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const utensils = ${JSON.stringify(testUtensils)};`,
 
-    production: `// Production implementation using .map()/.filter()
-const FIELD_CONFIG = {
-  utensils: {
-    extract: recipe => recipe.utensils || [],
-    isArray: true,
+    production: `// Production implementation from src/components/filters/filtersEngine.js
+const filtersEngine = {
+  extract: {
+    utensils(recipe) {
+      return (recipe.utensils || []).filter(Boolean).map(normalizeString);
+    },
+  },
+  onFilter(recipes, selectedValues, type) {
+    if (!selectedValues || selectedValues.size === 0) return recipes;
+    const selected = [...selectedValues];
+    return recipes.filter(recipe => {
+      const values = this.extract[type](recipe);
+      return selected.every(v => values.includes(normalizeString(v)));
+    });
   },
 };
 
-const getRecipeFieldValues = (recipe, fieldType) => {
-  const config = FIELD_CONFIG[fieldType];
-  if (!config) return [];
-  const rawValue = config.extract(recipe);
-  if (!rawValue) return [];
-  const values = config.isArray ? rawValue : [rawValue];
-  return values.filter(Boolean).map(normalizeString);
-};
-
-const filterByField = (recipes, selectedValues, fieldType) => {
-  if (!Array.isArray(recipes)) return [];
-  if (!FIELD_CONFIG[fieldType]) return recipes;
-  const selected = selectedValues instanceof Set ? [...selectedValues] : selectedValues;
-  if (!selected || selected.length === 0) return recipes;
-
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const recipeValues = getRecipeFieldValues(recipe, fieldType);
-    const normalizedSelected = selected.map(normalizeString);
-    return normalizedSelected.every(value => recipeValues.includes(value));
-  });
-};
-
 const filterByutensils = (recipes, utensils) => {
-  return filterByField(recipes, utensils, "utensils");
+  if (!Array.isArray(recipes)) return [];
+  const selectedValues = utensils instanceof Set ? utensils : new Set(utensils || []);
+  return filtersEngine.onFilter(recipes, selectedValues, "utensils");
 };
 
 filterByutensils(recipes, utensils);`,
 
     forEach: `// forEach implementation
+const canonicalizeTerm = value => normalizeString(value);
+
 const filterByutensils = (recipes, utensils) => {
   if (!utensils || (Array.isArray(utensils) && utensils.length === 0)) {
     return recipes;

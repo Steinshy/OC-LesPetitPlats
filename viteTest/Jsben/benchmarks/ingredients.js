@@ -1,5 +1,5 @@
 // Ingredients filter benchmark generator
-import { normalizeString, canonicalizeTerm } from "@viteTest-helper/jsben.js";
+import { normalizeString } from "@viteTest-helper/jsben.js";
 
 export function generateIngredientsBenchmark(sampleRecipes) {
   const ingredientsSet = new Set();
@@ -12,49 +12,41 @@ export function generateIngredientsBenchmark(sampleRecipes) {
 
   return {
     setup: `${normalizeString}
-${canonicalizeTerm}
 
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const ingredients = ${JSON.stringify(testIngredients)};`,
 
-    production: `// Production implementation using .map()/.filter()
-const FIELD_CONFIG = {
-  ingredients: {
-    extract: recipe => (recipe.ingredients || []).map(ingredient => ingredient?.ingredient),
-    isArray: true,
+    production: `// Production implementation from src/components/filters/filtersEngine.js
+const filtersEngine = {
+  extract: {
+    ingredients(recipe) {
+      return (recipe.ingredients || [])
+        .map(i => i?.ingredient)
+        .filter(Boolean)
+        .map(normalizeString);
+    },
+  },
+  onFilter(recipes, selectedValues, type) {
+    if (!selectedValues || selectedValues.size === 0) return recipes;
+    const selected = [...selectedValues];
+    return recipes.filter(recipe => {
+      const values = this.extract[type](recipe);
+      return selected.every(v => values.includes(normalizeString(v)));
+    });
   },
 };
 
-const getRecipeFieldValues = (recipe, fieldType) => {
-  const config = FIELD_CONFIG[fieldType];
-  if (!config) return [];
-  const rawValue = config.extract(recipe);
-  if (!rawValue) return [];
-  const values = config.isArray ? rawValue : [rawValue];
-  return values.filter(Boolean).map(normalizeString);
-};
-
-const filterByField = (recipes, selectedValues, fieldType) => {
-  if (!Array.isArray(recipes)) return [];
-  if (!FIELD_CONFIG[fieldType]) return recipes;
-  const selected = selectedValues instanceof Set ? [...selectedValues] : selectedValues;
-  if (!selected || selected.length === 0) return recipes;
-
-  return recipes.filter(recipe => {
-    if (!recipe) return false;
-    const recipeValues = getRecipeFieldValues(recipe, fieldType);
-    const normalizedSelected = selected.map(normalizeString);
-    return normalizedSelected.every(value => recipeValues.includes(value));
-  });
-};
-
 const filterByIngredients = (recipes, ingredients) => {
-  return filterByField(recipes, ingredients, "ingredients");
+  if (!Array.isArray(recipes)) return [];
+  const selectedValues = ingredients instanceof Set ? ingredients : new Set(ingredients || []);
+  return filtersEngine.onFilter(recipes, selectedValues, "ingredients");
 };
 
 filterByIngredients(recipes, ingredients);`,
 
     forEach: `// forEach implementation
+const canonicalizeTerm = value => normalizeString(value);
+
 const filterByIngredients = (recipes, ingredients) => {
   if (!ingredients || (Array.isArray(ingredients) && ingredients.length === 0)) {
     return recipes;

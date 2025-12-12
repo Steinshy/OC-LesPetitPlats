@@ -8,9 +8,13 @@ vi.mock("@/components/header.js", () => ({
   isScrolledPastHeader: vi.fn(() => false),
 }));
 
-vi.mock("@/utils/device.js", () => ({
-  isMobile: vi.fn(() => false),
-}));
+vi.mock("@/utils/config.js", async () => {
+  const actual = await vi.importActual("@/utils/config.js");
+  return {
+    ...actual,
+    isMobile: vi.fn(() => false),
+  };
+});
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
 const DROPDOWNS_CONTAINER_ID = "dropdowns-container";

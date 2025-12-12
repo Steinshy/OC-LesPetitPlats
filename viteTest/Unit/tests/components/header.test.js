@@ -6,15 +6,19 @@ import {
   setupHeader,
 } from "@/components/header.js";
 import * as skeletonsModule from "@/components/skeletons/manager.js";
-import * as deviceModule from "@/utils/device.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import * as deviceModule from "@/utils/config.js";
 
 const IMAGE1_WEBP = "image1.webp";
 const IMAGE1_JPG = "image1.jpg";
 
-vi.mock("@/utils/device.js", () => ({
-  isMobile: vi.fn(() => false),
-}));
+vi.mock("@/utils/config.js", async () => {
+  const actual = await vi.importActual("@/utils/config.js");
+  return {
+    ...actual,
+    isMobile: vi.fn(() => false),
+  };
+});
 
 const mockHide = vi.fn();
 vi.mock("@/components/skeletons/manager.js", () => ({

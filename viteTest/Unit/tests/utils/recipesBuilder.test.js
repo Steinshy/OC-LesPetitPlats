@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
 import { cacheManager } from "@/utils/cache.js";
-import { buildRecipesData } from "@/utils/recipesBuilder.js";
+import { buildRecipes } from "@/utils/recipesBuilder.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 describe("recipesBuilder", () => {
@@ -22,7 +22,7 @@ describe("recipesBuilder", () => {
       { ingredient: "Sugar", quantity: 100, unit: "g" },
     ],
     ustensils: ["Spoon", "Bowl"], // API uses 'ustensils' (with 'u')
-    image: "recipes/test.jpg",
+    image: "test",
   };
 
   it("should build recipe with correct structure", async () => {
@@ -34,7 +34,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -58,7 +58,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -78,15 +78,15 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
     // Property is 'images' not 'image'
     expect(recipes[0].images).toHaveProperty("jpgUrl");
     expect(recipes[0].images).toHaveProperty("webpUrl");
-    expect(recipes[0].images.jpgUrl).toContain("recipes/test.jpg");
-    expect(recipes[0].images.webpUrl).toContain("recipes/test.webp");
+    expect(recipes[0].images.jpgUrl).toContain("test.jpg");
+    expect(recipes[0].images.webpUrl).toContain("test.webp");
   });
 
   it("should build search string from name, ingredients, utensils, and appliance", async () => {
@@ -104,7 +104,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -124,7 +124,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -148,7 +148,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -175,7 +175,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
@@ -192,7 +192,7 @@ describe("recipesBuilder", () => {
       }),
     );
 
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isErr()).toBe(true);
     expect(result.error.message).toBe("Network error: 404");
   });
@@ -229,7 +229,7 @@ describe("recipesBuilder", () => {
     );
 
     // Built recipes data - returns Result with array
-    const result = await buildRecipesData();
+    const result = await buildRecipes();
     expect(result.isOk()).toBe(true);
     const recipes = result.value;
 
