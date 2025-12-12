@@ -1125,12 +1125,12 @@
     transform: translateY(-6px);
   }
 
-  .card:hover .picture img {
+  .card:hover .card-picture img {
     transform: scale(1.05);
   }
 
   /* Card Picture */
-  .picture {
+  .card-picture {
     aspect-ratio: 3 / 2;
     display: block;
     height: auto;
@@ -1140,13 +1140,13 @@
     width: 100%;
   }
 
-  .picture picture {
+  .card-picture picture {
     display: block;
     height: 100%;
     width: 100%;
   }
 
-  .picture img {
+  .card-picture img {
     border-radius: 0;
     display: block;
     height: 100%;

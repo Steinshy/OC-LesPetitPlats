@@ -26,22 +26,16 @@ export const parseURLState = () => {
 
 export const updateURLState = state => {
   const params = {};
+  const keys = ["search", "ingredients", "appliances", "utensils"];
 
-  if (state.search) {
-    params.search = state.search;
-  }
-
-  if (state.ingredients.size > 0) {
-    params.ingredients = [...state.ingredients];
-  }
-
-  if (state.appliances.size > 0) {
-    params.appliances = [...state.appliances];
-  }
-
-  if (state.utensils.size > 0) {
-    params.utensils = [...state.utensils];
-  }
+  keys.forEach(key => {
+    const value = state[key];
+    if (typeof value === "string" && value) {
+      params[key] = value;
+    } else if (value instanceof Set && value.size > 0) {
+      params[key] = [...value];
+    }
+  });
 
   const query = queryString.stringify(params, { arrayFormat: "comma" });
   const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;

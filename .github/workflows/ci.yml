@@ -312,7 +312,7 @@ jobs:
           # - CI=true: Ensures non-interactive mode
           # Tests are located in viteTest/Unit/
           # Note: Coverage may fail due to thresholds, but reports are still generated
-          npx vitest --coverage --reporter=junit --outputFile=test-report.junit.xml --run viteTest/Unit/ || true
+          npm run test:coverage -- --reporter=junit --outputFile=test-report.junit.xml viteTest/Unit/ || true
         continue-on-error: true
 
       - name: Check if coverage reports exist

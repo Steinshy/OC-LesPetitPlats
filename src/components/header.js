@@ -1,6 +1,6 @@
 // src/components/header.js
 import { headerSkeleton } from "@components/skeletons/manager.js";
-import { isMobile } from "@utils/device.js";
+import { isMobile } from "@utils/config.js";
 
 export const headerElement = () => ({
   header: document.getElementById("header"),
@@ -21,13 +21,13 @@ export const isScrolledPastHeader = () => {
 };
 
 // Set random recipe image as header background
-export const setupHeader = recipesData => {
+export const setupHeader = recipes => {
   const { header } = headerElement();
-  if (!recipesData || !header || !Array.isArray(recipesData)) return;
+  if (!recipes || !header || !Array.isArray(recipes)) return;
 
   headerSkeleton().hide();
 
-  const images = recipesData.map(recipe => recipe?.images).filter(Boolean);
+  const images = recipes.map(recipe => recipe?.images).filter(Boolean);
 
   if (!images.length) return;
 

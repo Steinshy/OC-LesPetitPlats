@@ -31,7 +31,7 @@ export const renderCard = (
 ) => {
   return `
       <div class="card" id="card-${id}">
-        <div class="picture">
+        <div class="card-picture skeleton">
           <picture>
             <source srcset="${webpUrl}" type="image/webp" />
             <img 
@@ -39,8 +39,8 @@ export const renderCard = (
               alt="${alt}" 
               type="image/jpeg"
               loading="lazy" 
-              width="380" 
-              height="253" 
+              width="400" 
+              height="300" 
               decoding="async" 
               fetchpriority="low" 
             />

@@ -24,8 +24,7 @@
     "clean": "rm -rf dist node_modules/.vite benchmark-results Report .stryker-tmp lighthouse",
     "benchmark": "NODE_OPTIONS='--max-old-space-size=4096' npx tsx viteTest/Benchmarks/reporting/index.js",
     "jsben": "npx tsx viteTest/Jsben/setup.js",
-    "lighthouse": "npm run build && (npm run preview &) && sleep 5 && node scripts/lighthouse.js http://localhost:5173/OC-LesPetitPlats/ && pkill -f 'vite preview' || true",
-    "dep:graph": "madge ./src --image ./public/uml/deps-graph.png"
+    "lighthouse": "npm run build && (npm run preview &) && sleep 5 && node scripts/lighthouse.js http://localhost:5173/OC-LesPetitPlats/ && pkill -f 'vite preview' || true"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",

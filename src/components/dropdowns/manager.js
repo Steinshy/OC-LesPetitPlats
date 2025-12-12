@@ -12,28 +12,27 @@ import {
   renderDropdown,
   renderDropdownItem,
 } from "@components/dropdowns/render.js";
-import { filtersState } from "@components/filters/state.js";
+import { filtersEngine } from "@components/filters/filtersEngine.js";
+import { filtersState } from "@components/filters/filtersState.js";
 import { isScrolledPastHeader } from "@components/header.js";
 import { lockScroll, unlockScroll } from "@components/scrollLock.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
 import { dropdownsSkeleton } from "@components/skeletons/manager.js";
-import { ariaHidden } from "@utils/constants.js";
-import { isMobile } from "@utils/device.js";
+import { ariaHidden, isMobile } from "@utils/config.js";
 import { eventBus } from "@utils/eventBus.js";
-import { filterDropdownItems } from "@utils/filterEngine.js";
 
 export let currentDropdownsData = {};
 export let dropdownTypes = [];
 
-export const setupDropdowns = recipesData => {
-  if (!recipesData) return;
+export const setupDropdowns = recipes => {
+  if (!recipes) return;
 
   const { containers } = dropdownsElements();
   if (!containers) return;
 
   unlockScroll();
 
-  const dropdownsData = buildDropdownsData(recipesData);
+  const dropdownsData = buildDropdownsData(recipes);
   currentDropdownsData = dropdownsData.dropdowns || {};
   dropdownTypes = Object.keys(currentDropdownsData) || [];
 
@@ -50,6 +49,26 @@ export const setupDropdowns = recipesData => {
   document.addEventListener("keydown", interactionHandlers.escapeKey);
   document.addEventListener("click", interactionHandlers.click);
   window.addEventListener("resize", stickyDropdowns);
+
+  // Update dropdowns when filters are updated
+  const onFiltersUpdated = ({ filtered }) => {
+    const dropdownData = buildDropdownsData(filtered);
+    currentDropdownsData = dropdownData.dropdowns || {};
+
+    dropdownTypes.forEach(type => {
+      const { searchInput } = dropdownSearchElements(type);
+      if (searchInput) searchInput.value = "";
+      updateDropdownList(type);
+    });
+  };
+  eventBus.on("filters:updated", onFiltersUpdated);
+
+  return () => {
+    document.removeEventListener("keydown", interactionHandlers.escapeKey);
+    document.removeEventListener("click", interactionHandlers.click);
+    window.removeEventListener("resize", stickyDropdowns);
+    eventBus.off("filters:updated", onFiltersUpdated);
+  };
 };
 
 export const stickyDropdowns = () => {
@@ -135,17 +154,9 @@ const setupDropdownListeners = dropdownTypes => {
         event.preventDefault();
         event.stopPropagation();
 
-        const isSelected = clickedButton.classList.toggle("selected");
-        clickedButton.setAttribute("aria-pressed", String(isSelected));
-        const listItem = clickedButton.closest("li[role='option']");
-        if (listItem) {
-          listItem.setAttribute("aria-selected", String(isSelected));
-        }
-
         eventBus.emit("dropdown:itemToggled", {
           type: clickedButton.dataset.type,
           value: clickedButton.dataset.value,
-          selected: isSelected,
         });
 
         if (isMobile()) {
@@ -188,7 +199,7 @@ const openDropdown = type => {
 
   backdrop?.setAttribute(ariaHidden, "false");
   menu?.setAttribute(ariaHidden, "false");
-
+  updateDropdownList(type);
   document.body.classList.add("dropdown-open");
 
   if (isMobile()) {
@@ -239,7 +250,9 @@ const closeAllDropdowns = () => {
 
 const closeDropdown = type => {
   const { container } = dropdownElements(type);
+  const { searchInput } = dropdownSearchElements(type);
   if (!container?.classList.contains("open")) return;
+  if (searchInput) searchInput.value = "";
 
   closeAllDropdowns();
 };
@@ -287,10 +300,10 @@ export const updateDropdownContent = type => {
 
 const updateDropdownCount = (type, count) => {
   const countElement = document.getElementById(`dropdown-${type}-count`);
-  if (countElement) {
-    countElement.textContent = count > 0 ? count : "";
-    countElement.classList.toggle("visible", count > 0);
-  }
+  if (!countElement) return;
+
+  countElement.textContent = count > 0 ? count : "";
+  countElement.classList.toggle("visible", count > 0);
 };
 
 const updateDropdownList = type => {
@@ -301,14 +314,12 @@ const updateDropdownList = type => {
 
   const allItems = currentDropdownsData[type] || [];
   const query = searchInput?.value?.trim() ?? "";
+  const filtered = filtersEngine.filterDropdownItems(allItems, query);
 
-  // Update count
   updateDropdownCount(type, allItems.length);
 
-  const filtered = filterDropdownItems(allItems, query);
-
   if (filtered.length > 0) {
-    const selectedSet = filtersState.filters[type];
+    const selectedSet = filtersState[type];
     const html = filtered
       .map(item => {
         const label = item?.label ?? item;

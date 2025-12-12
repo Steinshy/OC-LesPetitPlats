@@ -1,42 +1,45 @@
 // src/components/cards/manager.js
 import { cardsElements } from "@components/cards/elements.js";
 import { renderCard, renderIngredient, emptyCards } from "@components/cards/render.js";
+import { updateResultsCounter } from "@components/resultsCounter.js";
 import { cardsSkeletons } from "@components/skeletons/manager.js";
+import { eventBus } from "@utils/eventBus.js";
 
-const buildIngredient = ({ ingredient, quantity, unit }) => {
-  const hasQuantity = quantity != null && quantity !== "";
-  const hasUnit = unit != null && unit !== "";
+export const cardsManager = {
+  render(recipes) {
+    if (!recipes) return;
 
-  const quantityText =
-    hasQuantity || hasUnit
-      ? [hasQuantity ? quantity : null, hasUnit ? unit : null].filter(Boolean).join(" ")
-      : "au goût";
+    const { container } = cardsElements();
+    if (!container) return;
 
-  return {
-    ingredient,
-    quantity,
-    unit,
-    quantityText,
-  };
+    cardsSkeletons().show(recipes.length || 0);
+
+    if (recipes.length) {
+      container.innerHTML = "";
+      container.append(...createCards(recipes));
+      setupRecipeToggle(container);
+    } else {
+      container.innerHTML = emptyCards();
+    }
+
+    cardsSkeletons().hide();
+  },
 };
 
-export const setupRecipesCards = recipesData => {
-  if (!recipesData) return;
+export const setupRecipesCards = recipes => {
+  cardsManager.render(recipes);
+  updateResultsCounter(recipes?.length || 0);
 
-  const { container } = cardsElements();
-  if (!container) return;
+  const onFiltersUpdated = ({ filtered }) => {
+    cardsManager.render(filtered);
+    updateResultsCounter(filtered.length || 0);
+  };
 
-  cardsSkeletons().show(recipesData?.length || 0);
+  eventBus.on("filters:updated", onFiltersUpdated);
 
-  if (!recipesData.length) {
-    container.innerHTML = emptyCards();
-  } else {
-    container.innerHTML = "";
-    container.append(...createCards(recipesData));
-    setupRecipeToggle(container);
-  }
-
-  cardsSkeletons().hide();
+  return () => {
+    eventBus.off("filters:updated", onFiltersUpdated);
+  };
 };
 
 const setupRecipeToggle = container => {
@@ -52,12 +55,12 @@ const setupRecipeToggle = container => {
   });
 };
 
-const createCards = recipesData => {
-  return recipesData.map(recipe => {
+const createCards = recipes => {
+  return recipes.map(recipe => {
     const { id, name, time, images, description, ingredients } = recipe;
     const { webpUrl, jpgUrl, alt } = images || {};
     const ingredientsCount = ingredients?.length || 0;
-    const items = (ingredients || []).map(buildIngredient);
+    const items = ingredients?.map(buildIngredient) ?? [];
     const ingredientsList = createIngredientsList(items);
 
     const template = document.createElement("template");
@@ -83,4 +86,21 @@ const createIngredientsList = items => {
       return renderIngredient(ingredient, quantityText);
     })
     .join("");
+};
+
+const buildIngredient = ({ ingredient, quantity, unit }) => {
+  const hasQuantity = quantity != null && quantity !== "";
+  const hasUnit = unit != null && unit !== "";
+
+  const quantityText =
+    hasQuantity || hasUnit
+      ? [hasQuantity ? quantity : null, hasUnit ? unit : null].filter(Boolean).join(" ")
+      : "au goût";
+
+  return {
+    ingredient,
+    quantity,
+    unit,
+    quantityText,
+  };
 };

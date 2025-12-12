@@ -1,7 +1,7 @@
 // src/components/scrollToTop.js
 import { dropdownsElements } from "@components/dropdowns/elements.js";
 import { isScrolledPastHeader } from "@components/header.js";
-import { isMobile } from "@utils/device.js";
+import { isMobile } from "@utils/config.js";
 
 let button = null;
 
@@ -11,30 +11,31 @@ const getButton = () => {
 };
 
 export const showScrollToTop = () => {
-  const buttonElement = getButton();
-  if (!buttonElement) return;
-  buttonElement.classList.add("show");
-  buttonElement.setAttribute("aria-hidden", "false");
+  const element = getButton();
+  if (!element) return;
+  element.classList.add("show");
+  element.setAttribute("aria-hidden", "false");
 };
 
 export const hideScrollToTop = () => {
-  const buttonElement = getButton();
-  if (!buttonElement) return;
-  buttonElement.classList.remove("show");
-  buttonElement.setAttribute("aria-hidden", "true");
+  const element = getButton();
+  if (!element) return;
+  element.classList.remove("show");
+  element.setAttribute("aria-hidden", "true");
 };
 
 export const hasOpenDropdown = () => {
   const { section } = dropdownsElements();
   if (!section) return false;
+
   return [...section.querySelectorAll(".dropdown-container")].some(dropdown =>
     dropdown.classList.contains("open"),
   );
 };
 
 export const updateVisibility = () => {
-  const buttonElement = getButton();
-  if (!buttonElement) return;
+  const element = getButton();
+  if (!element) return;
 
   const shouldHideOnMobile = isMobile() && hasOpenDropdown();
   const shouldShow = isScrolledPastHeader() && !shouldHideOnMobile;
@@ -48,10 +49,17 @@ export const updateVisibility = () => {
 
 export const setupScrollToTop = () => {
   button = document.getElementById("scroll-to-top");
-  if (!button) return;
+  if (!button) return () => {};
 
-  button.addEventListener("click", () => {
+  const onClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    button?.blur();
-  });
+    button.blur();
+  };
+
+  button.addEventListener("click", onClick);
+
+  return () => {
+    button.removeEventListener("click", onClick);
+    button = null;
+  };
 };

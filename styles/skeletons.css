@@ -46,7 +46,7 @@
     color: transparent;
   }
 
-  .card.skeleton .card-picture {
+  .card.skeleton .card-picture.skeleton {
     aspect-ratio: 3 / 2;
     display: block;
     height: auto;

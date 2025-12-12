@@ -1,19 +1,15 @@
 // src/components/scrollLock.js
-
 import { stickyDropdowns } from "@components/dropdowns/manager.js";
 import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
-import { isMobile } from "@utils/device.js";
+import { isMobile } from "@utils/config.js";
 
 let scrollPosition = 0;
 let isLocked = false;
 
-// Lock scroll on mobile by toggling a class on <html>.
-// Much safer than forcing body to fixed with top offsets.
 export const lockScroll = () => {
   if (!isMobile() || isLocked) return;
 
   scrollPosition = window.scrollY || document.documentElement.scrollTop;
-
   document.documentElement.classList.add("no-scroll");
   isLocked = true;
 };
@@ -23,7 +19,6 @@ export const unlockScroll = () => {
 
   document.documentElement.classList.remove("no-scroll");
 
-  // Restore scroll position without visual jump
   window.scrollTo({
     top: scrollPosition,
     behavior: "auto",
@@ -33,32 +28,38 @@ export const unlockScroll = () => {
 };
 
 export const setupScrollLock = () => {
-  window.addEventListener(
-    "scroll",
-    () => {
-      scrollToTopVisibility();
-      stickyDropdowns();
-    },
-    { passive: true },
-  );
+  const onScroll = () => {
+    scrollToTopVisibility();
+    stickyDropdowns();
+  };
 
   let resizeRafId;
 
-  const handleResize = () => {
-    resizeRafId = undefined;
-    stickyDropdowns();
-
-    // If viewport becomes non-mobile while locked, unlock gracefully
-    if (!isMobile() && isLocked) {
-      unlockScroll();
-    }
-  };
-
-  window.addEventListener("resize", () => {
+  const onResize = () => {
     if (resizeRafId) {
       cancelAnimationFrame(resizeRafId);
     }
 
-    resizeRafId = requestAnimationFrame(handleResize);
-  });
+    resizeRafId = requestAnimationFrame(() => {
+      resizeRafId = undefined;
+      stickyDropdowns();
+
+      if (!isMobile() && isLocked) {
+        unlockScroll();
+      }
+    });
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onResize);
+
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onResize);
+
+    if (resizeRafId) {
+      cancelAnimationFrame(resizeRafId);
+      resizeRafId = undefined;
+    }
+  };
 };

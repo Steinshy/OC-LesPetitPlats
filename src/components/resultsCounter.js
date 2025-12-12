@@ -5,7 +5,7 @@ const resultsCounterElement = () => ({
   container: document.querySelector(".results-counter-container"),
 });
 
-export const setupResultsCounter = count => {
+export const updateResultsCounter = count => {
   const { counter } = resultsCounterElement();
   if (!counter) return;
 

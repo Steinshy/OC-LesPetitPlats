@@ -15,7 +15,7 @@ export const cardSkeleton = count => {
   if (!count || count <= 0) return "";
   const skeleton = `
     <div class="card skeleton">
-      <div class="card-picture">
+      <div class="card-picture skeleton">
       </div>
     </div>
   `;

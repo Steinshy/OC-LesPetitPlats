@@ -1,41 +1,44 @@
 // src/App.js
 import { setupRecipesCards } from "@components/cards/manager.js";
 import { setupDropdowns } from "@components/dropdowns/manager.js";
-import { setupFilters } from "@components/filters/manager.js";
+import { setupFilters } from "@components/filters/setupFilters.js";
 import { setupHeader } from "@components/header.js";
-import { setupResultsCounter } from "@components/resultsCounter.js";
+import { updateResultsCounter } from "@components/resultsCounter.js";
 import { setupScrollLock } from "@components/scrollLock.js";
 import { setupScrollToTop } from "@components/scrollToTop.js";
 import { setupSearchBar } from "@components/search/manager.js";
 import { setupSkeletons } from "@components/skeletons/manager.js";
-import { buildRecipesData } from "@utils/recipesBuilder.js";
+import { buildRecipes } from "@utils/recipesBuilder.js";
 import { setupToast } from "@utils/toast.js";
 import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
 
 const initApp = async () => {
+  const cleanups = [];
   setupSkeletons();
-  setupScrollToTop();
+  cleanups.push(setupScrollToTop());
 
   // Fetch + transform recipes
-  const recipesResult = await buildRecipesData();
+  const recipesData = await buildRecipes();
 
-  recipesResult.match(
-    recipesData => {
-      setupResultsCounter(recipesData.length);
-      setupHeader(recipesData);
-      setupSearchBar();
-      setupDropdowns(recipesData);
-      setupScrollLock();
-      setupFilters(recipesData);
-      setupRecipesCards(recipesData);
+  recipesData.match(
+    recipes => {
+      updateResultsCounter(recipes.length);
+      setupHeader(recipes);
+      cleanups.push(setupFilters(recipes));
+      cleanups.push(setupDropdowns(recipes));
+      cleanups.push(setupRecipesCards(recipes));
+      cleanups.push(setupSearchBar());
+      cleanups.push(setupScrollLock());
     },
     async message => {
       setupToast(message, "default");
-      setupSearchBar();
-      setupResultsCounter(0);
+      updateResultsCounter(0);
     },
   );
+  return () => {
+    cleanups.forEach(cleanup => typeof cleanup === "function" && cleanup());
+  };
 };
 
 initApp();

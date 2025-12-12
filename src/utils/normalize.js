@@ -14,13 +14,16 @@ export const singularize = normalized => {
   return value;
 };
 
+export const capitalize = value =>
+  value ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() : "";
+
 const cleanLabel = raw => {
   const cleaned = String(raw ?? "")
     .replace(/\s*\([^)]*\)/g, "")
     .trim();
 
   if (!cleaned) return "";
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  return capitalize(cleaned);
 };
 
 export const toFilterItem = raw => {
