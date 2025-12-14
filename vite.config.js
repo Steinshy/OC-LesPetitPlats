@@ -14,7 +14,7 @@ export const PORT = 5173;
 export const OUT_DIR = "dist";
 
 export default defineConfig(({ mode }) => {
-  const escapeRegex = (string) => string.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+  const escapeRegex = string => string.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
   const basePathPattern = new RegExp(`^${escapeRegex(BASE_PATH)}?$`);
   const internalPathPattern = /^\/_/;
   const fileExtensionPattern = /\/[^/?]+\.[^/]+$/;
@@ -187,7 +187,11 @@ export default defineConfig(({ mode }) => {
         treeshake: {
           moduleSideEffects: id => {
             // Allow tree-shaking for npm packages that support it
-            if (["tiny-lru", "neverthrow", "query-string", "toastify-js"].some(pkg => id.includes(pkg))) {
+            if (
+              ["tiny-lru", "neverthrow", "query-string", "toastify-js"].some(pkg =>
+                id.includes(pkg),
+              )
+            ) {
               return false;
             }
             return null;
@@ -232,7 +236,11 @@ export default defineConfig(({ mode }) => {
             generateBundle(options, bundle) {
               // Optimize SVG files by removing unnecessary attributes and whitespace
               Object.entries(bundle).forEach(([fileName, chunk]) => {
-                if (fileName.endsWith(".svg") && chunk.type === "asset" && typeof chunk.source === "string") {
+                if (
+                  fileName.endsWith(".svg") &&
+                  chunk.type === "asset" &&
+                  typeof chunk.source === "string"
+                ) {
                   const optimized = chunk.source
                     // Remove comments
                     .replace(/<!--[\S\s]*?-->/g, "")

@@ -95,7 +95,7 @@ jobs:
         run: npm ci --silent
 
       - name: Run ESLint
-        run: npm run lint:eslint --loglevel=error
+        run: npm run lint:eslint -- --quiet
         continue-on-error: true
 
       - name: Run Stylelint
@@ -111,14 +111,14 @@ jobs:
         continue-on-error: true
 
       - name: Run ESLint security plugin
-        run: npm run lint:eslint -- --max-warnings=0 --loglevel=error
+        run: npm run lint:eslint -- --max-warnings=0 --quiet
         env:
           ESLINT_PLUGIN_SECURITY: "true"
         continue-on-error: true
 
       - name: Check for known security issues
         run: |
-          npm run lint:eslint --loglevel=error 2>&1 | grep -i "security" > /dev/null 2>&1 || true
+          npm run lint:eslint -- --quiet 2>&1 | grep -i "security" > /dev/null 2>&1 || true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -285,7 +285,7 @@ jobs:
         env:
           CI: true
         run: |
-          npm run test:coverage -- --reporter=junit --outputFile=test-report.junit.xml viteTest/Unit/ --loglevel=error || true
+          npm run test:coverage -- --reporter=default --reporter=junit --outputFile=test-report.junit.xml viteTest/Unit/ || true
         continue-on-error: true
 
       - name: Setup and upload coverage
@@ -327,12 +327,25 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload test results to Codecov
+      - name: Check if test report exists
+        id: check-test-report
         if: always() && !cancelled()
+        run: |
+          if [ -f "test-report.junit.xml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "test-report.junit.xml found"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "test-report.junit.xml not found"
+          fi
+
+      - name: Upload test results to Codecov
+        if: always() && !cancelled() && steps.check-test-report.outputs.exists == 'true'
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: test-report.junit.xml
+        continue-on-error: true
 
   mutation-test:
     name: Mutation Testing
