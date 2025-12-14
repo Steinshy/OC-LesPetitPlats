@@ -3,6 +3,7 @@
     <img src="public/favicons/logoIcon.svg" alt="Les Petits Plats" width="52" height="47" style="vertical-align: middle; margin-right: 12px; background: transparent;">
     Les Petits Plats
   </h1>
+  <p>🇬🇧 <a href="README.en.md">English</a></p>
   <p>
     Application web moderne permettant de rechercher parmi plus de 1500 recettes culinaires.<br>
     Interface intuitive avec recherche en temps réel, filtres avancés par ingrédients, appareils et ustensiles, et affichage optimisé des résultats.
@@ -133,8 +134,21 @@ LesPetitPlats/
 ├── src/
 │   ├── App.js          # Point d'entrée
 │   ├── coordinator.js  # Coordinateur d'événements
-│   ├── components/     # Composants UI (cards, dropdowns, filters, search, skeletons)
-│   └── utils/          # Utilitaires (cache, filterEngine, recipeApi, etc.)
+│   ├── components/     # Composants UI modulaires
+│   │   ├── cards/      # Affichage des recettes (manager, render, setup, ui)
+│   │   ├── dropdowns/  # Menus déroulants (data, elements, interactions, manager, render, setup)
+│   │   ├── filters/    # Système de filtrage modulaire
+│   │   │   ├── elements.js    # Sélecteurs DOM
+│   │   │   ├── engine.js      # Logique de filtrage (extraction, recherche)
+│   │   │   ├── interactions.js # Gestionnaires d'événements
+│   │   │   ├── pipeline.js    # Orchestration du pipeline de filtrage
+│   │   │   ├── render.js      # Fonctions de rendu (tags)
+│   │   │   ├── setup.js       # Initialisation
+│   │   │   ├── state.js       # Gestion de l'état
+│   │   │   └── ui.js          # Mises à jour UI (tags, compteurs)
+│   │   ├── search/     # Barre de recherche (elements, manager, render, setup)
+│   │   └── skeletons/  # Placeholders de chargement (manager, setup)
+│   └── utils/          # Utilitaires (cache, eventBus, normalize, recipeApi, etc.)
 ├── styles/             # Styles CSS (base, components, global, utilities)
 ├── scripts/            # Scripts utilitaires (analyze, export, lighthouse)
 ```

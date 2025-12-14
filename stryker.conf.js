@@ -27,7 +27,6 @@ export default {
     break: 60,
   },
   timeoutMS: 60000,
-  dryRunTimeoutMS: 600000,
   concurrency: 4,
   maxTestRunnerReuse: 25,
   ignoreStatic: true,

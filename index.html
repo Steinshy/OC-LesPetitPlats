@@ -32,10 +32,9 @@
 
     <!-- Resource Hints for Critical Assets -->
     <link rel="preload" href="/favicons/logo.svg" as="image" type="image/svg+xml" fetchpriority="high">
-    <link rel="preload" href="/src/App.js" as="script" crossorigin>
 
     <!-- Prefetch for likely next resources -->
-    <link rel="prefetch" href="/api/data.json" as="fetch" crossorigin>
+    <link rel="preload" href="/api/data.json" as="fetch" crossorigin>
   </head>
 
   <body>
@@ -85,12 +84,13 @@
       <main class="main">
         <!-- Dropdowns -->
         <section class="dropdowns" id="dropdowns">
+          <h2 class="sr-only">Filtres de recherche</h2>
           <div class="dropdowns-inner">
             <div id="dropdowns-container" class="dropdowns-container">
               <!-- Dropdown ingredients -->
             </div>
-            <div class="results-counter">
-              <span class="results-counter-text" id="results-counter">0 résultats</span>
+            <div class="counter-wrapper" id="counter-wrapper">
+              <span class="counter" id="counter">0 résultats</span>
             </div>
           </div>
         </section>
@@ -120,6 +120,7 @@
       <!-- Footer Section -->
       <footer class="footer" id="about-us">
         <section class="footer-brand">
+          <h2 class="sr-only">À propos de Les Petits Plats</h2>
           <img src="/favicons/logo_dark.svg" alt="Les Petits Plats - Logo" class="logo" width="207" height="26" loading="lazy" decoding="async">
           <p>Découvrez des recettes délicieuses et faciles à réaliser pour toutes les occasions.</p>
           <ul class="footer-social">
@@ -216,6 +217,6 @@
     </div>
 
     <!-- Main JavaScript Module -->
-    <script type="module" src="/src/App.js" defer></script>
+    <script type="module" src="/src/App.js"></script>
   </body>
 </html>
