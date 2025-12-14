@@ -98,7 +98,7 @@ describe("skeletons", () => {
   });
 
   describe("dropdownsSkeleton", () => {
-    it(`should add skeleton HTML to dropdowns container`, () => {
+    it("should add skeleton HTML to dropdowns container", () => {
       document.body.innerHTML = `
         <div id="dropdowns-container"></div>
       `;
@@ -117,7 +117,7 @@ describe("skeletons", () => {
       expect(() => dropdownsSkeleton().show()).not.toThrow();
     });
 
-    it(`should remove skeleton dropdown containers`, () => {
+    it("should remove skeleton dropdown containers", () => {
       document.body.innerHTML = `
         <div id="dropdowns-container">
           <div class="dropdown-container skeleton"></div>

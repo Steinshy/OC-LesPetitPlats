@@ -1,10 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { setupRecipesCards } from "@/components/cards/manager.js";
-import {
-  emptyCards,
-  renderCard,
-  renderIngredient,
-} from "@/components/cards/render.js";
+import { cardsUi } from "@/components/cards/manager.js";
+import { emptyCards, renderCard, renderIngredient } from "@/components/cards/render.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 vi.mock("@/utils/imageTracker.js", () => ({
@@ -72,7 +68,9 @@ describe("cards render", () => {
       expect(html).toContain("card-recipe");
       expect(html).toContain("card-ingredients");
       expect(html).toContain("tag-time");
-      expect(html).toContain("recipe-toggle");
+      expect(html).toContain("description-button");
+      expect(html).toContain("card-see-more");
+      expect(html).toContain("card-recipe-container");
     });
 
     it("should include picture element with source", () => {
@@ -93,12 +91,15 @@ describe("cards render", () => {
       expect(html).toContain("60 min");
     });
 
-    it("should include recipe toggle button", () => {
+    it("should include description toggle button", () => {
       const html = renderCard(1, "Test", 30, "Desc", "", "", "", 0, "");
 
-      expect(html).toContain("recipe-toggle");
+      expect(html).toContain("description-button");
+      expect(html).toContain("card-see-more");
       expect(html).toContain("Voir plus");
       expect(html).toContain('aria-expanded="false"');
+      expect(html).toContain('id="description-button-1"');
+      expect(html).toContain('id="card-see-more-1"');
     });
 
     it("should include ingredients count", () => {
@@ -136,7 +137,7 @@ describe("cards render", () => {
     });
   });
 
-  describe("setupRecipesCards", () => {
+  describe("cardsUi.render", () => {
     it("renders a single card with correct structure", () => {
       const recipes = [
         {
@@ -152,7 +153,7 @@ describe("cards render", () => {
         },
       ];
 
-      setupRecipesCards(recipes);
+      cardsUi.render(recipes);
 
       const container = document.getElementById("cards-container");
       const card = container.querySelector(".card");
@@ -161,11 +162,13 @@ describe("cards render", () => {
       expect(card.querySelector(".card-header h2").textContent).toBe("Tarte aux pommes");
       expect(card.querySelector(".tag-time .time-text").textContent).toContain("45");
       expect(card.querySelectorAll(".ingredients-lists .ingredient-chip").length).toBe(2);
-      expect(card.querySelector(".recipe-toggle")).toBeTruthy();
+      expect(card.querySelector(".description-button")).toBeTruthy();
+      expect(card.querySelector(".card-see-more")).toBeTruthy();
+      expect(card.querySelector(".card-recipe-container")).toBeTruthy();
     });
 
     it("should show empty state when no recipes", () => {
-      setupRecipesCards([]);
+      cardsUi.render([]);
 
       const container = document.getElementById("cards-container");
       const emptyCardsElement = container.querySelector(".empty-cards");
@@ -193,7 +196,7 @@ describe("cards render", () => {
         },
       ];
 
-      setupRecipesCards(recipes);
+      cardsUi.render(recipes);
 
       const container = document.getElementById("cards-container");
       const cards = container.querySelectorAll(".card");
@@ -201,12 +204,12 @@ describe("cards render", () => {
     });
 
     it("should handle null recipes data", () => {
-      expect(() => setupRecipesCards(null)).not.toThrow();
+      expect(() => cardsUi.render(null)).not.toThrow();
     });
 
     it("should handle missing container element", () => {
       document.body.innerHTML = "";
-      expect(() => setupRecipesCards([])).not.toThrow();
+      expect(() => cardsUi.render([])).not.toThrow();
     });
   });
 

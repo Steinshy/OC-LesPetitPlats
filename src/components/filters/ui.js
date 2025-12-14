@@ -1,22 +1,7 @@
-import { dropdownTypes } from "@components/dropdowns/manager.js";
+import { dropdownTypes } from "@components/dropdowns/setup.js";
+import { filtersElements } from "@components/filters/elements.js";
+import { renderFilterTag } from "@components/filters/render.js";
 import { capitalize } from "@utils/normalize.js";
-
-const renderFilterTag = ({ type, value, label, id }) => `
-  <li id="${id}" role="option">
-    <button type="button" class="filter-tag" id="tag-remove-button-${id}" data-type="${type}" data-value="${value}" aria-label="Retirer le tag ${label}">
-      <span>${label}</span>
-      <i aria-hidden="true">×</i>
-    </button>
-  </li>
-`;
-
-export const filtersElements = () => ({
-  section: document.getElementById("filters"),
-  container: document.getElementById("tags-container"),
-  count: document.getElementById("tags-count-text"),
-  clearBtn: document.getElementById("clear-tags-button"),
-  tagsList: document.getElementById("tags-list"),
-});
 
 const getActiveFilterSets = filtersState => {
   const result = {};
@@ -40,10 +25,9 @@ export const filtersUi = {
       set.forEach(value => {
         const label = capitalize(value);
         const id = `filter-tag-${type}-${value}`;
-        const li = document.createElement("li");
-
-        li.innerHTML = renderFilterTag({ type, value, label, id });
-        fragment.appendChild(li);
+        const template = document.createElement("template");
+        template.innerHTML = renderFilterTag({ type, value, label, id });
+        fragment.appendChild(template.content.firstElementChild);
       });
     });
 

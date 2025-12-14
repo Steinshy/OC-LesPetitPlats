@@ -1,6 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import * as headerModule from "@/components/header.js";
+import * as scrollModule from "@/components/scroll.js";
+import * as deviceModule from "@/utils/config.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 import { buildDropdownsData } from "~/src/components/dropdowns/data.js";
 import {
@@ -9,7 +10,6 @@ import {
   stickyDropdowns,
   updateDropdownContent,
 } from "~/src/components/dropdowns/manager.js";
-import * as deviceModule from "@/utils/config.js";
 
 const DROPDOWN_INGREDIENTS_CONTAINER_ID = "dropdown-ingredients-container";
 const DROPDOWN_utensils_CONTAINER_ID = "dropdown-utensils-container";
@@ -85,20 +85,18 @@ vi.mock("@/components/skeletons/manager.js", () => ({
   })),
 }));
 
-vi.mock("@/components/scrollLock.js", () => ({
-  lockScroll: vi.fn(),
-  unlockScroll: vi.fn(),
-}));
-
-vi.mock("@/components/scrollToTop.js", () => ({
-  updateVisibility: vi.fn(() => {
-    // Mock implementation that does nothing - just prevents errors
-  }),
-}));
-
-vi.mock("@/components/header.js", () => ({
-  isScrolledPastHeader: vi.fn(() => false),
-}));
+vi.mock("@/components/scroll.js", async () => {
+  const actual = await vi.importActual("@/components/scroll.js");
+  return {
+    ...actual,
+    lockScroll: vi.fn(),
+    unlockScroll: vi.fn(),
+    updateVisibility: vi.fn(() => {
+      // Mock implementation that does nothing - just prevents errors
+    }),
+    isScrolledPastHeader: vi.fn(() => false),
+  };
+});
 
 vi.mock("@/utils/config.js", async () => {
   const actual = await vi.importActual("@/utils/config.js");
@@ -261,7 +259,7 @@ describe("dropdown manager", () => {
     });
   });
 
-  describe("dropdown interactions", () => {
+  describe("dropdown interactionss", () => {
     beforeEach(() => {
       document.body.innerHTML = '<div id="dropdowns-container"></div>';
       // Use mock recipes to ensure buildDropdownsData returns the correct structure
@@ -508,7 +506,7 @@ describe("dropdown manager - stickyDropdowns", () => {
 
   describe("desktop behavior", () => {
     it("should add is-sticky class when scrolled past header on desktop", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
 
       const section = document.getElementById("dropdowns");
@@ -518,7 +516,7 @@ describe("dropdown manager - stickyDropdowns", () => {
     });
 
     it("should remove is-sticky class when not scrolled past header on desktop", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(false);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
 
       const section = document.getElementById("dropdowns");
@@ -529,7 +527,7 @@ describe("dropdown manager - stickyDropdowns", () => {
     });
 
     it("should set fixed position styles on desktop when sticky", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
 
       const section = document.getElementById("dropdowns");
@@ -545,7 +543,7 @@ describe("dropdown manager - stickyDropdowns", () => {
     });
 
     it("should reset inline styles when not sticky", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(false);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
 
       const section = document.getElementById("dropdowns");
@@ -565,7 +563,7 @@ describe("dropdown manager - stickyDropdowns", () => {
 
   describe("mobile behavior", () => {
     it("should handle mobile sticky behavior when scrolled past header", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
 
       const section = document.getElementById("dropdowns");
@@ -582,7 +580,7 @@ describe("dropdown manager - stickyDropdowns", () => {
     });
 
     it("should remove sticky when bottom sheet is open on mobile", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(true);
 
       const section = document.getElementById("dropdowns");
@@ -601,7 +599,7 @@ describe("dropdown manager - stickyDropdowns", () => {
 
   describe("error handling", () => {
     it("should handle missing main element gracefully", () => {
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       vi.mocked(deviceModule.isMobile).mockReturnValue(false);
 
       document.querySelector(".main").remove();

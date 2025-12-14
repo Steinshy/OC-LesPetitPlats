@@ -1,12 +1,16 @@
 import { afterAll, describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import * as headerModule from "@/components/header.js";
-import { setupScrollToTop, updateVisibility } from "@components/scrollToTop.js";
+import * as scrollModule from "@/components/scroll.js";
+import { setupScrollToTop, updateVisibility } from "@components/scroll.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 // Mock dependencies
-vi.mock("@/components/header.js", () => ({
-  isScrolledPastHeader: vi.fn(() => false),
-}));
+vi.mock("@/components/scroll.js", async () => {
+  const actual = await vi.importActual("@/components/scroll.js");
+  return {
+    ...actual,
+    isScrolledPastHeader: vi.fn(() => false),
+  };
+});
 
 vi.mock("@/utils/config.js", async () => {
   const actual = await vi.importActual("@/utils/config.js");
@@ -62,7 +66,7 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       setupScrollToTop();
       updateVisibility();
 
@@ -77,7 +81,7 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(false);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(false);
       setupScrollToTop();
       updateVisibility();
 
@@ -125,7 +129,7 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       setupScrollToTop();
 
       // setupScrollToTop doesn't set up scroll listener, that's in scrollLock.js
@@ -142,7 +146,7 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       setupScrollToTop();
       updateVisibility();
 
@@ -165,7 +169,7 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(true);
+      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
       setupScrollToTop();
       updateVisibility();
 
@@ -184,7 +188,7 @@ describe("scrollToTop", () => {
 
       // Test rapid calls to updateVisibility
       for (let i = 0; i < 10; i++) {
-        vi.mocked(headerModule.isScrolledPastHeader).mockReturnValue(i % 2 === 0);
+        vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(i % 2 === 0);
         updateVisibility();
       }
 

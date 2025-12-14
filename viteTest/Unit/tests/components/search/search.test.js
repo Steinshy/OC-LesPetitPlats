@@ -1,5 +1,12 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { setupRecipesCards } from "@/components/cards/manager.js";
+import { cardsUi } from "@/components/cards/manager.js";
+import {
+  mockRecipesForSearch,
+  RESULTS_COUNTER_SELECTOR,
+  SEARCH_INPUT_SELECTOR,
+  SEARCH_BUTTON_SELECTOR,
+} from "@tests-data/data.js";
+import { logCategorySummary } from "@viteTest-helper/message.js";
 import {
   updateCount,
   enableSearch,
@@ -8,17 +15,12 @@ import {
   getActiveFilters,
   clearAllFilters,
   renderSearch,
-} from "@/components/filters/setupFilters.js";
-import {
-  mockRecipesForSearch,
-  RESULTS_COUNTER_SELECTOR,
-  SEARCH_INPUT_SELECTOR,
-  SEARCH_BUTTON_SELECTOR,
-} from "@tests-data/data.js";
-import { logCategorySummary } from "@viteTest-helper/message.js";
+} from "~/src/components/filters/setup.js";
 
 vi.mock("@/components/cards/manager.js", () => ({
-  setupRecipesCards: vi.fn(),
+  cardsUi: {
+    render: vi.fn(),
+  },
 }));
 
 vi.mock("@/components/dropdown.js", () => ({
@@ -29,7 +31,7 @@ vi.mock("@/components/filterTags.js", () => ({
   updateFilterTags: vi.fn(),
 }));
 
-vi.mock("@/components/filters/setupFilters.js", () => {
+vi.mock("@/components/filters/setup.js", () => {
   return import("@tests-mocks-components/filters/manager.js");
 });
 
@@ -145,7 +147,7 @@ describe("search", () => {
           input.dispatchEvent(new Event("input"));
 
           setTimeout(() => {
-            expect(setupRecipesCards).toHaveBeenCalled();
+            expect(cardsUi.render).toHaveBeenCalled();
             resolve();
           }, 350);
         }, 10);
@@ -178,7 +180,7 @@ describe("search", () => {
 
           setTimeout(() => {
             expect(input.value).toBe("");
-            expect(setupRecipesCards).toHaveBeenCalled();
+            expect(cardsUi.render).toHaveBeenCalled();
             resolve();
           }, 350);
         }, 10);
@@ -198,7 +200,7 @@ describe("search", () => {
       // Wait for async operations (requestIdleCallback or setTimeout)
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      expect(setupRecipesCards).toHaveBeenCalled();
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
     it("should handle missing input element", () => {
@@ -217,12 +219,12 @@ describe("search", () => {
 
       await new Promise(resolve => setTimeout(resolve, 350));
       // Last render call
-      const lastCall = setupRecipesCards.mock.calls[setupRecipesCards.mock.calls.length - 1];
+      const lastCall = cardsUi.render.mock.calls[cardsUi.render.mock.calls.length - 1];
       expect(lastCall).toBeDefined();
       expect(lastCall[0]).toBeDefined();
       // Recipes don't have a search property in actual code - just verify filtering worked
-      // by checking that setupRecipesCards was called with filtered recipes
-      expect(setupRecipesCards).toHaveBeenCalled();
+      // by checking that cardsUi.render was called with filtered recipes
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
     it("should return all recipes when search is empty", async () => {
@@ -238,7 +240,7 @@ describe("search", () => {
       await new Promise(resolve => setTimeout(resolve, 350));
 
       // Last render call
-      const lastCall = setupRecipesCards.mock.calls[setupRecipesCards.mock.calls.length - 1];
+      const lastCall = cardsUi.render.mock.calls[cardsUi.render.mock.calls.length - 1];
       expect(lastCall[0]).toHaveLength(10);
     });
 
@@ -300,7 +302,7 @@ describe("search", () => {
 
     it("should trigger applyFilters when filter is added", () => {
       addFilter("ingredients", "Tomato");
-      expect(setupRecipesCards).toHaveBeenCalled();
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
     it("should handle invalid filter type gracefully", () => {
@@ -324,7 +326,7 @@ describe("search", () => {
 
     it("should trigger applyFilters when filter is removed", () => {
       removeFilter("ingredients", "Tomato");
-      expect(setupRecipesCards).toHaveBeenCalled();
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
     it("should handle removing non-existent filter", () => {
@@ -395,7 +397,7 @@ describe("search", () => {
     it("should trigger applyFilters when clearing all filters", () => {
       clearAllFilters();
 
-      expect(setupRecipesCards).toHaveBeenCalled();
+      expect(cardsUi.render).toHaveBeenCalled();
     });
   });
 

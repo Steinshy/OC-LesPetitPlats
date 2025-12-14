@@ -1,11 +1,5 @@
 // src/components/dropdowns/render.js
 export const renderDropdown = type => {
-  const dropdownLabels = {
-    ingredients: "Ingrédients",
-    utensils: "Ustensiles",
-    appliances: "Appareils",
-  };
-  const label = dropdownLabels[type] || type;
   return `
     <div 
       class="dropdown-container" 
@@ -20,7 +14,7 @@ export const renderDropdown = type => {
         aria-controls="menu-${type}"
         aria-label="Ouvrir le menu ${type}">
         <span class="dropdown-count" id="dropdown-${type}-count" aria-label="Nombre d'éléments"></span>
-        <span class="filter-label">${label}</span>
+        <span class="filter-label">${type}</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
       

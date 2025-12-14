@@ -1,75 +1,19 @@
 // src/components/dropdowns/manager.js
 
-import { buildDropdownsData } from "@components/dropdowns/data.js";
 import {
   dropdownElements,
   dropdownSearchElements,
   dropdownListElements,
   dropdownsElements,
 } from "@components/dropdowns/elements.js";
-import {
-  renderEmptyStateItem,
-  renderDropdown,
-  renderDropdownItem,
-} from "@components/dropdowns/render.js";
-import { filtersEngine } from "@components/filters/filtersEngine.js";
-import { filtersState } from "@components/filters/filtersState.js";
-import { isScrolledPastHeader } from "@components/header.js";
-import { lockScroll, unlockScroll } from "@components/scrollLock.js";
-import { updateVisibility as scrollToTopVisibility } from "@components/scrollToTop.js";
-import { dropdownsSkeleton } from "@components/skeletons/manager.js";
+import { closeDropdown, toggleDropdown } from "@components/dropdowns/interactions.js";
+import { renderEmptyStateItem, renderDropdownItem } from "@components/dropdowns/render.js";
+import { currentDropdownsData } from "@components/dropdowns/setup.js";
+import { filtersEngine } from "@components/filters/engine.js";
+import { filtersState } from "@components/filters/state.js";
+import { isScrolledPastHeader } from "@components/scroll.js";
 import { ariaHidden, isMobile } from "@utils/config.js";
 import { eventBus } from "@utils/eventBus.js";
-
-export let currentDropdownsData = {};
-export let dropdownTypes = [];
-
-export const setupDropdowns = recipes => {
-  if (!recipes) return;
-
-  const { containers } = dropdownsElements();
-  if (!containers) return;
-
-  unlockScroll();
-
-  const dropdownsData = buildDropdownsData(recipes);
-  currentDropdownsData = dropdownsData.dropdowns || {};
-  dropdownTypes = Object.keys(currentDropdownsData) || [];
-
-  dropdownsSkeleton().show();
-  containers.innerHTML =
-    renderDropdown("ingredients") + renderDropdown("utensils") + renderDropdown("appliances");
-  dropdownsSkeleton().hide();
-  setupDropdownListeners(dropdownTypes);
-
-  dropdownTypes.forEach(type => {
-    updateDropdownList(type);
-  });
-
-  document.addEventListener("keydown", interactionHandlers.escapeKey);
-  document.addEventListener("click", interactionHandlers.click);
-  window.addEventListener("resize", stickyDropdowns);
-
-  // Update dropdowns when filters are updated
-  const onFiltersUpdated = ({ filtered }) => {
-    const dropdownData = buildDropdownsData(filtered);
-    currentDropdownsData = dropdownData.dropdowns || {};
-
-    dropdownTypes.forEach(type => {
-      const { searchInput } = dropdownSearchElements(type);
-      if (searchInput) searchInput.value = "";
-      updateDropdownList(type);
-    });
-  };
-  eventBus.on("filters:updated", onFiltersUpdated);
-
-  return () => {
-    document.removeEventListener("keydown", interactionHandlers.escapeKey);
-    document.removeEventListener("click", interactionHandlers.click);
-    window.removeEventListener("resize", stickyDropdowns);
-    eventBus.off("filters:updated", onFiltersUpdated);
-  };
-};
 
 export const stickyDropdowns = () => {
   const { section } = dropdownsElements();
@@ -123,167 +67,84 @@ export const stickyDropdowns = () => {
   section.style.width = `${rect.width}px`;
 };
 
-const setupDropdownListeners = dropdownTypes => {
+export const setupDropdownListeners = dropdownTypes => {
+  const cleanups = [];
+
   dropdownTypes.forEach(currentType => {
     const { searchInput, searchClear } = dropdownSearchElements(currentType);
     const { backdrop, button } = dropdownElements(currentType);
     const { itemsList } = dropdownListElements(currentType);
 
-    // Search
-    if (searchInput) {
-      searchInput.addEventListener("input", () => {
-        updateDropdownContent(currentType);
-      });
-    }
+    const onSearchInput = () => {
+      updateDropdownContent(currentType);
+    };
 
-    // Backdrop click
-    if (backdrop) {
-      backdrop.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
+    const onBackdropClick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      closeDropdown(currentType);
+    };
+
+    const onItemClick = event => {
+      const clickedButton = event.target.closest(".item-btn");
+      if (!clickedButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      eventBus.emit("dropdown:itemToggled", {
+        type: clickedButton.dataset.type,
+        value: clickedButton.dataset.value,
+      });
+
+      if (isMobile()) {
         closeDropdown(currentType);
-      });
+      }
+    };
+
+    const onClearClick = () => {
+      if (!searchInput) return;
+      searchInput.value = "";
+      searchInput.focus();
+      updateDropdownContent(currentType);
+    };
+
+    const onButtonClick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      toggleDropdown(currentType);
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener("input", onSearchInput);
+      cleanups.push(() => searchInput.removeEventListener("input", onSearchInput));
     }
 
-    // Item click
+    if (backdrop) {
+      backdrop.addEventListener("click", onBackdropClick);
+      cleanups.push(() => backdrop.removeEventListener("click", onBackdropClick));
+    }
+
     if (itemsList) {
-      itemsList.addEventListener("click", event => {
-        const clickedButton = event.target.closest(".item-btn");
-        if (!clickedButton) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        eventBus.emit("dropdown:itemToggled", {
-          type: clickedButton.dataset.type,
-          value: clickedButton.dataset.value,
-        });
-
-        if (isMobile()) {
-          closeDropdown(currentType);
-        }
-      });
+      itemsList.addEventListener("click", onItemClick);
+      cleanups.push(() => itemsList.removeEventListener("click", onItemClick));
     }
 
-    // Clear
     if (searchClear) {
-      searchClear.addEventListener("click", () => {
-        if (!searchInput) return;
-        searchInput.value = "";
-        searchInput.focus();
-        updateDropdownContent(currentType);
-      });
+      searchClear.addEventListener("click", onClearClick);
+      cleanups.push(() => searchClear.removeEventListener("click", onClearClick));
     }
 
-    // Toggle button
     if (button) {
-      button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        toggleDropdown(currentType);
-      });
+      button.addEventListener("click", onButtonClick);
+      cleanups.push(() => button.removeEventListener("click", onButtonClick));
     }
   });
-};
 
-const openDropdown = type => {
-  const { container, button, backdrop, menu } = dropdownElements(type);
-  if (!container || !button) return;
-
-  const scrollY = window.scrollY;
-
-  container.classList.add("open");
-  button.classList.add("active");
-  button.setAttribute("aria-expanded", "true");
-
-  backdrop?.setAttribute(ariaHidden, "false");
-  menu?.setAttribute(ariaHidden, "false");
-  updateDropdownList(type);
-  document.body.classList.add("dropdown-open");
-
-  if (isMobile()) {
-    const { section } = dropdownsElements();
-    if (section) {
-      section.classList.remove("is-sticky");
-      section.style.position = "";
-      section.style.top = "";
-      section.style.left = "";
-      section.style.width = "";
-    }
-    lockScroll();
-  } else {
-    window.scrollTo({
-      top: scrollY,
-      behavior: "auto",
-    });
-  }
-
-  scrollToTopVisibility();
-  eventBus.emit("dropdown:opened", type);
-};
-
-const closeAllDropdowns = () => {
-  if (dropdownTypes?.length) {
-    dropdownTypes.forEach(type => {
-      const { container, button, backdrop, menu } = dropdownElements(type);
-      if (!container || !button) return;
-
-      container.classList.remove("open");
-      button.classList.remove("active");
-      button.setAttribute("aria-expanded", "false");
-
-      backdrop?.setAttribute(ariaHidden, "true");
-      menu?.setAttribute(ariaHidden, "true");
-    });
-  }
-
-  if (isMobile()) {
-    stickyDropdowns();
-  }
-  document.body.classList.remove("dropdown-open");
-
-  unlockScroll();
-  scrollToTopVisibility();
-  eventBus.emit("dropdown:closed");
-};
-
-const closeDropdown = type => {
-  const { container } = dropdownElements(type);
-  const { searchInput } = dropdownSearchElements(type);
-  if (!container?.classList.contains("open")) return;
-  if (searchInput) searchInput.value = "";
-
-  closeAllDropdowns();
-};
-
-const toggleDropdown = type => {
-  const { container } = dropdownElements(type);
-  const isOpen = container?.classList.contains("open");
-
-  closeAllDropdowns();
-
-  if (!isOpen) {
-    openDropdown(type);
-  }
-};
-const interactionHandlers = {
-  escapeKey: event => {
-    if (event.key === "Escape") closeAllDropdowns();
-  },
-
-  click: event => {
-    const clickedElement = event.target;
-
-    const isInside = dropdownTypes.some(type => {
-      const { container } = dropdownElements(type);
-      return container && container.contains(clickedElement);
-    });
-
-    if (!isInside) {
-      closeAllDropdowns();
-    }
-  },
+  return () => {
+    cleanups.forEach(cleanup => cleanup());
+  };
 };
 
 export const updateDropdownContent = type => {
@@ -306,7 +167,7 @@ const updateDropdownCount = (type, count) => {
   countElement.classList.toggle("visible", count > 0);
 };
 
-const updateDropdownList = type => {
+export const updateDropdownList = type => {
   const { menu, itemsList } = dropdownListElements(type);
   const { searchInput, searchWrapper } = dropdownSearchElements(type) || {};
 

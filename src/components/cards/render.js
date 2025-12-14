@@ -30,7 +30,7 @@ export const renderCard = (
   ingredientsList,
 ) => {
   return `
-      <div class="card" id="card-${id}">
+      <div class="card" id="card-${id}" data-id="${id}">
         <div class="card-picture skeleton">
           <picture>
             <source srcset="${webpUrl}" type="image/webp" />
@@ -46,22 +46,27 @@ export const renderCard = (
             />
           </picture>
         </div>
+
         <div class="tag-time" id="tag-time-${id}" aria-label="Temps de préparation">
           <span class="time-text" id="time-text-${id}"><i class="ri-timer-line"></i>${time} min</span>
         </div>
+
         <div class="card-header">
           <h2>${name}</h2>
         </div>
+
         <div class="card-recipe">
-          <div class="recipe-container">
+          <div class="card-recipe-container">
             <h3><i class="ri-book-open-line"></i>Recette</h3>
             <p>${description}</p>
-            <button type="button" class="recipe-toggle" aria-expanded="false">
-              <span class="toggle-text">Voir plus</span>
+
+            <button type="button" class="description-button" id="description-button-${id}" aria-expanded="false" aria-controls="card-recipe-${id}" aria-label="Voir la recette">
+              <span class="card-see-more" id="card-see-more-${id}">Voir plus</span>
               <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
             </button>
           </div>
         </div>
+  
         <div class="card-ingredients">
           <div class="ingredients-container">
             <span class="ingredients-header">

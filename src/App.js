@@ -1,15 +1,15 @@
 // src/App.js
-import { setupRecipesCards } from "@components/cards/manager.js";
-import { setupDropdowns } from "@components/dropdowns/manager.js";
-import { setupFilters } from "@components/filters/setupFilters.js";
+import { setupCards } from "@components/cards/setup.js";
+import { setupDropdowns } from "@components/dropdowns/setup.js";
+import { setupFilters } from "@components/filters/setup.js";
 import { setupHeader } from "@components/header.js";
-import { updateResultsCounter } from "@components/resultsCounter.js";
-import { setupScrollLock } from "@components/scrollLock.js";
-import { setupScrollToTop } from "@components/scrollToTop.js";
-import { setupSearchBar } from "@components/search/manager.js";
-import { setupSkeletons } from "@components/skeletons/manager.js";
+import { resultsCounter } from "@components/resultsCounter.js";
+import { setupScrollLock, setupScrollToTop } from "@components/scroll.js";
+import { setupSearch } from "@components/search/setup.js";
+import { setupSkeletons } from "@components/skeletons/setup.js";
 import { buildRecipes } from "@utils/recipesBuilder.js";
 import { setupToast } from "@utils/toast.js";
+
 import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
 
@@ -23,17 +23,17 @@ const initApp = async () => {
 
   recipesData.match(
     recipes => {
-      updateResultsCounter(recipes.length);
+      resultsCounter.update(recipes.length);
       setupHeader(recipes);
-      cleanups.push(setupFilters(recipes));
       cleanups.push(setupDropdowns(recipes));
-      cleanups.push(setupRecipesCards(recipes));
-      cleanups.push(setupSearchBar());
+      cleanups.push(setupCards(recipes));
+      cleanups.push(setupFilters(recipes));
+      cleanups.push(setupSearch());
       cleanups.push(setupScrollLock());
     },
     async message => {
       setupToast(message, "default");
-      updateResultsCounter(0);
+      resultsCounter.update(0);
     },
   );
   return () => {
@@ -41,4 +41,10 @@ const initApp = async () => {
   };
 };
 
-initApp();
+const cleanup = await initApp();
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    if (cleanup) cleanup();
+  });
+}

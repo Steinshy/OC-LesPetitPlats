@@ -1,12 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
-import { filtersEngine } from "@/components/filters/filtersEngine.js";
-import {
-  mockRecipesWithSearch,
-  RECIPE_1,
-  RECIPE_2,
-  RECIPE_ONE,
-} from "@tests-data/data.js";
+import { mockRecipesWithSearch, RECIPE_1, RECIPE_2, RECIPE_ONE } from "@tests-data/data.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import { filtersEngine } from "~/src/components/filters/engine.js";
 
 describe("filtersEngine", () => {
   const mockRecipes = mockRecipesWithSearch;
@@ -224,11 +219,7 @@ describe("filtersEngine", () => {
     });
 
     it("should filter by multiple utensils (AND logic)", () => {
-      const result = filtersEngine.onFilter(
-        mockRecipes,
-        new Set(["Spoon", "Fork"]),
-        "utensils",
-      );
+      const result = filtersEngine.onFilter(mockRecipes, new Set(["Spoon", "Fork"]), "utensils");
       expect(result.length).toBeGreaterThanOrEqual(1);
       expect(result.some(r => r.name === RECIPE_ONE)).toBe(true);
     });
@@ -341,4 +332,3 @@ describe("filtersEngine", () => {
     logCategorySummary("filtersEngine", "Filters Engine", "All filters engine tests");
   });
 });
-

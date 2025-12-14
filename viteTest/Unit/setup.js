@@ -18,8 +18,8 @@ vi.mock("@/utils/normalize.js", async () => {
 });
 
 // Components mocks
-vi.mock("@/components/filters/setupFilters.js", async () => {
-  const actual = await vi.importActual("@/components/filters/setupFilters.js");
+vi.mock("@/components/filters/setup.js", async () => {
+  const actual = await vi.importActual("@/components/filters/setup.js");
   const wrapper = await vi.importActual("@tests-mocks-components/filters/manager.js");
   return { ...actual, ...wrapper };
 });

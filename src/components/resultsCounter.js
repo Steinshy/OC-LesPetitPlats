@@ -1,14 +1,13 @@
 // src/components/resultsCounter.js
 
-const resultsCounterElement = () => ({
-  counter: document.getElementById("results-counter"),
-  container: document.querySelector(".results-counter-container"),
-});
+export const resultsCounter = {
+  container: document.getElementById("counter-wrapper"),
+  counter: document.getElementById("counter"),
 
-export const updateResultsCounter = count => {
-  const { counter } = resultsCounterElement();
-  if (!counter) return;
+  update(count) {
+    if (!this.container || !this.counter) return;
 
-  counter.textContent =
-    count === 0 ? "Aucun résultat" : `${count} ${count === 1 ? "résultat" : "résultats"}`;
+    this.counter.textContent =
+      count === 0 ? "Aucun résultat" : `${count} ${count === 1 ? "résultat" : "résultats"}`;
+  },
 };

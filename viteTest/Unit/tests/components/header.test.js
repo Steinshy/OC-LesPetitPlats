@@ -1,13 +1,9 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  headerElement,
-  getHeaderHeight,
-  isScrolledPastHeader,
-  setupHeader,
-} from "@/components/header.js";
+import { headerElement, getHeaderHeight, setupHeader } from "@/components/header.js";
+import { isScrolledPastHeader } from "@/components/scroll.js";
 import * as skeletonsModule from "@/components/skeletons/manager.js";
-import { logCategorySummary } from "@viteTest-helper/message.js";
 import * as deviceModule from "@/utils/config.js";
+import { logCategorySummary } from "@viteTest-helper/message.js";
 
 const IMAGE1_WEBP = "image1.webp";
 const IMAGE1_JPG = "image1.jpg";

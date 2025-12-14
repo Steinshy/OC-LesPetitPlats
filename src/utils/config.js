@@ -17,3 +17,5 @@ export const isMobile = () => {
     return false;
   }
 };
+
+export const getHeaderHeight = () => document.getElementById("header")?.offsetHeight ?? 0;

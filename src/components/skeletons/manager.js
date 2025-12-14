@@ -1,7 +1,6 @@
 // src/components/skeletons/manager.js
 import { cardsElements } from "@components/cards/elements.js";
 import { dropdownsElements } from "@components/dropdowns/elements.js";
-import { headerElement } from "@components/header.js";
 import { searchElements } from "@components/search/elements.js";
 import { cardSkeleton, dropdownSkeleton } from "@components/skeletons/renderer.js";
 
@@ -33,14 +32,14 @@ export const searchSkeleton = () => ({
 
 export const headerSkeleton = () => ({
   show: () => {
-    const { header } = headerElement();
+    const header = document.getElementById("header");
     if (header) {
       header.classList.add("skeleton");
     }
   },
 
   hide: () => {
-    const { header } = headerElement();
+    const header = document.getElementById("header");
     if (header) {
       header.classList.remove("skeleton");
     }
@@ -90,14 +89,3 @@ export const cardsSkeletons = () => ({
     });
   },
 });
-
-// ---------------
-// init all skeletons
-// ---------------
-
-export const setupSkeletons = () => {
-  headerSkeleton().show();
-  searchSkeleton().show();
-  dropdownsSkeleton().show();
-  cardsSkeletons().show();
-};

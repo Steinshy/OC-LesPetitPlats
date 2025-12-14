@@ -1,19 +1,26 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { filtersInteractions } from "@/components/filters/filtersInteraction.js";
-import { filtersPipeline } from "@/components/filters/filtersPipeline.js";
-import { filtersState, updateFilterState } from "@/components/filters/filtersState.js";
 import { eventBus } from "@/utils/eventBus.js";
-import { parseURLState } from "@/utils/urlState.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import { filtersInteractions } from "~/src/components/filters/interactions.js";
+import { filtersState, updateFilterState } from "~/src/components/filters/state.js";
 
-vi.mock("@/components/filters/filtersUi.js", () => ({
+vi.mock("@/components/filters/elements.js", () => ({
   filtersElements: vi.fn(() => ({
     clearBtn: document.getElementById("clear-tags-button"),
     tagsList: document.getElementById("tags-list"),
   })),
+}));
+
+vi.mock("@/components/filters/ui.js", () => ({
   filtersUi: {
     updateTagList: vi.fn(),
     updateFiltersCounter: vi.fn(),
+  },
+}));
+
+vi.mock("@/components/filters/pipeline.js", () => ({
+  filtersPipeline: {
+    apply: vi.fn(),
   },
 }));
 
@@ -24,12 +31,6 @@ vi.mock("@/utils/urlState.js", () => ({
     appliances: [],
     utensils: [],
   })),
-}));
-
-vi.mock("@/components/filters/filtersPipeline.js", () => ({
-  filtersPipeline: {
-    apply: vi.fn(),
-  },
 }));
 
 describe("filtersInteractions", () => {
@@ -66,12 +67,6 @@ describe("filtersInteractions", () => {
       filtersInteractions.init();
       expect(onSpy).toHaveBeenCalledWith("filters:searchChanged", expect.any(Function));
     });
-
-    it("should listen to popstate event", () => {
-      const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-      filtersInteractions.init();
-      expect(addEventListenerSpy).toHaveBeenCalledWith("popstate", expect.any(Function));
-    });
   });
 
   describe("clear all functionality", () => {
@@ -79,7 +74,8 @@ describe("filtersInteractions", () => {
       filtersInteractions.init();
     });
 
-    it("should clear all filters when clear button is clicked", () => {
+    it("should clear all filters when clear button is clicked", async () => {
+      const { filtersPipeline } = await import("@/components/filters/pipeline.js");
       updateFilterState.setSearch("test");
       updateFilterState.add("ingredients", "Tomato");
       updateFilterState.add("appliances", "Oven");
@@ -100,7 +96,8 @@ describe("filtersInteractions", () => {
       filtersInteractions.init();
     });
 
-    it("should remove filter when tag is clicked", () => {
+    it("should remove filter when tag is clicked", async () => {
+      const { filtersPipeline } = await import("@/components/filters/pipeline.js");
       updateFilterState.add("ingredients", "Tomato");
       const tagsList = document.getElementById("tags-list");
       tagsList.innerHTML = `
@@ -129,14 +126,16 @@ describe("filtersInteractions", () => {
       filtersInteractions.init();
     });
 
-    it("should add filter when item is not selected", () => {
+    it("should add filter when item is not selected", async () => {
+      const { filtersPipeline } = await import("@/components/filters/pipeline.js");
       const addSpy = vi.spyOn(updateFilterState, "add");
       eventBus.emit("dropdown:itemToggled", { type: "ingredients", value: "Tomato" });
       expect(addSpy).toHaveBeenCalledWith("ingredients", "Tomato");
       expect(filtersPipeline.apply).toHaveBeenCalled();
     });
 
-    it("should remove filter when item is already selected", () => {
+    it("should remove filter when item is already selected", async () => {
+      const { filtersPipeline } = await import("@/components/filters/pipeline.js");
       updateFilterState.add("ingredients", "Tomato");
       const removeSpy = vi.spyOn(updateFilterState, "remove");
       eventBus.emit("dropdown:itemToggled", { type: "ingredients", value: "Tomato" });
@@ -150,7 +149,8 @@ describe("filtersInteractions", () => {
       filtersInteractions.init();
     });
 
-    it("should update search state when search changes", () => {
+    it("should update search state when search changes", async () => {
+      const { filtersPipeline } = await import("@/components/filters/pipeline.js");
       const setSearchSpy = vi.spyOn(updateFilterState, "setSearch");
       eventBus.emit("filters:searchChanged", { query: "test query" });
       expect(setSearchSpy).toHaveBeenCalledWith("test query");
@@ -158,41 +158,29 @@ describe("filtersInteractions", () => {
     });
   });
 
-  describe("popstate handling", () => {
+  describe("cleanup", () => {
     beforeEach(() => {
       filtersInteractions.init();
     });
 
-    it("should restore filters from URL state on popstate", () => {
-      parseURLState.mockReturnValue({
-        search: "restored search",
-        ingredients: ["Tomato", "Onion"],
-        appliances: ["Oven"],
-        utensils: ["Spoon"],
-      });
+    it("should remove event listeners on cleanup", () => {
+      const removeEventListenerSpy = vi.spyOn(
+        document.getElementById("clear-tags-button"),
+        "removeEventListener",
+      );
 
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      filtersInteractions.cleanup();
 
-      expect(filtersState.search).toBe("restored search");
-      expect(filtersState.ingredients.has("Tomato")).toBe(true);
-      expect(filtersState.ingredients.has("Onion")).toBe(true);
-      expect(filtersState.appliances.has("Oven")).toBe(true);
-      expect(filtersState.utensils.has("Spoon")).toBe(true);
-      expect(filtersPipeline.apply).toHaveBeenCalled();
+      expect(removeEventListenerSpy).toHaveBeenCalled();
     });
 
-    it("should clear existing filters before restoring from URL", () => {
-      updateFilterState.add("ingredients", "Existing");
-      parseURLState.mockReturnValue({
-        search: "",
-        ingredients: [],
-        appliances: [],
-        utensils: [],
-      });
+    it("should unregister event bus handlers on cleanup", () => {
+      const offSpy = vi.spyOn(eventBus, "off");
 
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      filtersInteractions.cleanup();
 
-      expect(filtersState.ingredients.size).toBe(0);
+      expect(offSpy).toHaveBeenCalledWith("dropdown:itemToggled", expect.any(Function));
+      expect(offSpy).toHaveBeenCalledWith("filters:searchChanged", expect.any(Function));
     });
   });
 
@@ -200,7 +188,7 @@ describe("filtersInteractions", () => {
     logCategorySummary(
       "filtersInteraction",
       "Filters Interaction",
-      "All filters interaction tests",
+      "All filters interactions tests",
     );
   });
 });

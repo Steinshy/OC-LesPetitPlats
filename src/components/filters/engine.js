@@ -47,10 +47,13 @@ export const filtersEngine = {
   onFilter(recipes, selectedValues, type) {
     if (!selectedValues || selectedValues.size === 0) return recipes;
 
+    const extractMethod = this.extract[type];
+    if (typeof extractMethod !== "function") return recipes;
+
     const selected = [...selectedValues];
 
     return recipes.filter(recipe => {
-      const values = this.extract[type](recipe);
+      const values = extractMethod(recipe);
       return selected.every(v => values.includes(normalizeString(v)));
     });
   },
@@ -61,6 +64,7 @@ export const filtersEngine = {
     if (!query) return items;
 
     return items.filter(item => {
+      if (item == null) return false;
       const text = normalizeString(item?.label ?? item?.value ?? item);
       return text.includes(query);
     });

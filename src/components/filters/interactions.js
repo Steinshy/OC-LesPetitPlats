@@ -1,9 +1,9 @@
 // src/components/filters/filtersInteraction.js
-import { filtersElements } from "@components/filters/filtersUi.js";
+import { filtersElements } from "@components/filters/elements.js";
+import { filtersPipeline } from "@components/filters/pipeline.js";
+import { filtersState, updateFilterState } from "@components/filters/state.js";
 import { eventBus } from "@utils/eventBus.js";
 import { parseURLState } from "@utils/urlState.js";
-import { filtersPipeline } from "./filtersPipeline.js";
-import { filtersState, updateFilterState } from "./filtersState.js";
 
 const onClearAll = () => {
   updateFilterState.setSearch("");
@@ -29,7 +29,7 @@ const onSearchInput = query => {
   filtersPipeline.apply();
 };
 
-const onPopState = () => {
+export const onPopState = () => {
   const urlFilters = parseURLState();
 
   updateFilterState.setSearch(urlFilters.search ?? "");
@@ -37,11 +37,11 @@ const onPopState = () => {
   updateFilterState.clear("appliances");
   updateFilterState.clear("utensils");
 
-  urlFilters.ingredients?.forEach(v => updateFilterState.add("ingredients", v));
-  urlFilters.appliances?.forEach(v => updateFilterState.add("appliances", v));
-  urlFilters.utensils?.forEach(v => updateFilterState.add("utensils", v));
+  urlFilters.ingredients?.forEach(value => updateFilterState.add("ingredients", value));
+  urlFilters.appliances?.forEach(value => updateFilterState.add("appliances", value));
+  urlFilters.utensils?.forEach(value => updateFilterState.add("utensils", value));
 
-  filtersPipeline.apply();
+  filtersPipeline.apply(true);
 };
 
 const onDropdownItemToggled = ({ type, value }) => {
@@ -74,7 +74,18 @@ export const filtersInteractions = {
 
     eventBus.on("dropdown:itemToggled", onDropdownItemToggled);
     eventBus.on("filters:searchChanged", ({ query }) => onSearchInput(query));
+  },
 
-    window.addEventListener("popstate", onPopState);
+  cleanup() {
+    const elements = filtersElements();
+
+    elements.clearBtn?.removeEventListener("click", onClearAll);
+
+    if (elements.tagsList) {
+      elements.tagsList.removeEventListener("click", onTagClick);
+    }
+
+    eventBus.off("dropdown:itemToggled", onDropdownItemToggled);
+    eventBus.off("filters:searchChanged", ({ query }) => onSearchInput(query));
   },
 };

@@ -1,8 +1,8 @@
 // Test wrapper for filters setupFilters (mirrors src/components/filters/setupFilters.js)
-import { setupRecipesCards } from "@/components/cards/manager.js";
-import { dropdownTypes } from "@/components/dropdowns/manager.js";
-import { filtersEngine } from "@/components/filters/filtersEngine.js";
-import { setupFilters } from "@/components/filters/setupFilters.js";
+import { cardsUi } from "@/components/cards/ui.js";
+import { dropdownTypes } from "@/components/dropdowns/setup.js";
+import { filtersEngine } from "@/components/filters/engine.js";
+import { setupFilters } from "@/components/filters/setup.js";
 
 export { setupFilters };
 
@@ -37,8 +37,8 @@ const syncUI = () => {
   };
   filteredRecipes = filtersEngine.applyAll(allRecipes, filters, dropdownTypes);
 
-  if (setupRecipesCards) {
-    setupRecipesCards(filteredRecipes);
+  if (cardsUi && cardsUi.render) {
+    cardsUi.render(filteredRecipes);
   }
 };
 export const renderSearch = () => {

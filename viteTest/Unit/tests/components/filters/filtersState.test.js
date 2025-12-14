@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach } from "vitest";
-import { filtersState, updateFilterState } from "@/components/filters/filtersState.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import { filtersState, updateFilterState } from "~/src/components/filters/state.js";
 
 describe("filtersState", () => {
   beforeEach(() => {
@@ -142,4 +142,3 @@ describe("filtersState", () => {
     logCategorySummary("filtersState", "Filters State", "All filters state tests");
   });
 });
-

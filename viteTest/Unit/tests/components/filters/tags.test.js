@@ -1,18 +1,19 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { filtersUi } from "@/components/filters/filtersUi.js";
-import {
-  FILTER_TAG_SELECTOR,
-  FILTERS_SELECTOR,
-  FILTERS_TAGS_SELECTOR,
-} from "@tests-data/data.js";
+import { FILTER_TAG_SELECTOR, FILTERS_SELECTOR, FILTERS_TAGS_SELECTOR } from "@tests-data/data.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
+import { filtersUi } from "~/src/components/filters/ui.js";
 
-vi.mock("@/components/dropdowns/manager.js", async () => {
-  const actual = await vi.importActual("@/components/dropdowns/manager.js");
+vi.mock("@/components/dropdowns/setup.js", async () => {
+  const actual = await vi.importActual("@/components/dropdowns/setup.js");
   return {
     ...actual,
     dropdownTypes: ["ingredients", "appliances", "utensils"],
   };
+});
+
+vi.mock("@/components/filters/render.js", async () => {
+  const actual = await vi.importActual("@/components/filters/render.js");
+  return actual;
 });
 
 describe("filterTags", () => {
