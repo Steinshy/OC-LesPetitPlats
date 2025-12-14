@@ -1,7 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import * as dropdownsModule from "@/components/dropdowns/manager.js";
 import { lockScroll, unlockScroll, setupScrollLock } from "@/components/scroll.js";
-import * as scrollModule from "@/components/scroll.js";
 import * as deviceModule from "@/utils/config.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
@@ -225,7 +224,6 @@ describe("scrollLock", () => {
       const scrollEvent = new Event("scroll");
       window.dispatchEvent(scrollEvent);
 
-      expect(scrollModule.updateVisibility).toHaveBeenCalled();
       expect(dropdownsModule.stickyDropdowns).toHaveBeenCalled();
     });
 

@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { updateResultsCounter } from "@/components/resultsCounter.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
-const RESULTS_COUNTER_ID = "results-counter";
+const RESULTS_COUNTER_ID = "counter";
 const TEXT_AUCUN_RESULTAT = "Aucun résultat";
 const TEXT_RESULTATS = "résultats";
 

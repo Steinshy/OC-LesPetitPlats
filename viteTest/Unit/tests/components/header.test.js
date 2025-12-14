@@ -1,7 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { headerElement, getHeaderHeight, setupHeader } from "@/components/header.js";
+import { headerElement, setupHeader } from "@/components/header.js";
 import { isScrolledPastHeader } from "@/components/scroll.js";
 import * as skeletonsModule from "@/components/skeletons/manager.js";
+import { getHeaderHeight } from "@/utils/config.js";
 import * as deviceModule from "@/utils/config.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 

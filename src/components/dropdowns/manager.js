@@ -39,9 +39,9 @@ export const stickyDropdowns = () => {
 
     section.classList.add("is-sticky");
     section.style.position = "fixed";
-    section.style.top = "0";
-    section.style.left = "0";
-    section.style.right = "0";
+    section.style.top = "0px";
+    section.style.left = "0px";
+    section.style.right = "0px";
     section.style.width = "100%";
     return;
   }
@@ -54,14 +54,11 @@ export const stickyDropdowns = () => {
   }
 
   const main = document.querySelector(".main");
-  if (!main) {
-    clearInlineStyles();
-    return;
-  }
+  if (!main) return;
 
   const rect = main.getBoundingClientRect();
   section.style.position = "fixed";
-  section.style.top = "0";
+  section.style.top = "0px";
   section.style.left = `${rect.left}px`;
   section.style.right = "";
   section.style.width = `${rect.width}px`;
@@ -159,25 +156,21 @@ export const updateDropdownContent = type => {
   updateDropdownList(type);
 };
 
-const updateDropdownCount = (type, count) => {
-  const countElement = document.getElementById(`dropdown-${type}-count`);
-  if (!countElement) return;
-
-  countElement.textContent = count > 0 ? count : "";
-  countElement.classList.toggle("visible", count > 0);
-};
-
 export const updateDropdownList = type => {
   const { menu, itemsList } = dropdownListElements(type);
-  const { searchInput, searchWrapper } = dropdownSearchElements(type) || {};
+  const { searchInput, searchWrapper } = dropdownSearchElements(type);
 
   if (!menu || !itemsList) return;
 
   const allItems = currentDropdownsData[type] || [];
   const query = searchInput?.value?.trim() ?? "";
   const filtered = filtersEngine.filterDropdownItems(allItems, query);
+  const countElement = document.getElementById(`dropdown-${type}-count`);
 
-  updateDropdownCount(type, allItems.length);
+  if (countElement) {
+    countElement.textContent = allItems.length > 0 ? allItems.length : "";
+    countElement.classList.toggle("visible", allItems.length > 0);
+  }
 
   if (filtered.length > 0) {
     const selectedSet = filtersState[type];

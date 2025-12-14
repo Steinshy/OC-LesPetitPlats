@@ -6,9 +6,10 @@ import { logCategorySummary } from "@viteTest-helper/message.js";
 // Mock dependencies
 vi.mock("@/components/scroll.js", async () => {
   const actual = await vi.importActual("@/components/scroll.js");
+  const mockIsScrolledPastHeader = vi.fn(() => false);
   return {
     ...actual,
-    isScrolledPastHeader: vi.fn(() => false),
+    isScrolledPastHeader: mockIsScrolledPastHeader,
   };
 });
 
@@ -17,8 +18,17 @@ vi.mock("@/utils/config.js", async () => {
   return {
     ...actual,
     isMobile: vi.fn(() => false),
+    getHeaderHeight: vi.fn(() => 100),
   };
 });
+
+vi.mock("@/components/dropdowns/setup.js", () => ({
+  dropdownTypes: [],
+}));
+
+vi.mock("@/components/dropdowns/elements.js", () => ({
+  dropdownElements: () => ({ container: null }),
+}));
 
 const SCROLL_TO_TOP_BUTTON_ID = "scroll-to-top";
 const DROPDOWNS_CONTAINER_ID = "dropdowns-container";
@@ -42,6 +52,7 @@ describe("scrollToTop", () => {
 
   afterEach(() => {
     document.body.innerHTML = "";
+    scrollModule.scrollToTop.button = null;
   });
 
   describe("setupScrollToTop", () => {
@@ -66,11 +77,12 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
-      setupScrollToTop();
-      updateVisibility();
-
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      Object.defineProperty(window, "scrollY", { value: 200, writable: true, configurable: true });
+      scrollModule.scrollToTop.button = button;
+      setupScrollToTop();
+      scrollModule.scrollToTop.update();
+
       expect(button.classList.contains("show")).toBe(true);
       expect(button.getAttribute("aria-hidden")).toBe("false");
     });
@@ -82,6 +94,7 @@ describe("scrollToTop", () => {
       `;
 
       vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(false);
+      scrollModule.scrollToTop.button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       setupScrollToTop();
       updateVisibility();
 
@@ -129,14 +142,12 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
-      setupScrollToTop();
-
-      // setupScrollToTop doesn't set up scroll listener, that's in scrollLock.js
-      // So we test updateVisibility directly
-      updateVisibility();
-
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      Object.defineProperty(window, "scrollY", { value: 200, writable: true, configurable: true });
+      scrollModule.scrollToTop.button = button;
+      setupScrollToTop();
+      scrollModule.scrollToTop.update();
+
       expect(button.classList.contains("show")).toBe(true);
     });
 
@@ -146,11 +157,12 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
+      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      Object.defineProperty(window, "scrollY", { value: 200, writable: true, configurable: true });
+      scrollModule.scrollToTop.button = button;
       setupScrollToTop();
       updateVisibility();
 
-      const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
       expect(button.classList.contains("show")).toBe(true);
     });
 
@@ -169,11 +181,12 @@ describe("scrollToTop", () => {
         <div id="dropdowns"></div>
       `;
 
-      vi.mocked(scrollModule.isScrolledPastHeader).mockReturnValue(true);
-      setupScrollToTop();
-      updateVisibility();
-
       const button = document.getElementById(SCROLL_TO_TOP_BUTTON_ID);
+      Object.defineProperty(window, "scrollY", { value: 200, writable: true, configurable: true });
+      scrollModule.scrollToTop.button = button;
+      setupScrollToTop();
+      scrollModule.scrollToTop.update();
+
       expect(button.classList.contains("show")).toBe(true);
     });
 

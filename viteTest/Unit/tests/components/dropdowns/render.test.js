@@ -18,9 +18,9 @@ const DROPDOWN_SEARCH_STRING = "dropdown-search";
 const DATA_TYPE_INGREDIENTS_ATTR = 'data-type="ingredients"';
 const DATA_TYPE_utensils_ATTR = 'data-type="utensils"';
 const DATA_TYPE_APPLIANCES_ATTR = 'data-type="appliances"';
-const LABEL_INGREDIENTS = "Ingrédients";
-const LABEL_utensils = "Ustensiles";
-const LABEL_APPLIANCES = "Appareils";
+const LABEL_INGREDIENTS = "ingredients";
+const LABEL_utensils = "utensils";
+const LABEL_APPLIANCES = "appliances";
 
 describe("dropdown render", () => {
   describe("renderDropdown - ingredients", () => {

@@ -1,6 +1,10 @@
 // src/components/header.js
 import { headerSkeleton } from "@components/skeletons/manager.js";
 
+export const headerElement = () => ({
+  header: document.getElementById("header"),
+});
+
 // Set random recipe image as header background
 export const setupHeader = recipes => {
   const header = document.getElementById("header");

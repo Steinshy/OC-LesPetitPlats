@@ -3,7 +3,7 @@ import { setupCards } from "@components/cards/setup.js";
 import { setupDropdowns } from "@components/dropdowns/setup.js";
 import { setupFilters } from "@components/filters/setup.js";
 import { setupHeader } from "@components/header.js";
-import { resultsCounter } from "@components/resultsCounter.js";
+import { updateResultsCounter } from "@components/resultsCounter.js";
 import { setupScrollLock, setupScrollToTop } from "@components/scroll.js";
 import { setupSearch } from "@components/search/setup.js";
 import { setupSkeletons } from "@components/skeletons/setup.js";
@@ -23,7 +23,7 @@ const initApp = async () => {
 
   recipesData.match(
     recipes => {
-      resultsCounter.update(recipes.length);
+      updateResultsCounter(recipes.length);
       setupHeader(recipes);
       cleanups.push(setupDropdowns(recipes));
       cleanups.push(setupCards(recipes));
@@ -33,7 +33,7 @@ const initApp = async () => {
     },
     async message => {
       setupToast(message, "default");
-      resultsCounter.update(0);
+      updateResultsCounter(0);
     },
   );
   return () => {

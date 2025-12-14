@@ -1,6 +1,6 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { cardsUi } from "@/components/cards/manager.js";
 import { emptyCards, renderCard, renderIngredient } from "@/components/cards/render.js";
+import { cardsUi } from "@/components/cards/ui.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 vi.mock("@/utils/imageTracker.js", () => ({
@@ -13,6 +13,17 @@ vi.mock("@/components/skeletons/manager.js", () => ({
     hide: vi.fn(),
   })),
 }));
+
+vi.mock("@/components/cards/elements.js", () => ({
+  cardsElements: () => ({
+    container: document.getElementById("cards-container"),
+  }),
+}));
+
+vi.mock("@/components/cards/manager.js", async () => {
+  const actual = await vi.importActual("@/components/cards/manager.js");
+  return actual;
+});
 
 const TEST_JPG_URL = "/recipes/test.jpg";
 const TEST_WEBP_URL = "/recipes/test.webp";

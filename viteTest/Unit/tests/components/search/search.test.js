@@ -1,5 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { cardsUi } from "@/components/cards/manager.js";
+import { cardsUi } from "@/components/cards/ui.js";
 import {
   mockRecipesForSearch,
   RESULTS_COUNTER_SELECTOR,
@@ -17,7 +17,7 @@ import {
   renderSearch,
 } from "~/src/components/filters/setup.js";
 
-vi.mock("@/components/cards/manager.js", () => ({
+vi.mock("@/components/cards/ui.js", () => ({
   cardsUi: {
     render: vi.fn(),
   },
@@ -44,6 +44,16 @@ describe("search", () => {
     // Reset filters state
     const { resetFiltersState } = await import("@tests-mocks-components/filters/manager.js");
     if (resetFiltersState) resetFiltersState();
+
+    // Mock requestIdleCallback to execute immediately
+    if (!window.requestIdleCallback) {
+      window.requestIdleCallback = vi.fn(callback => {
+        setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 50 }), 0);
+        return 1;
+      });
+      window.cancelIdleCallback = vi.fn();
+    }
+
     document.body.innerHTML = `
       <div class="results-counter">
         <h2>0 résultats</h2>
@@ -136,25 +146,21 @@ describe("search", () => {
   });
 
   describe("enableSearch", () => {
-    it("should set up search input listener", () => {
+    it("should set up search input listener", async () => {
       // Search input element
       const input = document.querySelector(SEARCH_INPUT_SELECTOR);
       enableSearch(mockRecipes);
 
-      return new Promise(resolve => {
-        setTimeout(() => {
-          input.value = "one";
-          input.dispatchEvent(new Event("input"));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-          setTimeout(() => {
-            expect(cardsUi.render).toHaveBeenCalled();
-            resolve();
-          }, 350);
-        }, 10);
-      });
+      input.value = "one";
+      input.dispatchEvent(new Event("input"));
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
-    it("should handle clear button click", () => {
+    it("should handle clear button click", async () => {
       document.body.innerHTML = `
         <div class="results-counter">
           <h2>0 résultats</h2>
@@ -168,23 +174,19 @@ describe("search", () => {
 
       enableSearch(mockRecipes);
 
-      return new Promise(resolve => {
-        setTimeout(() => {
-          // Clear button
-          const clearButton = document.getElementById("clear-recipe-search");
-          // Search input
-          const input = document.getElementById("recipe-search");
-          expect(input.value).toBe("test");
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-          clearButton.click();
+      // Clear button
+      const clearButton = document.getElementById("clear-recipe-search");
+      // Search input
+      const input = document.getElementById("recipe-search");
+      expect(input.value).toBe("test");
 
-          setTimeout(() => {
-            expect(input.value).toBe("");
-            expect(cardsUi.render).toHaveBeenCalled();
-            resolve();
-          }, 350);
-        }, 10);
-      });
+      clearButton.click();
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(input.value).toBe("");
+      expect(cardsUi.render).toHaveBeenCalled();
     });
 
     it("should set up search button click listener", async () => {
@@ -193,7 +195,7 @@ describe("search", () => {
       enableSearch(mockRecipes);
 
       // Wait a bit for setup to complete
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       button.click();
 
@@ -300,8 +302,9 @@ describe("search", () => {
       expect(filters.utensils.has("Spoon")).toBe(true);
     });
 
-    it("should trigger applyFilters when filter is added", () => {
+    it("should trigger applyFilters when filter is added", async () => {
       addFilter("ingredients", "Tomato");
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(cardsUi.render).toHaveBeenCalled();
     });
 
@@ -324,8 +327,9 @@ describe("search", () => {
       expect(filters.ingredients.has("Tomato")).toBe(false);
     });
 
-    it("should trigger applyFilters when filter is removed", () => {
+    it("should trigger applyFilters when filter is removed", async () => {
       removeFilter("ingredients", "Tomato");
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(cardsUi.render).toHaveBeenCalled();
     });
 
@@ -394,9 +398,9 @@ describe("search", () => {
       expect(filters.utensils.size).toBe(0);
     });
 
-    it("should trigger applyFilters when clearing all filters", () => {
+    it("should trigger applyFilters when clearing all filters", async () => {
       clearAllFilters();
-
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(cardsUi.render).toHaveBeenCalled();
     });
   });

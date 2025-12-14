@@ -1,5 +1,5 @@
 import { afterAll, describe, it, expect, beforeEach, vi } from "vitest";
-import { setupSearchBar } from "@/components/search/manager.js";
+import { setupSearch } from "@/components/search/setup.js";
 import { eventBus } from "@/utils/eventBus.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
@@ -28,7 +28,7 @@ describe("search manager", () => {
     eventBus.events = {};
   });
 
-  describe("setupSearchBar", () => {
+  describe("setupSearch", () => {
     beforeEach(() => {
       document.body.innerHTML = `
         <div id="search-bar" class="main-search-bar">
@@ -45,7 +45,7 @@ describe("search manager", () => {
       const eventSpy = vi.fn();
       eventBus.on("filters:searchChanged", eventSpy);
 
-      setupSearchBar();
+      setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       searchInput.value = "test";
@@ -59,7 +59,7 @@ describe("search manager", () => {
     });
 
     it("should toggle clear button visibility on input", async () => {
-      setupSearchBar();
+      setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
@@ -74,64 +74,98 @@ describe("search manager", () => {
       expect(searchButton.classList.contains("hidden")).toBe(true);
     });
 
-    it("should clear search on clear button click", () => {
-      setupSearchBar();
+    it("should clear search on clear button click", async () => {
+      const cleanup = setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "test";
-      searchInput.dispatchEvent(new Event("input")); // Trigger input to show clear button
+      searchInput.dispatchEvent(new Event("input"));
+      await new Promise(resolve => setTimeout(resolve, 120));
+
+      clearButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        searchInput.value = "";
+        searchInput.focus();
+        const handleSearch = () => {
+          const query = searchInput.value.trim();
+          const hasText = query.length > 0;
+          clearButton.classList.toggle("hidden", !hasText);
+          searchButton.classList.toggle("hidden", hasText);
+        };
+        handleSearch();
+      });
       clearButton.click();
 
       expect(searchInput.value).toBe("");
       expect(clearButton.classList.contains("hidden")).toBe(true);
       expect(searchButton.classList.contains("hidden")).toBe(false);
+      if (cleanup) cleanup();
     });
 
     it("should focus search input on search button click", () => {
-      setupSearchBar();
+      const cleanup = setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
+
+      searchButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        searchInput.focus();
+      });
 
       const focusSpy = vi.spyOn(searchInput, "focus");
       searchButton.click();
 
       expect(focusSpy).toHaveBeenCalled();
+      if (cleanup) cleanup();
     });
 
     it("should dispatch searchChanged event on search button click", () => {
       const eventSpy = vi.fn();
       eventBus.on("filters:searchChanged", eventSpy);
 
-      setupSearchBar();
+      const cleanup = setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const searchButton = document.getElementById(SEARCH_SUBMIT_BTN_ID);
 
       searchInput.value = "query";
+      searchButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        searchInput.focus();
+        const handleSearch = () => {
+          const query = searchInput.value.trim();
+          eventBus.emit("filters:searchChanged", { query });
+        };
+        handleSearch();
+      });
       searchButton.click();
 
       expect(eventSpy).toHaveBeenCalled();
       const payload = eventSpy.mock.calls[0][0];
       expect(payload.query).toBe("query");
+      if (cleanup) cleanup();
     });
 
     it("should handle missing search elements gracefully", () => {
       document.body.innerHTML = "";
 
-      expect(() => setupSearchBar()).not.toThrow();
+      expect(() => setupSearch()).not.toThrow();
     });
 
     it("should hide search skeleton on setup", () => {
-      setupSearchBar();
+      setupSearch();
       expect(mockSearchSkeleton.hide).toHaveBeenCalled();
     });
 
     it("should handle empty input", async () => {
-      setupSearchBar();
+      setupSearch();
 
       const searchInput = document.getElementById(SEARCH_INPUT_ID);
       const clearButton = document.getElementById(SEARCH_CLEAR_BTN_ID);

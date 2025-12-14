@@ -62,7 +62,7 @@ describe("urlState", () => {
 
       expect(result.ingredients).toBeInstanceOf(Set);
       expect(result.ingredients.size).toBe(1);
-      expect(result.ingredients.has("Tomato")).toBe(true);
+      expect(result.ingredients.has("tomato")).toBe(true);
     });
 
     it("should parse multiple ingredients as comma-separated", () => {
@@ -72,9 +72,9 @@ describe("urlState", () => {
 
       expect(result.ingredients).toBeInstanceOf(Set);
       expect(result.ingredients.size).toBe(3);
-      expect(result.ingredients.has("Tomato")).toBe(true);
-      expect(result.ingredients.has("Onion")).toBe(true);
-      expect(result.ingredients.has("Potato")).toBe(true);
+      expect(result.ingredients.has("tomato")).toBe(true);
+      expect(result.ingredients.has("onion")).toBe(true);
+      expect(result.ingredients.has("potato")).toBe(true);
     });
 
     it("should parse single appliance", () => {
@@ -84,7 +84,7 @@ describe("urlState", () => {
 
       expect(result.appliances).toBeInstanceOf(Set);
       expect(result.appliances.size).toBe(1);
-      expect(result.appliances.has("Oven")).toBe(true);
+      expect(result.appliances.has("oven")).toBe(true);
     });
 
     it("should parse multiple appliances", () => {
@@ -94,8 +94,8 @@ describe("urlState", () => {
 
       expect(result.appliances).toBeInstanceOf(Set);
       expect(result.appliances.size).toBe(2);
-      expect(result.appliances.has("Oven")).toBe(true);
-      expect(result.appliances.has("Stove")).toBe(true);
+      expect(result.appliances.has("oven")).toBe(true);
+      expect(result.appliances.has("stove")).toBe(true);
     });
 
     it("should parse single utensil", () => {
@@ -105,7 +105,7 @@ describe("urlState", () => {
 
       expect(result.utensils).toBeInstanceOf(Set);
       expect(result.utensils.size).toBe(1);
-      expect(result.utensils.has("Spoon")).toBe(true);
+      expect(result.utensils.has("spoon")).toBe(true);
     });
 
     it("should parse multiple utensils", () => {
@@ -115,9 +115,9 @@ describe("urlState", () => {
 
       expect(result.utensils).toBeInstanceOf(Set);
       expect(result.utensils.size).toBe(3);
-      expect(result.utensils.has("Spoon")).toBe(true);
-      expect(result.utensils.has("Fork")).toBe(true);
-      expect(result.utensils.has("Knife")).toBe(true);
+      expect(result.utensils.has("spoon")).toBe(true);
+      expect(result.utensils.has("fork")).toBe(true);
+      expect(result.utensils.has("knife")).toBe(true);
     });
 
     it("should parse all parameters together", () => {
@@ -138,8 +138,8 @@ describe("urlState", () => {
       const result = parseURLState();
 
       expect(result.ingredients.size).toBe(2);
-      expect(result.ingredients.has("Tomato")).toBe(true);
-      expect(result.ingredients.has("Onion")).toBe(true);
+      expect(result.ingredients.has("tomato")).toBe(true);
+      expect(result.ingredients.has("onion")).toBe(true);
     });
 
     it("should handle missing parameters", () => {
@@ -170,9 +170,8 @@ describe("urlState", () => {
         "",
         expect.stringContaining("search=test"),
       );
-      // queryString.stringify uses %20 for spaces, not +
       const callArgs = window.history.pushState.mock.calls[0];
-      expect(callArgs[2]).toMatch(/search=test(%20| )query/);
+      expect(callArgs[2]).toMatch(/search=test-query/);
     });
 
     it("should update URL with ingredients", () => {
