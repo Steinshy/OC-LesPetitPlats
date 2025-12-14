@@ -1,6 +1,12 @@
 // Benchmark results collection and persistence
 import { PRODUCTION_LABEL, MAPS_LABEL } from "@benchmarks-config/constants.js";
-import { readFile, writeFile, pathExists, deleteFile, ensureDirectory } from "@viteTest-helper/fileSystem.js";
+import {
+  readFile,
+  writeFile,
+  pathExists,
+  deleteFile,
+  ensureDirectory,
+} from "@viteTest-helper/fileSystem.js";
 import { logWarning } from "@viteTest-helper/message.js";
 import { getBenchmarkResultsFilePath, getTempDir } from "@viteTest-helper/paths.js";
 
@@ -65,19 +71,13 @@ function getSafeNumber(value) {
 
 function getMeanValue(stats) {
   return (
-    getSafeNumber(stats.avg) ||
-    getSafeNumber(stats.mean) ||
-    getSafeNumber(stats.executionTime) ||
-    0
+    getSafeNumber(stats.avg) || getSafeNumber(stats.mean) || getSafeNumber(stats.executionTime) || 0
   );
 }
 
 function getExecutionTime(stats) {
   return (
-    getSafeNumber(stats.executionTime) ||
-    getSafeNumber(stats.avg) ||
-    getSafeNumber(stats.mean) ||
-    0
+    getSafeNumber(stats.executionTime) || getSafeNumber(stats.avg) || getSafeNumber(stats.mean) || 0
   );
 }
 
@@ -209,6 +209,9 @@ export function getSummary() {
   });
 
   const winCounts = {};
+  const weightedScores = {};
+  const totalWeightedTime = {};
+
   Object.values(testCases).forEach(testResults => {
     if (testResults.length > 0) {
       // Calculate composite score considering multiple factors:
@@ -263,14 +266,43 @@ export function getSummary() {
       });
 
       winCounts[winner.implementation] = (winCounts[winner.implementation] || 0) + 1;
+
+      // Calculate weighted scores for overall winner determination
+      // Weight each test by its execution time (more important tests get more weight)
+      // This ensures that real-world scenarios (with significant execution time) have more impact
+      testResults.forEach(result => {
+        const impl = result.implementation;
+        if (!weightedScores[impl]) {
+          weightedScores[impl] = 0;
+          totalWeightedTime[impl] = 0;
+        }
+
+        // Weight by execution time - tests with longer execution times are more important
+        // Use a minimum weight of 0.1 to avoid completely ignoring very fast tests
+        const weight = Math.max(result.time || 0, 0.1);
+        weightedScores[impl] += getScore(result) * weight;
+        totalWeightedTime[impl] += weight;
+      });
     }
   });
 
-  const implementations = Object.keys(winCounts);
-  const overallWinner = implementations.reduce(
-    (prev, current) => (winCounts[current] > (winCounts[prev] || 0) ? current : prev),
-    implementations[0] || "Unknown",
-  );
+  // Calculate weighted average scores for each implementation
+  const weightedAverages = {};
+  Object.keys(weightedScores).forEach(impl => {
+    if (totalWeightedTime[impl] > 0) {
+      weightedAverages[impl] = weightedScores[impl] / totalWeightedTime[impl];
+    } else {
+      weightedAverages[impl] = Infinity;
+    }
+  });
+
+  // Determine overall winner based on weighted average score (lower is better)
+  const implementations = Object.keys(weightedAverages);
+  const overallWinner = implementations.reduce((prev, current) => {
+    const prevScore = weightedAverages[prev] || Infinity;
+    const currentScore = weightedAverages[current] || Infinity;
+    return currentScore < prevScore ? current : prev;
+  }, implementations[0] || "Unknown");
 
   const improvements = [];
   Object.values(testCases).forEach(testResults => {
@@ -293,11 +325,34 @@ export function getSummary() {
       ? improvements.reduce((sum, imp) => sum + imp, 0) / improvements.length
       : 0;
 
+  // Calculate average execution time for each implementation (for comparison)
+  const averageTimes = {};
+  const implementationCounts = {};
+  Object.values(testCases).forEach(testResults => {
+    testResults.forEach(result => {
+      const impl = result.implementation;
+      if (!averageTimes[impl]) {
+        averageTimes[impl] = 0;
+        implementationCounts[impl] = 0;
+      }
+      averageTimes[impl] += result.time || 0;
+      implementationCounts[impl] += 1;
+    });
+  });
+
+  Object.keys(averageTimes).forEach(impl => {
+    if (implementationCounts[impl] > 0) {
+      averageTimes[impl] = averageTimes[impl] / implementationCounts[impl];
+    }
+  });
+
   return {
     totalTests: Object.keys(testCases).length,
     winCounts,
     overallWinner,
     averageImprovement,
+    weightedAverages,
+    averageTimes,
   };
 }
 

@@ -294,18 +294,16 @@ jobs:
         run: |
           if [ -f "benchmark-results/Unit/lcov.info" ]; then
             REPORT_PATH="benchmark-results/Unit"
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "path=$REPORT_PATH" >> $GITHUB_OUTPUT
           elif [ -f "coverage/lcov.info" ]; then
             REPORT_PATH="coverage"
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "path=$REPORT_PATH" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            exit 0
+            echo "Coverage file not found"
           fi
-          
-          gpg --quiet --keyserver keyserver.ubuntu.com --recv-keys 806BB28AED779869 > /dev/null 2>&1
-          printf "806BB28AED779869:6:\n" | gpg --quiet --import-ownertrust > /dev/null 2>&1
-          
-          echo "exists=true" >> $GITHUB_OUTPUT
-          echo "path=$REPORT_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload test coverage artifact
         uses: actions/upload-artifact@v4
