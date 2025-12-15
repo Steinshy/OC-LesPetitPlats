@@ -14,7 +14,8 @@ registerRoute(
   ({ request, url }) => {
     const isImage = request.destination === "image";
     const isRecipeImage =
-      url.pathname.includes("/recipes/") && /\.(jpg|jpeg|webp)$/i.test(url.pathname);
+      (url.pathname.includes("/pictures/") || url.pathname.includes("/recipes/")) &&
+      /\.(jpg|jpeg|webp)$/i.test(url.pathname);
     return isImage && isRecipeImage;
   },
   new CacheFirst({

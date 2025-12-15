@@ -74,7 +74,7 @@ export default defineConfig(({ mode }) => {
         srcDir: "public",
         filename: "sw.js",
         injectManifest: {
-          globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json}"],
           globIgnores: [
             "**/recipes/*.jpg",
             "**/recipes/*.webp",
@@ -167,7 +167,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       target: "esnext",
       minify: "esbuild",
-      sourcemap: true,
+      sourcemap: mode !== "production",
       manifest: true,
       cssCodeSplit: true,
       cssMinify: "lightningcss",
