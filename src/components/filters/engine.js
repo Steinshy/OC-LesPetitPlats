@@ -1,13 +1,16 @@
 import { normalizeString } from "@utils/normalize.js";
 
+const canonicalizeTerm = value => normalizeString(value);
+
 export const filtersEngine = {
-  // Extraction logic - Changer en class
   extract: {
     ingredients(recipe) {
-      return (recipe.ingredients || [])
-        .map(i => i?.ingredient)
-        .filter(Boolean)
-        .map(normalizeString);
+      const result = [];
+      (recipe.ingredients || []).forEach(ingredient => {
+        const name = ingredient?.ingredient;
+        if (name) result.push(normalizeString(name));
+      });
+      return result;
     },
 
     appliances(recipe) {
@@ -15,69 +18,201 @@ export const filtersEngine = {
     },
 
     utensils(recipe) {
-      return (recipe.utensils || []).filter(Boolean).map(normalizeString);
+      const result = [];
+      (recipe.utensils || []).forEach(utensil => {
+        if (utensil) result.push(normalizeString(utensil));
+      });
+      return result;
     },
   },
 
-  // Search logic
   buildSearchText(recipe) {
-    const base = [recipe.name, recipe.description, recipe.appliance];
+    const ingredientNames = [];
+    (recipe.ingredients || []).forEach(ingredient => {
+      const name = ingredient?.ingredient;
+      if (name) ingredientNames.push(name);
+    });
 
-    const extras = [];
+    const haystackParts = [];
+    if (recipe.name) haystackParts.push(recipe.name);
+    if (recipe.description) haystackParts.push(recipe.description);
+    ingredientNames.forEach(name => haystackParts.push(name));
+    if (recipe.appliance) haystackParts.push(recipe.appliance);
+    (recipe.utensils || []).forEach(utensil => {
+      if (utensil) haystackParts.push(utensil);
+    });
 
-    if (Array.isArray(recipe.ingredients)) {
-      extras.push(...recipe.ingredients.map(i => i?.ingredient));
-    }
+    const normalizedParts = [];
+    haystackParts.forEach(part => {
+      normalizedParts.push(normalizeString(part));
+    });
 
-    if (Array.isArray(recipe.utensils)) {
-      extras.push(...recipe.utensils);
-    }
-
-    return normalizeString([...base, ...extras].filter(Boolean).join(" "));
+    return normalizedParts.join(" ");
   },
 
   onSearch(recipes, searchTerm) {
     const query = normalizeString(searchTerm);
     if (!query) return recipes;
 
-    return recipes.filter(recipe => this.buildSearchText(recipe).includes(query));
+    const result = [];
+    recipes.forEach(recipe => {
+      if (!recipe) return;
+
+      const ingredientNames = [];
+      (recipe.ingredients || []).forEach(ingredient => {
+        const name = ingredient?.ingredient;
+        if (name) ingredientNames.push(name);
+      });
+
+      const haystackParts = [];
+      if (recipe.name) haystackParts.push(recipe.name);
+      if (recipe.description) haystackParts.push(recipe.description);
+      ingredientNames.forEach(name => haystackParts.push(name));
+      if (recipe.appliance) haystackParts.push(recipe.appliance);
+      (recipe.utensils || []).forEach(utensil => {
+        if (utensil) haystackParts.push(utensil);
+      });
+
+      const normalizedParts = [];
+      haystackParts.forEach(part => {
+        normalizedParts.push(normalizeString(part));
+      });
+      const haystack = normalizedParts.join(" ");
+
+      if (haystack.includes(query)) {
+        result.push(recipe);
+      }
+    });
+
+    return result;
   },
 
-  // Field filtering logic
   onFilter(recipes, selectedValues, type) {
     if (!selectedValues || selectedValues.size === 0) return recipes;
 
-    const extractMethod = this.extract[type];
-    if (typeof extractMethod !== "function") return recipes;
+    const selectedArray = [];
+    selectedValues.forEach(value => selectedArray.push(value));
 
-    const selected = [...selectedValues];
+    if (type === "ingredients") {
+      const result = [];
+      recipes.forEach(recipe => {
+        if (!recipe) return;
 
-    return recipes.filter(recipe => {
-      const values = extractMethod(recipe);
-      return selected.every(v => values.includes(normalizeString(v)));
-    });
+        let allMatch = true;
+        selectedArray.forEach(selectedIngredient => {
+          if (!allMatch) return;
+
+          const normalizedSelected = canonicalizeTerm(selectedIngredient);
+          let found = false;
+          (recipe.ingredients || []).forEach(ingredient => {
+            if (found) return;
+            const ingredientName = ingredient?.ingredient ?? "";
+            if (canonicalizeTerm(ingredientName) === normalizedSelected) {
+              found = true;
+            }
+          });
+
+          if (!found) {
+            allMatch = false;
+          }
+        });
+
+        if (allMatch) {
+          result.push(recipe);
+        }
+      });
+      return result;
+    }
+
+    if (type === "appliances") {
+      const result = [];
+      recipes.forEach(recipe => {
+        if (!recipe) return;
+
+        const recipeAppliance = recipe.appliance;
+        if (!recipeAppliance) return;
+
+        const normalizedRecipeAppliance = canonicalizeTerm(recipeAppliance);
+        const recipeApplianceArray = [normalizedRecipeAppliance];
+
+        let allMatch = true;
+        selectedArray.forEach(selectedAppliance => {
+          if (!allMatch) return;
+
+          const normalizedSelected = canonicalizeTerm(selectedAppliance);
+          let found = false;
+          recipeApplianceArray.forEach(appliance => {
+            if (found) return;
+            if (appliance === normalizedSelected) {
+              found = true;
+            }
+          });
+
+          if (!found) {
+            allMatch = false;
+          }
+        });
+
+        if (allMatch) {
+          result.push(recipe);
+        }
+      });
+      return result;
+    }
+
+    if (type === "utensils") {
+      const result = [];
+      recipes.forEach(recipe => {
+        if (!recipe) return;
+
+        let allMatch = true;
+        selectedArray.forEach(selectedUstensil => {
+          if (!allMatch) return;
+
+          const normalizedSelected = canonicalizeTerm(selectedUstensil);
+          let found = false;
+          (recipe.utensils || []).forEach(ustensil => {
+            if (found) return;
+            if (canonicalizeTerm(ustensil) === normalizedSelected) {
+              found = true;
+            }
+          });
+
+          if (!found) {
+            allMatch = false;
+          }
+        });
+
+        if (allMatch) {
+          result.push(recipe);
+        }
+      });
+      return result;
+    }
+
+    return recipes;
   },
 
-  // Dropdown search logic
   filterDropdownItems(items, searchTerm) {
     const query = normalizeString(searchTerm);
     if (!query) return items;
 
-    return items.filter(item => {
-      if (item == null) return false;
+    const result = [];
+    items.forEach(item => {
+      if (item == null) return;
       const text = normalizeString(item?.label ?? item?.value ?? item);
-      return text.includes(query);
+      if (text.includes(query)) {
+        result.push(item);
+      }
     });
+    return result;
   },
 
-  // Final combined filtering
   applyAll(recipes, filters, types = []) {
     let result = recipes;
 
-    // Apply search
     result = this.onSearch(result, filters.search);
 
-    // Apply each dropdown filter
     types.forEach(type => {
       const selected = filters[type];
       result = this.onFilter(result, selected, type);
