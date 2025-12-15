@@ -1,0 +1,100 @@
+@startuml runtimeDataFlow
+!theme carbon-gray
+!include theme/structure-theme.puml
+
+top to bottom direction
+
+title Les Petits Plats — Flux de données à l’exécution\nTraitement des données piloté par événements et mises à jour de l’interface
+' ---------------------
+' Structure des activités de l’application (Structurelle)
+' ---------------------
+folder "1) États (Données & UI)" as StatesBlock {
+  file "a. Recettes" as Recipes
+  file "b. Rendu UI" as UiRendering
+
+  Recipes -> UiRendering #6BCB77
+}
+
+folder "6) Déclencheur de rendu (Mise à jour UI)" as GoToRenderBlock {
+  file "a. Rendu UI" as GoToRender
+}
+
+folder "2) Initialisation" as SetupBlock {
+  file "a. Initialisation des filtres" as SetupFilters
+  file "b. Initialisation des listes déroulantes" as SetupDropdowns
+  file "c. Initialisation de la recherche" as SetupSearchBar
+  file "d. Initialisation du compteur de résultats" as SetupCounter
+  file "e. Initialisation des cartes" as SetupCards
+  file "f. Initialisation de l’état de l’URL" as UpdateURLState
+  
+  SetupFilters -down-> SetupDropdowns
+  SetupDropdowns -down-> SetupSearchBar
+  SetupSearchBar -down-> SetupCounter
+  SetupCounter -down-> SetupCards
+  SetupCards -down-> UpdateURLState
+}
+
+folder "3) Interactions (Entrées utilisateur)" as InteractionsBlock {
+  file "a. Interaction avec les filtres" as FiltersInteraction
+  file "b. Interaction avec les listes déroulantes" as DropdownsInteraction
+  file "c. Interaction de recherche" as SearchInteraction
+  
+  FiltersInteraction -[hidden]-> DropdownsInteraction
+  DropdownsInteraction -[hidden]-> SearchInteraction
+}
+
+folder "4) Bus d’événements" as EventBusBlock {
+  rectangle "Filtres : stateChanged" as FiltersState #LightGreen
+  rectangle "Listes déroulantes : itemToggled" as DropdownsState #LightBlue
+  rectangle "Recherche : queryChanged" as SearchState #LightSkyBlue
+
+  FiltersState -[hidden]-> DropdownsState
+  DropdownsState -[hidden]-> SearchState
+}
+
+folder "5) Filtres (Traitement)" as FiltersBlock {
+  file "a. Traitement des filtres" as ApplyAllFilters
+  file "b. Traitement des filtres par listes déroulantes" as FilterByDropdown
+  file "c. Traitement des filtres par recherche" as FilterBySearch
+
+  ApplyAllFilters -[hidden]-> FilterByDropdown
+  FilterByDropdown -[hidden]-> FilterBySearch
+  FilterByDropdown -up-> ApplyAllFilters
+  FilterBySearch -up-> FilterByDropdown
+  ApplyAllFilters -up-> GoToRender
+}
+
+' ---------------------
+' États → Initialisation (Flux de cycle de vie)
+' ---------------------
+StatesBlock -[hidden]-> SetupBlock
+UiRendering -[hidden]-> SetupFilters
+GoToRenderBlock -[hidden]-> FiltersBlock
+UiRendering -down-> SetupFilters #6BCB77
+
+' ---------------------
+' Initialisation → Interactions (Flux d’exécution)
+' ---------------------
+SetupFilters -> FiltersInteraction
+SetupDropdowns -> DropdownsInteraction
+SetupSearchBar -> SearchInteraction
+' ---------------------
+' Interactions → Bus d’événements (Flux d’exécution)
+' ---------------------
+FiltersInteraction -> FiltersState
+DropdownsInteraction -> DropdownsState
+SearchInteraction -> SearchState
+
+' ---------------------
+' Bus d’événements → Filtres (Flux d’exécution)
+' ---------------------
+FiltersState -> ApplyAllFilters
+DropdownsState -> FilterByDropdown
+SearchState -> FilterBySearch
+
+' ---------------------
+' Filtres → Déclencheur de rendu (Flux d’exécution)
+' ---------------------
+GoToRender -> UiRendering #6BCB77
+
+@enduml

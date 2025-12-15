@@ -1,0 +1,62 @@
+@startuml method1-forEach
+!theme cerulean
+!include theme/method-theme.puml
+title Les Petits Plats — Filtering strategy (Method 1)\nImperative approach using native loops
+
+partition "Search engine" {
+
+  start
+
+  :query = normalizeString(query);
+  
+  note right
+    normalizeString(query) — Runs the following normalization logic:
+      
+      ◆ Removes accents and special characters
+      ◆ Converts to lowercase
+      ◆ Removes parentheses and unnecessary spaces
+      ◆ Goal: standardize text and avoid false negatives.
+  end note
+
+  :initialize results = [];
+
+  partition "Native loops" {
+    repeat
+      :Read current recipe;
+      -[#LightBlue]->
+      if (Title(recipe, query)) then (yes)
+        :results.push(recipe);
+      else (no)
+        if (Ingredients(recipe, query)) then (yes)
+          :results.push(recipe);
+        else (no)
+          if (Description(recipe, query)) then (yes)
+            :results.push(recipe);
+          endif
+        endif
+      endif
+    
+    repeat while (next recipe?) -[#FF8C00]->
+  }
+
+  :Native filtering;
+  note right
+    Native filtering — Runs the following filtering logic:
+
+      ◆ Title(recipe, query)
+      ◆ Ingredients(recipe, query)
+      ◆ Description(recipe, query)
+      ◆ Imperative style with nested conditions
+      ◆ Less performant and harder to maintain
+  end note
+
+  :return results;
+  stop
+
+  note right
+    ➤ Method 1 — Native loops with named functions
+      ◆ Named functions for comparison with Method 2
+  end note
+}
+
+@enduml

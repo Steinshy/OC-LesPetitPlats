@@ -1,15 +1,14 @@
-@startuml method2
+@startuml method2-Production
 !theme cerulean
 !include theme/method-theme.puml
-
-title Méthode 2 \n Filter() + Some() + ApplyAllFilters()
+title Les Petits Plats — Stratégie de filtrage (Méthode 2)\nApproche déclarative utilisant filter(), some() et applyAllFilters()
 
 partition "Moteur de recherche" {
   start
   :query = normalizeString(query);
 
   note right
-    NormalizeString(query) - Execute la logique de normalisation suivante :
+    normalizeString(query) — Exécute la logique de normalisation suivante :
 
       ◆ Retire accents et caractères spéciaux
       ◆ Convertit en minuscules
@@ -21,17 +20,17 @@ partition "Moteur de recherche" {
     :results = applyAllFilters(recipes, query);
 
     note right
-      ApplyAllFilters() - Execute la logique de filtrage suivante :
+      applyAllFilters() — Exécute la logique de filtrage suivante :
 
       ➤ Normalisation :
         ◆ Les champs utiles sont comparés via normalizeString().
 
       ➤ Conditions de correspondance :
-        ◆ Title(recipe, query) :
+        ◆ matchTitle(recipe, query) :
             Vérifie si le titre contient la requête normalisée.
-        ◆ Recipe.ingredients.some(matchIngredient) :
+        ◆ recipe.ingredients.some(matchIngredient) :
             Recherche un ingrédient correspondant
-        ◆ MatchDescription(recipe, query) :
+        ◆ matchDescription(recipe, query) :
             Analyse la description
 
       ➤ Règle de validation :
@@ -39,12 +38,12 @@ partition "Moteur de recherche" {
     end note
   }
 
-  :retourner results;
+  :retourner les résultats;
   stop
   note right
     ➤ Méthode 2 — Filtrage fonctionnel
-      ◆ Array.filter() + Array.some()
-      ◆ ApplyAllFilters() pour la logique de filtrage.
+      ◆ Utilisation de Array.filter() et Array.some()
+      ◆ applyAll() comme logique centrale de filtrage
   end note
 }
 

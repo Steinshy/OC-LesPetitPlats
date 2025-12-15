@@ -1,8 +1,7 @@
-@startuml method1
+@startuml method1-forEach
 !theme cerulean
 !include theme/method-theme.puml
-
-title Méthode 1 \n Boucles natives
+title Les Petits Plats — Stratégie de filtrage (Méthode 1)\nApproche impérative utilisant des boucles natives
 
 partition "Moteur de recherche" {
 
@@ -11,7 +10,7 @@ partition "Moteur de recherche" {
   :query = normalizeString(query);
   
   note right
-    NormalizeString(query) - Execute la logique de normalisation suivante :
+    normalizeString(query) — Exécute la logique de normalisation suivante :
       
       ◆ Retire accents et caractères spéciaux
       ◆ Convertit en minuscules
@@ -21,7 +20,7 @@ partition "Moteur de recherche" {
 
   :initialiser results = [];
 
-  partition "Boucle native" {
+  partition "Boucles natives" {
     repeat
       :Lire recette courante;
       -[#LightBlue]->
@@ -40,23 +39,23 @@ partition "Moteur de recherche" {
     repeat while (recette suivante ?) -[#FF8C00]->
   }
 
-  :NativeFilter;
+  :Filtrage natif;
   note right
-    NativeFilter() - Execute la logique de filtrage suivante :
+    Filtrage natif — Exécute la logique de filtrage suivante :
 
       ◆ Title(recipe, query)
       ◆ Ingredients(recipe, query)
       ◆ Description(recipe, query)
-      ◆ Style impératif, conditions imbriquées,
-      ◆ Moins performant et moins lisible.
+      ◆ Style impératif avec conditions imbriquées
+      ◆ Moins performant et plus difficile à maintenir
   end note
 
-  :retourner results;
+  :retourner les résultats;
   stop
 
   note right
     ➤ Méthode 1 — Boucles natives avec fonctions nommées
-      ◆ Fonctions nommées pour le comparatif avec Methode 2.
+      ◆ Fonctions nommées pour le comparatif avec la Méthode 2
   end note
 }
 

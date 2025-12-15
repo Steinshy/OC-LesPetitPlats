@@ -1,0 +1,128 @@
+@startuml applicationArchitecture
+!theme carbon-gray
+!include theme/structure-theme.puml
+
+top to bottom direction
+
+title Les Petits Plats — Architecture de l’application\nVue structurelle et phases du cycle de vie
+' ---------------------
+' Structure de l’application (Structurelle)
+' ---------------------
+node "LesPetitsPlats" as LesPetitsPlats {
+  folder "App"
+}
+
+rectangle "Bus d’événements" as EventBusBlock #LightBlue
+
+package "Initialisation (Phases du cycle de vie)" as InitBlock {
+  package "Configuration — Initialisation de l’UI" as SetupBlock {
+    file "Squelettes" as SkeletonsInit
+    file "Retour en haut" as ScrollToTopInit
+    
+    SkeletonsInit -down-> ScrollToTopInit
+  }
+
+  package "Collecte des données" as FetcherBlock {
+    file "API" as Api
+    file "Cache" as Cache
+    file "Configuration" as Config
+    rectangle "Données disponibles ?" as FetchResults #LightBlue
+    rectangle "Erreur" as FetchError #Red
+    rectangle "Succès" as FetchSuccess #LightGreen
+
+    Api -down-> Cache
+    Cache -down-> Config
+    Api -right-> FetchResults #LightBlue
+    
+    FetchResults -down-> FetchError #Red
+    FetchResults -right-> FetchSuccess #LightGreen
+  }
+
+  package "Recettes — Traitement des données" as RecipesBlock {
+    file "Construction" as RecipesBuilder
+    file "Résultats" as RecipesResults
+    rectangle "Résultats disponibles ?" as MatchResults #LightBlue
+    rectangle "Erreur" as RecipesError #Red
+    rectangle "Succès" as RecipesSuccess #LightGreen
+    
+    FetchSuccess -[hidden]- RecipesBuilder
+
+    FetchSuccess -right-> RecipesBuilder #LightGreen
+    RecipesBuilder -down-> RecipesResults #LightBlue
+    RecipesResults -right-> MatchResults #LightBlue
+    MatchResults -down-> RecipesError #Red
+    MatchResults -right-> RecipesSuccess #LightGreen
+  }
+}
+
+package "Interactions (Entrées utilisateur)" as InteractionsBlock {
+  file "Interaction avec les filtres" as FiltersInteraction
+  file "Interaction de recherche" as SearchInteraction
+  file "Interaction avec les listes déroulantes" as DropdownsInteraction
+
+  FiltersInteraction <-right-> SearchInteraction
+  SearchInteraction <-right-> DropdownsInteraction
+}
+
+package "Gestionnaires — Logique applicative" as ManagersBlock {
+  file "Gestionnaire de recherche" as SearchManager
+  file "Gestionnaire des listes déroulantes" as DropdownManager
+  file "Gestionnaire des filtres" as FiltersManager
+
+  SearchManager <-right-> DropdownManager
+  DropdownManager <-right-> FiltersManager
+}
+
+package "Rendu" as RenderingBlock {
+  rectangle "Résultats disponibles ?" as RenderResults #LightBlue
+  rectangle "Erreur" as RenderError #Red
+  rectangle "Succès" as RenderSuccess #LightGreen
+  file "Composants UI\nCartes - Listes déroulantes\nCompteur - Filtres" as RenderComponents
+  
+  FiltersManager -[hidden]- RenderResults
+  RenderResults -[hidden]- RenderSuccess
+  RenderResults -[hidden]- RenderError
+  RenderSuccess -[hidden]- RenderComponents
+  
+  FiltersManager -down-> RenderResults #LightBlue
+  RenderResults -down-> RenderError #Red
+  RenderResults -down-> RenderSuccess #LightGreen
+  RenderSuccess -down-> RenderComponents #LightGreen
+}
+
+' ---------------------
+' Flux du cycle de vie (Structurel)
+' ---------------------
+LesPetitsPlats -[hidden]-> InitBlock
+LesPetitsPlats -down-> InitBlock
+
+InitBlock -[hidden]-> SetupBlock
+
+SetupBlock -right-> FetcherBlock
+FetcherBlock -[hidden]-> RecipesBlock
+
+RecipesBlock -[hidden]-> InteractionsBlock
+InteractionsBlock -[hidden]-> EventBusBlock
+EventBusBlock -[hidden]-> ManagersBlock
+
+ManagersBlock -[hidden]-> RenderingBlock
+RenderingBlock -[hidden]-> RenderError
+
+' ---------------------
+' Recettes → Interactions (Flux d’exécution)
+' ---------------------
+RecipesSuccess -right-> FiltersInteraction #LightGreen
+FiltersInteraction -down-> EventBusBlock #LightBlue
+
+' -------------------------------------------------
+' Bus d’événements → Gestionnaires → Rendu (Flux d’exécution)
+' -------------------------------------------------
+EventBusBlock -down-> FiltersManager #LightBlue
+
+note right of EventBusBlock
+  ➤ Événements du bus (alignés avec le graphe pump)
+  ◆ Filters: stateChanged
+  ◆ Dropdowns: itemToggled
+  ◆ Search: queryChanged
+end note
+@enduml
