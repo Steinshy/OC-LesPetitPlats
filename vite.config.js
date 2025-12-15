@@ -6,7 +6,6 @@ import viteCompression from "vite-plugin-compression";
 import { VitePWA } from "vite-plugin-pwa";
 import webfontDownload from "vite-plugin-webfont-dl";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { codecovVitePlugin } from "@codecov/vite-plugin";
 import pkg from "./package.json" with { type: "json" };
 import { generateAnalyze } from "./scripts/analyze.js";
 
@@ -150,13 +149,6 @@ export default defineConfig(({ mode }) => {
           gzipSize: true,
           brotliSize: true,
           template: "treemap",
-        }),
-      mode === "production" &&
-        process.env.CODECOV_TOKEN &&
-        codecovVitePlugin({
-          enableBundleAnalysis: true,
-          bundleName: pkg.name,
-          uploadToken: process.env.CODECOV_TOKEN,
         }),
     ].filter(Boolean),
     resolve: {

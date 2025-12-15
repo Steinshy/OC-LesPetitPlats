@@ -168,8 +168,6 @@ jobs:
         run: npm ci --silent
 
       - name: Build project
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: npm run build --silent
 
       - name: Upload build artifacts

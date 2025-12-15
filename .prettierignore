@@ -3,16 +3,6 @@ dist
 dist-ssr
 dev-dist
 *.local
-.env
-.env.*
-.env.local
-.env.development
-.env.development.local
-.env.production
-.env.production.local
-.env.test
-.env.test.local
-.env.*.local
 .vscode
 .idea
 package-lock.json
