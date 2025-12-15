@@ -32,4 +32,6 @@ export default {
   ignoreStatic: true,
   logLevel: "info",
   plugins: ["@stryker-mutator/vitest-runner"],
+  cleanTempDir: true,
+  incremental: false,
 };

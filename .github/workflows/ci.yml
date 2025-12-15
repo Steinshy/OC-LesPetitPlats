@@ -320,15 +320,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vite-
 
-      - name: Cache Stryker
+      - name: Cache Stryker reports only
         uses: actions/cache@v4
         with:
-          path: |
-            .stryker-tmp
-            reports
-          key: ${{ runner.os }}-stryker-${{ hashFiles('**/package-lock.json', '**/stryker.conf.js') }}
+          path: reports
+          key: ${{ runner.os }}-stryker-reports-${{ hashFiles('**/package-lock.json', '**/stryker.conf.js') }}
           restore-keys: |
-            ${{ runner.os }}-stryker-
+            ${{ runner.os }}-stryker-reports-
 
       - name: Install dependencies
         run: npm ci --silent

@@ -43,12 +43,12 @@ header h1 {
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 var(--spacing-sm);
-  text-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  text-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
 }
 
 .report-date {
   align-items: center;
-  color: rgb(255 255 255 / 90%);
+  color: rgb(255 255 255 / 0.9);
   display: flex;
   font-size: 0.95rem;
   font-weight: 400;

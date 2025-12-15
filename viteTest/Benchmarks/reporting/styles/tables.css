@@ -55,7 +55,7 @@ table tbody tr:hover td {
 }
 
 table .winner {
-  background-color: rgb(16 185 129 / 10%) !important;
+  background-color: rgb(16 185 129 / 0.1) !important;
   color: var(--secondary-dark);
   font-weight: 600;
 }
@@ -90,7 +90,7 @@ table .winner {
 }
 
 .fastest-row {
-  background-color: rgb(16 185 129 / 10%) !important;
+  background-color: rgb(16 185 129 / 0.1) !important;
 }
 
 .fastest-row td {
