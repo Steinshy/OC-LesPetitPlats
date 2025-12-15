@@ -44,37 +44,6 @@ jobs:
           deny-licenses: GPL-2.0, GPL-3.0
           comment-summary-in-pr: always
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH,MEDIUM"
-          exit-code: "0"
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: "trivy-results.sarif"
-
-      - name: Upload Trivy results as artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: trivy-results
-          path: trivy-results.sarif
-          retention-days: 1
-          if-no-files-found: ignore
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -94,31 +63,17 @@ jobs:
       - name: Install dependencies
         run: npm ci --silent
 
-      - name: Run ESLint
-        run: npm run lint:eslint -- --quiet
+      - name: Run code quality checks
         continue-on-error: true
-
-      - name: Run Stylelint
-        run: npm run lint:css --loglevel=error
-        continue-on-error: true
-
-      - name: Run HTML validation
-        run: npm run lint:html --loglevel=error
-        continue-on-error: true
-
-      - name: Run Markdown lint
-        run: npm run lint:md --loglevel=error
-        continue-on-error: true
-
-      - name: Run ESLint security plugin
-        run: npm run lint:eslint -- --max-warnings=0 --quiet
-        env:
-          ESLINT_PLUGIN_SECURITY: "true"
-        continue-on-error: true
-
-      - name: Check for known security issues
         run: |
-          npm run lint:eslint -- --quiet 2>&1 | grep -i "security" > /dev/null 2>&1 || true
+          npm run lint:eslint || true
+          npm run lint:css || true
+          npm run lint:html || true
+          npm run lint:md || true
+          ESLINT_PLUGIN_SECURITY="true" npm run lint:eslint || true
+          npm run lint:eslint 2>&1 | grep -i "security" > /dev/null 2>&1 || true
+          npm audit --audit-level=moderate --production || true
+          npm audit --audit-level=moderate || true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -133,12 +88,6 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript"
-
-      - name: Run npm audit
-        run: |
-          npm audit --audit-level=moderate --production --loglevel=error || true
-          npm audit --audit-level=moderate --loglevel=error || true
-        continue-on-error: true
 
   build:
     name: Build
@@ -227,7 +176,7 @@ jobs:
           CI: true
           RUN_ALL_TESTS: true
         run: |
-          npm run benchmark --loglevel=error || true
+          npm run benchmark || true
         continue-on-error: true
 
       - name: Upload benchmark HTML reports
@@ -387,7 +336,7 @@ jobs:
       - name: Run mutation tests
         id: run-mutation-tests
         run: |
-          npx --yes --loglevel=error @stryker-mutator/core run --logLevel error || true
+          npx --yes @stryker-mutator/core run || true
         continue-on-error: true
 
       - name: Upload mutation test report

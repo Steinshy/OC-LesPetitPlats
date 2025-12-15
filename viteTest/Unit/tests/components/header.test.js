@@ -398,7 +398,7 @@ describe("hero - setupHero - image selection", () => {
       onerror: null,
       src: "",
     };
-    const ImageSpy = vi.spyOn(global, "Image").mockImplementation(function () {
+    const ImageSpy = vi.spyOn(global, "Image").mockImplementation(() => {
       return mockImage;
     });
 
@@ -457,7 +457,7 @@ describe("hero - setupHero - missing or invalid images", () => {
       onerror: null,
       src: "",
     };
-    const ImageSpy = vi.spyOn(global, "Image").mockImplementation(function () {
+    const ImageSpy = vi.spyOn(global, "Image").mockImplementation(() => {
       return mockImage;
     });
 

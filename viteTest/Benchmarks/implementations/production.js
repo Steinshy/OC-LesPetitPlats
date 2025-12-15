@@ -1,5 +1,4 @@
 // Production filter functions from src/components/filters/engine.js
-import { normalizeString } from "@/utils/normalize.js";
 import { filtersEngine } from "~/src/components/filters/engine.js";
 
 // Wrapper functions for benchmark compatibility

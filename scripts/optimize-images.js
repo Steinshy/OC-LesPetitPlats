@@ -1,6 +1,6 @@
-import sharp from "sharp";
 import { readdir, stat } from "fs/promises";
 import { join, extname, basename } from "path";
+import sharp from "sharp";
 
 const SOURCE_DIR = "JSON recipes";
 
