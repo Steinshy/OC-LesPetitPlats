@@ -14,7 +14,7 @@ export function generateAppliancesBenchmark(sampleRecipes) {
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const appliances = ${JSON.stringify(testAppliances)};`,
 
-    production: `// Production implementation from src/components/filters/filtersEngine.js
+    production: `// Production implementation from src/components/filters/engine.js
 const filtersEngine = {
   extract: {
     appliances(recipe) {
@@ -23,9 +23,11 @@ const filtersEngine = {
   },
   onFilter(recipes, selectedValues, type) {
     if (!selectedValues || selectedValues.size === 0) return recipes;
+    const extractMethod = this.extract[type];
+    if (typeof extractMethod !== "function") return recipes;
     const selected = [...selectedValues];
     return recipes.filter(recipe => {
-      const values = this.extract[type](recipe);
+      const values = extractMethod(recipe);
       return selected.every(v => values.includes(normalizeString(v)));
     });
   },
@@ -54,16 +56,31 @@ const filterByAppliances = (recipes, appliances) => {
   recipes.forEach(recipe => {
     if (!recipe) return;
 
-    const normalizedAppliance = canonicalizeTerm(recipe.appliance);
-    let found = false;
+    const recipeAppliance = recipe.appliance;
+    if (!recipeAppliance) return;
+
+    const normalizedRecipeAppliance = canonicalizeTerm(recipeAppliance);
+    const recipeApplianceArray = [normalizedRecipeAppliance];
+
+    let allMatch = true;
     appliancesArray.forEach(selectedAppliance => {
-      if (found) return;
-      if (canonicalizeTerm(selectedAppliance) === normalizedAppliance) {
-        found = true;
+      if (!allMatch) return;
+
+      const normalizedSelected = canonicalizeTerm(selectedAppliance);
+      let found = false;
+      recipeApplianceArray.forEach(appliance => {
+        if (found) return;
+        if (appliance === normalizedSelected) {
+          found = true;
+        }
+      });
+
+      if (!found) {
+        allMatch = false;
       }
     });
 
-    if (found) {
+    if (allMatch) {
       result.push(recipe);
     }
   });

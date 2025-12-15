@@ -10,7 +10,7 @@ export function generateSearchBenchmark(sampleRecipes) {
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const searchTerm = ${JSON.stringify(searchTerm)};`,
 
-    production: `// Production implementation from src/components/filters/filtersEngine.js
+    production: `// Production implementation from src/components/filters/engine.js
 const filtersEngine = {
   extract: {
     ingredients(recipe) {

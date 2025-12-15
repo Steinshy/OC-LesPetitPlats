@@ -16,7 +16,7 @@ export function generateUtensilsBenchmark(sampleRecipes) {
 const recipes = ${JSON.stringify(sampleRecipes, null, 2)};
 const utensils = ${JSON.stringify(testUtensils)};`,
 
-    production: `// Production implementation from src/components/filters/filtersEngine.js
+    production: `// Production implementation from src/components/filters/engine.js
 const filtersEngine = {
   extract: {
     utensils(recipe) {
@@ -25,9 +25,11 @@ const filtersEngine = {
   },
   onFilter(recipes, selectedValues, type) {
     if (!selectedValues || selectedValues.size === 0) return recipes;
+    const extractMethod = this.extract[type];
+    if (typeof extractMethod !== "function") return recipes;
     const selected = [...selectedValues];
     return recipes.filter(recipe => {
-      const values = this.extract[type](recipe);
+      const values = extractMethod(recipe);
       return selected.every(v => values.includes(normalizeString(v)));
     });
   },

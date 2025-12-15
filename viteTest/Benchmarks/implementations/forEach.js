@@ -109,16 +109,31 @@ export const filterByAppliances = (recipes, appliances) => {
   recipes.forEach(recipe => {
     if (!recipe) return;
 
-    const normalizedAppliance = canonicalizeTerm(recipe.appliance);
-    let found = false;
+    const recipeAppliance = recipe.appliance;
+    if (!recipeAppliance) return;
+
+    const normalizedRecipeAppliance = canonicalizeTerm(recipeAppliance);
+    const recipeApplianceArray = [normalizedRecipeAppliance];
+
+    let allMatch = true;
     appliancesArray.forEach(selectedAppliance => {
-      if (found) return;
-      if (canonicalizeTerm(selectedAppliance) === normalizedAppliance) {
-        found = true;
+      if (!allMatch) return;
+
+      const normalizedSelected = canonicalizeTerm(selectedAppliance);
+      let found = false;
+      recipeApplianceArray.forEach(appliance => {
+        if (found) return;
+        if (appliance === normalizedSelected) {
+          found = true;
+        }
+      });
+
+      if (!found) {
+        allMatch = false;
       }
     });
 
-    if (found) {
+    if (allMatch) {
       result.push(recipe);
     }
   });

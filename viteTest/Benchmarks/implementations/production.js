@@ -1,4 +1,4 @@
-// Production filter functions from src/components/filters/filtersEngine.js
+// Production filter functions from src/components/filters/engine.js
 import { normalizeString } from "@/utils/normalize.js";
 import { filtersEngine } from "~/src/components/filters/engine.js";
 
@@ -16,23 +16,8 @@ export const filterByIngredients = (recipes, ingredients) => {
 
 export const filterByAppliances = (recipes, appliances) => {
   if (!Array.isArray(recipes)) return [];
-  if (
-    !appliances ||
-    (Array.isArray(appliances) && appliances.length === 0) ||
-    (appliances instanceof Set && appliances.size === 0)
-  ) {
-    return recipes;
-  }
-
-  // For appliances, use OR logic (recipe has one appliance, match if it's in selected)
-  // This matches the forEach implementation behavior and the actual application logic
   const selectedValues = appliances instanceof Set ? appliances : new Set(appliances || []);
-  const selected = [...selectedValues];
-
-  return recipes.filter(recipe => {
-    const values = filtersEngine.extract.appliances(recipe);
-    return selected.some(v => values.includes(normalizeString(v)));
-  });
+  return filtersEngine.onFilter(recipes, selectedValues, "appliances");
 };
 
 export const filterByutensils = (recipes, utensils) => {
