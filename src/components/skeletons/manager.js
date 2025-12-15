@@ -27,21 +27,21 @@ export const searchSkeleton = () => ({
 });
 
 // ---------------
-// header skeleton
+// hero skeleton
 // ---------------
 
-export const headerSkeleton = () => ({
+export const heroSkeleton = () => ({
   show: () => {
-    const header = document.getElementById("header");
-    if (header) {
-      header.classList.add("skeleton");
+    const hero = document.getElementById("hero");
+    if (hero) {
+      hero.classList.add("skeleton");
     }
   },
 
   hide: () => {
-    const header = document.getElementById("header");
-    if (header) {
-      header.classList.remove("skeleton");
+    const hero = document.getElementById("hero");
+    if (hero) {
+      hero.classList.remove("skeleton");
     }
   },
 });

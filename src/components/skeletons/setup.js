@@ -1,12 +1,12 @@
 import {
   searchSkeleton,
-  headerSkeleton,
+  heroSkeleton,
   dropdownsSkeleton,
   cardsSkeletons,
 } from "@components/skeletons/manager.js";
 
 export const setupSkeletons = () => {
-  headerSkeleton().show();
+  heroSkeleton().show();
   searchSkeleton().show();
   dropdownsSkeleton().show();
   cardsSkeletons().show();

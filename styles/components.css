@@ -17,8 +17,8 @@
     width: 90%;
   }
 
-  /* Header */
-  .header {
+  /* Hero */
+  .hero {
     background-image:
       var(--header-bg-image),
       linear-gradient(135deg, var(--color-bg) 0%, var(--color-bg-light) 100%);
@@ -1785,8 +1785,8 @@
       width: 100%;
     }
 
-    /* Header */
-    .header {
+    /* Hero */
+    .hero {
       min-height: 30vh;
     }
 
@@ -2237,7 +2237,7 @@
       font-size: 18px;
     }
 
-    .header {
+    .hero {
       min-height: 40vh;
     }
 
@@ -2465,7 +2465,7 @@
       font-size: 20px;
     }
 
-    .header {
+    .hero {
       min-height: 50vh;
     }
 

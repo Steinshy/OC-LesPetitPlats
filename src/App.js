@@ -2,7 +2,7 @@
 import { setupCards } from "@components/cards/setup.js";
 import { setupDropdowns } from "@components/dropdowns/setup.js";
 import { setupFilters } from "@components/filters/setup.js";
-import { setupHeader } from "@components/header.js";
+import { setupHero } from "@components/hero.js";
 import { updateResultsCounter } from "@components/resultsCounter.js";
 import { setupScrollLock, setupScrollToTop } from "@components/scroll.js";
 import { setupSearch } from "@components/search/setup.js";
@@ -24,7 +24,7 @@ const initApp = async () => {
   recipesData.match(
     recipes => {
       updateResultsCounter(recipes.length);
-      setupHeader(recipes);
+      setupHero(recipes);
       cleanups.push(setupDropdowns(recipes));
       cleanups.push(setupCards(recipes));
       cleanups.push(setupFilters(recipes));

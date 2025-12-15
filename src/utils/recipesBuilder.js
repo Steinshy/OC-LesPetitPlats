@@ -6,8 +6,8 @@ const buildImages = recipe => {
   const base = recipe?.image?.replace(/\.[^./]+$/, "") || recipe?.image;
   return {
     alt: recipe?.name || "",
-    jpgUrl: base ? `${baseUrl}recipes/${base}.jpg` : null,
-    webpUrl: base ? `${baseUrl}recipes/${base}.webp` : null,
+    jpgUrl: base ? `${baseUrl}pictures/card/${base}-card.jpg` : null,
+    webpUrl: base ? `${baseUrl}pictures/card/${base}-card.webp` : null,
   };
 };
 
@@ -24,6 +24,7 @@ const transformRecipes = apiRecipesData =>
       ingredients: recipe?.ingredients || [],
       utensils: recipe?.ustensils || [],
       appliance: recipe?.appliance || "",
+      image: recipe?.image || "",
       images,
     };
   });

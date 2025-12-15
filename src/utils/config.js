@@ -18,4 +18,4 @@ export const isMobile = () => {
   }
 };
 
-export const getHeaderHeight = () => document.getElementById("header")?.offsetHeight ?? 0;
+export const getHeaderHeight = () => document.getElementById("hero")?.offsetHeight ?? 0;
