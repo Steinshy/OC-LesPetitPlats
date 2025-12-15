@@ -88,11 +88,18 @@ L'application sera accessible à `http://localhost:5173`.
 - `npm run lint:fix` - Correction automatique ESLint
 - `npm run format` - Formatage du code avec Prettier
 
+### Tests
+
+- `npm run test` - Exécuter les tests unitaires
+- `npm run test:coverage` - Exécuter les tests avec rapport de couverture
+
 ### Analyse & Optimisation
 
 - `npm run analyze` - Analyse du bundle
 - `npm run lighthouse` - Rapport Lighthouse
+- `npm run benchmark` - Générer des rapports de benchmark de performance
 - `npm run jsben` - Générer des fichiers de benchmark pour jsben.ch
+- `npm run optimize:images` - Optimiser les images
 
 ### Utilitaires
 
@@ -118,6 +125,22 @@ npm run lint:fix      # Correction automatique
 npm run format        # Formatage automatique
 ```
 
+## 🏗️ Architecture & Décisions de conception
+
+### Investigation de fonctionnalité : Moteur de recherche
+
+Pour différencier l'application des autres plateformes de recettes, un moteur de recherche fluide et performant a été développé. L'objectif est d'afficher en temps réel les recettes correspondant à la saisie de l'utilisateur, avec des filtres qui s'adaptent dynamiquement.
+
+#### Documentation UML
+
+Des diagrammes UML détaillent l'architecture et les stratégies de filtrage :
+
+- 📄 [Fiche d'investigation fonctionnalité.pdf](Fiche%20d%E2%80%99investigation%20fonctionnalit%C3%A9.pdf) - Analyse complète des approches
+- 📊 [Architecture de l'application](public/uml/fr/applicationArchitecture.png) - Vue structurelle et phases du cycle de vie
+- 🔄 [Méthode 1 - Boucles natives](public/uml/fr/method1-forEach.png) - Approche impérative
+- ⚡ [Méthode 2 - Production](public/uml/fr/method2-Production.png) - Approche déclarative (implémentée)
+- 📈 [Flux de données à l'exécution](public/uml/fr/runtimeDataFlow.png) - Traitement piloté par événements
+
 ## 📊 Performances & Tests
 
 Pour plus d'informations :
@@ -133,7 +156,6 @@ LesPetitPlats/
 ├── public/              # Fichiers statiques (api/, favicons/, recipes/, sw.js)
 ├── src/
 │   ├── App.js          # Point d'entrée
-│   ├── coordinator.js  # Coordinateur d'événements
 │   ├── components/     # Composants UI modulaires
 │   │   ├── cards/      # Affichage des recettes (manager, render, setup, ui)
 │   │   ├── dropdowns/  # Menus déroulants (data, elements, interactions, manager, render, setup)
@@ -146,8 +168,8 @@ LesPetitPlats/
 │   │   │   ├── setup.js       # Initialisation
 │   │   │   ├── state.js       # Gestion de l'état
 │   │   │   └── ui.js          # Mises à jour UI (tags, compteurs)
-│   │   ├── search/     # Barre de recherche (elements, manager, render, setup)
-│   │   └── skeletons/  # Placeholders de chargement (manager, setup)
+│   │   ├── search/     # Barre de recherche (elements, manager, setup)
+│   │   └── skeletons/  # Placeholders de chargement (manager, renderer, setup)
 │   └── utils/          # Utilitaires (cache, eventBus, normalize, recipeApi, etc.)
 ├── styles/             # Styles CSS (base, components, global, utilities)
 ├── scripts/            # Scripts utilitaires (analyze, export, lighthouse)

@@ -3,7 +3,7 @@
     <img src="public/favicons/logoIcon.svg" alt="Les Petits Plats" width="52" height="47" style="vertical-align: middle; margin-right: 12px; background: transparent;">
     Les Petits Plats
   </h1>
-  <p>🇫🇷 <a href="README.fr.md">Français</a></p>
+  <p>🇫🇷 <a href="README.md">Français</a></p>
   <p>
     Modern web application for searching among over 1500 culinary recipes.<br>
     Intuitive interface with real-time search, advanced filters by ingredients, appliances and utensils, and optimized results display.
@@ -88,11 +88,18 @@ The application will be accessible at `http://localhost:5173`.
 - `npm run lint:fix` - Automatic ESLint fixes
 - `npm run format` - Code formatting with Prettier
 
+### Tests
+
+- `npm run test` - Run unit tests
+- `npm run test:coverage` - Run tests with coverage report
+
 ### Analysis & Optimization
 
 - `npm run analyze` - Bundle analysis
 - `npm run lighthouse` - Lighthouse report
+- `npm run benchmark` - Generate performance benchmark reports
 - `npm run jsben` - Generate benchmark files for jsben.ch
+- `npm run optimize:images` - Optimize images
 
 ### Utilities
 
@@ -118,6 +125,22 @@ npm run lint:fix      # Automatic fixes
 npm run format        # Automatic formatting
 ```
 
+## 🏗️ Architecture & Design Decisions
+
+### Feature Investigation: Search Engine
+
+To differentiate the application from other recipe platforms, a fluid and performant search engine was developed. The goal is to display in real-time recipes matching user input, with filters that adapt dynamically.
+
+#### UML Documentation
+
+Detailed UML diagrams describe the architecture and filtering strategies:
+
+- 📄 [Feature Investigation Document.pdf](Fiche%20d%E2%80%99investigation%20fonctionnalit%C3%A9.pdf) - Complete analysis of approaches
+- 📊 [Application Architecture](public/uml/en/applicationArchitecture.png) - Structural view and lifecycle phases
+- 🔄 [Method 1 - Native Loops](public/uml/en/method1-forEach.png) - Imperative approach
+- ⚡ [Method 2 - Production](public/uml/en/method2-Production.png) - Declarative approach (implemented)
+- 📈 [Runtime Data Flow](public/uml/en/runtimeDataFlow.png) - Event-driven processing
+
 ## 📊 Performance & Tests
 
 For more information:
@@ -133,7 +156,6 @@ LesPetitPlats/
 ├── public/              # Static files (api/, favicons/, recipes/, sw.js)
 ├── src/
 │   ├── App.js          # Entry point
-│   ├── coordinator.js  # Event coordinator
 │   ├── components/     # Modular UI components
 │   │   ├── cards/      # Recipe display (manager, render, setup, ui)
 │   │   ├── dropdowns/  # Dropdown menus (data, elements, interactions, manager, render, setup)
@@ -146,8 +168,8 @@ LesPetitPlats/
 │   │   │   ├── setup.js       # Initialization
 │   │   │   ├── state.js       # State management
 │   │   │   └── ui.js          # UI updates (tags, counters)
-│   │   ├── search/     # Search bar (elements, manager, render, setup)
-│   │   └── skeletons/  # Loading placeholders (manager, setup)
+│   │   ├── search/     # Search bar (elements, manager, setup)
+│   │   └── skeletons/  # Loading placeholders (manager, renderer, setup)
 │   └── utils/          # Utilities (cache, eventBus, normalize, recipeApi, etc.)
 ├── styles/             # CSS styles (base, components, global, utilities)
 ├── scripts/            # Utility scripts (analyze, export, lighthouse)
