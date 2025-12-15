@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      // Project
+      "~/*": ["./*"],
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@data/*": ["./src/data/*"],
+      "@styles/*": ["./styles/*"],
+      "@scripts/*": ["./scripts/*"],
+
+      // Benchmarks
+      "@benchmarks/*": ["./viteTest/Benchmarks/*"],
+      "@benchmarks-config/*": ["./viteTest/Benchmarks/config/*"],
+      "@benchmarks-data/*": ["./viteTest/Benchmarks/data/*"],
+      "@benchmarks-implementations/*": ["./viteTest/Benchmarks/implementations/*"],
+      "@benchmarks-tests/*": ["./viteTest/Benchmarks/tests/*"],
+      "@benchmarks-utils/*": ["./viteTest/Benchmarks/utils/*"],
+
+      // Jsben
+      "@jsben/*": ["./viteTest/Jsben/*"],
+
+      // Benchmarks reporting
+      "@benchmarks-reporting/*": ["./viteTest/Benchmarks/reporting/*"],
+      "@benchmarks-reporting-cli/*": ["./viteTest/Benchmarks/reporting/cli/*"],
+      "@benchmarks-reporting-core/*": ["./viteTest/Benchmarks/reporting/core/*"],
+      "@benchmarks-reporting-helpers/*": ["./viteTest/Benchmarks/reporting/helpers/*"],
+      "@benchmarks-reporting-sections/*": ["./viteTest/Benchmarks/reporting/sections/*"],
+      "@benchmarks-reporting-styles/*": ["./viteTest/Benchmarks/reporting/styles/*"],
+
+      // Unit tests
+      "@tests/*": ["./viteTest/Unit/*"],
+      "@tests-data/*": ["./viteTest/Unit/data/*"],
+      "@tests-helpers/*": ["./viteTest/Unit/helpers/*"],
+      
+      // Unit tests - mocks (mirrors src/ structure)
+      "@tests-mocks/*": ["./viteTest/Unit/mocks/*"],
+      "@tests-mocks-components/*": ["./viteTest/Unit/mocks/components/*"],
+      "@tests-mocks-utils/*": ["./viteTest/Unit/mocks/utils/*"],
+      
+      // Unit tests - tests (mirrors src/ structure)
+      "@tests-tests/*": ["./viteTest/Unit/tests/*"],
+      "@tests-tests-components/*": ["./viteTest/Unit/tests/components/*"],
+      "@tests-tests-utils/*": ["./viteTest/Unit/tests/utils/*"],
+
+      // ViteTest helpers (centralized utilities)
+      "@viteTest-helper/*": ["./viteTest/helper/*"],
+    },
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true
+  },
+  "exclude": ["node_modules", "dist", "benchmark-results", "temp", "Report"]
+}

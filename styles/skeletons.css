@@ -1,0 +1,84 @@
+/* styles/skeletons.css */
+
+@layer skeletons {
+  :root {
+    --skeleton-bg: linear-gradient(90deg, #e0e0e0 0%, #e8e8e8 25%, #e0e0e0 50%, #e0e0e0 100%);
+    --skeleton-shine: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.8) 50%, transparent 100%);
+    --skeleton-shine-light: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.7) 50%, transparent 100%);
+    --skeleton-size: 200% 100%;
+    --skeleton-duration: 1.5s;
+  }
+
+  .skeleton {
+    background-image: var(--skeleton-bg);
+    background-size: var(--skeleton-size);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .skeleton::before {
+    animation: skeleton-shimmer var(--skeleton-duration) ease-in-out infinite;
+    background-image: var(--skeleton-shine);
+    background-size: 50% 100%;
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 50%;
+    will-change: transform;
+  }
+
+  .skeleton :is(input, button) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .card.skeleton {
+    --skeleton-shine: var(--skeleton-shine-light);
+
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card.skeleton,
+  .card.skeleton * {
+    color: transparent;
+  }
+
+  .card.skeleton .card-picture.skeleton {
+    aspect-ratio: 3 / 2;
+    display: block;
+    height: auto;
+    min-height: 200px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .search-bar.skeleton {
+    border-radius: 12px;
+    color: transparent;
+    min-height: 55px;
+    position: relative;
+  }
+
+  .dropdown-container.skeleton {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .dropdown-container.skeleton .filter-dropdown {
+    min-width: 140px;
+  }
+
+  @media (width <= 767px) {
+    .dropdown-container.skeleton {
+      width: 80%;
+    }
+
+    .dropdown-container.skeleton .filter-dropdown {
+      min-width: auto;
+    }
+  }
+}

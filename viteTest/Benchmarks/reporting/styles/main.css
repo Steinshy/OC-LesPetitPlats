@@ -1,0 +1,13 @@
+/**
+ * Main CSS File - Imports all style modules
+ * Modern, Clean, and Professional Styles for Benchmark Report
+ * Based on best practices for professional HTML reports
+ */
+
+@import "./variables.css";
+@import "./layout.css";
+@import "./cards.css";
+@import "./tables.css";
+@import "./markdown.css";
+@import "./responsive.css";
+

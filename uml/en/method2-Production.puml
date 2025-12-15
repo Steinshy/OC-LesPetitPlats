@@ -1,0 +1,50 @@
+@startuml method2-Production
+!theme cerulean
+!include theme/method-theme.puml
+title Les Petits Plats — Filtering strategy (Method 2)\nDeclarative approach using filter(), some() and applyAllFilters()
+
+partition "Search engine" {
+  start
+  :query = normalizeString(query);
+
+  note right
+    normalizeString(query) — Runs the following normalization logic:
+
+      ◆ Removes accents and special characters
+      ◆ Converts to lowercase
+      ◆ Removes parentheses and unnecessary spaces
+      ◆ Goal: standardize text and avoid false negatives.
+  end note
+
+  partition "Functional filtering" {
+    :results = applyAllFilters(recipes, query);
+
+    note right
+      applyAllFilters() — Runs the following filtering logic:
+
+      ➤ Normalization:
+        ◆ Relevant fields are compared via normalizeString().
+
+      ➤ Matching conditions:
+        ◆ matchTitle(recipe, query):
+            Checks whether the title contains the normalized query.
+        ◆ recipe.ingredients.some(matchIngredient):
+            Searches for a matching ingredient
+        ◆ matchDescription(recipe, query):
+            Analyzes the description
+
+      ➤ Validation rule:
+        ◆ The recipe is kept if AT LEAST ONE condition is true.
+    end note
+  }
+
+  :return results;
+  stop
+  note right
+    ➤ Method 2 — Functional filtering
+      ◆ Uses Array.filter() and Array.some()
+      ◆ applyAll() as the core filtering logic
+  end note
+}
+
+@enduml

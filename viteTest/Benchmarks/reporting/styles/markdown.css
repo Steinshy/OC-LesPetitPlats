@@ -1,0 +1,344 @@
+/**
+ * Markdown Content Styles
+ */
+
+/* Methodology Markdown Content */
+.methodology-notes {
+  margin-top: var(--spacing-xl);
+}
+
+.methodology-content {
+  margin-top: var(--spacing-lg);
+}
+
+.methodology-grid {
+  display: flex;
+  flex-flow: row wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.methodology-grid .methodology-card {
+  flex: 1;
+  min-width: 220px;
+}
+
+.methodology-card {
+  background-color: var(--bg-secondary);
+  border-left: 3px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.methodology-card h4 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: var(--spacing-sm);
+  margin-top: 0;
+}
+
+.methodology-table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.methodology-table td {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.methodology-table td:first-child {
+  color: var(--text-secondary);
+  font-weight: 500;
+  width: 40%;
+}
+
+.methodology-table td:last-child {
+  color: var(--text-primary);
+}
+
+.methodology-table tr:last-child td {
+  border-bottom: none;
+}
+
+.compact-list {
+  font-size: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.compact-list li {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-xs) 0;
+}
+
+.compact-list li:last-child {
+  border-bottom: none;
+}
+
+.methodology-process-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.methodology-process {
+  background-color: rgb(37 99 235 / 0.05);
+  border-left: 4px solid var(--primary-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.methodology-process h4 {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  margin-bottom: var(--spacing-md);
+  margin-top: 0;
+}
+
+.methodology-process p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.methodology-note {
+  background-color: rgb(245 158 11 / 0.1);
+  border-left: 4px solid var(--accent-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.methodology-note p {
+  color: rgb(146 64 14);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Markdown content styling */
+.methodology-content.markdown-content {
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.methodology-content.markdown-content h2 {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+  margin-top: 0;
+}
+
+.methodology-content.markdown-content h3 {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.methodology-content.markdown-content h3:first-of-type {
+  margin-top: 0;
+}
+
+.methodology-content.markdown-content h4 {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.methodology-content.markdown-content table {
+  background-color: var(--bg-secondary);
+  border-collapse: collapse;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin: var(--spacing-md) 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.methodology-content.markdown-content table th,
+.methodology-content.markdown-content table td {
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+}
+
+.methodology-content.markdown-content table th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.methodology-content.markdown-content table td:first-child {
+  color: var(--text-secondary);
+  font-weight: 500;
+  width: 40%;
+}
+
+.methodology-content.markdown-content ul,
+.methodology-content.markdown-content ol {
+  margin: var(--spacing-md) 0;
+  padding-left: var(--spacing-xl);
+}
+
+.methodology-content.markdown-content li {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: var(--spacing-xs) 0;
+}
+
+.methodology-content.markdown-content li strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.methodology-content.markdown-content p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: var(--spacing-md) 0;
+}
+
+.methodology-content.markdown-content code {
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  color: var(--primary-color);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.125rem 0.375rem;
+}
+
+.methodology-content.markdown-content blockquote {
+  background-color: rgb(245 158 11 / 0.1);
+  border-left: 4px solid var(--accent-color);
+  border-radius: var(--radius-md);
+  color: rgb(146 64 14);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.methodology-content.markdown-content blockquote p {
+  color: rgb(146 64 14);
+  margin: 0;
+}
+
+.methodology-content.markdown-content blockquote strong {
+  color: rgb(146 64 14);
+  font-weight: 600;
+}
+
+/* Markdown-it plugin styles */
+.table-of-contents {
+  background-color: var(--bg-secondary);
+  border-left: 3px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.table-of-contents h3 {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  margin-bottom: var(--spacing-sm);
+  margin-top: 0;
+}
+
+.table-of-contents ul {
+  list-style: none;
+  margin: 0;
+  padding-left: var(--spacing-md);
+}
+
+.table-of-contents li {
+  margin: var(--spacing-xs) 0;
+}
+
+.table-of-contents a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.table-of-contents a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* Task lists styling */
+.markdown-it-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.markdown-it-task-list-item {
+  margin: var(--spacing-xs) 0;
+}
+
+.markdown-it-task-list-item input[type="checkbox"] {
+  margin-right: var(--spacing-xs);
+}
+
+/* Footnotes styling */
+.footnotes {
+  border-top: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-md);
+}
+
+.footnotes ol {
+  padding-left: var(--spacing-lg);
+}
+
+.footnotes li {
+  color: var(--text-secondary);
+  margin: var(--spacing-xs) 0;
+}
+
+.footnote-ref a,
+.footnote-backref {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footnote-ref a:hover,
+.footnote-backref:hover {
+  text-decoration: underline;
+}
+
+/* Hide footnote references in conclusion to avoid clutter */
+.conclusion .footnote-ref {
+  display: none;
+}
+
+.conclusion .footnotes {
+  display: none;
+}
+
+/* Subscript and superscript */
+sub,
+sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+

@@ -1,0 +1,40 @@
+@startuml method-theme
+
+' General style
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ArrowStyle none
+
+' Rectangle style
+skinparam rectangle {
+  RoundCorner 25
+  BorderColor #2C3E50
+}
+
+' Package style
+skinparam package {
+  BackgroundColor transparent
+}
+
+' Component style
+skinparam component {
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
+  BorderThickness 0
+  FontName "Inter"
+  FontSize 16
+  FontStyle normal
+}
+
+' Node style
+skinparam node {
+  BackgroundColor #F5F5F5
+  BorderColor #2C3E50
+  FontColor #2C3E50
+  Roundcorner 0
+}
+
+@enduml
+

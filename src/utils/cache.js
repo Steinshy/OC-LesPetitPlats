@@ -1,35 +1,62 @@
-import { LRUCache } from "lru-cache";
+// src/utils/cache.js
 
-// Central application cache
-export const appCache = new LRUCache({
-  max: 500,
-  ttl: 1000 * 60 * 5, // 5 minutes
-});
+import { lru } from "tiny-lru";
 
-export function cacheGet(key) {
-  return appCache.get(key);
-}
+// Configuration
+const MAX_ITEMS = 500;
+const DEFAULT_TTL_MS = 1000 * 60 * 5;
 
-export function cacheSet(key, value, ttlMs) {
-  if (typeof ttlMs === "number") {
-    appCache.set(key, value, { ttl: ttlMs });
-  } else {
-    appCache.set(key, value);
+export const appCache = lru(MAX_ITEMS);
+
+// Internals
+
+const buildRecord = (value, ttlMs) => {
+  const ttl = typeof ttlMs === "number" && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS;
+  return { value, expiresAt: Date.now() + ttl };
+};
+
+const getRecord = key => {
+  const record = appCache.get(key);
+  if (!record) return undefined;
+  if (record.expiresAt <= Date.now()) {
+    appCache.delete(key);
+    return undefined;
   }
-}
+  return record;
+};
 
-export function cacheHas(key) {
-  return appCache.has(key);
-}
+// Public API
 
-export function cacheDel(key) {
-  appCache.delete(key);
-}
+export const cacheGet = key => getRecord(key)?.value;
 
-export async function cacheGetOrSet(key, fetcher, ttlMs) {
+export const cacheSet = (key, value, ttlMs) => {
+  appCache.set(key, buildRecord(value, ttlMs));
+};
+
+export const cacheHas = key => getRecord(key) !== undefined;
+
+export const cacheDel = key => appCache.delete(key);
+
+export const cacheGetOrSet = async (key, fetcher, ttlMs) => {
   const cached = cacheGet(key);
-  if (cached !== undefined) return cached;
-  const value = await fetcher();
-  cacheSet(key, value, ttlMs);
-  return value;
-}
+  if (cached !== undefined) {
+    return cached;
+  }
+  const result = await fetcher();
+  if (result && typeof result === "object" && "isOk" in result) {
+    if (result.isOk()) {
+      cacheSet(key, result.value, ttlMs);
+    }
+  } else {
+    cacheSet(key, result, ttlMs);
+  }
+  return result;
+};
+
+export const cacheManager = {
+  get: cacheGet,
+  set: cacheSet,
+  has: cacheHas,
+  clear: () => appCache.clear(),
+  delete: cacheDel,
+};

@@ -1,0 +1,100 @@
+@startuml runtimeDataFlow
+!theme carbon-gray
+!include theme/structure-theme.puml
+
+top to bottom direction
+
+title Les Petits Plats — Runtime data flow\nEvent-driven data processing and UI updates
+' ---------------------
+' Application activity structure (Structural)
+' ---------------------
+folder "1) States (Data & UI)" as StatesBlock {
+  file "a. Recipes" as Recipes
+  file "b. UI rendering" as UiRendering
+
+  Recipes -> UiRendering #6BCB77
+}
+
+folder "6) Render trigger (UI update)" as GoToRenderBlock {
+  file "a. UI rendering" as GoToRender
+}
+
+folder "2) Initialization" as SetupBlock {
+  file "a. Filters initialization" as SetupFilters
+  file "b. Dropdowns initialization" as SetupDropdowns
+  file "c. Search bar initialization" as SetupSearchBar
+  file "d. Results counter initialization" as SetupCounter
+  file "e. Cards initialization" as SetupCards
+  file "f. URL state initialization" as UpdateURLState
+  
+  SetupFilters -down-> SetupDropdowns
+  SetupDropdowns -down-> SetupSearchBar
+  SetupSearchBar -down-> SetupCounter
+  SetupCounter -down-> SetupCards
+  SetupCards -down-> UpdateURLState
+}
+
+folder "3) Interactions (User input)" as InteractionsBlock {
+  file "a. Filters interaction" as FiltersInteraction
+  file "b. Dropdowns interaction" as DropdownsInteraction
+  file "c. Search interaction" as SearchInteraction
+  
+  FiltersInteraction -[hidden]-> DropdownsInteraction
+  DropdownsInteraction -[hidden]-> SearchInteraction
+}
+
+folder "4) Event bus" as EventBusBlock {
+  rectangle "Filters: stateChanged" as FiltersState #LightGreen
+  rectangle "Dropdowns: itemToggled" as DropdownsState #LightBlue
+  rectangle "Search: queryChanged" as SearchState #LightSkyBlue
+
+  FiltersState -[hidden]-> DropdownsState
+  DropdownsState -[hidden]-> SearchState
+}
+
+folder "5) Filters (Processing)" as FiltersBlock {
+  file "a. Filters processing" as ApplyAllFilters
+  file "b. Filters processing by dropdowns" as FilterByDropdown
+  file "c. Filters processing by search" as FilterBySearch
+
+  ApplyAllFilters -[hidden]-> FilterByDropdown
+  FilterByDropdown -[hidden]-> FilterBySearch
+  FilterByDropdown -up-> ApplyAllFilters
+  FilterBySearch -up-> FilterByDropdown
+  ApplyAllFilters -up-> GoToRender
+}
+
+' ---------------------
+' States → Initialization (Lifecycle flow)
+' ---------------------
+StatesBlock -[hidden]-> SetupBlock
+UiRendering -[hidden]-> SetupFilters
+GoToRenderBlock -[hidden]-> FiltersBlock
+UiRendering -down-> SetupFilters #6BCB77
+
+' ---------------------
+' Initialization → Interactions (Execution flow)
+' ---------------------
+SetupFilters -> FiltersInteraction
+SetupDropdowns -> DropdownsInteraction
+SetupSearchBar -> SearchInteraction
+' ---------------------
+' Interactions → Event bus (Execution flow)
+' ---------------------
+FiltersInteraction -> FiltersState
+DropdownsInteraction -> DropdownsState
+SearchInteraction -> SearchState
+
+' ---------------------
+' Event bus → Filters (Execution flow)
+' ---------------------
+FiltersState -> ApplyAllFilters
+DropdownsState -> FilterByDropdown
+SearchState -> FilterBySearch
+
+' ---------------------
+' Filters → Render trigger (Execution flow)
+' ---------------------
+GoToRender -> UiRendering #6BCB77
+
+@enduml

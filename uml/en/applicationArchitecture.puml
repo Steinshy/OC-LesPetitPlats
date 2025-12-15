@@ -1,0 +1,128 @@
+@startuml applicationArchitecture
+!theme carbon-gray
+!include theme/structure-theme.puml
+
+top to bottom direction
+
+title Les Petits Plats — Application architecture\nStructural view and lifecycle phases
+' ---------------------
+' Application structure (Structural)
+' ---------------------
+node "LesPetitsPlats" as LesPetitsPlats {
+  folder "App"
+}
+
+rectangle "Event bus" as EventBusBlock #LightBlue
+
+package "Initialization (Lifecycle phases)" as InitBlock {
+  package "Configuration — UI initialization" as SetupBlock {
+    file "Skeletons" as SkeletonsInit
+    file "Scroll to top" as ScrollToTopInit
+    
+    SkeletonsInit -down-> ScrollToTopInit
+  }
+
+  package "Data fetching" as FetcherBlock {
+    file "API" as Api
+    file "Cache" as Cache
+    file "Configuration" as Config
+    rectangle "Data available ?" as FetchResults #LightBlue
+    rectangle "Error" as FetchError #Red
+    rectangle "Success" as FetchSuccess #LightGreen
+
+    Api -down-> Cache
+    Cache -down-> Config
+    Api -right-> FetchResults #LightBlue
+    
+    FetchResults -down-> FetchError #Red
+    FetchResults -right-> FetchSuccess #LightGreen
+  }
+
+  package "Recipes — Data processing" as RecipesBlock {
+    file "Building" as RecipesBuilder
+    file "Results" as RecipesResults
+    rectangle "Results available?" as MatchResults #LightBlue
+    rectangle "Error" as RecipesError #Red
+    rectangle "Success" as RecipesSuccess #LightGreen
+    
+    FetchSuccess -[hidden]- RecipesBuilder
+
+    FetchSuccess -right-> RecipesBuilder #LightGreen
+    RecipesBuilder -down-> RecipesResults #LightBlue
+    RecipesResults -right-> MatchResults #LightBlue
+    MatchResults -down-> RecipesError #Red
+    MatchResults -right-> RecipesSuccess #LightGreen
+  }
+}
+
+package "Interactions (User input)" as InteractionsBlock {
+  file "Filters interaction" as FiltersInteraction
+  file "Search interaction" as SearchInteraction
+  file "Dropdowns interaction" as DropdownsInteraction
+
+  FiltersInteraction <-right-> SearchInteraction
+  SearchInteraction <-right-> DropdownsInteraction
+}
+
+package "Managers — Application logic" as ManagersBlock {
+  file "Search manager" as SearchManager
+  file "Dropdown manager" as DropdownManager
+  file "Filters manager" as FiltersManager
+
+  SearchManager <-right-> DropdownManager
+  DropdownManager <-right-> FiltersManager
+}
+
+package "Rendering" as RenderingBlock {
+  rectangle "Results available?" as RenderResults #LightBlue
+  rectangle "Error" as RenderError #Red
+  rectangle "Success" as RenderSuccess #LightGreen
+  file "UI components\nCards - Dropdowns\nCounter - Filters" as RenderComponents
+  
+  FiltersManager -[hidden]- RenderResults
+  RenderResults -[hidden]- RenderSuccess
+  RenderResults -[hidden]- RenderError
+  RenderSuccess -[hidden]- RenderComponents
+  
+  FiltersManager -down-> RenderResults #LightBlue
+  RenderResults -down-> RenderError #Red
+  RenderResults -down-> RenderSuccess #LightGreen
+  RenderSuccess -down-> RenderComponents #LightGreen
+}
+
+' ---------------------
+' Lifecycle flow (Structural)
+' ---------------------
+LesPetitsPlats -[hidden]-> InitBlock
+LesPetitsPlats -down-> InitBlock
+
+InitBlock -[hidden]-> SetupBlock
+
+SetupBlock -right-> FetcherBlock
+FetcherBlock -[hidden]-> RecipesBlock
+
+RecipesBlock -[hidden]-> InteractionsBlock
+InteractionsBlock -[hidden]-> EventBusBlock
+EventBusBlock -[hidden]-> ManagersBlock
+
+ManagersBlock -[hidden]-> RenderingBlock
+RenderingBlock -[hidden]-> RenderError
+
+' ---------------------
+' Recipes → Interactions (Execution flow)
+' ---------------------
+RecipesSuccess -right-> FiltersInteraction #LightGreen
+FiltersInteraction -down-> EventBusBlock #LightBlue
+
+' -------------------------------------------------
+' Event bus → Managers → Rendering (Execution flow)
+' -------------------------------------------------
+EventBusBlock -down-> FiltersManager #LightBlue
+
+note right of EventBusBlock
+  ➤ Bus events (aligned with the pump graph)
+  ◆ Filters: stateChanged
+  ◆ Dropdowns: itemToggled
+  ◆ Search: queryChanged
+end note
+@enduml

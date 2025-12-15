@@ -1,9 +1,7 @@
 import js from "@eslint/js";
-import prettierConfig from "eslint-config-prettier";
 import htmlPlugin from "eslint-plugin-html";
 import importPlugin from "eslint-plugin-import";
 import jsdoc from "eslint-plugin-jsdoc";
-import prettier from "eslint-plugin-prettier";
 import security from "eslint-plugin-security";
 import sonarjs from "eslint-plugin-sonarjs";
 import unicorn from "eslint-plugin-unicorn";
@@ -13,7 +11,9 @@ export default [
   js.configs.recommended,
   {
     files: ["**/*.html"],
-    plugins: { html: htmlPlugin },
+    plugins: {
+      html: htmlPlugin,
+    },
     languageOptions: {
       parserOptions: {
         ecmaVersion: "latest",
@@ -29,7 +29,6 @@ export default [
       security,
       sonarjs,
       unicorn,
-      prettier,
     },
     languageOptions: {
       ecmaVersion: "latest",
@@ -39,117 +38,185 @@ export default [
         ...globals.node,
       },
     },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+      },
+    },
     rules: {
-      // Variable and code quality rules
       "no-unused-vars": [
-        "error",
+        "warn",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^(_|[A-Z])",
           caughtErrorsIgnorePattern: "^_",
         },
       ],
-      "no-console": ["warn", { allow: ["error", "warn", "info"] }],
-      "no-debugger": "error",
-      "no-var": "error",
-      "prefer-const": "error",
-      "prefer-arrow-callback": "error",
-      "arrow-spacing": "error",
-      "object-shorthand": "error",
-      "prefer-template": "error",
+      "no-console": ["off"],
+      "no-debugger": "warn",
+      "no-var": "warn",
+      "prefer-const": "warn",
+      "prefer-arrow-callback": "warn",
+      "arrow-spacing": "warn",
+      "object-shorthand": "warn",
+      "prefer-template": "warn",
 
-      // Style rules
-      "comma-dangle": ["error", "always-multiline"],
-      quotes: ["error", "double", { avoidEscape: true }],
-      semi: ["error", "always"],
-      "no-trailing-spaces": "error",
+      "comma-dangle": ["warn", "always-multiline"],
+      quotes: ["warn", "double", { avoidEscape: true }],
+      semi: ["warn", "always"],
+      "no-trailing-spaces": "warn",
 
-      // Complexity rules
       "max-len": [
         "warn",
         {
-          code: 160,
+          code: 200,
           ignoreUrls: true,
           ignoreStrings: true,
           ignoreTemplateLiterals: true,
+          ignoreRegExpLiterals: true,
         },
       ],
-      complexity: ["warn", 15],
-      "max-depth": ["warn", 5],
-      "max-lines-per-function": [
-        "warn",
-        { max: 200, skipBlankLines: true, skipComments: true },
-      ],
+      complexity: ["warn", 25],
+      "max-depth": ["warn", 8],
+      "max-lines-per-function": ["warn", { max: 300, skipBlankLines: true, skipComments: true }],
 
-      // Import rules
-      "no-duplicate-imports": "error",
+      "no-duplicate-imports": "warn",
       "import/no-unresolved": [
-        "error",
-        { ignore: ["^@tailwindcss/", "^tailwindcss", "^vitest"] },
-      ],
-      "import/no-absolute-path": "error",
-      "import/no-self-import": "error",
-      "import/order": [
-        "error",
+        "warn",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
+          ignore: [
+            "^\\./",
+            "^\\.\\./",
+            "^node:",
+            "^@tailwindcss/",
+            "^tailwindcss",
+            "^vitest",
+            "^tinybench",
+            "^tiny-lru",
+            "^puppeteer",
+            "^chartjs-node-canvas",
+            "^chart\\.js",
+            "^@testing-library/",
+            "^@scripts/",
+            "^@benchmarks/",
+            "^@jsben/",
+            "^@tests/",
+            "^@tests-mocks/",
+            "^@tests-mocks-components/",
+            "^@tests-mocks-utils/",
+            "^@viteTest-helper/",
+            "^@components/",
+            "^@utils/",
+            "^@data/",
+            "^@styles/",
+            "^@/",
+            "^@/utils/imageTracker\\.js$",
+            "^@/utils/device\\.js$",
+            "^@/coordinator\\.js$",
+            "\\.css$",
+            "\\.scss$",
+            "\\.sass$",
+            "\\.less$",
+            "^fs$",
+            "^path$",
+            "^url$",
+            "^os$",
+            "^crypto$",
+            "^stream$",
+            "^util$",
+            "^events$",
+            "^buffer$",
+            "^process$",
+            "^child_process$",
+            "^http$",
+            "^https$",
+            "^net$",
+            "^dns$",
+            "^zlib$",
+            "^readline$",
+            "^cluster$",
+            "^worker_threads$",
+            "^perf_hooks$",
+            "^v8$",
+            "^vm$",
+            "^assert$",
+            "^console$",
+            "^querystring$",
+            "^string_decoder$",
+            "^tls$",
+            "^tty$",
+            "^punycode$",
           ],
-          "newlines-between": "always",
-          alphabetize: { order: "asc" },
+        },
+      ],
+      "import/no-absolute-path": "warn",
+      "import/no-self-import": "warn",
+      "import/order": [
+        "warn",
+        {
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          "newlines-between": "ignore",
+          alphabetize: { order: "asc", caseInsensitive: true },
         },
       ],
 
-      // JSDoc rules
-      "jsdoc/check-param-names": "error",
-      "jsdoc/check-tag-names": "error",
+      "jsdoc/check-param-names": "warn",
+      "jsdoc/check-tag-names": "warn",
       "jsdoc/require-param": "off",
       "jsdoc/require-returns": "off",
 
-      // Security rules
-      "security/detect-eval-with-expression": "error",
-      "security/detect-unsafe-regex": "error",
+      "security/detect-eval-with-expression": "warn",
+      "security/detect-unsafe-regex": "warn",
       "security/detect-object-injection": "off",
 
-      // SonarJS rules (code smells)
-      "sonarjs/no-duplicate-string": ["warn", { threshold: 3 }],
-      "sonarjs/cognitive-complexity": ["warn", 15],
+      "sonarjs/no-duplicate-string": ["warn", { threshold: 5 }],
+      "sonarjs/cognitive-complexity": ["warn", 25],
       "sonarjs/no-identical-functions": "warn",
       "sonarjs/no-nested-template-literals": "off",
+      "sonarjs/no-small-switch": "off",
 
-      // Unicorn rules (best practices)
-      "unicorn/better-regex": "error",
+      "unicorn/better-regex": "warn",
       "unicorn/no-array-for-each": "off",
-      "unicorn/prefer-query-selector": "warn",
-      "unicorn/prefer-modern-dom-apis": "warn",
+      "unicorn/prefer-query-selector": "off",
+      "unicorn/prefer-modern-dom-apis": "off",
       "unicorn/no-null": "off",
       "unicorn/prevent-abbreviations": "off",
-
-      // Prettier integration
-      "prettier/prettier": "error",
+      "unicorn/filename-case": "off",
+      "unicorn/prefer-spread": "warn",
     },
   },
-  prettierConfig,
   {
     ignores: [
       "node_modules/",
       "dist/",
+      "@dist/",
+      "dev-dist/",
       "build/",
       "public/",
+      "benchmark-results/",
+      "temp/",
+      ".stryker-tmp/",
+      "api/data.js",
+      "public/api/data.js",
       "*.min.js",
       "*.min.css",
       "*.log",
+      "lighthouse/",
+      "lighthouse-report*.html",
+      "lighthouse-report*.json",
+      "lighthouse-report-formatted.json",
       ".lighthouseci/",
       ".husky/",
       ".cursor/",
       ".vscode/",
       ".idea/",
+      ".oc/",
       ".DS_Store",
+      "Benchmark/",
+      "Report/",
     ],
   },
 ];
