@@ -13,6 +13,11 @@ import { eventBus } from "@utils/eventBus.js";
 
 export let currentDropdownsData = {};
 export const dropdownTypes = [];
+export const dropdownsLabels = [
+  { name: "Ingrédients", type: "ingredients" },
+  { name: "Appareils", type: "appliances" },
+  { name: "Ustensiles", type: "utensils" },
+];
 
 export const onFiltersUpdated = ({ filtered }) => {
   const dropdownData = buildDropdownsData(filtered);
@@ -40,8 +45,9 @@ export const setupDropdowns = recipes => {
   dropdownTypes.push(...Object.keys(currentDropdownsData));
 
   dropdownsSkeleton().show();
-  containers.innerHTML =
-    renderDropdown("ingredients") + renderDropdown("utensils") + renderDropdown("appliances");
+
+  containers.innerHTML = dropdownsLabels.map(dropdown => renderDropdown(dropdown)).join("");
+
   dropdownsSkeleton().hide();
   const cleanupListeners = setupDropdownListeners(dropdownTypes);
 

@@ -1,5 +1,6 @@
 // src/components/dropdowns/render.js
-export const renderDropdown = type => {
+export const renderDropdown = dropdown => {
+  const { name, type } = dropdown || {};
   return `
     <div 
       class="dropdown-container" 
@@ -12,9 +13,9 @@ export const renderDropdown = type => {
         id="dropdown-${type}-button"
         aria-expanded="false"
         aria-controls="menu-${type}"
-        aria-label="Ouvrir le menu ${type}">
-        <span class="dropdown-count" id="dropdown-${type}-count" aria-label="Nombre d'éléments"></span>
-        <span class="filter-label">${type}</span>
+        aria-label="Ouvrir le menu ${name}">
+        <span class="dropdown-count" id="dropdown-${type}-count" aria-label="Nombre d'éléments ${name}"></span>
+        <span class="filter-label">${name}</span>
         <i class="ri-arrow-down-s-line"></i>
       </button>
       
@@ -29,7 +30,8 @@ export const renderDropdown = type => {
         id="menu-${type}"
         aria-hidden="true"
         role="listbox"
-        aria-labelledby="dropdown-${type}-button">
+        aria-labelledby="dropdown-${type}-button"
+        aria-label="Menu ${name}">
         ${renderDropdownSearch(type)}
         <ul class="dropdown-list" id="dropdown-${type}-list"></ul>
       </div>
