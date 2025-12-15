@@ -76,7 +76,7 @@ jobs:
           fi
 
       - name: Run Lighthouse CI on deployed page
-        uses: treosh/lighthouse-ci-action@v11
+        uses: treosh/lighthouse-ci-action@v12
         env:
           LHCI_BUILD_CONTEXT__CURRENT_HASH: ${{ github.sha }}
         with:
