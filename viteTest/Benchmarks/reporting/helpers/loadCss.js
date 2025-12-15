@@ -17,7 +17,7 @@ export async function loadCss() {
     .map((file) => {
       const content = readFile(joinPath(stylesDir, file));
       if (!content) return null;
-      
+
       if (shouldMinify()) {
         return content;
       }

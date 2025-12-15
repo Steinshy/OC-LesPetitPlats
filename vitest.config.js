@@ -26,6 +26,7 @@ export default defineConfig({
   test: {
     globals: true,
     include: ["viteTest/**/*.test.js"],
+    environment: "jsdom",
     pool: "threads",
     environmentMatchGlobs: [
       ["viteTest/Benchmarks/**/*.test.js", "node"],
@@ -79,13 +80,7 @@ export default defineConfig({
         "**/robots.txt",
         "**/sitemap.xml",
         "src/App.js",
-        "src/card.js",
         "src/utils/toast.js",
-        "src/components/dropdown.js",
-        "src/components/headerImage.js",
-        "src/components/scrollToTop.js",
-        "src/components/skeletons.js",
-        "src/components/dropdowns/behavior.js",
         "src/components/dropdowns/render.js",
       ],
       thresholds: {

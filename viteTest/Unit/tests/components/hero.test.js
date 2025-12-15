@@ -1,6 +1,9 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { setupHero } from "@/components/hero.js";
+import { isScrolledPastHeader } from "@/components/scroll.js";
 import * as skeletonsModule from "@/components/skeletons/manager.js";
+import { getHeaderHeight } from "@/utils/config.js";
+import * as deviceModule from "@/utils/config.js";
 import { logCategorySummary } from "@viteTest-helper/message.js";
 
 vi.mock("@/utils/config.js", async () => {
@@ -36,19 +39,6 @@ vi.mock("@/components/scroll.js", async () => {
       init: vi.fn(),
       cleanup: vi.fn(),
     },
-  };
-});
-
-import { getHeaderHeight } from "@/utils/config.js";
-import * as deviceModule from "@/utils/config.js";
-import { isScrolledPastHeader } from "@/components/scroll.js";
-
-vi.mock("@/utils/config.js", async () => {
-  const actual = await vi.importActual("@/utils/config.js");
-  return {
-    ...actual,
-    isMobile: vi.fn(() => false),
-    baseUrl: "/",
   };
 });
 

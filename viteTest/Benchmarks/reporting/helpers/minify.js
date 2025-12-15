@@ -1,5 +1,5 @@
-import { minify as minifyHtml } from "html-minifier-terser";
 import CleanCSS from "clean-css";
+import { minify as minifyHtml } from "html-minifier-terser";
 
 function isProductionMode() {
   return process.env.NODE_ENV === "production" || process.env.BENCHMARK_MINIFY === "true";

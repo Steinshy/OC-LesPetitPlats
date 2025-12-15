@@ -158,8 +158,8 @@ header h1 {
 .toc ul ul {
   display: block;
   grid-template-columns: none;
-  margin-top: var(--spacing-xs);
   margin-left: var(--spacing-md);
+  margin-top: var(--spacing-xs);
 }
 
 .toc li {
