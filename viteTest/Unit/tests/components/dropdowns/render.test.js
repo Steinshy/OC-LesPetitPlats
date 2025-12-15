@@ -25,7 +25,7 @@ const LABEL_APPLIANCES = "appliances";
 describe("dropdown render", () => {
   describe("renderDropdown - ingredients", () => {
     it("should render ingredients dropdown", () => {
-      const html = renderDropdown("ingredients");
+      const html = renderDropdown({ name: "Ingrédients", type: "ingredients" });
 
       expect(html).toContain(DROPDOWN_INGREDIENTS_CONTAINER_SELECTOR);
       expect(html).toContain(DATA_TYPE_INGREDIENTS_ATTR);
@@ -34,28 +34,28 @@ describe("dropdown render", () => {
     });
 
     it("should include button with correct attributes", () => {
-      const html = renderDropdown("ingredients");
+      const html = renderDropdown({ name: "Ingrédients", type: "ingredients" });
       expect(html).toContain('id="dropdown-ingredients-button"');
       expect(html).toContain('aria-expanded="false"');
       expect(html).toContain('aria-controls="menu-ingredients"');
     });
 
     it("should include backdrop and menu elements", () => {
-      const html = renderDropdown("ingredients");
+      const html = renderDropdown({ name: "Ingrédients", type: "ingredients" });
       expect(html).toContain("dropdown-ingredients-backdrop");
       expect(html).toContain('id="menu-ingredients"');
       expect(html).toContain('aria-hidden="true"');
     });
 
     it("should include dropdown search", () => {
-      const html = renderDropdown("ingredients");
+      const html = renderDropdown({ name: "Ingrédients", type: "ingredients" });
       expect(html).toContain('id="dropdown-ingredients-search"');
     });
   });
 
   describe("renderDropdown - utensils", () => {
     it("should render utensils dropdown", () => {
-      const html = renderDropdown("utensils");
+      const html = renderDropdown({ name: "Ustensiles", type: "utensils" });
 
       expect(html).toContain("dropdown-utensils-container");
       expect(html).toContain(DATA_TYPE_utensils_ATTR);
@@ -65,7 +65,7 @@ describe("dropdown render", () => {
 
   describe("renderDropdown - appliances", () => {
     it("should render appliances dropdown", () => {
-      const html = renderDropdown("appliances");
+      const html = renderDropdown({ name: "Appareils", type: "appliances" });
 
       expect(html).toContain("dropdown-appliances-container");
       expect(html).toContain(DATA_TYPE_APPLIANCES_ATTR);

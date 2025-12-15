@@ -47,3 +47,30 @@ vi.mock("@/components/search/elements.js", async () => {
   const wrappers = await vi.importActual("@tests-mocks/wrappers.js");
   return { searchElements: wrappers.searchElements };
 });
+
+// Mock scroll.js to prevent document access during module import
+vi.mock("@/components/scroll.js", () => {
+  const mockScrollLock = {
+    lock: vi.fn(),
+    unlock: vi.fn(),
+  };
+  return {
+    isScrolledPastHeader: vi.fn(() => false),
+    lockScroll: vi.fn(),
+    unlockScroll: vi.fn(),
+    updateVisibility: vi.fn(),
+    setupScrollToTop: vi.fn(() => () => {}),
+    setupScrollLock: vi.fn(() => () => {}),
+    scrollLock: mockScrollLock,
+    scrollToTop: {
+      button: null,
+      init: vi.fn(),
+      cleanup: vi.fn(),
+      update: vi.fn(),
+    },
+    scrollListeners: {
+      init: vi.fn(),
+      cleanup: vi.fn(),
+    },
+  };
+});

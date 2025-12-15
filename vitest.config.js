@@ -15,11 +15,22 @@ const coverageReportsDir = isForksPool
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      "node:fs": "node:fs",
+      "node:path": "node:path",
+      "node:url": "node:url",
+      "node:os": "node:os",
+    },
+  },
   test: {
-    environment: "jsdom",
     globals: true,
     include: ["viteTest/**/*.test.js"],
     pool: "threads",
+    environmentMatchGlobs: [
+      ["viteTest/Benchmarks/**/*.test.js", "node"],
+      ["viteTest/Unit/**/*.test.js", "jsdom"],
+    ],
     poolOptions: {
       threads: {
         singleThread: false,

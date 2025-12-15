@@ -85,8 +85,8 @@ describe("recipesBuilder", () => {
     // Property is 'images' not 'image'
     expect(recipes[0].images).toHaveProperty("jpgUrl");
     expect(recipes[0].images).toHaveProperty("webpUrl");
-    expect(recipes[0].images.jpgUrl).toContain("test.jpg");
-    expect(recipes[0].images.webpUrl).toContain("test.webp");
+    expect(recipes[0].images.jpgUrl).toContain("test-card.jpg");
+    expect(recipes[0].images.webpUrl).toContain("test-card.webp");
   });
 
   it("should build search string from name, ingredients, utensils, and appliance", async () => {

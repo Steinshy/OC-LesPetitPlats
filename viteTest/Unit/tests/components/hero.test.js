@@ -1,10 +1,47 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { setupHero } from "@/components/hero.js";
-import { isScrolledPastHeader } from "@/components/scroll.js";
 import * as skeletonsModule from "@/components/skeletons/manager.js";
+import { logCategorySummary } from "@viteTest-helper/message.js";
+
+vi.mock("@/utils/config.js", async () => {
+  const actual = await vi.importActual("@/utils/config.js");
+  return {
+    ...actual,
+    isMobile: vi.fn(() => false),
+    baseUrl: "/",
+  };
+});
+
+vi.mock("@/components/scroll.js", async () => {
+  const actual = await vi.importActual("@/components/scroll.js");
+  const mockScrollLock = {
+    lock: vi.fn(),
+    unlock: vi.fn(),
+  };
+  return {
+    ...actual,
+    lockScroll: vi.fn(),
+    unlockScroll: vi.fn(),
+    updateVisibility: vi.fn(),
+    setupScrollToTop: vi.fn(() => () => {}),
+    setupScrollLock: vi.fn(() => () => {}),
+    scrollLock: mockScrollLock,
+    scrollToTop: {
+      button: null,
+      init: vi.fn(),
+      cleanup: vi.fn(),
+      update: vi.fn(),
+    },
+    scrollListeners: {
+      init: vi.fn(),
+      cleanup: vi.fn(),
+    },
+  };
+});
+
 import { getHeaderHeight } from "@/utils/config.js";
 import * as deviceModule from "@/utils/config.js";
-import { logCategorySummary } from "@viteTest-helper/message.js";
+import { isScrolledPastHeader } from "@/components/scroll.js";
 
 vi.mock("@/utils/config.js", async () => {
   const actual = await vi.importActual("@/utils/config.js");

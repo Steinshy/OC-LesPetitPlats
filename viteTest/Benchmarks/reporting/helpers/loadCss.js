@@ -1,4 +1,5 @@
 import { getDirname, joinPath, readFile } from "@viteTest-helper/fileSystem.js";
+import { shouldMinify, minifyCss } from "./minify.js";
 
 const CSS_FILES = [
   "variables.css",
@@ -9,15 +10,26 @@ const CSS_FILES = [
   "responsive.css",
 ];
 
-export function loadCss() {
+export async function loadCss() {
   const stylesDir = joinPath(getDirname(import.meta.url), "..", "styles");
 
-  return CSS_FILES
+  let css = CSS_FILES
     .map((file) => {
       const content = readFile(joinPath(stylesDir, file));
-      return content ? `/* ${file} */\n${content}` : null;
+      if (!content) return null;
+      
+      if (shouldMinify()) {
+        return content;
+      }
+      return `/* ${file} */\n${content}`;
     })
     .filter(Boolean)
-    .join("\n\n");
+    .join(shouldMinify() ? "" : "\n\n");
+
+  if (shouldMinify()) {
+    css = await minifyCss(css);
+  }
+
+  return css;
 }
 

@@ -21,7 +21,8 @@ const ARIA_PRESSED_FALSE = ARIA_FALSE;
 const ARIA_HIDDEN_FALSE = ARIA_FALSE;
 
 vi.mock("@/components/dropdowns/render.js", () => ({
-  renderDropdown: vi.fn(type => {
+  renderDropdown: vi.fn(dropdown => {
+    const type = dropdown?.type || dropdown;
     const dropdowns = {
       ingredients: `
     <div class="dropdown-container" id="${DROPDOWN_INGREDIENTS_CONTAINER_ID}" ${DATA_TYPE_INGREDIENTS}>
@@ -81,17 +82,32 @@ vi.mock("@/components/skeletons/manager.js", () => ({
   })),
 }));
 
-vi.mock("@/components/scroll.js", async () => {
-  const actual = await vi.importActual("@/components/scroll.js");
+vi.mock("@/components/scroll.js", () => {
   const mockIsScrolledPastHeader = vi.fn(() => false);
+  const mockScrollLock = {
+    lock: vi.fn(),
+    unlock: vi.fn(),
+  };
   return {
-    ...actual,
     lockScroll: vi.fn(),
     unlockScroll: vi.fn(),
     updateVisibility: vi.fn(() => {
       // Mock implementation that does nothing - just prevents errors
     }),
     isScrolledPastHeader: mockIsScrolledPastHeader,
+    setupScrollToTop: vi.fn(() => () => {}),
+    setupScrollLock: vi.fn(() => () => {}),
+    scrollLock: mockScrollLock,
+    scrollToTop: {
+      button: null,
+      init: vi.fn(),
+      cleanup: vi.fn(),
+      update: vi.fn(),
+    },
+    scrollListeners: {
+      init: vi.fn(),
+      cleanup: vi.fn(),
+    },
   };
 });
 
@@ -217,7 +233,7 @@ describe("dropdown manager", () => {
 
   describe("setupDropdowns", () => {
     it("should setup dropdowns with recipe data", () => {
-      setupDropdowns([]);
+      setupDropdowns(mockRecipes);
 
       const container = document.getElementById("dropdowns-container");
       expect(container.innerHTML).toBeTruthy();
@@ -233,7 +249,7 @@ describe("dropdown manager", () => {
     });
 
     it("should render all three dropdown types", () => {
-      setupDropdowns([]);
+      setupDropdowns(mockRecipes);
 
       const ingredientsContainer = document.getElementById(DROPDOWN_INGREDIENTS_CONTAINER_ID);
       const utensilsContainer = document.getElementById(DROPDOWN_utensils_CONTAINER_ID);
@@ -404,14 +420,12 @@ describe("dropdown manager", () => {
   describe("updateDropdownContent", () => {
     beforeEach(() => {
       document.body.innerHTML = '<div id="dropdowns-container"></div>';
-      // Pass empty array to satisfy the parameter check
-      setupDropdowns([]);
+      // Use mockRecipes to ensure dropdownTypes is populated
+      setupDropdowns(mockRecipes);
       // Set up dropdown data
       currentDropdownsData.ingredients = ["Tomato", "Onion", "Potato"];
       currentDropdownsData.utensils = [];
       currentDropdownsData.appliances = [];
-      // Re-run setupDropdowns to set up listeners with populated dropdownTypes
-      setupDropdowns([]);
     });
 
     it("should update dropdown list based on search input", () => {

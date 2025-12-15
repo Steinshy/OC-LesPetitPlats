@@ -7,6 +7,7 @@ const { html: beautifyHtml } = jsBeautify;
 // Import helpers
 import { formatFriendlyDate } from "@benchmarks-reporting-helpers/formatting.js";
 import { loadCss } from "@benchmarks-reporting-helpers/loadCss.js";
+import { shouldMinify, minifyHtmlContent } from "@benchmarks-reporting-helpers/minify.js";
 
 // Import section generators
 import { generateImplementationBreakdown } from "@benchmarks-reporting-sections/implementation.js";
@@ -81,7 +82,12 @@ function generateTableOfContents() {
         <li><a href="#detailed-test-results">Test Results</a></li>
         <li><a href="#detailed-implementation-breakdown">Implementation Breakdown</a></li>
         <li><a href="#methodology-measurement-notes">Methodology</a></li>
-        <li><a href="#key-insights-recommendations">Analysis</a></li>
+        <li><a href="#key-insights-recommendations">Analysis</a>
+          <ul>
+            <li><a href="#implementation-guidelines">Implementation Guidelines</a></li>
+            <li><a href="#key-metrics">Key Metrics</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
   `;
@@ -103,7 +109,7 @@ export async function generateHtmlReport(results, charts) {
   // Load CSS from styles directory
   let cssContent = "";
   try {
-    cssContent = loadCss();
+    cssContent = await loadCss();
   } catch (error) {
     console.warn("⚠️ Could not load CSS files, using inline styles:", error.message);
     cssContent = "";
@@ -198,6 +204,10 @@ export async function generateHtmlReport(results, charts) {
 </body>
 </html>
   `;
+
+  if (shouldMinify()) {
+    return await minifyHtmlContent(htmlContent);
+  }
 
   // Beautify HTML output using js-beautify first, then Prettier for final formatting
   const beautifiedHtml = beautifyHtml(htmlContent, {
