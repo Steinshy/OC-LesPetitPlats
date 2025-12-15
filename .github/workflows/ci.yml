@@ -387,7 +387,7 @@ jobs:
       - name: Run mutation tests
         id: run-mutation-tests
         run: |
-          npx --yes --loglevel=error @stryker-mutator/core run --silent || true
+          npx --yes --loglevel=error @stryker-mutator/core run --logLevel error || true
         continue-on-error: true
 
       - name: Upload mutation test report
