@@ -93,7 +93,7 @@
     "stylelint": "^16.2.1",
     "stylelint-config-standard": "^39.0.0",
     "stylelint-order": "^7.0.0",
-    "systeminformation": "^5.27.13",
+    "systeminformation": "^5.27.14",
     "tinybench": "^6.0.0",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.6",
