@@ -41,10 +41,10 @@ const initApp = async () => {
   };
 };
 
-const cleanup = await initApp();
-
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    if (cleanup) cleanup();
-  });
-}
+initApp().then(cleanup => {
+  if (import.meta && import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      if (cleanup) cleanup();
+    });
+  }
+});

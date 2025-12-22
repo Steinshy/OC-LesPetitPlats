@@ -26,7 +26,9 @@ export const onFiltersUpdated = ({ filtered }) => {
 
   dropdownTypes.forEach(type => {
     const { searchInput } = dropdownSearchElements(type);
-    if (searchInput) searchInput.value = "";
+    if (searchInput && "value" in searchInput) {
+      /** @type {HTMLInputElement} */ (searchInput).value = "";
+    }
     updateDropdownList(type);
   });
 };

@@ -1,4 +1,9 @@
-export const baseUrl = import.meta.env.BASE_URL || "/";
+export const baseUrl =
+  typeof import.meta !== "undefined" &&
+  import.meta.env &&
+  typeof import.meta.env.BASE_URL === "string"
+    ? import.meta.env.BASE_URL
+    : "/";
 export const ariaHidden = "aria-hidden";
 
 export const debounce = (fn, delay) => {

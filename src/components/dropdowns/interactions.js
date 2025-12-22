@@ -73,7 +73,9 @@ export const closeDropdown = type => {
   const { container } = dropdownElements(type);
   const { searchInput } = dropdownSearchElements(type);
   if (!container?.classList.contains("open")) return;
-  if (searchInput) searchInput.value = "";
+  if (searchInput && "value" in searchInput) {
+    searchInput.value = "";
+  }
 
   closeAllDropdowns();
 };

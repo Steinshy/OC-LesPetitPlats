@@ -100,7 +100,7 @@ export const setupDropdownListeners = dropdownTypes => {
     };
 
     const onClearClick = () => {
-      if (!searchInput) return;
+      if (!(searchInput instanceof HTMLInputElement)) return;
       searchInput.value = "";
       searchInput.focus();
       updateDropdownContent(currentType);
@@ -146,7 +146,7 @@ export const setupDropdownListeners = dropdownTypes => {
 
 export const updateDropdownContent = type => {
   const { searchWrapper, searchInput, searchClear, searchSubmit } = dropdownSearchElements(type);
-  if (!searchInput) return;
+  if (!(searchInput instanceof HTMLInputElement)) return;
 
   const hasQuery = !!searchInput.value.trim();
   searchClear?.classList.toggle("hidden", !hasQuery);
@@ -163,7 +163,7 @@ export const updateDropdownList = type => {
   if (!menu || !itemsList) return;
 
   const allItems = currentDropdownsData[type] || [];
-  const query = searchInput?.value?.trim() ?? "";
+  const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim() : "";
   const filtered = filtersEngine.filterDropdownItems(allItems, query);
   const countElement = document.getElementById(`dropdown-${type}-count`);
 

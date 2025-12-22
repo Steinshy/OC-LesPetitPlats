@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       // Project
@@ -49,7 +51,7 @@
       "@viteTest-helper/*": ["./viteTest/helper/*"],
     },
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "noEmit": true
   },
   "exclude": ["node_modules", "dist", "benchmark-results", "temp", "Report"]
