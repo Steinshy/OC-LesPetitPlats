@@ -118,9 +118,14 @@ export default defineConfig(({ mode }) => {
                   chunk.type === "asset" &&
                   typeof chunk.source === "string"
                 ) {
-                  const optimized = chunk.source
-                    // Remove comments
-                    .replace(/<!--[\S\s]*?-->/g, "")
+                  let optimized = chunk.source;
+                  // Remove comments iteratively to ensure no partial comment markers remain
+                  let previous;
+                  do {
+                    previous = optimized;
+                    optimized = optimized.replace(/<!--[\S\s]*?-->/g, "");
+                  } while (optimized !== previous);
+                  optimized = optimized
                     // Remove XML declaration
                     .replace(/<\?xml[^>]*\?>/gi, "")
                     // Remove DOCTYPE
