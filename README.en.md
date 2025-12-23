@@ -28,8 +28,6 @@
   </p>
   <p>
     <img src="https://img.shields.io/github/actions/workflow/status/steinshy/OC-LesPetitPlats/ci.yml?branch=dev&style=flat-square&label=CI" alt="CI">
-    <img src="https://img.shields.io/badge/tests-passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="Tests">
-    <img src="https://img.shields.io/badge/coverage-70%25-yellow?style=flat-square&logo=codecov&logoColor=white" alt="Coverage">
     <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" alt="Git">
     <img src="https://img.shields.io/badge/GitHub%20Pages-121013?style=flat-square&logo=github&logoColor=white" alt="GitHub Pages">
   </p>
@@ -88,34 +86,15 @@ The application will be accessible at `http://localhost:5173`.
 - `npm run lint:fix` - Automatic ESLint fixes
 - `npm run format` - Code formatting with Prettier
 
-### Tests
-
-- `npm run test` - Run unit tests
-- `npm run test:coverage` - Run tests with coverage report
-
-### Analysis & Optimization
-
-- `npm run analyze` - Bundle analysis
-- `npm run lighthouse` - Lighthouse report
-- `npm run benchmark` - Generate performance benchmark reports
-- `npm run jsben` - Generate benchmark files for jsben.ch
-- `npm run optimize:images` - Optimize images
-
 ### Utilities
 
 - `npm run clean` - Clean build folders
-- `npm run generate:pwa-assets` - Generate PWA assets
 
 ## 🛠️ Technologies
 
 - **Vite 7** - Build tool and development server
 - **Tailwind CSS 4** - Utility-first CSS framework
-- **PWA** - Progressive Web App with Service Worker
-- **Neverthrow** - Functional error handling
 - **Query String** - URL parameter management
-- **Vitest** - Unit testing framework
-- **tinybench** - Benchmarking library
-- **systeminformation** - Detailed system information collection for performance reports
 
 **Code quality:** ESLint, Stylelint, HTML Validate, Prettier
 
@@ -141,19 +120,11 @@ Detailed UML diagrams describe the architecture and filtering strategies:
 - ⚡ [Method 2 - Production](public/uml/en/method2-Production.png) - Declarative approach (implemented)
 - 📈 [Runtime Data Flow](public/uml/en/runtimeDataFlow.png) - Event-driven processing
 
-## 📊 Performance & Tests
-
-For more information:
-
-- [viteTest/README-Benchmarks.md](viteTest/README-Benchmarks.md) - Performance benchmarks
-- [viteTest/README-Unit.md](viteTest/README-Unit.md) - Unit tests
-- [viteTest/README-Jsben.md](viteTest/README-Jsben.md) - Benchmarks with jsben.ch
-
 ## 📁 Project structure
 
 ```text
 LesPetitPlats/
-├── public/              # Static files (api/, favicons/, recipes/, sw.js)
+├── public/              # Static files (api/, favicons/, recipes/)
 ├── src/
 │   ├── App.js          # Entry point
 │   ├── components/     # Modular UI components
@@ -172,7 +143,6 @@ LesPetitPlats/
 │   │   └── skeletons/  # Loading placeholders (manager, renderer, setup)
 │   └── utils/          # Utilities (cache, eventBus, normalize, recipeApi, etc.)
 ├── styles/             # CSS styles (base, components, global, utilities)
-├── scripts/            # Utility scripts (analyze, export, lighthouse)
 ```
 
 ## 📄 License

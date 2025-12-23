@@ -58,8 +58,13 @@ export const updateURLState = state => {
     const value = state[key];
     if (typeof value === "string" && value.trim()) {
       params[key] = sanitizeForURL(value);
-    } else if (value instanceof Set && value.size > 0) {
-      const sanitized = [...value].map(v => sanitizeForURL(v)).filter(Boolean);
+    } else if (
+      value &&
+      typeof value[Symbol.iterator] === "function" &&
+      !(typeof value === "string") &&
+      value.size > 0
+    ) {
+      const sanitized = Array.from(value, v => sanitizeForURL(v)).filter(Boolean);
       if (sanitized.length > 0) {
         params[key] = sanitized;
       }

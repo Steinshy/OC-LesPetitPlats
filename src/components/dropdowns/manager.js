@@ -20,7 +20,6 @@ export const stickyDropdowns = () => {
   if (!section) return;
 
   const shouldStick = isScrolledPastHeader();
-  const sheetOpen = document.body.classList.contains("dropdown-open");
 
   const clearInlineStyles = () => {
     section.style.position = "";
@@ -31,18 +30,8 @@ export const stickyDropdowns = () => {
   };
 
   if (isMobile()) {
-    if (sheetOpen || !shouldStick) {
-      section.classList.remove("is-sticky");
-      clearInlineStyles();
-      return;
-    }
-
-    section.classList.add("is-sticky");
-    section.style.position = "fixed";
-    section.style.top = "0px";
-    section.style.left = "0px";
-    section.style.right = "0px";
-    section.style.width = "100%";
+    section.classList.remove("is-sticky");
+    clearInlineStyles();
     return;
   }
 
@@ -100,7 +89,7 @@ export const setupDropdownListeners = dropdownTypes => {
     };
 
     const onClearClick = () => {
-      if (!searchInput) return;
+      if (!(searchInput instanceof HTMLInputElement)) return;
       searchInput.value = "";
       searchInput.focus();
       updateDropdownContent(currentType);
@@ -146,7 +135,7 @@ export const setupDropdownListeners = dropdownTypes => {
 
 export const updateDropdownContent = type => {
   const { searchWrapper, searchInput, searchClear, searchSubmit } = dropdownSearchElements(type);
-  if (!searchInput) return;
+  if (!(searchInput instanceof HTMLInputElement)) return;
 
   const hasQuery = !!searchInput.value.trim();
   searchClear?.classList.toggle("hidden", !hasQuery);
@@ -163,7 +152,7 @@ export const updateDropdownList = type => {
   if (!menu || !itemsList) return;
 
   const allItems = currentDropdownsData[type] || [];
-  const query = searchInput?.value?.trim() ?? "";
+  const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim() : "";
   const filtered = filtersEngine.filterDropdownItems(allItems, query);
   const countElement = document.getElementById(`dropdown-${type}-count`);
 

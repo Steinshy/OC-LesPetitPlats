@@ -37,6 +37,14 @@ export const setupSearch = () => {
     handleSearch();
   };
 
+  if (clear) {
+    clear.addEventListener("click", onClearClick);
+  }
+
+  if (submit) {
+    submit.addEventListener("click", onSubmitClick);
+  }
+
   searchSkeleton().hide();
 
   return () => {

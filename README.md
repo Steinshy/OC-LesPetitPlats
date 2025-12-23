@@ -28,8 +28,6 @@
   </p>
   <p>
     <img src="https://img.shields.io/github/actions/workflow/status/steinshy/OC-LesPetitPlats/ci.yml?branch=dev&style=flat-square&label=CI" alt="CI">
-    <img src="https://img.shields.io/badge/tests-passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="Tests">
-    <img src="https://img.shields.io/badge/coverage-70%25-yellow?style=flat-square&logo=codecov&logoColor=white" alt="Coverage">
     <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" alt="Git">
     <img src="https://img.shields.io/badge/GitHub%20Pages-121013?style=flat-square&logo=github&logoColor=white" alt="GitHub Pages">
   </p>
@@ -45,7 +43,6 @@ Progressive Web App (PWA) permettant de rechercher parmi plus de 1500 recettes c
 - 🎛️ **Filtrage avancé** : Filtres par ingrédients, appareils et ustensiles avec menus déroulants interactifs
 - 📊 **Compteur de résultats** : Affichage dynamique du nombre de recettes trouvées
 - 📱 **Design responsive** : Interface adaptée à tous les écrans
-- 🚀 **PWA** : Installation possible sur appareils mobiles et fonctionnement hors ligne
 - ⚡ **Performance optimisée** : Système de cache, lazy loading des images, optimisations des assets
 - 🎨 **Interface moderne** : Design épuré avec Tailwind CSS
 
@@ -88,34 +85,15 @@ L'application sera accessible à `http://localhost:5173`.
 - `npm run lint:fix` - Correction automatique ESLint
 - `npm run format` - Formatage du code avec Prettier
 
-### Tests
-
-- `npm run test` - Exécuter les tests unitaires
-- `npm run test:coverage` - Exécuter les tests avec rapport de couverture
-
-### Analyse & Optimisation
-
-- `npm run analyze` - Analyse du bundle
-- `npm run lighthouse` - Rapport Lighthouse
-- `npm run benchmark` - Générer des rapports de benchmark de performance
-- `npm run jsben` - Générer des fichiers de benchmark pour jsben.ch
-- `npm run optimize:images` - Optimiser les images
-
 ### Utilitaires
 
 - `npm run clean` - Nettoyage des dossiers de build
-- `npm run generate:pwa-assets` - Générer les assets PWA
 
 ## 🛠️ Technologies
 
 - **Vite 7** - Build tool et serveur de développement
 - **Tailwind CSS 4** - Framework CSS utility-first
-- **PWA** - Progressive Web App avec Service Worker
-- **Neverthrow** - Gestion d'erreurs fonctionnelle
 - **Query String** - Gestion des paramètres d'URL
-- **Vitest** - Framework de tests unitaires
-- **tinybench** - Bibliothèque de benchmarking
-- **systeminformation** - Collecte d'informations système détaillées pour les rapports de performance
 
 **Qualité du code :** ESLint, Stylelint, HTML Validate, Prettier
 
@@ -141,19 +119,11 @@ Des diagrammes UML détaillent l'architecture et les stratégies de filtrage :
 - ⚡ [Méthode 2 - Production](public/uml/fr/method2-Production.png) - Approche déclarative (implémentée)
 - 📈 [Flux de données à l'exécution](public/uml/fr/runtimeDataFlow.png) - Traitement piloté par événements
 
-## 📊 Performances & Tests
-
-Pour plus d'informations :
-
-- [viteTest/README-Benchmarks.md](viteTest/README-Benchmarks.md) - Benchmarks de performance
-- [viteTest/README-Unit.md](viteTest/README-Unit.md) - Tests unitaires
-- [viteTest/README-Jsben.md](viteTest/README-Jsben.md) - Benchmarks avec jsben.ch
-
 ## 📁 Structure du projet
 
 ```text
 LesPetitPlats/
-├── public/              # Fichiers statiques (api/, favicons/, recipes/, sw.js)
+├── public/              # Fichiers statiques (api/, favicons/, recipes/)
 ├── src/
 │   ├── App.js          # Point d'entrée
 │   ├── components/     # Composants UI modulaires
@@ -172,7 +142,6 @@ LesPetitPlats/
 │   │   └── skeletons/  # Placeholders de chargement (manager, renderer, setup)
 │   └── utils/          # Utilitaires (cache, eventBus, normalize, recipeApi, etc.)
 ├── styles/             # Styles CSS (base, components, global, utilities)
-├── scripts/            # Scripts utilitaires (analyze, export, lighthouse)
 ```
 
 ## 📄 Licence

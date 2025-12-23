@@ -4,10 +4,7 @@ import { dropdownsElements } from "@components/dropdowns/elements.js";
 import { searchElements } from "@components/search/elements.js";
 import { cardSkeleton, dropdownSkeleton } from "@components/skeletons/renderer.js";
 
-// ---------------
-// search skeleton
-// ---------------
-
+// Search skeleton
 export const searchSkeleton = () => ({
   show: () => {
     const { search, input, clear, submit } = searchElements();
@@ -19,16 +16,17 @@ export const searchSkeleton = () => ({
 
   hide: () => {
     const { search, input, clear, submit } = searchElements();
-    search.classList.remove("skeleton");
-    input?.classList.remove("skeleton");
-    clear?.classList.remove("skeleton");
-    submit?.classList.remove("skeleton");
+    const elements = [search, input, clear, submit].filter(Boolean);
+    elements.forEach(element => {
+      element.classList.remove("skeleton");
+    });
+    if (elements.length > 0) {
+      elements[0].offsetHeight;
+    }
   },
 });
 
-// ---------------
-// hero skeleton
-// ---------------
+// Hero skeleton
 
 export const heroSkeleton = () => ({
   show: () => {
@@ -42,13 +40,12 @@ export const heroSkeleton = () => ({
     const hero = document.getElementById("hero");
     if (hero) {
       hero.classList.remove("skeleton");
+      hero.offsetHeight;
     }
   },
 });
 
-// ---------------
-// dropdowns skeleton
-// ---------------
+// Dropdowns skeleton
 export const dropdownsSkeleton = () => ({
   show: () => {
     const { containers } = dropdownsElements();
@@ -60,16 +57,11 @@ export const dropdownsSkeleton = () => ({
   hide: () => {
     const { containers } = dropdownsElements();
     if (!containers) return;
-    containers.querySelectorAll(".dropdown-container.skeleton").forEach(skeleton => {
-      skeleton.remove();
-    });
+    containers.innerHTML = "";
   },
 });
 
-// ---------------
-// card skeletons
-// ---------------
-
+// Cards skeleton
 export const cardsSkeletons = () => ({
   show: (count = 12) => {
     const { container } = cardsElements();
@@ -83,9 +75,12 @@ export const cardsSkeletons = () => ({
     const { container } = cardsElements();
     if (!container) return;
     container.classList.remove("skeleton");
-    // Remove only skeleton cards, keep actual content
-    container.querySelectorAll(".card.skeleton:not([id])").forEach(skeleton => {
+    const skeletonCards = container.querySelectorAll(".card.skeleton:not([id])");
+    skeletonCards.forEach(skeleton => {
       skeleton.remove();
     });
+    if (container.offsetHeight !== undefined) {
+      container.offsetHeight;
+    }
   },
 });
