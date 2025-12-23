@@ -1,9 +1,6 @@
 // src/components/cards/render.js
 
-// ---------------
-// no results
-// ---------------
-
+// Card empty state
 export const emptyCards = () => {
   return `
     <div class="empty-cards" id="empty-cards">
@@ -18,6 +15,7 @@ export const emptyCards = () => {
   `;
 };
 
+// Card template
 export const renderCard = (
   id,
   name,
@@ -31,7 +29,7 @@ export const renderCard = (
 ) => {
   return `
       <div class="card" id="card-${id}" data-id="${id}">
-        <div class="card-picture skeleton">
+        <div class="card-picture">
           <picture>
             <source srcset="${webpUrl}" type="image/webp" />
             <img 

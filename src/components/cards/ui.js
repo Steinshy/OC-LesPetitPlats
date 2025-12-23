@@ -10,13 +10,10 @@ export const cardsUi = {
     const { container } = cardsElements();
     if (!container) return;
 
-    cardsSkeletons().show(recipes?.length || 0);
-
+    cardsSkeletons().hide();
     container.innerHTML = recipes.length ? "" : emptyCards();
     if (recipes.length) {
       container.append(...createCards(recipes));
     }
-
-    cardsSkeletons().hide();
   },
 };

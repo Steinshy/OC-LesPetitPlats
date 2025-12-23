@@ -46,11 +46,8 @@ export const setupDropdowns = recipes => {
   dropdownTypes.length = 0;
   dropdownTypes.push(...Object.keys(currentDropdownsData));
 
-  dropdownsSkeleton().show();
-
-  containers.innerHTML = dropdownsLabels.map(dropdown => renderDropdown(dropdown)).join("");
-
   dropdownsSkeleton().hide();
+  containers.innerHTML = dropdownsLabels.map(dropdown => renderDropdown(dropdown)).join("");
   const cleanupListeners = setupDropdownListeners(dropdownTypes);
 
   dropdownTypes.forEach(type => {

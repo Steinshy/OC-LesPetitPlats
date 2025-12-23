@@ -20,7 +20,6 @@ export const stickyDropdowns = () => {
   if (!section) return;
 
   const shouldStick = isScrolledPastHeader();
-  const sheetOpen = document.body.classList.contains("dropdown-open");
 
   const clearInlineStyles = () => {
     section.style.position = "";
@@ -31,18 +30,8 @@ export const stickyDropdowns = () => {
   };
 
   if (isMobile()) {
-    if (sheetOpen || !shouldStick) {
-      section.classList.remove("is-sticky");
-      clearInlineStyles();
-      return;
-    }
-
-    section.classList.add("is-sticky");
-    section.style.position = "fixed";
-    section.style.top = "0px";
-    section.style.left = "0px";
-    section.style.right = "0px";
-    section.style.width = "100%";
+    section.classList.remove("is-sticky");
+    clearInlineStyles();
     return;
   }
 

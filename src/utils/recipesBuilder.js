@@ -31,5 +31,5 @@ const transformRecipes = apiRecipesData =>
 
 export const buildRecipes = async () => {
   const recipesResult = await fetchRecipes();
-  return recipesResult.map(transformRecipes);
+  return transformRecipes(recipesResult);
 };

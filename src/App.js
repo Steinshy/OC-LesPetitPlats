@@ -8,7 +8,6 @@ import { setupScrollLock, setupScrollToTop } from "@components/scroll.js";
 import { setupSearch } from "@components/search/setup.js";
 import { setupSkeletons } from "@components/skeletons/setup.js";
 import { buildRecipes } from "@utils/recipesBuilder.js";
-import { setupToast } from "@utils/toast.js";
 
 import "remixicon/fonts/remixicon.css";
 import "@styles/global.css";
@@ -19,23 +18,19 @@ const initApp = async () => {
   cleanups.push(setupScrollToTop());
 
   // Fetch + transform recipes
-  const recipesData = await buildRecipes();
-
-  recipesData.match(
-    recipes => {
-      updateResultsCounter(recipes.length);
-      setupHero(recipes);
-      cleanups.push(setupDropdowns(recipes));
-      cleanups.push(setupCards(recipes));
-      cleanups.push(setupFilters(recipes));
-      cleanups.push(setupSearch());
-      cleanups.push(setupScrollLock());
-    },
-    async message => {
-      setupToast(message, "default");
-      updateResultsCounter(0);
-    },
-  );
+  try {
+    const recipes = await buildRecipes();
+    updateResultsCounter(recipes.length);
+    setupHero(recipes);
+    cleanups.push(setupDropdowns(recipes));
+    cleanups.push(setupCards(recipes));
+    cleanups.push(setupFilters(recipes));
+    cleanups.push(setupSearch());
+    cleanups.push(setupScrollLock());
+  } catch (error) {
+    console.error("Error loading recipes:", error);
+    updateResultsCounter(0);
+  }
   return () => {
     cleanups.forEach(cleanup => typeof cleanup === "function" && cleanup());
   };

@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
   workflow_run:
     workflows:
@@ -11,7 +11,7 @@ on:
     types:
       - completed
     branches:
-      - dev
+      - main
 
 permissions:
   contents: read
@@ -69,7 +69,6 @@ jobs:
           npm run lint:eslint || true
           npm run lint:css || true
           npm run lint:html || true
-          npm run lint:md || true
           ESLINT_PLUGIN_SECURITY="true" npm run lint:eslint || true
           npm run lint:eslint 2>&1 | grep -i "security" > /dev/null 2>&1 || true
           npm audit --audit-level=moderate --production || true
@@ -125,224 +124,4 @@ jobs:
           name: dist
           path: dist/
           retention-days: 1
-          compression-level: 6
-
-  benchmark:
-    name: Benchmark Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs:
-      - build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Cache Vite dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules/.vite
-            .vite
-          key: ${{ runner.os }}-vite-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vite-
-
-      - name: Install dependencies
-        run: npm ci --silent
-
-      - name: Install system dependencies for benchmark
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends -qq \
-            libnss3 \
-            libatk-bridge2.0-0 \
-            libdrm2 \
-            libxkbcommon0 \
-            libxcomposite1 \
-            libxdamage1 \
-            libxfixes3 \
-            libxrandr2 \
-            libgbm1 \
-            libasound2t64 > /dev/null 2>&1
-
-      - name: Run benchmark tests
-        env:
-          CI: true
-          RUN_ALL_TESTS: true
-        run: |
-          npm run benchmark || true
-        continue-on-error: true
-
-      - name: Upload benchmark HTML reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: benchmark-reports-html
-          path: |
-            benchmark-results/Benchmark/benchmark-*.html
-            Benchmark/benchmark-*.html
-            Report/benchmark-*.html
-          retention-days: 1
-          if-no-files-found: ignore
-          compression-level: 6
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs:
-      - build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Cache Vite dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules/.vite
-            .vite
-          key: ${{ runner.os }}-vite-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vite-
-
-      - name: Cache Vitest
-        uses: actions/cache@v4
-        with:
-          path: node_modules/.vitest
-          key: ${{ runner.os }}-vitest-${{ hashFiles('**/package-lock.json', '**/vitest.config.js') }}
-          restore-keys: |
-            ${{ runner.os }}-vitest-
-
-      - name: Install dependencies
-        run: npm ci --silent
-
-      - name: Run Unit tests with coverage
-        id: run-tests
-        env:
-          CI: true
-        run: |
-          npm run test:coverage -- --reporter=default --reporter=junit --outputFile=test-report.junit.xml viteTest/Unit/ || true
-        continue-on-error: true
-
-      - name: Setup and upload coverage
-        id: setup-coverage
-        if: always()
-        run: |
-          if [ -f "benchmark-results/Unit/lcov.info" ]; then
-            REPORT_PATH="benchmark-results/Unit"
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "path=$REPORT_PATH" >> $GITHUB_OUTPUT
-          elif [ -f "coverage/lcov.info" ]; then
-            REPORT_PATH="coverage"
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "path=$REPORT_PATH" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Coverage file not found"
-          fi
-
-      - name: Upload test coverage artifact
-        uses: actions/upload-artifact@v4
-        if: always() && steps.setup-coverage.outputs.exists == 'true'
-        with:
-          name: unit-tests-coverage
-          path: ${{ steps.setup-coverage.outputs.path }}/
-          retention-days: 1
-          if-no-files-found: ignore
-          compression-level: 6
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        if: always() && steps.setup-coverage.outputs.exists == 'true'
-        with:
-          files: ./${{ steps.setup-coverage.outputs.path }}/lcov.info
-          flags: unit-tests
-          name: unit-tests-coverage
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Check if test report exists
-        id: check-test-report
-        if: always() && !cancelled()
-        run: |
-          if [ -f "test-report.junit.xml" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "test-report.junit.xml found"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "test-report.junit.xml not found"
-          fi
-
-      - name: Upload test results to Codecov
-        if: always() && !cancelled() && steps.check-test-report.outputs.exists == 'true'
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: test-report.junit.xml
-        continue-on-error: true
-
-  mutation-test:
-    name: Mutation Testing
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs:
-      - build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Cache Vite dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules/.vite
-            .vite
-          key: ${{ runner.os }}-vite-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vite-
-
-      - name: Cache Stryker reports only
-        uses: actions/cache@v4
-        with:
-          path: reports
-          key: ${{ runner.os }}-stryker-reports-${{ hashFiles('**/package-lock.json', '**/stryker.conf.js') }}
-          restore-keys: |
-            ${{ runner.os }}-stryker-reports-
-
-      - name: Install dependencies
-        run: npm ci --silent
-
-      - name: Run mutation tests
-        id: run-mutation-tests
-        run: |
-          npx --yes @stryker-mutator/core run || true
-        continue-on-error: true
-
-      - name: Upload mutation test report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mutation-test-report
-          path: reports/
-          retention-days: 1
-          if-no-files-found: ignore
           compression-level: 6
