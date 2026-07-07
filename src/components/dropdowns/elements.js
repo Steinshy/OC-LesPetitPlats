@@ -1,7 +1,5 @@
 // src/components/dropdowns/elements.js
 
-import { normalizeString } from "@utils/normalize.js";
-
 // Main => dropdowns (root container)
 export const dropdownsElements = () => ({
   section: document.getElementById("dropdowns"),
@@ -28,13 +26,4 @@ export const dropdownSearchElements = type => ({
 export const dropdownListElements = type => ({
   menu: document.getElementById(`menu-${type}`),
   itemsList: document.getElementById(`dropdown-${type}-list`),
-  emptyState: document.getElementById(`dropdown-${type}-empty-state`),
 });
-
-// Get selector for a dropdown item button
-export const getDropdownItemSelector = (type, value) =>
-  `.dropdown-item.item-btn[data-type="${type}"][data-value="${normalizeString(value)}"]`;
-
-// Get all selected dropdown items
-export const getSelectedDropdownItems = () =>
-  document.querySelectorAll(".dropdown-item.item-btn.selected");

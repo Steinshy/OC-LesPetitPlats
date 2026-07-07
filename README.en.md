@@ -16,7 +16,7 @@
     🚀 <a href="https://steinshy.github.io/OC-LesPetitPlats/" target="_blank"><strong>Access the online application</strong></a>
   </p>
   <p>
-    <img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" alt="npm">
+    <img src="https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white" alt="pnpm">
     <img src="https://img.shields.io/badge/Node.js-6DA55F?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
     <img src="https://img.shields.io/badge/PWA-enabled-4285F4?style=flat-square&logo=progressive-web-app&logoColor=white" alt="PWA">
     <img src="https://img.shields.io/badge/ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white" alt="ESLint">
@@ -49,13 +49,13 @@ Progressive Web App (PWA) for searching among over 1500 culinary recipes. Instan
 
 ## 🚀 Installation
 
-**Prerequisites:** Node.js 18+ and npm 9+
+**Prerequisites:** Node.js 20+ and pnpm 10+
 
 ```bash
 git clone https://github.com/steinshy/OC-LesPetitPlats.git
 cd LesPetitPlats
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 The application will be accessible at `http://localhost:5173`.
@@ -76,19 +76,19 @@ The application will be accessible at `http://localhost:5173`.
 
 ### Development
 
-- `npm run dev` - Development server
-- `npm run build` - Production build
-- `npm run preview` - Preview the build
+- `pnpm run dev` - Development server
+- `pnpm run build` - Production build
+- `pnpm run preview` - Preview the build
 
 ### Code quality
 
-- `npm run lint` - Code verification (ESLint, Stylelint, HTML, Markdown)
-- `npm run lint:fix` - Automatic ESLint fixes
-- `npm run format` - Code formatting with Prettier
+- `pnpm run lint` - Code verification (ESLint, Stylelint, HTML, Markdown)
+- `pnpm run lint:fix` - Automatic ESLint fixes
+- `pnpm run format` - Code formatting with Prettier
 
 ### Utilities
 
-- `npm run clean` - Clean build folders
+- `pnpm run clean` - Clean build folders
 
 ## 🛠️ Technologies
 
@@ -99,9 +99,9 @@ The application will be accessible at `http://localhost:5173`.
 **Code quality:** ESLint, Stylelint, HTML Validate, Prettier
 
 ```bash
-npm run lint          # Code verification
-npm run lint:fix      # Automatic fixes
-npm run format        # Automatic formatting
+pnpm run lint          # Code verification
+pnpm run lint:fix      # Automatic fixes
+pnpm run format        # Automatic formatting
 ```
 
 ## 🏗️ Architecture & Design Decisions

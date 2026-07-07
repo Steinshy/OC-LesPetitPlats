@@ -20,7 +20,6 @@ const initApp = async () => {
   // Fetch + transform recipes
   try {
     const recipes = await buildRecipes();
-    updateResultsCounter(recipes.length);
     setupHero(recipes);
     cleanups.push(setupDropdowns(recipes));
     cleanups.push(setupCards(recipes));
@@ -37,9 +36,7 @@ const initApp = async () => {
 };
 
 initApp().then(cleanup => {
-  if (import.meta && import.meta.hot) {
-    import.meta.hot.dispose(() => {
-      if (cleanup) cleanup();
-    });
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => cleanup?.());
   }
 });

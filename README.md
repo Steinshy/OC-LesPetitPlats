@@ -16,7 +16,7 @@
     🚀 <a href="https://steinshy.github.io/OC-LesPetitPlats/" target="_blank"><strong>Accéder à l'application en ligne</strong></a>
   </p>
   <p>
-    <img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" alt="npm">
+    <img src="https://img.shields.io/badge/pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white" alt="pnpm">
     <img src="https://img.shields.io/badge/Node.js-6DA55F?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
     <img src="https://img.shields.io/badge/PWA-enabled-4285F4?style=flat-square&logo=progressive-web-app&logoColor=white" alt="PWA">
     <img src="https://img.shields.io/badge/ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white" alt="ESLint">
@@ -48,13 +48,13 @@ Progressive Web App (PWA) permettant de rechercher parmi plus de 1500 recettes c
 
 ## 🚀 Installation
 
-**Prérequis :** Node.js 18+ et npm 9+
+**Prérequis :** Node.js 20+ et pnpm 10+
 
 ```bash
 git clone https://github.com/steinshy/OC-LesPetitPlats.git
 cd LesPetitPlats
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 L'application sera accessible à `http://localhost:5173`.
@@ -75,19 +75,19 @@ L'application sera accessible à `http://localhost:5173`.
 
 ### Développement
 
-- `npm run dev` - Serveur de développement
-- `npm run build` - Build de production
-- `npm run preview` - Prévisualisation du build
+- `pnpm run dev` - Serveur de développement
+- `pnpm run build` - Build de production
+- `pnpm run preview` - Prévisualisation du build
 
 ### Qualité du code
 
-- `npm run lint` - Vérification du code (ESLint, Stylelint, HTML, Markdown)
-- `npm run lint:fix` - Correction automatique ESLint
-- `npm run format` - Formatage du code avec Prettier
+- `pnpm run lint` - Vérification du code (ESLint, Stylelint, HTML, Markdown)
+- `pnpm run lint:fix` - Correction automatique ESLint
+- `pnpm run format` - Formatage du code avec Prettier
 
 ### Utilitaires
 
-- `npm run clean` - Nettoyage des dossiers de build
+- `pnpm run clean` - Nettoyage des dossiers de build
 
 ## 🛠️ Technologies
 
@@ -98,9 +98,9 @@ L'application sera accessible à `http://localhost:5173`.
 **Qualité du code :** ESLint, Stylelint, HTML Validate, Prettier
 
 ```bash
-npm run lint          # Vérification du code
-npm run lint:fix      # Correction automatique
-npm run format        # Formatage automatique
+pnpm run lint          # Vérification du code
+pnpm run lint:fix      # Correction automatique
+pnpm run format        # Formatage automatique
 ```
 
 ## 🏗️ Architecture & Décisions de conception

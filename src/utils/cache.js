@@ -33,30 +33,12 @@ export const cacheSet = (key, value, ttlMs) => {
   appCache.set(key, buildRecord(value, ttlMs));
 };
 
-export const cacheHas = key => getRecord(key) !== undefined;
-
-export const cacheDel = key => appCache.delete(key);
-
 export const cacheGetOrSet = async (key, fetcher, ttlMs) => {
   const cached = cacheGet(key);
   if (cached !== undefined) {
     return cached;
   }
   const result = await fetcher();
-  if (result && typeof result === "object" && "isOk" in result) {
-    if (result.isOk()) {
-      cacheSet(key, result.value, ttlMs);
-    }
-  } else {
-    cacheSet(key, result, ttlMs);
-  }
+  cacheSet(key, result, ttlMs);
   return result;
-};
-
-export const cacheManager = {
-  get: cacheGet,
-  set: cacheSet,
-  has: cacheHas,
-  clear: () => appCache.clear(),
-  delete: cacheDel,
 };
