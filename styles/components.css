@@ -29,6 +29,16 @@
     flex-direction: column;
     min-height: 50vh;
     padding: 0;
+    position: relative;
+  }
+
+  /* Scrim so the white headline stays readable over any hero photo */
+  .hero::before {
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.2) 0%, rgb(0 0 0 / 0.4) 100%);
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
   }
 
   .header-nav {
@@ -184,6 +194,7 @@
     line-height: 1.5;
     position: relative;
     text-shadow: 0 2px 6px rgb(0 0 0 / 0.45);
+    text-wrap: balance;
     z-index: 2;
   }
 
@@ -1308,8 +1319,9 @@
     font-size: var(--font-size-xs);
     font-weight: 600;
     gap: 3px;
-    margin-top: var(--spacing-xs);
-    padding: 0;
+    margin-top: var(--spacing-xxs);
+    min-height: 32px;
+    padding: var(--spacing-xxs) 0;
     transition: all 0.2s ease;
   }
 
@@ -1825,6 +1837,11 @@
       line-height: 1.5;
     }
 
+    /* Let the headline wrap naturally on small screens instead of at the <br> */
+    .header-title h1 br {
+      display: none;
+    }
+
     .dropdown-search {
       background: transparent;
       border-bottom: none;
@@ -2191,7 +2208,13 @@
 
     .footer {
       gap: var(--spacing-xl);
-      padding: var(--spacing-xl) 3%;
+      grid-template-areas:
+        "brand"
+        "nav"
+        "contact"
+        "copy";
+      grid-template-columns: 1fr;
+      padding: var(--spacing-xl) 5%;
     }
 
     .footer-brand,

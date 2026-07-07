@@ -29,9 +29,9 @@ const onSearchInput = query => {
   filtersPipeline.apply();
 };
 
-export const onPopState = () => {
-  const urlFilters = parseURLState();
+const onSearchChanged = ({ query }) => onSearchInput(query);
 
+export const applyURLFiltersToState = urlFilters => {
   updateFilterState.setSearch(urlFilters.search ?? "");
   updateFilterState.clear("ingredients");
   updateFilterState.clear("appliances");
@@ -40,7 +40,10 @@ export const onPopState = () => {
   urlFilters.ingredients?.forEach(value => updateFilterState.add("ingredients", value));
   urlFilters.appliances?.forEach(value => updateFilterState.add("appliances", value));
   urlFilters.utensils?.forEach(value => updateFilterState.add("utensils", value));
+};
 
+export const onPopState = () => {
+  applyURLFiltersToState(parseURLState());
   filtersPipeline.apply(true);
 };
 
@@ -73,7 +76,7 @@ export const filtersInteractions = {
     }
 
     eventBus.on("dropdown:itemToggled", onDropdownItemToggled);
-    eventBus.on("filters:searchChanged", ({ query }) => onSearchInput(query));
+    eventBus.on("filters:searchChanged", onSearchChanged);
   },
 
   cleanup() {
@@ -86,6 +89,6 @@ export const filtersInteractions = {
     }
 
     eventBus.off("dropdown:itemToggled", onDropdownItemToggled);
-    eventBus.off("filters:searchChanged", ({ query }) => onSearchInput(query));
+    eventBus.off("filters:searchChanged", onSearchChanged);
   },
 };

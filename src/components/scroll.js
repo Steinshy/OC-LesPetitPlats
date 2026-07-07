@@ -25,18 +25,6 @@ export const setupScrollLock = () => {
   };
 };
 
-export const lockScroll = () => {
-  scrollLock.lock();
-};
-
-export const unlockScroll = () => {
-  scrollLock.unlock();
-};
-
-export const updateVisibility = () => {
-  scrollToTop.update();
-};
-
 export const scrollToTop = {
   button: getButton(),
   boundOnClick: null,

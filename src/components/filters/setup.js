@@ -1,7 +1,11 @@
 // src/components/filters/setupFilters.js
-import { filtersInteractions, onPopState } from "@components/filters/interactions.js";
+import {
+  applyURLFiltersToState,
+  filtersInteractions,
+  onPopState,
+} from "@components/filters/interactions.js";
 import { filtersPipeline } from "@components/filters/pipeline.js";
-import { filtersState, updateFilterState } from "@components/filters/state.js";
+import { filtersState } from "@components/filters/state.js";
 import { filtersUi } from "@components/filters/ui.js";
 import { searchUi } from "@components/search/manager.js";
 import { eventBus } from "@utils/eventBus.js";
@@ -53,13 +57,6 @@ const restoreFiltersFromURL = () => {
     urlFilters.utensils.size > 0;
 
   if (hasURLFilters) {
-    updateFilterState.setSearch(urlFilters.search ?? "");
-    updateFilterState.clear("ingredients");
-    updateFilterState.clear("appliances");
-    updateFilterState.clear("utensils");
-
-    urlFilters.ingredients?.forEach(value => updateFilterState.add("ingredients", value));
-    urlFilters.appliances?.forEach(value => updateFilterState.add("appliances", value));
-    urlFilters.utensils?.forEach(value => updateFilterState.add("utensils", value));
+    applyURLFiltersToState(urlFilters);
   }
 };

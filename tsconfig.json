@@ -4,18 +4,13 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      // Project
-      "~/*": ["./*"],
-      "@/*": ["./src/*"],
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
-      "@data/*": ["./src/data/*"],
-      "@styles/*": ["./styles/*"],
-      "@scripts/*": ["./scripts/*"]
+      "@styles/*": ["./styles/*"]
     },
     "allowJs": true,
     "checkJs": false,
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "benchmark-results", "temp", "Report"]
+  "exclude": ["node_modules", "dist"]
 }

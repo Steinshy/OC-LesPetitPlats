@@ -20,7 +20,6 @@ export default defineConfig(({ mode }) => {
   return {
     define: { __VITE_VERSION__: JSON.stringify(pkg.version) },
     base: mode === "development" ? "/" : BASE_PATH,
-    root: ".",
     esbuild: {
       drop: mode === "production" ? ["console"] : [],
       legalComments: "none",
@@ -42,9 +41,6 @@ export default defineConfig(({ mode }) => {
         : []),
       tsconfigPaths(),
     ].filter(Boolean),
-    resolve: {
-      dedupe: [],
-    },
     server: {
       port: PORT,
       strictPort: true,
@@ -170,9 +166,6 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: ["tiny-lru", "query-string"],
-      esbuildOptions: {
-        treeShaking: true,
-      },
     },
   };
 });

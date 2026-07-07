@@ -1,1 +1,1 @@
-{"upgrade":true,"target":"minor","doctorTest":"npm run build"}
+{"upgrade":true,"target":"minor","doctorTest":"pnpm run build","packageManager":"pnpm"}
