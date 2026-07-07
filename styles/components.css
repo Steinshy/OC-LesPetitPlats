@@ -194,6 +194,7 @@
     line-height: 1.5;
     position: relative;
     text-shadow: 0 2px 6px rgb(0 0 0 / 0.45);
+    text-wrap: balance;
     z-index: 2;
   }
 
@@ -1834,6 +1835,11 @@
     .header-title h1 {
       font-size: var(--font-size-lg);
       line-height: 1.5;
+    }
+
+    /* Let the headline wrap naturally on small screens instead of at the <br> */
+    .header-title h1 br {
+      display: none;
     }
 
     .dropdown-search {
